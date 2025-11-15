@@ -1,0 +1,15 @@
+jwt:
+  users:
+    key: ${JWT_USERS_KEY:eYO3lM2ZbmOICY3rPDIqsTRVNBOf5PtI}
+    access-token-expiration-in-minutes: 10
+    refresh-token-expiration-in-minutes: 20
+
+cors:
+  allowed-origins: >
+    http://localhost:5173,
+    https://localhost:5173
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.security: DEBUG

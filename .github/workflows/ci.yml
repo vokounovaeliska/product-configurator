@@ -1,0 +1,163 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+  MAVEN_OPTS: '-Dmaven.repo.local=.m2/repository'
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Compile project
+        run: ./mvnw compile -Dskip.flyway.migration=true -Dskip.jooq.generation=true
+
+  ktlint:
+    name: ktlint Check
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run ktlint
+        run: ./mvnw ktlint:check
+
+  unit-test:
+    name: Unit Tests
+    runs-on: ubuntu-22.04
+    needs: compile
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run unit tests
+        run: ./mvnw test -Dskip.flyway.migration=true -Dskip.jooq.generation=true
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-22.04
+    needs: compile
+    services:
+      docker:
+        image: docker:20-dind
+        options: --privileged
+    env:
+      DOCKER_HOST: tcp://localhost:2375
+      DOCKER_TLS_CERTDIR: ""
+      DOCKER_DRIVER: overlay2
+      TESTCONTAINERS_RYUK_DISABLED: "true"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run integration tests
+        run: ./mvnw --no-transfer-progress --batch-mode verify -Dskip.flyway.migration=true -Dskip.jooq.generation=true -DskipUTs
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-logs
+          path: '**/target/test-logs/integration-test.log'
+          retention-days: 1
+
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-22.04
+    needs: [ktlint, unit-test, integration-test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine image tag
+        id: tag
+        run: |
+          TAG="${GITHUB_SHA:0:7}"
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          elif [[ "${{ github.ref }}" == refs/heads/* ]]; then
+            BRANCH_NAME=${GITHUB_REF#refs/heads/}
+            BRANCH_NAME=${BRANCH_NAME//\//-}
+            TAG="${BRANCH_NAME}-${GITHUB_SHA:0:7}"
+          fi
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "Image tag: ${TAG}"
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: configurator-backend:${{ steps.tag.outputs.tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+

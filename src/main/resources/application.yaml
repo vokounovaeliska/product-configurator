@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: Configurator Backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/configuratordb}
+    username: ${DB_USERNAME:configuratoruser}
+    password: ${DB_PASSWORD:configuratorpassword}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-init-sql: SET TIME ZONE "UTC"
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 128MB
+      max-request-size: 130MB
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    db:
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /swagger/api-docs
+  swagger-ui:
+    path: /swagger/ui-docs
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.security: DEBUG
+
+jwt:
+  users:
+    key: ${JWT_USERS_KEY:eYO3lM2ZbmOICY3rPDIqsTRVNBOf5PtI}
+    access-token-expiration-in-minutes: 10
+    refresh-token-expiration-in-minutes: 20
+
+cors:
+  allowed-origins: >
+    http://localhost:5173,
+    https://localhost:5173

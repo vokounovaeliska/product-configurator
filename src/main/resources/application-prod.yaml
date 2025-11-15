@@ -1,0 +1,14 @@
+jwt:
+  users:
+    key: ${JWT_USERS_KEY}
+    access-token-expiration-in-minutes: 10
+    refresh-token-expiration-in-minutes: 20
+
+cors:
+  allowed-origins: >
+    ${CORS_ALLOWED_ORIGINS}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: WARN

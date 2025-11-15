@@ -1,0 +1,31 @@
+spring:
+  main:
+    banner-mode: off
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    de.vogtultrasonics*: debug
+    root: debug
+    org.springframework.security: ERROR
+
+jwt:
+  users:
+    key: "eYO3lM2ZbmOICY3rPDIqsTRVNBOf5PtI"
+    access-token-expiration-in-minutes: 15
+    refresh-token-expiration-in-minutes: 15
+
+sync:
+  job.plans.cron: "-"
+  job.results.cron: "-"
+  tablet.id: 01a329e0-2882-41a6-b9bf-0af00f1cb42a
+
+tablet:
+  measurement:
+    mocked: true
+    enable-ping-loop: false
+  tcp:
+    host: whatever
+    port-command: 1000
+    port-data: 1001
+    port-events: 1002
