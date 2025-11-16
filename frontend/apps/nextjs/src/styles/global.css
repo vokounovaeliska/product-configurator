@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@import "@workspace/ui/globals.css";
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+}

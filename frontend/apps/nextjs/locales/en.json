@@ -1,0 +1,70 @@
+{
+  "Common": {
+    "BaseLayout": {
+      "Header": {
+        "AuthMenu": {
+          "logout": "Logout",
+          "signIn": "Sign In",
+          "signUp": "Sign Up"
+        },
+        "LanguageSwitcher": {
+          "label": "Change language",
+          "values": {
+            "cs": "Czech",
+            "en": "English"
+          }
+        },
+        "Logo": {
+          "description": "Product Configurator"
+        },
+        "ThemeSwitcher": {
+          "label": "Change theme",
+          "values": {
+            "dark": "Dark",
+            "light": "Light",
+            "system": "System"
+          }
+        }
+      },
+      "seo": {
+        "description": "Product Configurator - Configure and customize your products.",
+        "siteName": "Product Configurator"
+      }
+    }
+  },
+  "HomePage": {
+    "description": "This is a product configurator",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "title": "Product Configurator"
+  },
+  "Login": {
+    "email": "E-mail",
+    "errorMessages": {
+      "emailInvalidMessage": "Invalid e-mail format",
+      "emailRequiredMessage": "Please enter an e-mail",
+      "generalError": "Something went wrong",
+      "passwordLengthMessage": "Password must be at least 8 characters",
+      "passwordRequiredMessage": "Please enter a password"
+    },
+    "loginButton": "Login",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "title": "Login"
+  },
+  "Registration": {
+    "email": "E-mail",
+    "errorMessages": {
+      "emailInvalidMessage": "Invalid e-mail format",
+      "emailRequiredMessage": "Please enter an e-mail",
+      "generalError": "Something went wrong",
+      "nameRequiredMessage": "Please enter a name",
+      "passwordLengthMessage": "Password must be at least 8 characters",
+      "passwordRequiredMessage": "Please enter a password"
+    },
+    "loginButton": "Register",
+    "name": "Name",
+    "password": "Password",
+    "title": "Registration"
+  }
+}

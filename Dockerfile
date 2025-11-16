@@ -6,11 +6,11 @@ ARG CI_GITLAB_PAT
 WORKDIR /build
 
 # Copy the mvnw wrapper with executable permissions.
-COPY --chmod=0755 mvnw mvnw
-COPY pom.xml pom.xml
+COPY --chmod=0755 backend/mvnw mvnw
+COPY backend/pom.xml pom.xml
 
 # Copy Maven wrapper and settings (if .mvn directory exists)
-COPY .mvn/ .mvn/
+COPY backend/.mvn/ .mvn/ 2>/dev/null || true
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.m2 so that subsequent builds don't have to
@@ -34,8 +34,8 @@ FROM source AS package
 
 WORKDIR /build
 
-COPY ./src src/
-COPY ./target/generated-sources/jooq target/generated-sources/jooq
+COPY backend/src src/
+COPY backend/target/generated-sources/jooq target/generated-sources/jooq 2>/dev/null || true
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
     --mount=type=cache,target=/root/.m2 \
     if [ -f .mvn/local-settings.xml ]; then \

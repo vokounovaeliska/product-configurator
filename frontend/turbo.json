@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".env*"],
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "storybook-static/**",
+        "dist/**"
+      ]
+    },
+    "start": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "persistent": true
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "type-check": {
+      "outputs": []
+    },
+    "lint:check": {
+      "outputs": []
+    },
+    "lint:fix": {
+      "outputs": []
+    },
+    "format:check": {
+      "outputs": []
+    },
+    "format:fix": {
+      "outputs": []
+    }
+  }
+}

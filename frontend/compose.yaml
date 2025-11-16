@@ -1,0 +1,25 @@
+name: fe-monorepo
+
+services:
+  storybook:
+    image: storybook
+    container_name: storybook
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: apps/storybook/Dockerfile
+    ports:
+      - "3003:3003"
+
+  nextjs:
+    image: nextjs
+    container_name: nextjs
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: apps/nextjs/Dockerfile
+      args:
+        - NEXT_PUBLIC_SITE_URL=http://localhost:3001
+        - ENV_NAME=local 
+    ports:
+      - "3001:3001"

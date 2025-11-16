@@ -1,0 +1,18 @@
+{
+  "name": "@workspace/backend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "mvn clean package -DskipTests -Dskip.flyway.migration=true -Dskip.jooq.generation=true",
+    "dev": "mvn spring-boot:run -Dskip.flyway.migration=true -Dskip.jooq.generation=true",
+    "start": "mvn spring-boot:run -Dskip.flyway.migration=true -Dskip.jooq.generation=true",
+    "test": "mvn test -Dskip.flyway.migration=true -Dskip.jooq.generation=true",
+    "lint:check": "mvn ktlint:check",
+    "lint:fix": "mvn ktlint:format",
+    "format:check": "mvn ktlint:check",
+    "format:fix": "mvn ktlint:format",
+    "migrate": "mvn flyway:migrate -Dflyway.url=\"${DB_URL}\" -Dflyway.user=\"${DB_USERNAME}\" -Dflyway.password=\"${DB_PASSWORD}\"",
+    "jooq:generate": "mvn jooq-codegen:generate -Djooq.url=\"${DB_URL}\" -Djooq.user=\"${DB_USERNAME}\" -Djooq.password=\"${DB_PASSWORD}\""
+  }
+}
+

@@ -1,65 +1,35 @@
-# Universal Product Configurator Backend
+# Configurator Monorepo
 
-Kotlin Spring Boot backend for a product configurator and inquiry system.
+Monorepo containing backend (Kotlin Spring Boot) and frontend (Next.js) applications.
 
 ## Prerequisites
 
+- Node.js >= 22
+- pnpm 10.6.5
 - Java 21
-- Maven 3.8+ (or use `./mvnw`)
 - Docker & Docker Compose
 
 ## Quick Start
 
 ```bash
-# 1. Start database
-docker-compose -f docker-compose.dev.yaml up -d
+# First time setup
+pnpm install
+cp backend/.env.dev backend/.env
+cp frontend/apps/nextjs/.env.example frontend/apps/nextjs/.env
 
-# 2. Build the project
-mvn clean install -Dspring.datasource.url=jdbc:postgresql://localhost:5432/configuratordb -Dspring.datasource.username=configuratoruser -Dspring.datasource.password=configuratorpassword -DskipTests
-
-# 3. Run the application
-mvn spring-boot:run
+# Daily workflow
+pnpm db:up              # Start database
+pnpm backend:migrate    # Run migrations + generate jOOQ
+pnpm backend:dev       # Start backend (port 8080)
+pnpm frontend:dev       # Start Next.js frontend (port 3001)
 ```
 
-Application available at `http://localhost:8080`
+## Available Commands
 
-## Configuration
+- `pnpm db:up` / `pnpm db:down` - Start/stop database
+- `pnpm backend:migrate` - Run migrations + generate jOOQ code
+- `pnpm backend:dev` - Start backend
+- `pnpm frontend:dev` - Start Next.js app
+- `pnpm api:generate` - Generate TypeScript types from OpenAPI
 
-Set environment variables or use defaults in `application.yaml`:
-
-- `DB_URL` - Database connection URL (default: `jdbc:postgresql://localhost:5432/configuratordb`)
-- `DB_USERNAME` - Database user (default: `configuratoruser`)
-- `DB_PASSWORD` - Database password (default: `configuratorpassword`)
-- `SPRING_PROFILES_ACTIVE` - Active profiles (default: `dev`)
-
-## API Documentation
-
-- Swagger UI: http://localhost:8080/swagger/ui-docs
-- Health Check: http://localhost:8080/actuator/health
-
-## Project Structure
-
-Single-module Maven project with feature modules as packages:
-
-- `products/` - Product configuration features
-- `users/` - User management
-- `shared/` - Shared utilities
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed architecture guidelines.
-
-## Testing
-
-```bash
-# All tests
-./mvnw test
-
-# Unit tests only
-./mvnw test -Dtest=**/unit/**/*
-
-# Integration tests only
-./mvnw test -Dtest=**/integration/**/*
-```
-
-## Deployment
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for deployment to Railway, Supabase, and Vercel/Netlify.
+See [START.md](./START.md) for detailed workflow.

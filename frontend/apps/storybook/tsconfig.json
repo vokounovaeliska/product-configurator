@@ -1,0 +1,5 @@
+{
+  "extends": "@workspace/typescript-config/react-app.json",
+  "include": ["src/**/*", ".storybook/**/*"],
+  "exclude": ["dist", "build", "node_modules"]
+}

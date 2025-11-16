@@ -33,10 +33,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Compile project
+        working-directory: ./backend
         run: ./mvnw compile -Dskip.flyway.migration=true -Dskip.jooq.generation=true
 
   ktlint:
@@ -56,10 +57,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run ktlint
+        working-directory: ./backend
         run: ./mvnw ktlint:check
 
   unit-test:
@@ -80,10 +82,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run unit tests
+        working-directory: ./backend
         run: ./mvnw test -Dskip.flyway.migration=true -Dskip.jooq.generation=true
 
   integration-test:
@@ -113,10 +116,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run integration tests
+        working-directory: ./backend
         run: ./mvnw --no-transfer-progress --batch-mode verify -Dskip.flyway.migration=true -Dskip.jooq.generation=true -DskipUTs
 
       - name: Upload test logs
@@ -155,9 +159,40 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
+          file: ./backend/Dockerfile
           push: false
           tags: configurator-backend:${{ steps.tag.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.6.5'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend apps
+        run: pnpm turbo build --filter=nextjs --filter=storybook
+
+      - name: Type check frontend
+        run: pnpm turbo type-check --filter=nextjs --filter=storybook
+
+      - name: Lint check frontend
+        run: pnpm turbo lint:check --filter=nextjs --filter=storybook
 

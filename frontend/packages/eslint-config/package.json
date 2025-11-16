@@ -1,0 +1,31 @@
+{
+  "name": "@workspace/eslint-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./base": "./base.js",
+    "./next-js": "./next.js",
+    "./react-internal": "./react-internal.js",
+    "./tanstack-router": "./tanstack-router.js"
+  },
+  "peerDependencies": {
+    "@eslint/js": ">=9.23",
+    "@next/eslint-plugin-next": ">=15.2",
+    "@typescript-eslint/eslint-plugin": ">=8.28",
+    "@typescript-eslint/parser": ">=8.28",
+    "eslint": ">=9.23",
+    "eslint-plugin-react": ">=7.37",
+    "eslint-plugin-react-hooks": ">=5.2",
+    "eslint-plugin-turbo": ">=2.4",
+    "globals": ">=15",
+    "typescript": ">=5.7",
+    "typescript-eslint": ">=8.28",
+    "@tanstack/eslint-plugin-query": ">=5.68",
+    "@tanstack/eslint-plugin-router": ">=1.114",
+    "@vitest/eslint-plugin": ">=1.1",
+    "eslint-import-resolver-typescript": ">=4.2",
+    "eslint-plugin-import": ">=2.31",
+    "eslint-plugin-jsx-a11y": ">=6.10"
+  }
+}

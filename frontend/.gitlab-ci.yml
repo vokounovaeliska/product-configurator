@@ -1,0 +1,63 @@
+stages:
+  - setup
+  - code-quality
+  - build
+
+default:
+  image: node:22.14.0
+
+variables:
+  NEXTJS_IMAGE: configurator/nextjs:latest
+  STORYBOOK_IMAGE: configurator/storybook:latest
+  PROD_URL: "https://localhost:3001"
+  ENV_NAME: "staging"
+
+.pre_job:
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@10.7.1 --activate
+
+setup:
+  extends: .pre_job
+  stage: setup
+  script:
+    - pnpm i --frozen-lockfile
+  artifacts:
+    paths:
+      - "**/**/node_modules/"
+
+lint:
+  extends: .pre_job
+  stage: code-quality
+  script:
+    - pnpm run lint:check --ui=stream
+  dependencies:
+    - setup
+
+prettier:
+  extends: .pre_job
+  stage: code-quality
+  script:
+    - pnpm run format:check --ui=stream
+  dependencies:
+    - setup
+
+type-check:
+  extends: .pre_job
+  stage: code-quality
+  script:
+    - pnpm run type-check --ui=stream
+  dependencies:
+    - setup
+
+build:
+  extends: .pre_job
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "merge_request_event"
+      when: on_success
+  stage: build
+  script:
+    - cp ./apps/nextjs/.env.example ./apps/nextjs/.env
+    - pnpm run build --ui=stream
+  dependencies:
+    - setup

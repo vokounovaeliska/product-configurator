@@ -1,0 +1,69 @@
+{
+  "Common": {
+    "BaseLayout": {
+      "Header": {
+        "AuthMenu": {
+          "logout": "Odhlásit",
+          "signIn": "Přihlásit",
+          "signUp": "Registrovat"
+        },
+        "LanguageSwitcher": {
+          "label": "Změnit jazyk",
+          "values": {
+            "cs": "Čeština",
+            "en": "Angličtina"
+          }
+        },
+        "Logo": {
+          "description": "Konfigurátor produktů"
+        },
+        "ThemeSwitcher": {
+          "label": "Změnit téma",
+          "values": {
+            "dark": "Tmavý",
+            "light": "Světlý",
+            "system": "Systém"
+          }
+        }
+      },
+      "seo": {
+        "description": "Konfigurátor produktů - Konfigurujte a přizpůsobujte své produkty.",
+        "siteName": "Konfigurátor produktů"
+      }
+    }
+  },
+  "HomePage": {
+    "description": "Toto je konfigurátor produktů",
+    "loginButton": "Přihlásit",
+    "registerButton": "Registrovat",
+    "title": "Konfigurátor produktů"
+  },
+  "Login": {
+    "email": "E-mail",
+    "errorMessages": {
+      "emailInvalidMessage": "Neplatný formát emailu",
+      "emailRequiredMessage": "Zadejte e-mail",
+      "generalError": "Něco se pokazilo",
+      "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
+      "passwordRequiredMessage": "Zadejte heslo"
+    },
+    "loginButton": "Přihlásit",
+    "password": "Heslo",
+    "rememberMe": "Zapamatovat si mě",
+    "title": "Přihlášení"
+  },
+  "Registration": {
+    "email": "E-mail",
+    "errorMessages": {
+      "emailInvalidMessage": "Neplatný formát emailu",
+      "emailRequiredMessage": "Zadejte e-mail",
+      "nameRequiredMessage": "Zadejte jméno",
+      "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
+      "passwordRequiredMessage": "Zadejte heslo"
+    },
+    "loginButton": "Registrovat",
+    "name": "Jméno",
+    "password": "Heslo",
+    "title": "Registrace"
+  }
+}
