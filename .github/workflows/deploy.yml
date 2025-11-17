@@ -65,11 +65,19 @@ jobs:
           curl -fsSL https://railway.app/install.sh | sh > /dev/null 2>&1
           echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
-      - name: Deploy to Railway
+      - name: Deploy Backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./backend
         run: |
           railway login --token $RAILWAY_TOKEN > /dev/null 2>&1
           railway up --quiet
+
+      - name: Deploy Frontend to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        working-directory: ./frontend
+        run: |
+          railway login --token $RAILWAY_TOKEN > /dev/null 2>&1
+          railway up --service nextjs --quiet
 

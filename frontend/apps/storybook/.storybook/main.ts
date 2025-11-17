@@ -2,6 +2,7 @@ import { createRequire } from "module"
 import { dirname, join } from "path"
 import type { StorybookConfig } from "@storybook/react-vite"
 import type { UserConfig } from "vite"
+import viteTsconfigPaths from "vite-tsconfig-paths"
 
 const require = createRequire(import.meta.url)
 
@@ -51,6 +52,7 @@ const config: StorybookConfig = {
       },
       plugins: [
         ...(config.plugins || []),
+        viteTsconfigPaths(),
         {
           name: "remove-use-client",
           transform(code: string) {

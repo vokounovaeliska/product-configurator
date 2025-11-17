@@ -27,6 +27,9 @@ node_modules/
 .pnpm-store/
 .pnpm-debug.log
 
+### Turborepo ###
+.turbo/
+
 ### Next.js ###
 .next/
 **/.next/
