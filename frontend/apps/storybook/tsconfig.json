@@ -1,5 +1,10 @@
 {
-  "extends": "@workspace/typescript-config/react-app.json",
+  "extends": "../../packages/typescript-config/react-app.json",
   "include": ["src/**/*", ".storybook/**/*"],
-  "exclude": ["dist", "build", "node_modules"]
+  "exclude": ["dist", "build", "node_modules"],
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2024"
+  }
 }
