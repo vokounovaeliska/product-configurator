@@ -37,21 +37,16 @@ jobs:
         env:
           DB_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
         run: |
-          # Parse connection string: postgresql://user:password@host:port/database
           DB_URL="${{ secrets.SUPABASE_DATABASE_URL }}"
-          # Remove postgresql:// prefix
           DB_URL="${DB_URL#postgresql://}"
-          # Extract user and password
           USER_PASS="${DB_URL%%@*}"
           USER="${USER_PASS%%:*}"
           PASSWORD="${USER_PASS#*:}"
-          # Extract host, port and database
           HOST_PORT_DB="${DB_URL#*@}"
           HOST_PORT="${HOST_PORT_DB%%/*}"
           DATABASE="${HOST_PORT_DB#*/}"
           HOST="${HOST_PORT%%:*}"
           PORT="${HOST_PORT##*:}"
-          
           echo "FLYWAY_URL=jdbc:postgresql://${HOST}:${PORT}/${DATABASE}" >> $GITHUB_ENV
           echo "FLYWAY_USER=${USER}" >> $GITHUB_ENV
           echo "FLYWAY_PASSWORD=${PASSWORD}" >> $GITHUB_ENV
@@ -59,7 +54,7 @@ jobs:
       - name: Run Supabase Migrations
         working-directory: ./backend
         run: |
-          ./mvnw flyway:migrate \
+          ./mvnw --batch-mode --quiet flyway:migrate \
             -Dflyway.url="${FLYWAY_URL}" \
             -Dflyway.user="${FLYWAY_USER}" \
             -Dflyway.password="${FLYWAY_PASSWORD}" \
@@ -67,7 +62,7 @@ jobs:
 
       - name: Install Railway CLI
         run: |
-          curl -fsSL https://railway.app/install.sh | sh
+          curl -fsSL https://railway.app/install.sh | sh > /dev/null 2>&1
           echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
       - name: Deploy to Railway
@@ -75,6 +70,6 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./backend
         run: |
-          railway login --token $RAILWAY_TOKEN
-          railway up
+          railway login --token $RAILWAY_TOKEN > /dev/null 2>&1
+          railway up --quiet
 

@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { fileURLToPath } from "url"
-import { dirname, resolve } from "path"
+import { dirname, join, resolve } from "path"
 import type { NextConfig } from "next"
 import createNextIntlPlugin from "next-intl/plugin"
 
@@ -10,6 +10,8 @@ const __dirname = dirname(__filename)
 
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
+  // Set output file tracing root to fix workspace detection in monorepo
+  outputFileTracingRoot: join(__dirname, "../.."),
   images: { remotePatterns: [{ protocol: "http", hostname: "minio" }] },
   webpack(config) {
     // Grab the existing rule that handles SVG imports
@@ -39,7 +41,8 @@ const nextConfig = {
   },
 } satisfies NextConfig
 
-// Use absolute path to ensure it works in all environments (local, CI, etc.)
+// Use absolute path resolved from config file location
+// This ensures it works in all environments (local, CI, etc.)
 const i18nConfigPath = resolve(__dirname, "src/lib/i18n/request.ts")
 const withNextIntl = createNextIntlPlugin(i18nConfigPath)
 
