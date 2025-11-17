@@ -81,5 +81,7 @@ tmp/
 temp/
 data/
 lib/
+!frontend/**/lib/
+!backend/**/lib/
 test_outputs/
 
