@@ -186,6 +186,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --silent
 
+      - name: Debug i18n config path
+        working-directory: ./frontend/apps/nextjs
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Checking for i18n config file..."
+          ls -la src/lib/i18n/request.ts || echo "File not found at relative path"
+          echo "Absolute path would be: $(pwd)/src/lib/i18n/request.ts"
+          test -f src/lib/i18n/request.ts && echo "✓ File exists" || echo "✗ File NOT found"
+          echo ""
+          echo "Searching for all request.ts files in the repository:"
+          find . -name "request.ts" -type f 2>/dev/null | head -20 || echo "No request.ts files found"
+          echo ""
+          echo "Checking i18n directory structure:"
+          ls -la src/lib/i18n/ 2>/dev/null || echo "i18n directory not found"
+
       - name: Build frontend apps
         run: pnpm turbo build --filter=nextjs --filter=storybook --output-logs=errors-only
 

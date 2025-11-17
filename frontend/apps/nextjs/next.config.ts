@@ -1,6 +1,6 @@
 /* eslint-disable */
 import {fileURLToPath} from "url"
-import {dirname, join} from "path"
+import {dirname, join, resolve} from "path"
 import type {NextConfig} from "next"
 import createNextIntlPlugin from "next-intl/plugin"
 
@@ -41,9 +41,10 @@ const nextConfig = {
     },
 } satisfies NextConfig
 
-// Use relative path from Next.js project root (where this config file is located)
-// next-intl resolves paths relative to the project root where next.config.ts exists
-// This works consistently in all environments (local, CI, Docker) regardless of working directory
-const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts")
+// Resolve absolute path from config file location
+// This ensures it works in all environments (local, CI, Docker) regardless of working directory
+// next-intl accepts absolute paths and this is more reliable in CI environments
+const i18nConfigPath = resolve(__dirname, "src/lib/i18n/request.ts")
+const withNextIntl = createNextIntlPlugin(i18nConfigPath)
 
 export default withNextIntl(nextConfig)
