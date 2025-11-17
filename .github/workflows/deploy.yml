@@ -1,0 +1,80 @@
+name: Deploy to Railway and Supabase
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+  MAVEN_OPTS: '-Dmaven.repo.local=.m2/repository'
+
+jobs:
+  deploy:
+    name: Deploy to Railway and Run Supabase Migrations
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Parse Supabase Connection String
+        id: parse-db
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          # Parse connection string: postgresql://user:password@host:port/database
+          DB_URL="${{ secrets.SUPABASE_DATABASE_URL }}"
+          # Remove postgresql:// prefix
+          DB_URL="${DB_URL#postgresql://}"
+          # Extract user and password
+          USER_PASS="${DB_URL%%@*}"
+          USER="${USER_PASS%%:*}"
+          PASSWORD="${USER_PASS#*:}"
+          # Extract host, port and database
+          HOST_PORT_DB="${DB_URL#*@}"
+          HOST_PORT="${HOST_PORT_DB%%/*}"
+          DATABASE="${HOST_PORT_DB#*/}"
+          HOST="${HOST_PORT%%:*}"
+          PORT="${HOST_PORT##*:}"
+          
+          echo "FLYWAY_URL=jdbc:postgresql://${HOST}:${PORT}/${DATABASE}" >> $GITHUB_ENV
+          echo "FLYWAY_USER=${USER}" >> $GITHUB_ENV
+          echo "FLYWAY_PASSWORD=${PASSWORD}" >> $GITHUB_ENV
+
+      - name: Run Supabase Migrations
+        working-directory: ./backend
+        run: |
+          ./mvnw flyway:migrate \
+            -Dflyway.url="${FLYWAY_URL}" \
+            -Dflyway.user="${FLYWAY_USER}" \
+            -Dflyway.password="${FLYWAY_PASSWORD}" \
+            -Dskip.jooq.generation=true
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        working-directory: ./backend
+        run: |
+          railway login --token $RAILWAY_TOKEN
+          railway up
+
