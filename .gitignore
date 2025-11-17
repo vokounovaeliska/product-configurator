@@ -1,7 +1,14 @@
 HELP.md
 
 ### Maven ###
-target/
+# Ignore target directories, but allow jOOQ generated sources in backend
+target/*
+!backend/target/
+backend/target/*
+!backend/target/generated-sources/
+backend/target/generated-sources/*
+!backend/target/generated-sources/jooq/
+!backend/target/generated-sources/jooq/**
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -73,8 +80,3 @@ data/
 lib/
 test_outputs/
 
-### jOOQ generated sources (keep structure but ignore content) ###
-/target/*
-!/target/generated-sources
-/target/generated-sources/*
-!/target/generated-sources/jooq

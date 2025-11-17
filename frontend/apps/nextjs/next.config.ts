@@ -1,6 +1,12 @@
 /* eslint-disable */
+import { fileURLToPath } from "url"
+import { dirname, resolve } from "path"
 import type { NextConfig } from "next"
 import createNextIntlPlugin from "next-intl/plugin"
+
+// Get __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
@@ -33,6 +39,8 @@ const nextConfig = {
   },
 } satisfies NextConfig
 
-const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts")
+// Use absolute path to ensure it works in all environments (local, CI, etc.)
+const i18nConfigPath = resolve(__dirname, "src/lib/i18n/request.ts")
+const withNextIntl = createNextIntlPlugin(i18nConfigPath)
 
 export default withNextIntl(nextConfig)

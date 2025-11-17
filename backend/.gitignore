@@ -5,8 +5,12 @@
 .env.*
 !.env.example
 
-# Maven
-target/
+# Maven - ignore target but keep jOOQ generated sources
+target/*
+!target/generated-sources/
+target/generated-sources/*
+!target/generated-sources/jooq/
+!target/generated-sources/jooq/**
 .mvn/wrapper/maven-wrapper.jar
 
 # IDE
