@@ -14,7 +14,6 @@ jobs:
   deploy:
     name: Deploy to Railway and Run Supabase Migrations
     runs-on: ubuntu-22.04
-    # Allow deployment from main branch or manual workflow dispatch from any branch
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
 
     steps:
@@ -34,23 +33,20 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Build Flyway JDBC URL directly from Supabase URL
-      - name: Set Flyway env from Supabase URL
-        env:
-          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+      # Build Flyway URL from separate secrets
+      - name: Set Flyway env vars
         run: |
-          # SUPABASE_DATABASE_URL example:
-          # postgresql://postgres:YOUR_PASSWORD@db.memhwmoymcinxuvcthfz.supabase.co:5432/postgres
-          DB_URL="${SUPABASE_DATABASE_URL}"
-          echo "Using Supabase DB URL (masked in logs)"
-          # Build JDBC URL with SSL required
-          echo "FLYWAY_URL=jdbc:${DB_URL}?sslmode=require" >> "$GITHUB_ENV"
+          echo "FLYWAY_URL=jdbc:postgresql://${{ secrets.SUPABASE_DB_HOST }}:${{ secrets.SUPABASE_DB_PORT }}/${{ secrets.SUPABASE_DB_NAME }}?sslmode=require" >> "$GITHUB_ENV"
+          echo "FLYWAY_USER=${{ secrets.SUPABASE_DB_USER }}" >> "$GITHUB_ENV"
+          echo "FLYWAY_PASSWORD=${{ secrets.SUPABASE_DB_PASSWORD }}" >> "$GITHUB_ENV"
 
       - name: Run Supabase Migrations
         working-directory: ./backend
         run: |
           ./mvnw --batch-mode --quiet flyway:migrate \
             -Dflyway.url="${FLYWAY_URL}" \
+            -Dflyway.user="${FLYWAY_USER}" \
+            -Dflyway.password="${FLYWAY_PASSWORD}" \
             -Dskip.jooq.generation=true
 
       - name: Install Railway CLI
