@@ -51,8 +51,8 @@ jobs:
           [ -z "$DB_PORT" ] && DB_PORT="6543"
           [ -z "$DB_NAME" ] && DB_NAME="postgres"
           
-          # Build JDBC URL
-          echo "FLYWAY_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&pgbouncer=true" >> "$GITHUB_ENV"
+          # Build JDBC URL - disable prepared statements for pgbouncer compatibility
+          echo "FLYWAY_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&prepareThreshold=0" >> "$GITHUB_ENV"
           echo "FLYWAY_USER=${DB_USER}" >> "$GITHUB_ENV"
           echo "FLYWAY_PASSWORD=${DB_PASSWORD}" >> "$GITHUB_ENV"
 
@@ -77,14 +77,14 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./backend
         run: |
-          $HOME/.railway/bin/railway login --token "$RAILWAY_TOKEN"
-          $HOME/.railway/bin/railway up
+          railway login --token "$RAILWAY_TOKEN"
+          railway up
 
       - name: Deploy frontend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./frontend
         run: |
-          $HOME/.railway/bin/railway login --token "$RAILWAY_TOKEN"
-          $HOME/.railway/bin/railway up --service nextjs
+          railway login --token "$RAILWAY_TOKEN"
+          railway up --service nextjs
 
