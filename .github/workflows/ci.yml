@@ -38,7 +38,7 @@ jobs:
 
       - name: Compile project
         working-directory: ./backend
-        run: ./mvnw compile -Dskip.flyway.migration=true -Dskip.jooq.generation=true
+        run: ./mvnw --batch-mode --quiet compile -Dskip.flyway.migration=true -Dskip.jooq.generation=true
 
   ktlint:
     name: ktlint Check
@@ -62,7 +62,7 @@ jobs:
 
       - name: Run ktlint
         working-directory: ./backend
-        run: ./mvnw ktlint:check
+        run: ./mvnw --batch-mode --quiet ktlint:check
 
   unit-test:
     name: Unit Tests
@@ -87,7 +87,7 @@ jobs:
 
       - name: Run unit tests
         working-directory: ./backend
-        run: ./mvnw test -Dskip.flyway.migration=true -Dskip.jooq.generation=true
+        run: ./mvnw --batch-mode --quiet test -Dskip.flyway.migration=true -Dskip.jooq.generation=true
 
   integration-test:
     name: Integration Tests
@@ -154,7 +154,6 @@ jobs:
             TAG="${BRANCH_NAME}-${GITHUB_SHA:0:7}"
           fi
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
-          echo "Image tag: ${TAG}"
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
@@ -185,14 +184,20 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --silent
 
       - name: Build frontend apps
-        run: pnpm turbo build --filter=nextjs --filter=storybook
+        env:
+          NEXT_PUBLIC_SITE_URL: http://localhost:3001
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          NEXT_PUBLIC_BE_URL: http://localhost:8080
+          NEXT_PUBLIC_REST_API_URL: http://localhost:8080
+          ENV_NAME: local
+        run: pnpm turbo build --filter=nextjs --filter=storybook --output-logs=errors-only
 
       - name: Type check frontend
-        run: pnpm turbo type-check --filter=nextjs --filter=storybook
+        run: pnpm turbo type-check --filter=nextjs --filter=storybook --output-logs=errors-only
 
       - name: Lint check frontend
-        run: pnpm turbo lint:check --filter=nextjs --filter=storybook
+        run: pnpm turbo lint:check --filter=nextjs --filter=storybook --output-logs=errors-only
 
