@@ -14,7 +14,8 @@ jobs:
   deploy:
     name: Deploy to Railway and Run Supabase Migrations
     runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/main'
+    # Allow deployment from main branch or manual workflow dispatch from any branch
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
