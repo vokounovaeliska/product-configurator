@@ -45,8 +45,6 @@ jobs:
         run: |
           ./mvnw --batch-mode --quiet flyway:migrate \
             -Dflyway.url="${FLYWAY_URL}" \
-            -Dflyway.user="${FLYWAY_USER}" \
-            -Dflyway.password="${FLYWAY_PASSWORD}" \
             -Dskip.jooq.generation=true
 
       - name: Install Railway CLI
