@@ -42,9 +42,16 @@ postgresql://postgres.memhwmoymcinxuvcthfz:[PASSWORD]@aws-1-eu-west-1.pooler.sup
 ```
 
 - **`RAILWAY_TOKEN`**: Railway API token
-    - Go to Railway dashboard → **Settings** → **Tokens**
-    - Create a new token and copy it
+    - Go to Railway dashboard → Click your profile icon (top right) → **Settings** → **Tokens**
+    - Or go directly to: https://railway.app/account/tokens
+    - Click **New Token** → Give it a name → Copy the token
     - This token is used to authenticate Railway CLI in GitHub Actions
+
+- **`RAILWAY_PROJECT_ID`**: Railway project ID
+    - Go to Railway dashboard → Open your project → **Settings** → **General**
+    - The **Project ID** is shown in the General settings
+    - Or check the URL: `https://railway.app/project/[PROJECT_ID]` - the ID is in the URL
+    - This ID tells Railway which project to deploy to
 
 ## Railway Setup
 

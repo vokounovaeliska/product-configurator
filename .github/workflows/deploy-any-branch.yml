@@ -77,14 +77,14 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./backend
         run: |
-          railway link --project ${{ secrets.RAILWAY_PROJECT_ID }} --non-interactive || true
-          railway up
+          railway link --project ${{ secrets.RAILWAY_PROJECT_ID }} --service backend || true
+          railway up --service backend
 
       - name: Deploy frontend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./frontend
         run: |
-          railway link --project ${{ secrets.RAILWAY_PROJECT_ID }} --non-interactive || true
+          railway link --project ${{ secrets.RAILWAY_PROJECT_ID }} --service nextjs || true
           railway up --service nextjs
 
