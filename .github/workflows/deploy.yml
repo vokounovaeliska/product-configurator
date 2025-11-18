@@ -72,13 +72,11 @@ jobs:
       - name: Deploy backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        working-directory: ./backend
         run: |
           railway up --project ${{ secrets.RAILWAY_PROJECT_ID }} --service backend
 
       - name: Deploy frontend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        working-directory: ./frontend
         run: |
           railway up --project ${{ secrets.RAILWAY_PROJECT_ID }} --service nextjs
