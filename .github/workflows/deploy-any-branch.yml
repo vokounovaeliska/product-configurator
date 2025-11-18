@@ -36,40 +36,25 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Build Flyway URL from separate secrets
-      # Use connection pooler (port 6543) for better reliability with external connections
-      # User format should be: postgres.tenant-id (e.g., postgres.memhwmoymcinxuvcthfz)
-      # Host should be pooler host: aws-X-region.pooler.supabase.com
+      # Build Flyway connection from secrets
+      # Required: SUPABASE_DB_HOST, SUPABASE_DB_USER, SUPABASE_DB_PASSWORD
+      # Optional: SUPABASE_DB_PORT (defaults to 6543), SUPABASE_DB_NAME (defaults to postgres)
       - name: Set Flyway env vars
         run: |
+          DB_HOST="${{ secrets.SUPABASE_DB_HOST }}"
+          DB_USER="${{ secrets.SUPABASE_DB_USER }}"
+          DB_PASSWORD="${{ secrets.SUPABASE_DB_PASSWORD }}"
           DB_PORT="${{ secrets.SUPABASE_DB_PORT }}"
-          if [ -z "$DB_PORT" ]; then
-            DB_PORT="6543"
-            echo "Using connection pooler port 6543 (transaction mode - recommended for migrations)"
-          fi
-          # Build JDBC URL with pgbouncer parameter for connection pooler
-          echo "FLYWAY_URL=jdbc:postgresql://${{ secrets.SUPABASE_DB_HOST }}:${DB_PORT}/${{ secrets.SUPABASE_DB_NAME }}?sslmode=require&pgbouncer=true" >> "$GITHUB_ENV"
-          echo "FLYWAY_USER=${{ secrets.SUPABASE_DB_USER }}" >> "$GITHUB_ENV"
-          echo "FLYWAY_PASSWORD=${{ secrets.SUPABASE_DB_PASSWORD }}" >> "$GITHUB_ENV"
-          echo "DB_HOST=${{ secrets.SUPABASE_DB_HOST }}" >> "$GITHUB_ENV"
-          echo "DB_PORT=${DB_PORT}" >> "$GITHUB_ENV"
-
-      # Test database connectivity before running migrations
-      - name: Test database connectivity
-        run: |
-          echo "Testing connection to $DB_HOST:$DB_PORT..."
-          # Use bash built-in /dev/tcp for connectivity test (more reliable than netcat)
-          timeout 30 bash -c 'until timeout 2 bash -c "echo > /dev/tcp/$DB_HOST/$DB_PORT" 2>/dev/null; do sleep 2; done' || {
-            echo "::error::Cannot reach database at $DB_HOST:$DB_PORT"
-            echo "::error::Please verify:"
-            echo "::error::1. Database is not paused (check Supabase dashboard)"
-            echo "::error::2. Using connection pooler host: aws-X-region.pooler.supabase.com (NOT db.xxxxx.supabase.co)"
-            echo "::error::3. User format includes tenant ID: postgres.tenant-id (NOT just postgres)"
-            echo "::error::4. Port is 6543 for transaction mode (or 5432 for session mode)"
-            echo "::error::5. Host, user, and port are correct in GitHub secrets"
-            exit 1
-          }
-          echo "✓ Database is reachable"
+          DB_NAME="${{ secrets.SUPABASE_DB_NAME }}"
+          
+          # Set defaults
+          [ -z "$DB_PORT" ] && DB_PORT="6543"
+          [ -z "$DB_NAME" ] && DB_NAME="postgres"
+          
+          # Build JDBC URL
+          echo "FLYWAY_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&pgbouncer=true" >> "$GITHUB_ENV"
+          echo "FLYWAY_USER=${DB_USER}" >> "$GITHUB_ENV"
+          echo "FLYWAY_PASSWORD=${DB_PASSWORD}" >> "$GITHUB_ENV"
 
       - name: Run Supabase migrations
         working-directory: ./backend

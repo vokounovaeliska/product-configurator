@@ -17,30 +17,29 @@ You need to configure the following secrets in your GitHub repository:
 
 ### Required Secrets
 
-The workflow uses separate secrets for better security and flexibility. Add these secrets:
+You need **3 required secrets** and 2 optional ones:
 
-- **`SUPABASE_DB_HOST`**: Your Supabase connection pooler host
-    - Format: `aws-X-region.pooler.supabase.com` (e.g., `aws-1-eu-west-1.pooler.supabase.com`)
-    - **Important**: Use the **Connection Pooler** host, NOT the direct database host
-    - Find this in Supabase connection → **Settings** → **Database** → **Connection Pooler** → **Connection string**
+**Required:**
+- **`SUPABASE_DB_HOST`**: Connection pooler host
     - Example: `aws-1-eu-west-1.pooler.supabase.com`
+    - Find in Supabase → **Settings** → **Database** → **Connection Pooler**
 
-- **`SUPABASE_DB_PORT`**: Database port (optional, defaults to 6543)
-    - **Recommended**: `6543` (Connection Pooler - Transaction mode, best for migrations)
-    - Alternative: `5432` (Session mode on pooler, also works but 6543 is preferred)
-    - If not set, the workflow defaults to `6543` (pooler port)
-
-- **`SUPABASE_DB_NAME`**: Database name (usually `postgres`)
-
-- **`SUPABASE_DB_USER`**: Database user with tenant ID
+- **`SUPABASE_DB_USER`**: User with tenant ID
     - Format: `postgres.tenant-id` (e.g., `postgres.memhwmoymcinxuvcthfz`)
-    - **Important**: Must include the tenant ID after the dot
-    - Find this in Supabase dashboard → **Settings** → **Database** → **Connection Pooler** → **Connection string**
-    - The user format is: `postgres.` followed by your project reference ID
+    - Find in the connection pooler connection string
 
 - **`SUPABASE_DB_PASSWORD`**: Database password
-    - This is your database password, NOT your Supabase API keys
-    - Find this in Supabase dashboard → **Settings** → **Database** → **Database password**
+    - Your database password (NOT API keys)
+    - Find in Supabase → **Settings** → **Database** → **Database password**
+
+**Optional (have defaults):**
+- **`SUPABASE_DB_PORT`**: Port (defaults to `6543` if not set)
+- **`SUPABASE_DB_NAME`**: Database name (defaults to `postgres` if not set)
+
+**Example connection string format:**
+```
+postgresql://postgres.memhwmoymcinxuvcthfz:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
+```
 
 - **`RAILWAY_TOKEN`**: Railway API token
     - Go to Railway dashboard → **Settings** → **Tokens**
