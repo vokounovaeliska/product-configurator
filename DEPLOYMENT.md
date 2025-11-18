@@ -17,10 +17,30 @@ You need to configure the following secrets in your GitHub repository:
 
 ### Required Secrets
 
-- **`SUPABASE_DATABASE_URL`**: Full PostgreSQL connection string
-    - Format: `postgresql://postgres:[PASSWORD]@db.memedfsccinxuvcthfz.supabase.co:5432/postgres`
-    - Replace `[PASSWORD]` with your actual Supabase database password
-    - You can find this in your Supabase project settings under **Database** → **Connection string**
+The workflow uses separate secrets for better security and flexibility. Add these secrets:
+
+- **`SUPABASE_DB_HOST`**: Your Supabase connection pooler host
+    - Format: `aws-X-region.pooler.supabase.com` (e.g., `aws-1-eu-west-1.pooler.supabase.com`)
+    - **Important**: Use the **Connection Pooler** host, NOT the direct database host
+    - Find this in Supabase connection → **Settings** → **Database** → **Connection Pooler** → **Connection string**
+    - Example: `aws-1-eu-west-1.pooler.supabase.com`
+
+- **`SUPABASE_DB_PORT`**: Database port (optional, defaults to 6543)
+    - **Recommended**: `6543` (Connection Pooler - Transaction mode, best for migrations)
+    - Alternative: `5432` (Session mode on pooler, also works but 6543 is preferred)
+    - If not set, the workflow defaults to `6543` (pooler port)
+
+- **`SUPABASE_DB_NAME`**: Database name (usually `postgres`)
+
+- **`SUPABASE_DB_USER`**: Database user with tenant ID
+    - Format: `postgres.tenant-id` (e.g., `postgres.memhwmoymcinxuvcthfz`)
+    - **Important**: Must include the tenant ID after the dot
+    - Find this in Supabase dashboard → **Settings** → **Database** → **Connection Pooler** → **Connection string**
+    - The user format is: `postgres.` followed by your project reference ID
+
+- **`SUPABASE_DB_PASSWORD`**: Database password
+    - This is your database password, NOT your Supabase API keys
+    - Find this in Supabase dashboard → **Settings** → **Database** → **Database password**
 
 - **`RAILWAY_TOKEN`**: Railway API token
     - Go to Railway dashboard → **Settings** → **Tokens**
@@ -94,9 +114,26 @@ You can also trigger deployment manually:
 
 ### Migrations Fail
 
-- Check that `SUPABASE_DATABASE_URL` secret is correctly set
-- Verify the connection string format is correct
-- Ensure your Supabase database is accessible from GitHub Actions IPs
+- **Use Connection Pooler**: The workflow defaults to port `6543` (connection pooler). This is more reliable for external connections from GitHub Actions.
+  - In Supabase dashboard → **Settings** → **Database**, look for "Connection Pooler" section
+  - Use the pooler host and port `6543` instead of direct connection (port `5432`)
+  - Direct connections (port 5432) may be restricted or unreachable from GitHub Actions
+
+- **Check Database Status**: 
+  - Go to Supabase dashboard and verify your database is **not paused**
+  - Free tier databases pause after inactivity - resume it if needed
+
+- **Verify Secrets**: Check that all required secrets are set:
+  - `SUPABASE_DB_HOST` - Should be the pooler host (e.g., `db.xxxxx.supabase.co` or pooler host)
+  - `SUPABASE_DB_PORT` - Should be `6543` for pooler (or leave unset to use default)
+  - `SUPABASE_DB_NAME` - Usually `postgres`
+  - `SUPABASE_DB_USER` - Usually `postgres`
+  - `SUPABASE_DB_PASSWORD` - Your database password (not API keys)
+
+- **Network Connectivity**: 
+  - The workflow includes a connectivity test that will fail early if the database is unreachable
+  - Check the error messages for specific guidance
+  - Ensure your Supabase project allows connections from external IPs (default: enabled)
 
 ### Railway Deployment Fails
 
@@ -112,7 +149,42 @@ You can also trigger deployment manually:
 
 ### Connection Issues
 
-- Make sure your Supabase database allows connections from external IPs
-- Check firewall settings if applicable
-- Verify database credentials are correct
+**"Network is unreachable" or "Connection attempt failed" errors:**
+
+1. **Use Connection Pooler (Port 6543)**:
+   - Direct connections (port 5432) are often restricted or unreachable from GitHub Actions
+   - Use the Connection Pooler endpoint with port `6543` instead
+   - In Supabase dashboard → **Settings** → **Database** → **Connection Pooler**
+   - Copy the pooler connection string (Transaction mode, port 6543)
+   - Extract the host: should be `aws-X-region.pooler.supabase.com`
+   - Extract the user: should be `postgres.tenant-id` (includes tenant ID)
+   - Set `SUPABASE_DB_HOST` to the pooler host (e.g., `aws-1-eu-west-1.pooler.supabase.com`)
+   - Set `SUPABASE_DB_USER` to the full user format (e.g., `postgres.memhwmoymcinxuvcthfz`)
+   - Set `SUPABASE_DB_PORT` to `6543` (or leave unset to use default)
+
+2. **Database Paused**:
+   - Free tier Supabase databases pause after inactivity
+   - Go to Supabase dashboard → **Settings** → **Database**
+   - Click "Resume" if the database is paused
+   - Wait a few minutes for the database to fully start
+
+3. **Verify Credentials**:
+   - Ensure `SUPABASE_DB_PASSWORD` is your **database password**, not your Supabase API keys
+   - Database password is different from `anon` and `service_role` keys
+   - Reset database password in Supabase dashboard if needed
+
+4. **Check Host and User Format**:
+   - Host should be pooler host: `aws-X-region.pooler.supabase.com` (NOT `db.xxxxx.supabase.co`)
+   - User should include tenant ID: `postgres.tenant-id` (NOT just `postgres`)
+   - No `http://` or `https://` prefix
+   - No trailing slashes
+   - Example connection string format:
+     ```
+     postgresql://postgres.memhwmoymcinxuvcthfz:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
+     ```
+
+5. **Test Locally**:
+   - Try connecting from your local machine using the same credentials
+   - If local connection works but GitHub Actions fails, it's likely a network/firewall issue
+   - Use connection pooler endpoint for both local and CI/CD connections
 
