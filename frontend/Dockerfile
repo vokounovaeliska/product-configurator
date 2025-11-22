@@ -1,6 +1,10 @@
 # Wrapper Dockerfile for Railway deployment
 # This file allows Railway to build from the frontend/ root directory
 # while using the actual Dockerfile located at apps/nextjs/Dockerfile
+#
+# NOTE: This Dockerfile requires package.json, turbo.json, and pnpm-lock.yaml
+# to be present in the frontend/ directory. These are copies of the root files.
+# Keep them in sync with the root versions for Railway builds to work.
 
 # Base image with essential tools
 FROM node:22-alpine AS base
