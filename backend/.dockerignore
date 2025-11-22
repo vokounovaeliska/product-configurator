@@ -1,7 +1,0 @@
-# Exclude target directory but allow jOOQ generated sources
-target/*
-!target/generated-sources/
-target/generated-sources/*
-!target/generated-sources/jooq/
-!target/generated-sources/jooq/**
-
