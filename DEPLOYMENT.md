@@ -10,16 +10,15 @@ This document describes how to set up automated deployment to Railway and Supaba
 
 ## GitHub Secrets Setup
 
-You need to configure the following secrets in your GitHub repository:
+Configure the following secrets in your GitHub repository:
 
 1. Go to **Settings** → **Secrets and variables** → **Actions**
 2. Add the following secrets:
 
 ### Required Secrets
 
-You need **3 required secrets** and 2 optional ones:
-
 **Required:**
+
 - **`SUPABASE_DB_HOST`**: Connection pooler host
     - Example: `aws-1-eu-west-1.pooler.supabase.com`
     - Find in Supabase → **Settings** → **Database** → **Connection Pooler**
@@ -32,81 +31,79 @@ You need **3 required secrets** and 2 optional ones:
     - Your database password (NOT API keys)
     - Find in Supabase → **Settings** → **Database** → **Database password**
 
-**Optional (have defaults):**
-- **`SUPABASE_DB_PORT`**: Port (defaults to `6543` if not set)
-- **`SUPABASE_DB_NAME`**: Database name (defaults to `postgres` if not set)
-
-**Example connection string format:**
-```
-postgresql://postgres.memhwmoymcinxuvcthfz:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
-```
-
 - **`RAILWAY_TOKEN`**: Railway API token
     - Go to Railway dashboard → Click your profile icon (top right) → **Settings** → **Tokens**
     - Or go directly to: https://railway.app/account/tokens
     - Click **New Token** → Give it a name → Copy the token
-    - This token is used to authenticate Railway CLI in GitHub Actions
 
-- **`RAILWAY_PROJECT_ID`**: Railway project ID
-    - Go to Railway dashboard → Open your project → **Settings** → **General**
-    - The **Project ID** is shown in the General settings
-    - Or check the URL: `https://railway.app/project/[PROJECT_ID]` - the ID is in the URL
-    - This ID tells Railway which project to deploy to
+**Optional (have defaults):**
+
+- **`SUPABASE_DB_PORT`**: Port (defaults to `6543` if not set)
+- **`SUPABASE_DB_NAME`**: Database name (defaults to `postgres` if not set)
 
 ## Railway Setup
 
-1. **Create a Railway project** (if not already created)
-    - Go to [Railway](https://railway.app)
-    - Create a new project
-    - Connect your GitHub repository
+### 1. Create Railway Project
 
-2. **Configure Backend Railway service**
-     - Add a new service from your GitHub repository
-     - Name it `backend` (or any name you prefer)
-     - Set the **Root Directory** to `backend/` in Railway service settings
-     - Railway will automatically detect the Dockerfile in `backend/` directory
-     - The workflow uses `railway up` without specifying a service name, so Railway will automatically detect the service based on the working directory (`backend/`)
+1. Go to [Railway](https://railway.app)
+2. Create a new project
+3. Connect your GitHub repository
 
-3. **Configure Frontend Railway service**
-     - Add another service from your GitHub repository
-     - Name it `nextjs` (this name must match the `--service` flag in the workflow)
-     - Set the **Root Directory** to `frontend/` in Railway service settings
-     - Railway will automatically detect the `Dockerfile` in the `frontend/` directory
-     - **Note**: There's a wrapper `Dockerfile` at `frontend/Dockerfile` that Railway will use automatically - no additional configuration needed!
+### 2. Configure Backend Service
 
-4. **Configure Environment Variables in Railway**
+1. Add a new service from your GitHub repository
+2. Name it `backend`
+3. Set the **Root Directory** to `backend/` in Railway service settings
+4. Railway will automatically detect the Dockerfile in `backend/` directory
 
-   **Backend Service Variables:**
-     - Go to your backend Railway service → **Variables**
-     - Add the following environment variables:
-         - `DB_URL`: Your Supabase database connection string (same as `SUPABASE_DATABASE_URL`)
-         - `DB_USERNAME`: `postgres`
-         - `DB_PASSWORD`: Your Supabase database password
-         - `SPRING_PROFILES_ACTIVE`: `prod`
-         - Any other environment variables your application needs
+**Backend Environment Variables:**
 
-   **Frontend Service Variables:**
-     - Go to your nextjs Railway service → **Variables**
-     - Add the following environment variables:
-         - `NEXT_PUBLIC_SITE_URL`: Your frontend URL (e.g., `https://your-app.railway.app`)
-         - `NEXT_PUBLIC_API_URL`: Your API URL (e.g., `https://your-backend.railway.app`)
-         - `NEXT_PUBLIC_BE_URL`: Your backend URL (same as `NEXT_PUBLIC_API_URL`)
-         - `NEXT_PUBLIC_REST_API_URL`: Your REST API URL (same as `NEXT_PUBLIC_API_URL`)
-         - `ENV_NAME`: `production`
+- Go to your backend Railway service → **Variables**
+- Add the following environment variables:
+    - `DB_URL`: Full JDBC connection string
+        - Format: `jdbc:postgresql://[HOST]:[PORT]/[DATABASE]?sslmode=require&prepareThreshold=0`
+        -
+        Example: `jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0`
+        - Use your Supabase connection pooler host and port `6543`
+        - `prepareThreshold=0` is required for pgbouncer compatibility
+    - `DB_USERNAME`: Your Supabase database user (format: `postgres.tenant-id`)
+    - `DB_PASSWORD`: Your Supabase database password
+    - `SPRING_PROFILES_ACTIVE`: `prod`
+    - Any other environment variables your application needs
+
+### 3. Configure Frontend Service
+
+1. Add another service from your GitHub repository
+2. Name it `nextjs` (this name must match the service name in the workflow)
+3. Set the **Root Directory** to `frontend/` in Railway service settings
+4. Railway will automatically detect the `Dockerfile` in the `frontend/` directory
+
+**Frontend Environment Variables:**
+
+- Go to your nextjs Railway service → **Variables**
+- Add the following environment variables (required for build):
+    - `ENV_NAME`: `production`
+    - `NEXT_PUBLIC_SITE_URL`: Your frontend URL (e.g., `https://your-frontend.railway.app`)
+    - `NEXT_PUBLIC_API_URL`: Your backend API URL (e.g., `https://your-backend.railway.app`)
+    - `NEXT_PUBLIC_BE_URL`: Your backend URL (same as `NEXT_PUBLIC_API_URL`)
+    - `NEXT_PUBLIC_REST_API_URL`: Your REST API URL (same as `NEXT_PUBLIC_API_URL`)
+
+**Note:** These variables are used during the Docker build process, so they must be set before deployment. Railway
+automatically passes environment variables as build arguments.
 
 ## How It Works
 
-When code is merged to the `main` branch:
+When code is pushed to the `main` branch:
 
 1. **Supabase Migrations**:
     - The workflow runs Flyway migrations against your Supabase database
     - This ensures your database schema is always up to date
 
 2. **Railway Deployment**:
-     - The workflow uses Railway CLI to deploy both backend and frontend services
-     - Backend: Deploys from `backend/` directory
-     - Frontend: Deploys from `frontend/` directory using the `nextjs` service name
-     - Railway builds and deploys the Docker images automatically
+    - The workflow uses Railway CLI to deploy both backend and frontend services
+    - Backend: Deploys from `backend/` directory
+    - Frontend: Deploys from `frontend/` directory using the `nextjs` service name
+    - Railway builds and deploys the Docker images automatically
 
 ## Manual Deployment
 
@@ -120,77 +117,59 @@ You can also trigger deployment manually:
 
 ### Migrations Fail
 
-- **Use Connection Pooler**: The workflow defaults to port `6543` (connection pooler). This is more reliable for external connections from GitHub Actions.
-  - In Supabase dashboard → **Settings** → **Database**, look for "Connection Pooler" section
-  - Use the pooler host and port `6543` instead of direct connection (port `5432`)
-  - Direct connections (port 5432) may be restricted or unreachable from GitHub Actions
+- **Use Connection Pooler**: The workflow defaults to port `6543` (connection pooler). This is more reliable for
+  external connections from GitHub Actions.
+    - In Supabase dashboard → **Settings** → **Database**, look for "Connection Pooler" section
+    - Use the pooler host and port `6543` instead of direct connection (port `5432`)
 
-- **Check Database Status**: 
-  - Go to Supabase dashboard and verify your database is **not paused**
-  - Free tier databases pause after inactivity - resume it if needed
+- **Check Database Status**:
+    - Go to Supabase dashboard and verify your database is **not paused**
+    - Free tier databases pause after inactivity - resume it if needed
 
-- **Verify Secrets**: Check that all required secrets are set:
-  - `SUPABASE_DB_HOST` - Should be the pooler host (e.g., `db.xxxxx.supabase.co` or pooler host)
-  - `SUPABASE_DB_PORT` - Should be `6543` for pooler (or leave unset to use default)
-  - `SUPABASE_DB_NAME` - Usually `postgres`
-  - `SUPABASE_DB_USER` - Usually `postgres`
-  - `SUPABASE_DB_PASSWORD` - Your database password (not API keys)
-
-- **Network Connectivity**: 
-  - The workflow includes a connectivity test that will fail early if the database is unreachable
-  - Check the error messages for specific guidance
-  - Ensure your Supabase project allows connections from external IPs (default: enabled)
+- **Verify Secrets**: Check that all required secrets are set correctly
 
 ### Railway Deployment Fails
 
 - Verify `RAILWAY_TOKEN` is valid and has proper permissions
-- Check that Railway services are properly configured
-- Ensure the service names match:
-  - Backend service should be detected automatically from `backend/` directory
-  - Frontend service must be named `nextjs` to match the `--service nextjs` flag in the workflow
-- Verify Dockerfile paths are correct:
-  - Backend: `backend/Dockerfile` (auto-detected from root directory)
-  - Frontend: `frontend/Dockerfile` (wrapper Dockerfile that Railway auto-detects)
-- Check that all required environment variables are set in Railway for both services
+- Check that Railway services are properly configured:
+    - Backend service: Root directory `backend/`, service name `backend`
+    - Frontend service: Root directory `frontend/`, service name `nextjs`
+- Verify all required environment variables are set in Railway for both services
+- For frontend: Ensure all `NEXT_PUBLIC_*` variables are set before building
+- For backend: Ensure `DB_URL` is a full JDBC URL starting with `jdbc:postgresql://`
 
-### Connection Issues
+### Backend Connection Issues
 
-**"Network is unreachable" or "Connection attempt failed" errors:**
+**"Driver claims to not accept jdbcUrl" error:**
+
+- Ensure `DB_URL` is a full JDBC connection string, not just a hostname
+- Format: `jdbc:postgresql://[HOST]:[PORT]/[DATABASE]?sslmode=require&prepareThreshold=0`
+- Example: `jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0`
+- The `prepareThreshold=0` parameter is required for Supabase connection pooler (pgbouncer)
+
+### Frontend Build Issues
+
+**"Missing required environment variables" error:**
+
+- All `NEXT_PUBLIC_*` variables and `ENV_NAME` must be set in Railway before building
+- These are used during the Docker build process
+- Set them in Railway service → **Variables** tab
+- `ENV_NAME` must be exactly `production` (not `prod` or anything else)
+
+### Connection Pooler Setup
 
 1. **Use Connection Pooler (Port 6543)**:
-   - Direct connections (port 5432) are often restricted or unreachable from GitHub Actions
-   - Use the Connection Pooler endpoint with port `6543` instead
-   - In Supabase dashboard → **Settings** → **Database** → **Connection Pooler**
-   - Copy the pooler connection string (Transaction mode, port 6543)
-   - Extract the host: should be `aws-X-region.pooler.supabase.com`
-   - Extract the user: should be `postgres.tenant-id` (includes tenant ID)
-   - Set `SUPABASE_DB_HOST` to the pooler host (e.g., `aws-1-eu-west-1.pooler.supabase.com`)
-   - Set `SUPABASE_DB_USER` to the full user format (e.g., `postgres.memhwmoymcinxuvcthfz`)
-   - Set `SUPABASE_DB_PORT` to `6543` (or leave unset to use default)
+    - Direct connections (port 5432) are often restricted
+    - Use the Connection Pooler endpoint with port `6543`
+    - In Supabase dashboard → **Settings** → **Database** → **Connection Pooler**
+    - Copy the pooler connection string (Transaction mode, port 6543)
+    - Extract the host: should be `aws-X-region.pooler.supabase.com`
+    - Extract the user: should be `postgres.tenant-id` (includes tenant ID)
 
-2. **Database Paused**:
-   - Free tier Supabase databases pause after inactivity
-   - Go to Supabase dashboard → **Settings** → **Database**
-   - Click "Resume" if the database is paused
-   - Wait a few minutes for the database to fully start
+2. **Verify Credentials**:
+    - Ensure `SUPABASE_DB_PASSWORD` is your **database password**, not your Supabase API keys
+    - Database password is different from `anon` and `service_role` keys
 
-3. **Verify Credentials**:
-   - Ensure `SUPABASE_DB_PASSWORD` is your **database password**, not your Supabase API keys
-   - Database password is different from `anon` and `service_role` keys
-   - Reset database password in Supabase dashboard if needed
-
-4. **Check Host and User Format**:
-   - Host should be pooler host: `aws-X-region.pooler.supabase.com` (NOT `db.xxxxx.supabase.co`)
-   - User should include tenant ID: `postgres.tenant-id` (NOT just `postgres`)
-   - No `http://` or `https://` prefix
-   - No trailing slashes
-   - Example connection string format:
-     ```
-     postgresql://postgres.memhwmoymcinxuvcthfz:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
-     ```
-
-5. **Test Locally**:
-   - Try connecting from your local machine using the same credentials
-   - If local connection works but GitHub Actions fails, it's likely a network/firewall issue
-   - Use connection pooler endpoint for both local and CI/CD connections
-
+3. **Check Host and User Format**:
+    - Host should be pooler host: `aws-X-region.pooler.supabase.com` (NOT `db.xxxxx.supabase.co`)
+    - User should include tenant ID: `postgres.tenant-id` (NOT just `postgres`)
