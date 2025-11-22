@@ -21,7 +21,7 @@ RUN --mount=type=bind,source=.,target=/context \
 # re-download packages.
 # Use Maven settings if available, otherwise use default
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2,id=m2cache \
+    --mount=type=cache,id=m2cache,target=/root/.m2 \
     if [ -f .mvn/local-settings.xml ]; then \
         sed -i "s/\${env.CI_GITLAB_PAT}/$CI_GITLAB_PAT/g" .mvn/local-settings.xml && \
         ./mvnw dependency:go-offline -DskipTests -s .mvn/local-settings.xml; \
@@ -47,7 +47,7 @@ RUN --mount=type=bind,source=.,target=/context \
         cp -r /context/target/generated-sources/jooq/* target/generated-sources/jooq/; \
     fi
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2,id=m2cache \
+    --mount=type=cache,id=m2cache,target=/root/.m2 \
     if [ -f .mvn/local-settings.xml ]; then \
         ./mvnw package -DskipTests -Dskip.jooq.generation -Dskip.flyway.migration -s .mvn/local-settings.xml && \
         mv target/$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceStdout)-$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout).jar target/app.jar; \
