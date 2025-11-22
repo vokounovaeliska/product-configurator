@@ -183,6 +183,10 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      - name: Remove Railway-specific files (not needed for CI)
+        run: |
+          rm -f frontend/package.json frontend/pnpm-lock.yaml frontend/turbo.json
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
