@@ -33,12 +33,25 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('backend/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Build Flyway URL from separate secrets
+      # Build Flyway connection from secrets
+      # Required: SUPABASE_DB_HOST, SUPABASE_DB_USER, SUPABASE_DB_PASSWORD
+      # Optional: SUPABASE_DB_PORT (defaults to 6543), SUPABASE_DB_NAME (defaults to postgres)
       - name: Set Flyway env vars
         run: |
-          echo "FLYWAY_URL=jdbc:postgresql://${{ secrets.SUPABASE_DB_HOST }}:${{ secrets.SUPABASE_DB_PORT }}/${{ secrets.SUPABASE_DB_NAME }}?sslmode=require" >> "$GITHUB_ENV"
-          echo "FLYWAY_USER=${{ secrets.SUPABASE_DB_USER }}" >> "$GITHUB_ENV"
-          echo "FLYWAY_PASSWORD=${{ secrets.SUPABASE_DB_PASSWORD }}" >> "$GITHUB_ENV"
+          DB_HOST="${{ secrets.SUPABASE_DB_HOST }}"
+          DB_USER="${{ secrets.SUPABASE_DB_USER }}"
+          DB_PASSWORD="${{ secrets.SUPABASE_DB_PASSWORD }}"
+          DB_PORT="${{ secrets.SUPABASE_DB_PORT }}"
+          DB_NAME="${{ secrets.SUPABASE_DB_NAME }}"
+          
+          # Set defaults
+          [ -z "$DB_PORT" ] && DB_PORT="6543"
+          [ -z "$DB_NAME" ] && DB_NAME="postgres"
+          
+          # Build JDBC URL - disable prepared statements for pgbouncer compatibility
+          echo "FLYWAY_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require&prepareThreshold=0" >> "$GITHUB_ENV"
+          echo "FLYWAY_USER=${DB_USER}" >> "$GITHUB_ENV"
+          echo "FLYWAY_PASSWORD=${DB_PASSWORD}" >> "$GITHUB_ENV"
 
       - name: Run Supabase Migrations
         working-directory: ./backend
@@ -53,21 +66,15 @@ jobs:
 
       - name: Install Railway CLI
         run: |
-          curl -fsSL https://railway.app/install.sh | sh > /dev/null 2>&1
+          curl -fsSL https://railway.app/install.sh | sh
           echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
 
-      - name: Deploy Backend to Railway
+      - name: Deploy backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        working-directory: ./backend
-        run: |
-          railway login --token "$RAILWAY_TOKEN" > /dev/null 2>&1
-          railway up --quiet
+        run: railway up -s backend -e production
 
-      - name: Deploy Frontend to Railway
+      - name: Deploy frontend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        working-directory: ./frontend
-        run: |
-          railway login --token "$RAILWAY_TOKEN" > /dev/null 2>&1
-          railway up --service nextjs --quiet
+        run: railway up -s nextjs -e production

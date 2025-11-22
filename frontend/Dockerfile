@@ -1,6 +1,10 @@
 # Wrapper Dockerfile for Railway deployment
 # This file allows Railway to build from the frontend/ root directory
 # while using the actual Dockerfile located at apps/nextjs/Dockerfile
+#
+# NOTE: This Dockerfile requires package.json, turbo.json, and pnpm-lock.yaml
+# to be present in the frontend/ directory. These are copies of the root files.
+# Keep them in sync with the root versions for Railway builds to work.
 
 # Base image with essential tools
 FROM node:22-alpine AS base
@@ -19,10 +23,16 @@ FROM base AS builder
 
 # Add build arguments
 ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_BE_URL
+ARG NEXT_PUBLIC_REST_API_URL
 ARG ENV_NAME
 
 # Set environment variables from build arguments
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_BE_URL=$NEXT_PUBLIC_BE_URL
+ENV NEXT_PUBLIC_REST_API_URL=$NEXT_PUBLIC_REST_API_URL
 ENV ENV_NAME=$ENV_NAME
 
 WORKDIR /app
@@ -39,10 +49,16 @@ FROM base AS installer
 
 # Add build arguments
 ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_BE_URL
+ARG NEXT_PUBLIC_REST_API_URL
 ARG ENV_NAME
 
 # Set environment variables from build arguments
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_BE_URL=$NEXT_PUBLIC_BE_URL
+ENV NEXT_PUBLIC_REST_API_URL=$NEXT_PUBLIC_REST_API_URL
 ENV ENV_NAME=$ENV_NAME
 
 WORKDIR /app
@@ -53,6 +69,13 @@ RUN pnpm install
 
 # Copy full source and build the app
 COPY --from=builder /app/out/full/ .
+
+# Validate required environment variables before building
+RUN if [ -z "$ENV_NAME" ] || [ -z "$NEXT_PUBLIC_SITE_URL" ] || [ -z "$NEXT_PUBLIC_API_URL" ] || [ -z "$NEXT_PUBLIC_BE_URL" ] || [ -z "$NEXT_PUBLIC_REST_API_URL" ]; then \
+        echo "ERROR: Missing required environment variables. Set ENV_NAME, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_API_URL, NEXT_PUBLIC_BE_URL, and NEXT_PUBLIC_REST_API_URL in Railway service variables." && \
+        exit 1; \
+    fi
+
 RUN pnpm turbo run build --filter=nextjs
 
 # Final stage
@@ -60,10 +83,16 @@ FROM base AS final
 
 # Add build arguments
 ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_BE_URL
+ARG NEXT_PUBLIC_REST_API_URL
 ARG ENV_NAME
 
 # Set environment variables from build arguments
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_BE_URL=$NEXT_PUBLIC_BE_URL
+ENV NEXT_PUBLIC_REST_API_URL=$NEXT_PUBLIC_REST_API_URL
 ENV ENV_NAME=$ENV_NAME
 
 WORKDIR /app

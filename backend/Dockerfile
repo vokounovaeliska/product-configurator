@@ -8,21 +8,13 @@ WORKDIR /build
 # Copy the mvnw wrapper with executable permissions.
 COPY --chmod=0755 mvnw mvnw
 COPY pom.xml pom.xml
+# Copy Maven wrapper directory (required for mvnw to work)
+COPY .mvn .mvn
 
-# Copy Maven wrapper and settings (if .mvn directory exists)
-# Use RUN to conditionally copy if directory exists
-RUN --mount=type=bind,source=.,target=/context \
-    if [ -d /context/.mvn ]; then \
-        cp -r /context/.mvn .mvn; \
-    fi
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.m2 so that subsequent builds don't have to
-# re-download packages.
+# Download dependencies as a separate step to take advantage of Docker's layer caching.
 # Use Maven settings if available, otherwise use default
-RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2 \
-    if [ -f .mvn/local-settings.xml ]; then \
+RUN if [ -f .mvn/local-settings.xml ]; then \
         sed -i "s/\${env.CI_GITLAB_PAT}/$CI_GITLAB_PAT/g" .mvn/local-settings.xml && \
         ./mvnw dependency:go-offline -DskipTests -s .mvn/local-settings.xml; \
     else \
@@ -38,17 +30,18 @@ FROM source AS package
 
 WORKDIR /build
 
+# Ensure all Maven files are available (inherited from source stage, but explicitly copy to be sure)
+COPY --chmod=0755 mvnw mvnw
+COPY pom.xml pom.xml
+COPY .mvn .mvn
+# Copy source code
 COPY ./src src/
-# Copy jOOQ generated sources if they exist (optional)
-# Use RUN to conditionally copy if directory exists
-RUN --mount=type=bind,source=.,target=/context \
-    mkdir -p target/generated-sources/jooq && \
-    if [ -d /context/target/generated-sources/jooq ] && [ "$(ls -A /context/target/generated-sources/jooq 2>/dev/null)" ]; then \
-        cp -r /context/target/generated-sources/jooq/* target/generated-sources/jooq/; \
-    fi
-RUN --mount=type=bind,source=pom.xml,target=pom.xml \
-    --mount=type=cache,target=/root/.m2 \
-    if [ -f .mvn/local-settings.xml ]; then \
+# Copy jOOQ generated sources (required since we skip jOOQ generation in build)
+# These should be committed to git and kept in sync with the database schema
+COPY target/generated-sources/jooq target/generated-sources/jooq
+
+# Build the application
+RUN if [ -f .mvn/local-settings.xml ]; then \
         ./mvnw package -DskipTests -Dskip.jooq.generation -Dskip.flyway.migration -s .mvn/local-settings.xml && \
         mv target/$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceStdout)-$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout).jar target/app.jar; \
     else \
@@ -105,4 +98,3 @@ COPY --from=extract build/target/extracted/application/ ./
 EXPOSE 8080
 
 ENTRYPOINT [ "java", "org.springframework.boot.loader.launch.JarLauncher" ]
-
