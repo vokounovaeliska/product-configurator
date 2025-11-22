@@ -75,14 +75,9 @@ jobs:
       - name: Deploy backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        working-directory: ./backend
-        run: |
-          railway up -s backend -e production
+        run: railway up -s backend -e production
 
       - name: Deploy frontend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        working-directory: ./frontend
-        run: |
-          railway up -s nextjs -e production
-
+        run: railway up -s nextjs -e production
