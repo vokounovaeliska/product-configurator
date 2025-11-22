@@ -8,6 +8,8 @@ WORKDIR /build
 # Copy the mvnw wrapper with executable permissions.
 COPY --chmod=0755 mvnw mvnw
 COPY pom.xml pom.xml
+# Copy Maven wrapper directory (required for mvnw to work)
+COPY .mvn .mvn
 
 
 # Download dependencies as a separate step to take advantage of Docker's layer caching.
