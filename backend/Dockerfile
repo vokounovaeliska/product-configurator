@@ -30,10 +30,17 @@ FROM source AS package
 
 WORKDIR /build
 
+# Ensure all Maven files are available (inherited from source stage, but explicitly copy to be sure)
+COPY --chmod=0755 mvnw mvnw
+COPY pom.xml pom.xml
+COPY .mvn .mvn
+# Copy source code
 COPY ./src src/
 # Copy jOOQ generated sources if they exist (optional)
 # The directory will be created during the build if needed
 RUN mkdir -p target/generated-sources/jooq
+
+# Build the application
 RUN if [ -f .mvn/local-settings.xml ]; then \
         ./mvnw package -DskipTests -Dskip.jooq.generation -Dskip.flyway.migration -s .mvn/local-settings.xml && \
         mv target/$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceStdout)-$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout).jar target/app.jar; \
