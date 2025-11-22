@@ -69,6 +69,19 @@ RUN pnpm install
 
 # Copy full source and build the app
 COPY --from=builder /app/out/full/ .
+
+# Validate required environment variables before building
+RUN if [ -z "$ENV_NAME" ] || [ -z "$NEXT_PUBLIC_SITE_URL" ] || [ -z "$NEXT_PUBLIC_API_URL" ] || [ -z "$NEXT_PUBLIC_BE_URL" ] || [ -z "$NEXT_PUBLIC_REST_API_URL" ]; then \
+        echo "ERROR: Missing required environment variables!" && \
+        echo "ENV_NAME: ${ENV_NAME:-'NOT SET'}" && \
+        echo "NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-'NOT SET'}" && \
+        echo "NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-'NOT SET'}" && \
+        echo "NEXT_PUBLIC_BE_URL: ${NEXT_PUBLIC_BE_URL:-'NOT SET'}" && \
+        echo "NEXT_PUBLIC_REST_API_URL: ${NEXT_PUBLIC_REST_API_URL:-'NOT SET'}" && \
+        echo "Please set these variables in Railway service settings -> Variables" && \
+        exit 1; \
+    fi
+
 RUN pnpm turbo run build --filter=nextjs
 
 # Final stage

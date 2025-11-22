@@ -36,9 +36,9 @@ COPY pom.xml pom.xml
 COPY .mvn .mvn
 # Copy source code
 COPY ./src src/
-# Copy jOOQ generated sources if they exist (optional)
-# The directory will be created during the build if needed
-RUN mkdir -p target/generated-sources/jooq
+# Copy jOOQ generated sources (required since we skip jOOQ generation in build)
+# These should be committed to git and kept in sync with the database schema
+COPY target/generated-sources/jooq target/generated-sources/jooq
 
 # Build the application
 RUN if [ -f .mvn/local-settings.xml ]; then \
