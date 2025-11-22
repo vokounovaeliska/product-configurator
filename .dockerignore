@@ -48,7 +48,8 @@ backend/README.md
 **/nbdist
 **/nbproject/private
 **/target
-!target/generated-sources/jooq
+!**/target/generated-sources/jooq
+!backend/target/generated-sources/jooq
 *.ctxt
 .mtj.tmp
 .mvn/timing.properties
