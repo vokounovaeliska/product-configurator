@@ -36,6 +36,7 @@
     "description": "This is a product configurator",
     "loginButton": "Login",
     "registerButton": "Register",
+    "setupCta": "Go to model setup",
     "title": "Product Configurator"
   },
   "Login": {
@@ -58,13 +59,82 @@
       "emailInvalidMessage": "Invalid e-mail format",
       "emailRequiredMessage": "Please enter an e-mail",
       "generalError": "Something went wrong",
-      "nameRequiredMessage": "Please enter a name",
+      "firstNameRequiredMessage": "Please enter your first name",
+      "surnameRequiredMessage": "Please enter your surname",
+      "confirmPasswordRequiredMessage": "Please confirm your password",
+      "passwordsNotMatchMessage": "Passwords do not match",
       "passwordLengthMessage": "Password must be at least 8 characters",
       "passwordRequiredMessage": "Please enter a password"
     },
     "loginButton": "Register",
-    "name": "Name",
+    "firstName": "First Name",
+    "surname": "Surname",
     "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "submitButton": "Register",
+    "success": {
+      "message": "Your account has been created successfully. You can now log in.",
+      "title": "Registration Successful"
+    },
     "title": "Registration"
+  },
+  "UserRegistration": {
+    "confirmPassword": "Confirm Password",
+    "email": "E-mail",
+    "errorMessages": {
+      "confirmPasswordRequiredMessage": "Please confirm your password",
+      "emailInvalidMessage": "Invalid e-mail format",
+      "emailRequiredMessage": "Please enter an e-mail",
+      "firstNameRequiredMessage": "Please enter your first name",
+      "generalError": "Something went wrong",
+      "passwordsNotMatchMessage": "Passwords do not match",
+      "passwordLengthMessage": "Password must be at least 8 characters",
+      "passwordRequiredMessage": "Please enter a password",
+      "surnameRequiredMessage": "Please enter your surname"
+    },
+    "firstName": "First Name",
+    "password": "Password",
+    "submitButton": "Register",
+    "success": {
+      "message": "Your account has been created successfully. You can now log in.",
+      "title": "Registration Successful"
+    },
+    "surname": "Surname",
+    "title": "Registration"
+  },
+  "Setup": {
+    "description": "Welcome to your setup dashboard. Here you can manage your product models and configure your configurator.",
+    "productModels": {
+      "action": "Manage Models",
+      "description": "Create and manage product models that customers can configure",
+      "title": "Product Models"
+    },
+    "title": "Setup",
+    "welcome": "Welcome, {name}!"
+  },
+  "ProductModels": {
+    "create": {
+      "cancelButton": "Cancel",
+      "description": "Create a new product model that customers can configure",
+      "descriptionPlaceholder": "Enter a description for your product model",
+      "errorMessages": {
+        "generalError": "Something went wrong",
+        "nameRequiredMessage": "Please enter a model name"
+      },
+      "name": "Model Name",
+      "namePlaceholder": "e.g., Table Icatu, Wardrobe Oslo",
+      "submitButton": "Create Model",
+      "title": "Create Product Model"
+    },
+    "description": "Manage your product models. Create and configure models that customers can customize.",
+    "list": {
+      "createButton": "Create Model",
+      "emptyState": {
+        "createButton": "Create Your First Model",
+        "message": "You haven't created any product models yet. Get started by creating your first model."
+      },
+      "title": "Product Models"
+    },
+    "title": "Product Models"
   }
 }

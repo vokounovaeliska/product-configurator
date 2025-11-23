@@ -1,0 +1,63 @@
+## Frontend Style Guide
+
+For any **frontend / React / Next.js / TypeScript** work in this repository, always follow this guide
+
+The assistant must:
+
+- **Project structure**
+  - Use **feature-sliced design**.
+  - Keep **page/route components** in `app/` responsible for layout, headings, and composition of feature widgets.
+  - Keep **features isolated**; avoid cross-feature imports except via explicit escape hatches at the page/route level.
+
+- **Components & hooks**
+  - Prefer **arrow function components**; avoid `React.FC`.
+  - Keep components and hooks **small and focused** (rule of thumb: **< 100 lines**).
+  - Put **props types above** the component definition and **destructure props**.
+  - Keep code order in components: **state → derived state → handlers → effects → JSX**.
+
+- **TypeScript**
+  - Prefer **`type`** over `interface` unless there is a strong reason otherwise.
+  - **Never use `any`**; aim for maximum type safety.
+  - Use **utility types** (`Pick`, `Omit`, `Exclude`, `Extract`, `ReturnType`, etc.) instead of re-defining shapes.
+  - Use **string literal unions** or **`as const` objects** instead of `enum` (except for generated GraphQL enums).
+  - Use **immutability patterns** (`as const`, `satisfies`, `readonly`) for configuration-like data.
+
+- **Naming**
+  - Files: **Components → PascalCase**, **hooks → camelCase**, **folders → camelCase**, everything else → camelCase.
+  - Variables: **constants → SCREAMING_SNAKE_CASE**, **types/components → PascalCase**, **booleans** prefixed with `is/has/can/should/...`.
+  - Functions follow the **A/HC/LC pattern**: `action + HighContext + LowContext?` (e.g., `getUserMessages`, `handleClickOutside`).
+
+- **Coding style**
+  - Prefer **pure functions** and **declarative code**.
+  - Keep functions **single-responsibility**, avoid boolean flags as positional arguments.
+  - Use **async/await**, avoid promise chains.
+  - Be explicit in boolean conversion (`!!value` or `Boolean(value)`), not comparisons to `true/false` for non-boolean values.
+
+- **React patterns**
+  - Keep side effects isolated in `useEffect` and only when they are real side effects.
+  - Avoid logic in the render body that can be moved to derived state or pure helpers.
+  - Prefer **compound components** where appropriate to share state implicitly between parent and children.
+
+- **Data fetching & server state**
+  - Use **TanStack Query** for server state.
+  - Prefer **`queryOptions`** and **query key factories** over custom `useXxxQuery` wrapper hooks.
+  - For REST, prefer **`ky`** clients (`publicApi`, `privateApi`, `api`) with proper retry and auth hooks.
+
+- **Forms**
+  - Use **`react-hook-form` + `zod`** + **Shadcn/ui** form components for complex forms.
+
+- **Styling & UI**
+  - Prefer **Shadcn/ui** components with **Tailwind CSS**.
+  - Use a `cn` helper combining `clsx` + `tailwind-merge`.
+  - Split Tailwind class names by responsibility (layout, breakpoints, states) into separate strings for readability.
+  - Override Tailwind color palette with project-specific colors instead of mixing with defaults.
+
+- **Translations**
+  - Use **`react-i18next` / `next-i18next`**.
+  - Keep translation JSONs under `locales/[lang]` and follow the **PascalCase for objects / camelCase for values** key convention.
+  - Use `useTranslation` with namespaces and `keyPrefix` for nested keys.
+
+- **General principles**
+  - Code should be **self-explanatory** and easy to understand months later.
+  - Apply **DRY**, **separation of concerns**, and **minimal side effects**.
+  - Always handle errors with **user-visible feedback** instead of silent failures.

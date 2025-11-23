@@ -5,8 +5,10 @@ package cz.vokounova.configurator.generated.jooq.tables
 
 
 import cz.vokounova.configurator.generated.jooq.Public
+import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.USER_EMAIL_KEY
 import cz.vokounova.configurator.generated.jooq.keys.USER_PKEY
+import cz.vokounova.configurator.generated.jooq.tables.ProductModel.ProductModelPath
 import cz.vokounova.configurator.generated.jooq.tables.records.UserRecord
 
 import java.time.OffsetDateTime
@@ -20,6 +22,7 @@ import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.Path
 import org.jooq.PlainSQL
 import org.jooq.QueryPart
 import org.jooq.Record
@@ -32,6 +35,7 @@ import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
+import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -131,9 +135,38 @@ open class User(
      * Create a <code>public.user</code> table reference
      */
     constructor(): this(DSL.name("user"), null)
+
+    constructor(path: Table<out Record>, childPath: ForeignKey<out Record, UserRecord>?, parentPath: InverseForeignKey<out Record, UserRecord>?): this(Internal.createPathAlias(path, childPath, parentPath), path, childPath, parentPath, USER, null, null)
+
+    /**
+     * A subtype implementing {@link Path} for simplified path-based joins.
+     */
+    open class UserPath : User, Path<UserRecord> {
+        constructor(path: Table<out Record>, childPath: ForeignKey<out Record, UserRecord>?, parentPath: InverseForeignKey<out Record, UserRecord>?): super(path, childPath, parentPath)
+        private constructor(alias: Name, aliased: Table<UserRecord>): super(alias, aliased)
+        override fun `as`(alias: String): UserPath = UserPath(DSL.name(alias), this)
+        override fun `as`(alias: Name): UserPath = UserPath(alias, this)
+        override fun `as`(alias: Table<*>): UserPath = UserPath(alias.qualifiedName, this)
+    }
     override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
     override fun getPrimaryKey(): UniqueKey<UserRecord> = USER_PKEY
     override fun getUniqueKeys(): List<UniqueKey<UserRecord>> = listOf(USER_EMAIL_KEY)
+
+    private lateinit var _productModel: ProductModelPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.product_model</code> table
+     */
+    fun productModel(): ProductModelPath {
+        if (!this::_productModel.isInitialized)
+            _productModel = ProductModelPath(this, null, PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY.inverseKey)
+
+        return _productModel;
+    }
+
+    val productModel: ProductModelPath
+        get(): ProductModelPath = productModel()
     override fun `as`(alias: String): User = User(DSL.name(alias), this)
     override fun `as`(alias: Name): User = User(alias, this)
     override fun `as`(alias: Table<*>): User = User(alias.qualifiedName, this)

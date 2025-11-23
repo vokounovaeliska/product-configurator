@@ -23,35 +23,39 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         set(value): Unit = set(0, value)
         get(): UUID = get(0) as UUID
 
-    open var name: String
+    open var userId: UUID
         set(value): Unit = set(1, value)
-        get(): String = get(1) as String
+        get(): UUID = get(1) as UUID
+
+    open var name: String
+        set(value): Unit = set(2, value)
+        get(): String = get(2) as String
 
     open var description: String?
-        set(value): Unit = set(2, value)
-        get(): String? = get(2) as String?
+        set(value): Unit = set(3, value)
+        get(): String? = get(3) as String?
 
     open var basePriceCents: Int?
-        set(value): Unit = set(3, value)
-        get(): Int? = get(3) as Int?
+        set(value): Unit = set(4, value)
+        get(): Int? = get(4) as Int?
 
     open var currency: String?
-        set(value): Unit = set(4, value)
-        get(): String? = get(4) as String?
+        set(value): Unit = set(5, value)
+        get(): String? = get(5) as String?
 
     @Suppress("INAPPLICABLE_JVM_NAME")
     @set:JvmName("setIsActive")
     open var isActive: Boolean?
-        set(value): Unit = set(5, value)
-        get(): Boolean? = get(5) as Boolean?
+        set(value): Unit = set(6, value)
+        get(): Boolean? = get(6) as Boolean?
 
     open var createdAt: OffsetDateTime
-        set(value): Unit = set(6, value)
-        get(): OffsetDateTime = get(6) as OffsetDateTime
-
-    open var modifiedAt: OffsetDateTime
         set(value): Unit = set(7, value)
         get(): OffsetDateTime = get(7) as OffsetDateTime
+
+    open var modifiedAt: OffsetDateTime
+        set(value): Unit = set(8, value)
+        get(): OffsetDateTime = get(8) as OffsetDateTime
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -62,8 +66,9 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
     /**
      * Create a detached, initialised ProductModelRecord
      */
-    constructor(id: UUID, name: String, description: String? = null, basePriceCents: Int? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, userId: UUID, name: String, description: String? = null, basePriceCents: Int? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
         this.id = id
+        this.userId = userId
         this.name = name
         this.description = description
         this.basePriceCents = basePriceCents

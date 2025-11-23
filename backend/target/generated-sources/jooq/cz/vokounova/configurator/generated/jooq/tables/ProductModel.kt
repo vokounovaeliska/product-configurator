@@ -5,23 +5,28 @@ package cz.vokounova.configurator.generated.jooq.tables
 
 
 import cz.vokounova.configurator.generated.jooq.Public
+import cz.vokounova.configurator.generated.jooq.indexes.IDX_PRODUCT_MODEL_USER_ID
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_PRICING_RULE__ATTRIBUTE_PRICING_RULE_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION__COMPONENT_DEFINITION_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST__CUSTOMER_REQUEST_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL_PKEY
+import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule.AttributePricingRulePath
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition.ComponentDefinitionPath
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest.CustomerRequestPath
+import cz.vokounova.configurator.generated.jooq.tables.User.UserPath
 import cz.vokounova.configurator.generated.jooq.tables.records.ProductModelRecord
 
 import java.time.OffsetDateTime
 import java.util.UUID
 
 import kotlin.collections.Collection
+import kotlin.collections.List
 
 import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
+import org.jooq.Index
 import org.jooq.InverseForeignKey
 import org.jooq.Name
 import org.jooq.Path
@@ -83,6 +88,11 @@ open class ProductModel(
      * The column <code>public.product_model.id</code>.
      */
     val ID: TableField<ProductModelRecord, UUID?> = createField(DSL.name("id"), SQLDataType.UUID.nullable(false), this, "")
+
+    /**
+     * The column <code>public.product_model.user_id</code>.
+     */
+    val USER_ID: TableField<ProductModelRecord, UUID?> = createField(DSL.name("user_id"), SQLDataType.UUID.nullable(false), this, "")
 
     /**
      * The column <code>public.product_model.name</code>.
@@ -151,7 +161,24 @@ open class ProductModel(
         override fun `as`(alias: Table<*>): ProductModelPath = ProductModelPath(alias.qualifiedName, this)
     }
     override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
+    override fun getIndexes(): List<Index> = listOf(IDX_PRODUCT_MODEL_USER_ID)
     override fun getPrimaryKey(): UniqueKey<ProductModelRecord> = PRODUCT_MODEL_PKEY
+    override fun getReferences(): List<ForeignKey<ProductModelRecord, *>> = listOf(PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY)
+
+    private lateinit var _user: UserPath
+
+    /**
+     * Get the implicit join path to the <code>public.user</code> table.
+     */
+    fun user(): UserPath {
+        if (!this::_user.isInitialized)
+            _user = UserPath(this, PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY, null)
+
+        return _user;
+    }
+
+    val user: UserPath
+        get(): UserPath = user()
 
     private lateinit var _attributePricingRule: AttributePricingRulePath
 
