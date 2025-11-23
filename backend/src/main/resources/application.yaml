@@ -1,6 +1,7 @@
 spring:
   application:
     name: Configurator Backend
+
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/configuratordb}
     username: ${DB_USERNAME:configuratoruser}
@@ -8,6 +9,11 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-init-sql: SET TIME ZONE "UTC"
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 30000         # 30 s
+      max-lifetime: 600000        # 10 min
+      pool-name: configurator-pool
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
   servlet:
