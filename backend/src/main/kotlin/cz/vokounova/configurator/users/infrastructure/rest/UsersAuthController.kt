@@ -1,9 +1,15 @@
 package cz.vokounova.configurator.users.infrastructure.rest
 
-import cz.vokounova.configurator.shared.utils.logger
+import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.users.domain.UserAuthenticationRequestLoginPassword
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.request.LoginCredentialsDto
+import cz.vokounova.configurator.users.infrastructure.rest.mapper.request.UserCreateRequestDto
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.response.JwtTokenDto
+import cz.vokounova.configurator.users.infrastructure.rest.mapper.response.UserDto
+import cz.vokounova.configurator.users.infrastructure.rest.mapper.toDto
+import cz.vokounova.configurator.users.infrastructure.rest.mapper.toParams
+import cz.vokounova.configurator.users.infrastructure.rest.validation.UserCreateParamsValidator
+import cz.vokounova.configurator.users.ports.inbound.UserAPI
 import cz.vokounova.configurator.users.ports.inbound.UserGetRefreshToken
 import cz.vokounova.configurator.users.ports.inbound.UserLoginWithPassword
 import org.springframework.http.HttpHeaders
@@ -22,11 +28,11 @@ import org.springframework.web.bind.annotation.RestController
 class UsersAuthController(
     private val userLoginWithLoginPassword: UserLoginWithPassword,
     private val userRefreshToken: UserGetRefreshToken,
+    private val userAPI: UserAPI,
+    private val createParamsValidator: UserCreateParamsValidator,
 ) {
     companion object {
         const val REFRESH_TOKEN_COOKIE = "refresh_token"
-
-        val LOG by logger()
     }
 
     @GetMapping("/refresh")
@@ -60,6 +66,17 @@ class UsersAuthController(
             .status(HttpStatus.OK)
             .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
             .body(JwtTokenDto(authResult.accessToken))
+    }
+
+    @PostMapping("/public/register")
+    fun userRegistration(
+        @RequestBody userCreateRequestDto: UserCreateRequestDto,
+    ): ResponseEntity<UserDto> {
+        val params = userCreateRequestDto.toParams()
+        createParamsValidator.validate(params).throwIfNotEmpty()
+        val user = userAPI.create(params)
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(user.toDto())
     }
 
     // Logout is completely handled by Spring Boot in UserSecurityConfiguration.logout

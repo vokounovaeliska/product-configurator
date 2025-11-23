@@ -36,6 +36,7 @@
     "description": "Toto je konfigurátor produktů",
     "loginButton": "Přihlásit",
     "registerButton": "Registrovat",
+    "setupCta": "Přejít na nastavení modelů",
     "title": "Konfigurátor produktů"
   },
   "Login": {
@@ -57,13 +58,68 @@
     "errorMessages": {
       "emailInvalidMessage": "Neplatný formát emailu",
       "emailRequiredMessage": "Zadejte e-mail",
-      "nameRequiredMessage": "Zadejte jméno",
-      "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
-      "passwordRequiredMessage": "Zadejte heslo"
+      "firstNameRequiredMessage": "Zadejte své křestní jméno",
+      "surnameRequiredMessage": "Zadejte své příjmení",
+      "passwordRequiredMessage": "Zadejte heslo",
+      "confirmPasswordRequiredMessage": "Potvrďte prosím své heslo",
+      "passwordsNotMatchMessage": "Hesla se neshodují"
     },
     "loginButton": "Registrovat",
-    "name": "Jméno",
+    "firstName": "Křestní jméno",
+    "surname": "Příjmení",
     "password": "Heslo",
+    "confirmPassword": "Potvrzení hesla",
+    "submitButton": "Registrovat",
+    "success": {
+      "message": "Váš účet byl úspěšně vytvořen. Nyní se můžete přihlásit.",
+      "title": "Registrace úspěšná"
+    },
     "title": "Registrace"
+  },
+  "UserRegistration": {
+    "confirmPassword": "Potvrzení hesla",
+    "email": "E-mail",
+    "errorMessages": {
+      "confirmPasswordRequiredMessage": "Potvrďte prosím své heslo",
+      "emailInvalidMessage": "Neplatný formát emailu",
+      "emailRequiredMessage": "Zadejte e-mail",
+      "firstNameRequiredMessage": "Zadejte své křestní jméno",
+      "generalError": "Něco se pokazilo",
+      "passwordsNotMatchMessage": "Hesla se neshodují",
+      "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
+      "passwordRequiredMessage": "Zadejte heslo",
+      "surnameRequiredMessage": "Zadejte své příjmení"
+    },
+    "firstName": "Křestní jméno",
+    "password": "Heslo",
+    "submitButton": "Registrovat",
+    "success": {
+      "message": "Váš účet byl úspěšně vytvořen. Nyní se můžete přihlásit.",
+      "title": "Registrace úspěšná"
+    },
+    "surname": "Příjmení",
+    "title": "Registrace"
+  },
+  "Setup": {
+    "description": "Vítejte na vašem nastavení. Zde můžete spravovat modely produktů a konfigurovat svůj konfigurátor.",
+    "productModels": {
+      "action": "Spravovat modely",
+      "description": "Vytvářejte a spravujte modely produktů, které mohou zákazníci konfigurovat",
+      "title": "Modely produktů"
+    },
+    "title": "Nastavení",
+    "welcome": "Vítejte, {name}!"
+  },
+  "ProductModels": {
+    "description": "Spravujte své modely produktů. Vytvářejte a konfigurujte modely, které mohou zákazníci přizpůsobit.",
+    "list": {
+      "createButton": "Vytvořit model",
+      "emptyState": {
+        "createButton": "Vytvořit první model",
+        "message": "Zatím jste nevytvořili žádné modely produktů. Začněte vytvořením svého prvního modelu."
+      },
+      "title": "Modely produktů"
+    },
+    "title": "Modely produktů"
   }
 }

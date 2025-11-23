@@ -52,6 +52,22 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/users/api/v1/auth/public/register": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations["userRegistration"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/users/api/v1/auth/public/login": {
     parameters: {
       query?: never
@@ -82,6 +98,22 @@ export type paths = {
     options?: never
     head?: never
     patch: operations["usersPatch"]
+    trace?: never
+  }
+  "/users/api/v1/users/me": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations["usersMe"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
     trace?: never
   }
   "/users/api/v1/auth/refresh": {
@@ -117,7 +149,6 @@ export type components = {
       firstName: string
       surname: string
       email: string
-      name: string
       password: string
       confirmPassword: string
     }
@@ -155,6 +186,11 @@ export type components = {
     UserPaginatedResponseDto: {
       items: components["schemas"]["UserDto"][]
       pageMetadata: components["schemas"]["PaginatedResponseMetaDto"]
+    }
+    UserMeInfoDto: {
+      /** Format: uuid */
+      id: string
+      fullName: string
     }
   }
   responses: never
@@ -232,6 +268,28 @@ export type operations = {
     }
   }
   usersCreate: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserCreateRequestDto"]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: Record<string, unknown>
+        content: {
+          "*/*": components["schemas"]["UserDto"]
+        }
+      }
+    }
+  }
+  userRegistration: {
     parameters: {
       query?: never
       header?: never
@@ -333,6 +391,24 @@ export type operations = {
         headers: Record<string, unknown>
         content: {
           "*/*": components["schemas"]["UserDto"]
+        }
+      }
+    }
+  }
+  usersMe: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: Record<string, unknown>
+        content: {
+          "*/*": components["schemas"]["UserMeInfoDto"]
         }
       }
     }

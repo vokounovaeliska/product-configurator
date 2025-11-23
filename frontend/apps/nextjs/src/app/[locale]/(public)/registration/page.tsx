@@ -3,11 +3,9 @@ import { type Locale } from "next-intl"
 import { getTranslations } from "next-intl/server"
 import { Typography } from "@workspace/ui/components/typography"
 
-import { SignUpForm } from "@/components/SignUpForm"
 import { env } from "@/config/env"
-import { getSession } from "@/lib/auth/session"
-import { redirect } from "@/lib/i18n/navigation"
-import { ROUTES } from "@/lib/routes"
+
+import { RegistrationForm } from "@/features/auth/components/RegistrationForm"
 
 type Props = {
   params: Promise<{ locale: Locale }>
@@ -35,12 +33,6 @@ const RegistrationPage = async (props: Props) => {
   const { locale } = await props.params
   const t = await getTranslations({ locale, namespace: "Registration" })
 
-  const { session } = await getSession()
-
-  if (session) {
-    redirect({ href: ROUTES.home, locale })
-  }
-
   return (
     <div className="flex-1 rounded-2xl bg-muted/50 p-10">
       <Typography
@@ -52,7 +44,7 @@ const RegistrationPage = async (props: Props) => {
         {t("title")}
       </Typography>
 
-      <SignUpForm />
+      <RegistrationForm />
     </div>
   )
 }

@@ -3,7 +3,7 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["ENV_NAME"]
+      "env": ["ENV_NAME", "NODE_ENV"]
     }
   }
 }

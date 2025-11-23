@@ -1,33 +1,44 @@
-import type { Session, User } from "better-auth"
-
-import { authClient } from "./authClient"
-import { getAuthCookies } from "./authCookies"
+import type { UserDto } from "@/api/userTypes"
+import { publicApi } from "@/lib/api/restClient"
+import { getCookie } from "@/utils/cookies"
 
 type SessionType = {
-  user: User | null
-  session: Session | null
+  user: { id: string; email: string; name?: string } | null
+  session: { isValid: boolean } | null
 }
 
 export const getSession = async (): Promise<SessionType> => {
   try {
-    const authCookies = await getAuthCookies()
+    // Access token is stored as a frontend cookie after login (see useAuth.signIn)
+    const accessTokenCookie = await getCookie("access_token")
 
-    const { data } = await authClient.getSession(
-      {},
-      {
+    if (!accessTokenCookie?.value) {
+      return { user: null, session: null }
+    }
+
+    const accessToken = accessTokenCookie.value
+
+    // Use the access token to fetch current user info from /users/me
+    const me = await publicApi
+      .get("users/api/v1/users/me", {
         headers: {
-          cookie: authCookies,
+          Authorization: `Bearer ${accessToken}`,
         },
-      },
-    )
+      })
+      .json<UserDto>()
 
-    return { user: data?.user ?? null, session: data?.session ?? null }
+    return {
+      user: {
+        id: me.id,
+        email: me.email,
+        name: `${me.firstName} ${me.surname}`.trim(),
+      },
+      session: { isValid: true },
+    }
   } catch (error) {
-    // Handle fetch errors gracefully (backend not available, network issues, etc.)
-    // Only log in development to avoid noise in production
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "Failed to get session (backend may not be running):",
+        "Failed to get session (backend may not be running or token invalid):",
         error instanceof Error ? error.message : error,
       )
     }

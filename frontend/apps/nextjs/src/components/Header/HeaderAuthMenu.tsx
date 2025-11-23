@@ -1,6 +1,5 @@
 "use client"
 
-import type { User } from "better-auth"
 import { useTranslations } from "next-intl"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
@@ -10,8 +9,14 @@ import { useAuth } from "@/hooks/useAuth"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
+type HeaderUser = {
+  id: string
+  email: string
+  name?: string | null
+}
+
 type Props = {
-  user: User | null
+  user: HeaderUser | null
 }
 
 export const HeaderAuthMenu = ({ user }: Props) => {
@@ -38,15 +43,20 @@ export const HeaderAuthMenu = ({ user }: Props) => {
     )
   }
 
+  const displayName = user.name ?? user.email ?? ""
+  const initial = displayName?.charAt(0).toUpperCase() ?? "U"
+
   return (
     <div className="flex items-center gap-4">
       <Avatar>
         <AvatarImage
-          src={user.image ?? ""}
-          alt={`${user.name} avatar`}
+          src=""
+          alt={displayName ?? "User avatar"}
         />
-        <AvatarFallback className="text-sm text-muted-foreground">{user.name[0]}</AvatarFallback>
+        <AvatarFallback className="text-sm text-muted-foreground">{initial}</AvatarFallback>
       </Avatar>
+
+      {displayName && <span className="text-sm font-medium text-foreground">{displayName}</span>}
 
       <Button onClick={() => signOut()}>{t("logout")}</Button>
     </div>

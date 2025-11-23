@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
+import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
   Form,
   FormControl,
@@ -16,31 +17,29 @@ import {
 import { Input } from "@workspace/ui/components/input"
 
 import { useAuth } from "@/hooks/useAuth"
-import {
-  getRegistrationFormSchema,
-  type RegistrationSchema,
-} from "@/schemas/registrationFormSchema"
 
-export const SignUpForm = () => {
+import { getLoginFormSchema, type LoginSchema } from "@/features/auth/schemas/loginFormSchema"
+
+export const SignInForm = () => {
   const [error, setError] = useState<string | null>(null)
 
-  const t = useTranslations("Registration")
-  const { signUp } = useAuth()
+  const t = useTranslations("Login")
+  const { signIn } = useAuth()
 
-  const registrationFormSchema = getRegistrationFormSchema(t)
+  const loginFormSchema = getLoginFormSchema(t)
 
   const form = useForm({
     defaultValues: {
-      name: "",
       email: "",
       password: "",
+      rememberMe: false,
     },
-    resolver: zodResolver(registrationFormSchema),
+    resolver: zodResolver(loginFormSchema),
   })
 
-  const onSubmit = async (values: RegistrationSchema) => {
+  const onSubmit = async (values: LoginSchema) => {
     setError(null)
-    const { error } = await signUp(values.email, values.password, values.name)
+    const { error } = await signIn(values.email, values.password, values.rememberMe)
 
     if (error) {
       setError(error.message ?? t("errorMessages.generalError"))
@@ -54,22 +53,6 @@ export const SignUpForm = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4"
         >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("name")}</FormLabel>
-                <FormControl>
-                  <Input
-                    type="name"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="email"
@@ -102,7 +85,21 @@ export const SignUpForm = () => {
               </FormItem>
             )}
           />
-
+          <FormField
+            control={form.control}
+            name="rememberMe"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-y-0 space-x-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel>{t("rememberMe")}</FormLabel>
+              </FormItem>
+            )}
+          />
           <Button
             type="submit"
             className="w-full"

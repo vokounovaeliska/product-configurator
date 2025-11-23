@@ -7,7 +7,9 @@ jwt:
 cors:
   allowed-origins: >
     http://localhost:5173,
-    https://localhost:5173
+    https://localhost:5173,
+    http://localhost:3001,
+    https://localhost:3001
 
 logging:
   level:

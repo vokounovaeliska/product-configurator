@@ -3,7 +3,7 @@ import Image from "next/image"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
-import Logo from "@/assets/configuratorLogo.png"
+import Logo from "@/assets/pcLogo.png"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 

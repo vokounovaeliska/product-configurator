@@ -74,6 +74,24 @@ class UsersController(
         return ResponseEntity.status(HttpStatus.OK).body(user.toDto())
     }
 
+    @GetMapping("/users/me")
+    fun usersMe(): ResponseEntity<UserDto> {
+        val currentUser = userAPI.getCurrentUser()
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(
+                UserDto(
+                    id = currentUser.id.value,
+                    firstName = currentUser.firstName,
+                    surname = currentUser.surname,
+                    email = currentUser.email,
+                    createdAt = currentUser.createdAt,
+                    modifiedAt = currentUser.modifiedAt,
+                ),
+            )
+    }
+
     @GetMapping("/users")
     fun usersPaginatedList(
         @RequestParam(required = false) limit: Int?,
