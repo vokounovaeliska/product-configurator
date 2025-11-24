@@ -38,7 +38,7 @@ Configure the following secrets in your GitHub repository:
 
 **Optional (have defaults):**
 
-- **`SUPABASE_DB_PORT`**: Port (defaults to `6543` if not set)
+- **`SUPABASE_DB_PORT`**: Port (defaults to `6543` if not set – override if your connection string uses `5432` or another port)
 - **`SUPABASE_DB_NAME`**: Database name (defaults to `postgres` if not set)
 
 ## Railway Setup
@@ -62,13 +62,18 @@ Configure the following secrets in your GitHub repository:
 - Add the following environment variables:
     - `DB_URL`: Full JDBC connection string
         - Format: `jdbc:postgresql://[HOST]:[PORT]/[DATABASE]?sslmode=require&prepareThreshold=0`
-        -
-        Example: `jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0`
-        - Use your Supabase connection pooler host and port `6543`
+        - Example (using the pooler on port `6543`):  
+          `jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0`
+        - Use your **Supabase connection settings exactly as shown in the dashboard** (host + port from your connection string, which may be `5432` or `6543`)
         - `prepareThreshold=0` is required for pgbouncer compatibility
     - `DB_USERNAME`: Your Supabase database user (format: `postgres.tenant-id`)
     - `DB_PASSWORD`: Your Supabase database password
     - `SPRING_PROFILES_ACTIVE`: `prod`
+    - `JWT_USERS_KEY`: Secret used to sign user JWTs
+        - **Must be at least 256 bits (32+ random characters)** or you will see  
+          `The secret length must be at least 256 bits` from the login endpoint
+    - `CORS_ALLOWED_ORIGINS`: Comma‑separated list of allowed frontend origins for CORS, e.g.  
+      `https://frontend-production-1234.up.railway.app,https://your-custom-domain.com`
     - Any other environment variables your application needs
 
 ### 3. Configure Frontend Service
@@ -83,10 +88,17 @@ Configure the following secrets in your GitHub repository:
 - Go to your nextjs Railway service → **Variables**
 - Add the following environment variables (required for build):
     - `ENV_NAME`: `production`
-    - `NEXT_PUBLIC_SITE_URL`: Your frontend URL (e.g., `https://your-frontend.railway.app`)
-    - `NEXT_PUBLIC_API_URL`: Your backend API URL (e.g., `https://your-backend.railway.app`)
+    - `NEXT_PUBLIC_SITE_URL`: Your **public frontend URL** (e.g., `https://your-frontend.railway.app`)
+    - `NEXT_PUBLIC_API_URL`: Your **public backend API URL** (e.g., `https://your-backend.railway.app`)
     - `NEXT_PUBLIC_BE_URL`: Your backend URL (same as `NEXT_PUBLIC_API_URL`)
     - `NEXT_PUBLIC_REST_API_URL`: Your REST API URL (same as `NEXT_PUBLIC_API_URL`)
+
+**Important:**
+
+- All `NEXT_PUBLIC_*` URLs must be **public HTTPS URLs**, not internal hosts like  
+  `http://backend.railway.internal`, because they are called directly from the browser.
+- The origins you configure in `CORS_ALLOWED_ORIGINS` on the backend must match the  
+  frontend URLs you set here so that browsers can call the API without CORS errors.
 
 **Note:** These variables are used during the Docker build process, so they must be set before deployment. Railway
 automatically passes environment variables as build arguments.
@@ -117,10 +129,9 @@ You can also trigger deployment manually:
 
 ### Migrations Fail
 
-- **Use Connection Pooler**: The workflow defaults to port `6543` (connection pooler). This is more reliable for
-  external connections from GitHub Actions.
-    - In Supabase dashboard → **Settings** → **Database**, look for "Connection Pooler" section
-    - Use the pooler host and port `6543` instead of direct connection (port `5432`)
+- **Use the correct port**:
+    - The workflow defaults to port `6543` (pooler). If your Supabase connection string uses `5432` (direct DB) or a different port, set `SUPABASE_DB_PORT` accordingly so `FLYWAY_URL` matches your actual settings.
+    - In Supabase dashboard → **Settings** → **Database**, use the host and port from the connection (pooler or direct) you intend to use.
 
 - **Check Database Status**:
     - Go to Supabase dashboard and verify your database is **not paused**
@@ -144,8 +155,8 @@ You can also trigger deployment manually:
 
 - Ensure `DB_URL` is a full JDBC connection string, not just a hostname
 - Format: `jdbc:postgresql://[HOST]:[PORT]/[DATABASE]?sslmode=require&prepareThreshold=0`
-- Example: `jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0`
-- The `prepareThreshold=0` parameter is required for Supabase connection pooler (pgbouncer)
+- Example (pooler): `jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0`
+- The `prepareThreshold=0` parameter is required for Supabase connection pooler (pgbouncer); you can still keep it when using port `5432`.
 
 ### Frontend Build Issues
 
@@ -158,11 +169,10 @@ You can also trigger deployment manually:
 
 ### Connection Pooler Setup
 
-1. **Use Connection Pooler (Port 6543)**:
-    - Direct connections (port 5432) are often restricted
-    - Use the Connection Pooler endpoint with port `6543`
+1. **Use Connection Pooler (commonly port 6543)**:
+    - Many setups prefer the Connection Pooler endpoint on port `6543`, but if your Supabase project shows a different port (e.g. `5432`) for the connection you’re using, follow that.
     - In Supabase dashboard → **Settings** → **Database** → **Connection Pooler**
-    - Copy the pooler connection string (Transaction mode, port 6543)
+    - Copy the pooler connection string (Transaction mode, note the port it uses)
     - Extract the host: should be `aws-X-region.pooler.supabase.com`
     - Extract the user: should be `postgres.tenant-id` (includes tenant ID)
 

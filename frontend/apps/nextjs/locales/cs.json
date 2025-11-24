@@ -60,6 +60,7 @@
       "emailRequiredMessage": "Zadejte e-mail",
       "firstNameRequiredMessage": "Zadejte své křestní jméno",
       "surnameRequiredMessage": "Zadejte své příjmení",
+      "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
       "passwordRequiredMessage": "Zadejte heslo",
       "confirmPasswordRequiredMessage": "Potvrďte prosím své heslo",
       "passwordsNotMatchMessage": "Hesla se neshodují"
