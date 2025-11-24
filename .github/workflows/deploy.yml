@@ -72,9 +72,15 @@ jobs:
       - name: Deploy backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up -s backend -e production
+        run: |
+          echo "::group::Deploy backend to Railway"
+          railway up -s backend -e production
+          echo "::endgroup::"
 
       - name: Deploy frontend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up -s nextjs -e production
+        run: |
+          echo "::group::Deploy frontend to Railway"
+          railway up -s nextjs -e production
+          echo "::endgroup::"

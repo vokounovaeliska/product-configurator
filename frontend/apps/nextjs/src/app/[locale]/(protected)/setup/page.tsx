@@ -6,7 +6,7 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import { env } from "@/config/env"
 import { getSession } from "@/lib/auth/session"
-import { Link } from "@/lib/i18n/navigation"
+import { Link, redirect } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 type Props = {
@@ -40,8 +40,13 @@ const SetupPage = async (props: Props) => {
     namespace: "Setup",
   })
 
-  const session = await getSession()
-  const rawName = session.user?.name ?? ""
+  const { session, user } = await getSession()
+
+  if (!session?.isValid || !user) {
+    redirect({ href: ROUTES.home, locale })
+  }
+
+  const rawName = user?.name ?? ""
   const firstName = rawName.split(" ")[0] ?? ""
 
   return (
