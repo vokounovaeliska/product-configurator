@@ -5,6 +5,7 @@ package cz.vokounova.configurator.generated.jooq.tables
 
 
 import cz.vokounova.configurator.generated.jooq.Public
+import cz.vokounova.configurator.generated.jooq.indexes.IX_USER_SEARCH_VECTOR
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.USER_EMAIL_KEY
 import cz.vokounova.configurator.generated.jooq.keys.USER_PKEY
@@ -20,6 +21,7 @@ import kotlin.collections.List
 import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
+import org.jooq.Index
 import org.jooq.InverseForeignKey
 import org.jooq.Name
 import org.jooq.Path
@@ -117,6 +119,11 @@ open class User(
      */
     val CHECK_SUM: TableField<UserRecord, String?> = createField(DSL.name("check_sum"), SQLDataType.CLOB.nullable(false), this, "")
 
+    /**
+     * The column <code>public.user.search_vector</code>.
+     */
+    val SEARCH_VECTOR: TableField<UserRecord, String?> = createField(DSL.name("search_vector"), SQLDataType.CLOB, this, "")
+
     private constructor(alias: Name, aliased: Table<UserRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<UserRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<UserRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
@@ -149,6 +156,7 @@ open class User(
         override fun `as`(alias: Table<*>): UserPath = UserPath(alias.qualifiedName, this)
     }
     override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
+    override fun getIndexes(): List<Index> = listOf(IX_USER_SEARCH_VECTOR)
     override fun getPrimaryKey(): UniqueKey<UserRecord> = USER_PKEY
     override fun getUniqueKeys(): List<UniqueKey<UserRecord>> = listOf(USER_EMAIL_KEY)
 

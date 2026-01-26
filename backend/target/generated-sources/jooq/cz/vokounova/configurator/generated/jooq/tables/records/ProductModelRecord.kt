@@ -6,6 +6,7 @@ package cz.vokounova.configurator.generated.jooq.tables.records
 
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
 
+import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -35,9 +36,9 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         set(value): Unit = set(3, value)
         get(): String? = get(3) as String?
 
-    open var basePriceCents: Int?
+    open var price: BigDecimal?
         set(value): Unit = set(4, value)
-        get(): Int? = get(4) as Int?
+        get(): BigDecimal? = get(4) as BigDecimal?
 
     open var currency: String?
         set(value): Unit = set(5, value)
@@ -66,12 +67,12 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
     /**
      * Create a detached, initialised ProductModelRecord
      */
-    constructor(id: UUID, userId: UUID, name: String, description: String? = null, basePriceCents: Int? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, userId: UUID, name: String, description: String? = null, price: BigDecimal? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
         this.id = id
         this.userId = userId
         this.name = name
         this.description = description
-        this.basePriceCents = basePriceCents
+        this.price = price
         this.currency = currency
         this.isActive = isActive
         this.createdAt = createdAt

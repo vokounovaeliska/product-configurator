@@ -26,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.Base64
 import java.util.UUID
@@ -925,8 +926,8 @@ class UsersControllerErrorsTest : BaseIntegrationTest() {
 
         val error = parsedResult.errors[0]
 
-        assertEquals(CommonErrorCode.VALIDATION_ERROR.name, error.code)
-        assertEquals("Content-Type 'application/json' is not supported", error.message)
+        assertEquals(BaseValidationCode.FIELD_IS_NULL.name, error.code)
+        assertEquals("Cannot be null", error.message)
     }
 
     @Test
@@ -1051,7 +1052,7 @@ class UsersControllerErrorsTest : BaseIntegrationTest() {
         val result =
             mockMvc
                 .perform(
-                    post("${USERS_URL}/${user.id.value}/change-password")
+                    put("${USERS_URL}/${user.id.value}/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin())
                         .content(payload),
@@ -1083,7 +1084,7 @@ class UsersControllerErrorsTest : BaseIntegrationTest() {
 
         mockMvc
             .perform(
-                post("$USERS_URL/$uuid/change-password")
+                put("$USERS_URL/$uuid/password")
                     .contentType(MediaType.APPLICATION_JSON)
                     .with(AuthMocks.mockAdmin())
                     .content(payload),
@@ -1109,7 +1110,7 @@ class UsersControllerErrorsTest : BaseIntegrationTest() {
         val result =
             mockMvc
                 .perform(
-                    post("${USERS_URL}/${user.id.value}/change-password")
+                    put("${USERS_URL}/${user.id.value}/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin())
                         .content(payload),
@@ -1132,7 +1133,7 @@ class UsersControllerErrorsTest : BaseIntegrationTest() {
     fun `Post - Unauthorized - when user is not logged in and tries to change his password`() {
         mockMvc
             .perform(
-                post("${USERS_URL}/me/change-password")
+                put("${USERS_URL}/me/password")
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(status().isUnauthorized)
     }
