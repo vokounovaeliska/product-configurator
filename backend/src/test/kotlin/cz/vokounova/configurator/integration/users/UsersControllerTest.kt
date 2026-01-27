@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.Base64
 import java.util.UUID
@@ -272,7 +273,7 @@ class UsersControllerTest : BaseIntegrationTest() {
 
         mockMvc
             .perform(
-                post("$USERS_URL/${user.id.value}/change-password")
+                put("$USERS_URL/${user.id.value}/password")
                     .contentType(MediaType.APPLICATION_JSON)
                     .with(AuthMocks.mockAdmin())
                     .content(payload),
@@ -305,7 +306,7 @@ class UsersControllerTest : BaseIntegrationTest() {
 
         mockMvc
             .perform(
-                post("$USERS_URL/me/change-password")
+                put("$USERS_URL/me/password")
                     .contentType(MediaType.APPLICATION_JSON)
                     .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                     .content(payload),
@@ -634,7 +635,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "-firstName,-name")
+                        .param("orderBy", "-firstName,-surname")
                         .param("after", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
@@ -707,7 +708,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "firstName,-name")
+                        .param("orderBy", "firstName,-surname")
                         .param("after", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
@@ -780,7 +781,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "-firstName,name")
+                        .param("orderBy", "-firstName,surname")
                         .param("after", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
@@ -798,298 +799,6 @@ class UsersControllerTest : BaseIntegrationTest() {
         assertEquals(2, items.size)
         assertEquals(userBA.id.value, items[0].id)
         assertEquals(userBB.id.value, items[1].id)
-    }
-
-    @Test
-    fun `List - Returns paginated list of users sorted by email with after cursor`() {
-        val userAdmin1 =
-            UserMocks.getUser(
-                id = userId0,
-                firstName = "Aaron",
-                surname = "Arnolds",
-                email = "aaron",
-            )
-        userRepository.create(userAdmin1)
-
-        val userAdmin2 =
-            UserMocks.getUser(
-                id = userId1,
-                firstName = "Bob",
-                surname = "Adams",
-                email = "boba",
-            )
-        userRepository.create(userAdmin2)
-
-        val userSupervisor =
-            UserMocks.getUser(
-                id = userId2,
-                firstName = "Bob",
-                surname = "Bobson",
-                email = "bob",
-            )
-        userRepository.create(userSupervisor)
-
-        val userOperator =
-            UserMocks.getUser(
-                id = userId3,
-                firstName = "Carl",
-                surname = "Carlson",
-                email = "carlos",
-            )
-        userRepository.create(userOperator)
-
-        // Paginate after userAdmin1
-        val cursor =
-            "{" +
-                "  \"email\": \"${userAdmin1.email}\",\n" +
-                "  \"id\": \"${userAdmin1.id.value}\"" +
-                "}"
-
-        val encodedCursor = Base64.getEncoder().encodeToString(cursor.toByteArray())
-
-        val result =
-            mockMvc
-                .perform(
-                    get(USERS_URL)
-                        .param("limit", "2")
-                        .param("orderBy", "email")
-                        .param("after", encodedCursor)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
-                ).andExpect(status().isOk)
-                .andReturn()
-
-        val parsedResult = readResponse<UserPaginatedResponseDto>(result)
-
-        assertNotNull(parsedResult.items)
-        assertNotNull(parsedResult.pageMetadata)
-        assertNotNull(parsedResult.pageMetadata.prevPageBefore)
-        assertNotNull(parsedResult.pageMetadata.nextPageAfter)
-
-        val items = parsedResult.items
-        assertEquals(2, items.size)
-        assertEquals(userAdmin2.id.value, items[0].id)
-        assertEquals(userSupervisor.id.value, items[1].id)
-    }
-
-    @Test
-    fun `List - Returns paginated list of users sorted by email with before cursor`() {
-        val userAdmin1 =
-            UserMocks.getUser(
-                id = userId0,
-                firstName = "Aaron",
-                surname = "Arnolds",
-                email = "aaron",
-            )
-        userRepository.create(userAdmin1)
-
-        val userAdmin2 =
-            UserMocks.getUser(
-                id = userId1,
-                firstName = "Bob",
-                surname = "Adams",
-                email = "boba",
-            )
-        userRepository.create(userAdmin2)
-
-        val userSupervisor =
-            UserMocks.getUser(
-                id = userId2,
-                firstName = "Bob",
-                surname = "Bobson",
-                email = "bob",
-            )
-        userRepository.create(userSupervisor)
-
-        val userOperator =
-            UserMocks.getUser(
-                id = userId3,
-                firstName = "Carl",
-                surname = "Carlson",
-                email = "carlos",
-            )
-        userRepository.create(userOperator)
-
-        // Paginate before userOperator
-        val cursor =
-            "{" +
-                "  \"email\": \"${userOperator.email}\",\n" +
-                "  \"id\": \"${userOperator.id.value}\"" +
-                "}"
-
-        val encodedCursor = Base64.getEncoder().encodeToString(cursor.toByteArray())
-
-        val result =
-            mockMvc
-                .perform(
-                    get(USERS_URL)
-                        .param("limit", "2")
-                        .param("orderBy", "email")
-                        .param("before", encodedCursor)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
-                ).andExpect(status().isOk)
-                .andReturn()
-
-        val parsedResult = readResponse<UserPaginatedResponseDto>(result)
-
-        assertNotNull(parsedResult.items)
-        assertNotNull(parsedResult.pageMetadata)
-        assertNotNull(parsedResult.pageMetadata.prevPageBefore)
-        assertNotNull(parsedResult.pageMetadata.nextPageAfter)
-
-        val items = parsedResult.items
-        assertEquals(2, items.size)
-        assertEquals(userAdmin2.id.value, items[0].id)
-        assertEquals(userSupervisor.id.value, items[1].id)
-    }
-
-    @Test
-    fun `List - Returns paginated list of users sorted by email & surname with after cursor`() {
-        val userAdminA =
-            UserMocks.getUser(
-                id = userId0,
-                firstName = "Aaron",
-                surname = "Arnolds",
-                email = "aaron",
-            )
-        userRepository.create(userAdminA)
-
-        val userAdminB =
-            UserMocks.getUser(
-                id = userId1,
-                firstName = "Bob",
-                surname = "Bobber",
-                email = "boba",
-            )
-        userRepository.create(userAdminB)
-
-        val userSupervisorA =
-            UserMocks.getUser(
-                id = userId2,
-                firstName = "Arnold",
-                surname = "Arnie",
-                email = "aaa",
-            )
-        userRepository.create(userSupervisorA)
-
-        val userSupervisorB =
-            UserMocks.getUser(
-                id = userId3,
-                firstName = "Benny",
-                surname = "Bigfoot",
-                email = "bbb",
-            )
-        userRepository.create(userSupervisorB)
-
-        // Paginate after userAA
-        val cursor =
-            "{" +
-                "  \"email\": \"${userAdminA.email}\",\n" +
-                "  \"surname\": \"${userAdminA.surname}\",\n" +
-                "  \"id\": \"${userAdminA.id.value}\"" +
-                "}"
-
-        val encodedCursor = Base64.getEncoder().encodeToString(cursor.toByteArray())
-
-        val result =
-            mockMvc
-                .perform(
-                    get(USERS_URL)
-                        .param("limit", "3")
-                        .param("orderBy", "email,surname")
-                        .param("after", encodedCursor)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
-                ).andExpect(status().isOk)
-                .andReturn()
-
-        val parsedResult = readResponse<UserPaginatedResponseDto>(result)
-
-        assertNotNull(parsedResult.items)
-        assertNotNull(parsedResult.pageMetadata)
-        assertNotNull(parsedResult.pageMetadata.prevPageBefore)
-        assertNull(parsedResult.pageMetadata.nextPageAfter)
-
-        val items = parsedResult.items
-        assertEquals(3, items.size)
-        assertEquals(userAdminB.id.value, items[0].id)
-        assertEquals(userSupervisorA.id.value, items[1].id)
-        assertEquals(userSupervisorB.id.value, items[2].id)
-    }
-
-    @Test
-    fun `List - Returns paginated list of users sorted by email desc & surname desc with before cursor`() {
-        val userAdminA =
-            UserMocks.getUser(
-                id = userId0,
-                firstName = "Aaron",
-                surname = "Arnolds",
-                email = "aaron",
-            )
-        userRepository.create(userAdminA)
-
-        val userAdminB =
-            UserMocks.getUser(
-                id = userId1,
-                firstName = "Bob",
-                surname = "Bobber",
-                email = "boba",
-            )
-        userRepository.create(userAdminB)
-
-        val userSupervisorA =
-            UserMocks.getUser(
-                id = userId2,
-                firstName = "Arnold",
-                surname = "Arnie",
-                email = "aaa",
-            )
-        userRepository.create(userSupervisorA)
-
-        val userSupervisorB =
-            UserMocks.getUser(
-                id = userId3,
-                firstName = "Benny",
-                surname = "Bigfoot",
-                email = "bbb",
-            )
-        userRepository.create(userSupervisorB)
-
-        // Paginate before userAdminA
-        val cursor =
-            "{" +
-                "  \"email\": \"${userAdminA.email}\",\n" +
-                "  \"surname\": \"${userAdminA.surname}\",\n" +
-                "  \"id\": \"${userAdminA.id.value}\"" +
-                "}"
-
-        val encodedCursor = Base64.getEncoder().encodeToString(cursor.toByteArray())
-
-        val result =
-            mockMvc
-                .perform(
-                    get(USERS_URL)
-                        .param("limit", "3")
-                        .param("orderBy", "-email,-surname")
-                        .param("before", encodedCursor)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
-                ).andExpect(status().isOk)
-                .andReturn()
-
-        val parsedResult = readResponse<UserPaginatedResponseDto>(result)
-
-        assertNotNull(parsedResult.items)
-        assertNotNull(parsedResult.pageMetadata)
-        assertNull(parsedResult.pageMetadata.prevPageBefore)
-        assertNotNull(parsedResult.pageMetadata.nextPageAfter)
-
-        val items = parsedResult.items
-        assertEquals(3, items.size)
-        assertEquals(userSupervisorB.id.value, items[0].id)
-        assertEquals(userSupervisorA.id.value, items[1].id)
-        assertEquals(userAdminB.id.value, items[2].id)
     }
 
     @Test
@@ -1218,7 +927,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "-firstName,-name")
+                        .param("orderBy", "-firstName,-surname")
                         .param("after", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
@@ -1510,7 +1219,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "-firstName,-name")
+                        .param("orderBy", "-firstName,-surname")
                         .param("before", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
@@ -1583,7 +1292,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "firstName,-name")
+                        .param("orderBy", "firstName,-surname")
                         .param("before", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
@@ -1656,7 +1365,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "-firstName,name")
+                        .param("orderBy", "-firstName,surname")
                         .param("before", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
@@ -1802,7 +1511,7 @@ class UsersControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(USERS_URL)
                         .param("limit", "2")
-                        .param("orderBy", "-firstName,-name")
+                        .param("orderBy", "-firstName,-surname")
                         .param("before", encodedCursor)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),

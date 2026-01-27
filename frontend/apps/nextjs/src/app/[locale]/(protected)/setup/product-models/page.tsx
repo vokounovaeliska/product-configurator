@@ -5,6 +5,8 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import { env } from "@/config/env"
 
+import { ProductModelsList } from "@/features/productModels/components/ProductModelsList"
+
 type Props = {
   params: Promise<{ locale: Locale }>
 }
@@ -55,6 +57,7 @@ const ProductModelsPage = async (props: Props) => {
           {t("description")}
         </Typography>
       </div>
+      <ProductModelsList />
     </div>
   )
 }

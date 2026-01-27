@@ -47,4 +47,8 @@ fun UserMeChangePasswordRequestDto.toParams(): UserMeChangePasswordParams =
         confirmNewPassword = confirmNewPassword,
     )
 
-fun UserListQueryParams.toFilter(): UserFilter = UserFilter(ids = ids?.map { UserId(it) })
+fun UserListQueryParams.toFilter(): UserFilter =
+    UserFilter(
+        ids = ids?.map { UserId(it) },
+        search = search,
+    )

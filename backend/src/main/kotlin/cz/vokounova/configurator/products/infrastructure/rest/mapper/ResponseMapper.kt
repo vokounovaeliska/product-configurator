@@ -1,16 +1,20 @@
 package cz.vokounova.configurator.products.infrastructure.rest.mapper
 
-import cz.vokounova.configurator.products.domain.Component
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.response.ComponentDto
+import cz.vokounova.configurator.products.domain.ProductModel
+import cz.vokounova.configurator.products.infrastructure.rest.mapper.response.ProductModelDto
 
-fun Component.toDto(): ComponentDto =
-    ComponentDto(
+/**
+ * Maps domain ProductModel to external Dto
+ */
+fun ProductModel.toDto(): ProductModelDto =
+    ProductModelDto(
         id = id.value,
-        productModelId = productModelId.value,
-        code = code,
-        label = label,
+        userId = userId.value,
+        name = name,
         description = description,
-        sortOrder = sortOrder,
+        price = price,
+        currency = currency,
+        isActive = isActive,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

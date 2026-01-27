@@ -6,4 +6,5 @@ data class UserListQueryParams(
     val limit: Int? = null,
     val orderBy: List<String>? = null,
     val ids: List<UUID>? = null,
+    val search: String? = null,
 )

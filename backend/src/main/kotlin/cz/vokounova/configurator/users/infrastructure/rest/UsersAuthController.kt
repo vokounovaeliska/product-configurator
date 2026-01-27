@@ -1,6 +1,7 @@
 package cz.vokounova.configurator.users.infrastructure.rest
 
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
+import cz.vokounova.configurator.shared.security.extractBearerTokenValue
 import cz.vokounova.configurator.users.domain.UserAuthenticationRequestLoginPassword
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.request.LoginCredentialsDto
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.request.UserCreateRequestDto
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -37,11 +39,13 @@ class UsersAuthController(
 
     @GetMapping("/refresh")
     fun getUserRefreshToken(
-        @CookieValue(name = REFRESH_TOKEN_COOKIE) refreshToken: String,
-    ): ResponseEntity<JwtTokenDto> =
-        ResponseEntity
+        @RequestHeader(HttpHeaders.AUTHORIZATION) authorization: String,
+    ): ResponseEntity<JwtTokenDto> {
+        val refreshToken = authorization.extractBearerTokenValue()
+        return ResponseEntity
             .ok()
             .body(JwtTokenDto(userRefreshToken.run(refreshToken).token))
+    }
 
     @PostMapping("/public/login")
     fun userAuthLogin(

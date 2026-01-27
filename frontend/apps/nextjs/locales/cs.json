@@ -60,6 +60,7 @@
       "emailRequiredMessage": "Zadejte e-mail",
       "firstNameRequiredMessage": "Zadejte své křestní jméno",
       "surnameRequiredMessage": "Zadejte své příjmení",
+      "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
       "passwordRequiredMessage": "Zadejte heslo",
       "confirmPasswordRequiredMessage": "Potvrďte prosím své heslo",
       "passwordsNotMatchMessage": "Hesla se neshodují"
@@ -111,13 +112,66 @@
     "welcome": "Vítejte, {name}!"
   },
   "ProductModels": {
+    "card": {
+      "active": "Aktivní",
+      "deleteButton": "Smazat",
+      "editButton": "Upravit",
+      "inactive": "Neaktivní"
+    },
+    "create": {
+      "cancelButton": "Zrušit",
+      "description": "Vytvořte nový model produktu, který mohou zákazníci konfigurovat",
+      "descriptionPlaceholder": "Zadejte popis vašeho modelu produktu",
+      "errorMessages": {
+        "generalError": "Něco se pokazilo",
+        "nameRequiredMessage": "Zadejte název modelu"
+      },
+      "name": "Název modelu",
+      "namePlaceholder": "např. Stůl Icatu, Skříň Oslo",
+      "submitButton": "Vytvořit model",
+      "title": "Vytvořit model produktu"
+    },
     "description": "Spravujte své modely produktů. Vytvářejte a konfigurujte modely, které mohou zákazníci přizpůsobit.",
+    "edit": {
+      "cancelButton": "Zrušit",
+      "currency": "Měna",
+      "currencyPlaceholder": "Vyberte měnu",
+      "description": "Aktualizujte údaje o modelu produktu",
+      "descriptionPlaceholder": "Zadejte popis vašeho modelu produktu",
+      "errorMessages": {
+        "currencyRequiredMessage": "Vyberte měnu",
+        "generalError": "Něco se pokazilo",
+        "nameRequiredMessage": "Zadejte název modelu",
+        "priceMinMessage": "Cena musí být alespoň 0",
+        "priceRequiredMessage": "Zadejte cenu"
+      },
+      "isActive": "Aktivní",
+      "isActiveDescription": "Zda je tento model produktu aktuálně aktivní a dostupný pro zákazníky",
+      "name": "Název modelu",
+      "namePlaceholder": "např. Stůl Icatu, Skříň Oslo",
+      "price": "Základní cena",
+      "pricePlaceholder": "0.00",
+      "submitButton": "Uložit změny",
+      "title": "Upravit model produktu"
+    },
+    "delete": {
+      "cancelButton": "Zrušit",
+      "confirmButton": "Smazat model",
+      "description": "Opravdu chcete smazat tento model produktu? Tuto akci nelze vrátit zpět.",
+      "errorMessages": {
+        "generalError": "Něco se pokazilo"
+      },
+      "title": "Smazat model produktu",
+      "warningMessage": "Chystáte se smazat \"{name}\". Tato akce je trvalá a nelze ji vrátit zpět.",
+      "warningTitle": "Varování: Tuto akci nelze vrátit zpět"
+    },
     "list": {
       "createButton": "Vytvořit model",
       "emptyState": {
         "createButton": "Vytvořit první model",
         "message": "Zatím jste nevytvořili žádné modely produktů. Začněte vytvořením svého prvního modelu."
       },
+      "errorMessage": "Nepodařilo se načíst modely produktů. Zkuste to prosím později.",
       "title": "Modely produktů"
     },
     "title": "Modely produktů"

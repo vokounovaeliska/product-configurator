@@ -16,6 +16,7 @@ class ModuleTest {
         ) {
             SHARED("shared"),
             USERS("users"),
+            PRODUCTS("products"),
         }
     }
 

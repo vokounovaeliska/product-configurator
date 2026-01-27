@@ -14,10 +14,26 @@ import cz.vokounova.configurator.generated.jooq.routines.Digest1
 import cz.vokounova.configurator.generated.jooq.routines.Digest2
 import cz.vokounova.configurator.generated.jooq.routines.Encrypt
 import cz.vokounova.configurator.generated.jooq.routines.EncryptIv
+import cz.vokounova.configurator.generated.jooq.routines.FUnaccent
 import cz.vokounova.configurator.generated.jooq.routines.GenRandomBytes
 import cz.vokounova.configurator.generated.jooq.routines.GenRandomUuid
 import cz.vokounova.configurator.generated.jooq.routines.GenSalt1
 import cz.vokounova.configurator.generated.jooq.routines.GenSalt2
+import cz.vokounova.configurator.generated.jooq.routines.GinExtractQueryTrgm
+import cz.vokounova.configurator.generated.jooq.routines.GinExtractValueTrgm
+import cz.vokounova.configurator.generated.jooq.routines.GinTrgmConsistent
+import cz.vokounova.configurator.generated.jooq.routines.GinTrgmTriconsistent
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmCompress
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmConsistent
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmDecompress
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmDistance
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmIn
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmOptions
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmOut
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmPenalty
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmPicksplit
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmSame
+import cz.vokounova.configurator.generated.jooq.routines.GtrgmUnion
 import cz.vokounova.configurator.generated.jooq.routines.Hmac1
 import cz.vokounova.configurator.generated.jooq.routines.Hmac2
 import cz.vokounova.configurator.generated.jooq.routines.PgpKeyId
@@ -39,6 +55,26 @@ import cz.vokounova.configurator.generated.jooq.routines.PgpSymEncrypt1
 import cz.vokounova.configurator.generated.jooq.routines.PgpSymEncrypt2
 import cz.vokounova.configurator.generated.jooq.routines.PgpSymEncryptBytea1
 import cz.vokounova.configurator.generated.jooq.routines.PgpSymEncryptBytea2
+import cz.vokounova.configurator.generated.jooq.routines.SetLimit
+import cz.vokounova.configurator.generated.jooq.routines.ShowLimit
+import cz.vokounova.configurator.generated.jooq.routines.ShowTrgm
+import cz.vokounova.configurator.generated.jooq.routines.Similarity
+import cz.vokounova.configurator.generated.jooq.routines.SimilarityDist
+import cz.vokounova.configurator.generated.jooq.routines.SimilarityOp
+import cz.vokounova.configurator.generated.jooq.routines.StrictWordSimilarity
+import cz.vokounova.configurator.generated.jooq.routines.StrictWordSimilarityCommutatorOp
+import cz.vokounova.configurator.generated.jooq.routines.StrictWordSimilarityDistCommutatorOp
+import cz.vokounova.configurator.generated.jooq.routines.StrictWordSimilarityDistOp
+import cz.vokounova.configurator.generated.jooq.routines.StrictWordSimilarityOp
+import cz.vokounova.configurator.generated.jooq.routines.Unaccent1
+import cz.vokounova.configurator.generated.jooq.routines.Unaccent2
+import cz.vokounova.configurator.generated.jooq.routines.UnaccentInit
+import cz.vokounova.configurator.generated.jooq.routines.UnaccentLexize
+import cz.vokounova.configurator.generated.jooq.routines.WordSimilarity
+import cz.vokounova.configurator.generated.jooq.routines.WordSimilarityCommutatorOp
+import cz.vokounova.configurator.generated.jooq.routines.WordSimilarityDistCommutatorOp
+import cz.vokounova.configurator.generated.jooq.routines.WordSimilarityDistOp
+import cz.vokounova.configurator.generated.jooq.routines.WordSimilarityOp
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.records.PgpArmorHeadersRecord
 
@@ -521,6 +557,44 @@ fun encryptIv(
 }
 
 /**
+ * Call <code>public.f_unaccent</code>
+ */
+fun fUnaccent(
+      configuration: Configuration
+    , __1: String?
+): String? {
+    val f = FUnaccent()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.f_unaccent</code> as a field.
+ */
+fun fUnaccent(
+      __1: String?
+): Field<String?> {
+    val f = FUnaccent()
+    f.set__1(__1)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.f_unaccent</code> as a field.
+ */
+fun fUnaccent(
+      __1: Field<String?>
+): Field<String?> {
+    val f = FUnaccent()
+    f.set__1(__1)
+
+    return f.asField()
+}
+
+/**
  * Call <code>public.gen_random_bytes</code>
  */
 fun genRandomBytes(
@@ -655,6 +729,626 @@ fun genSalt2(
     , __2: Field<Int?>
 ): Field<String?> {
     val f = GenSalt2()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginExtractQueryTrgm(
+      configuration: Configuration
+    , __1: String?
+    , __2: Any?
+    , __3: Short?
+    , __4: Any?
+    , __5: Any?
+    , __6: Any?
+    , __7: Any?
+): Any? {
+    val f = GinExtractQueryTrgm()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginExtractQueryTrgm(
+      __1: String?
+    , __2: Any?
+    , __3: Short?
+    , __4: Any?
+    , __5: Any?
+    , __6: Any?
+    , __7: Any?
+): Field<Any?> {
+    val f = GinExtractQueryTrgm()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginExtractQueryTrgm(
+      __1: Field<String?>
+    , __2: Field<Any?>
+    , __3: Field<Short?>
+    , __4: Field<Any?>
+    , __5: Field<Any?>
+    , __6: Field<Any?>
+    , __7: Field<Any?>
+): Field<Any?> {
+    val f = GinExtractQueryTrgm()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginExtractValueTrgm(
+      configuration: Configuration
+    , __1: String?
+    , __2: Any?
+): Any? {
+    val f = GinExtractValueTrgm()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginExtractValueTrgm(
+      __1: String?
+    , __2: Any?
+): Field<Any?> {
+    val f = GinExtractValueTrgm()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginExtractValueTrgm(
+      __1: Field<String?>
+    , __2: Field<Any?>
+): Field<Any?> {
+    val f = GinExtractValueTrgm()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginTrgmConsistent(
+      configuration: Configuration
+    , __1: Any?
+    , __2: Short?
+    , __3: String?
+    , __4: Int?
+    , __5: Any?
+    , __6: Any?
+    , __7: Any?
+    , __8: Any?
+): Boolean? {
+    val f = GinTrgmConsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+    f.set__8(__8)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginTrgmConsistent(
+      __1: Any?
+    , __2: Short?
+    , __3: String?
+    , __4: Int?
+    , __5: Any?
+    , __6: Any?
+    , __7: Any?
+    , __8: Any?
+): Field<Boolean?> {
+    val f = GinTrgmConsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+    f.set__8(__8)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginTrgmConsistent(
+      __1: Field<Any?>
+    , __2: Field<Short?>
+    , __3: Field<String?>
+    , __4: Field<Int?>
+    , __5: Field<Any?>
+    , __6: Field<Any?>
+    , __7: Field<Any?>
+    , __8: Field<Any?>
+): Field<Boolean?> {
+    val f = GinTrgmConsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+    f.set__8(__8)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginTrgmTriconsistent(
+      configuration: Configuration
+    , __1: Any?
+    , __2: Short?
+    , __3: String?
+    , __4: Int?
+    , __5: Any?
+    , __6: Any?
+    , __7: Any?
+): String? {
+    val f = GinTrgmTriconsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginTrgmTriconsistent(
+      __1: Any?
+    , __2: Short?
+    , __3: String?
+    , __4: Int?
+    , __5: Any?
+    , __6: Any?
+    , __7: Any?
+): Field<String?> {
+    val f = GinTrgmTriconsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun ginTrgmTriconsistent(
+      __1: Field<Any?>
+    , __2: Field<Short?>
+    , __3: Field<String?>
+    , __4: Field<Int?>
+    , __5: Field<Any?>
+    , __6: Field<Any?>
+    , __7: Field<Any?>
+): Field<String?> {
+    val f = GinTrgmTriconsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+    f.set__6(__6)
+    f.set__7(__7)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmCompress(
+      configuration: Configuration
+    , __1: Any?
+): Any? {
+    val f = GtrgmCompress()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmCompress(
+      __1: Any?
+): Field<Any?> {
+    val f = GtrgmCompress()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmCompress(
+      __1: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmCompress()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmConsistent(
+      configuration: Configuration
+    , __1: Any?
+    , __2: String?
+    , __3: Short?
+    , __4: Long?
+    , __5: Any?
+): Boolean? {
+    val f = GtrgmConsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmConsistent(
+      __1: Any?
+    , __2: String?
+    , __3: Short?
+    , __4: Long?
+    , __5: Any?
+): Field<Boolean?> {
+    val f = GtrgmConsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmConsistent(
+      __1: Field<Any?>
+    , __2: Field<String?>
+    , __3: Field<Short?>
+    , __4: Field<Long?>
+    , __5: Field<Any?>
+): Field<Boolean?> {
+    val f = GtrgmConsistent()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmDecompress(
+      configuration: Configuration
+    , __1: Any?
+): Any? {
+    val f = GtrgmDecompress()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmDecompress(
+      __1: Any?
+): Field<Any?> {
+    val f = GtrgmDecompress()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmDecompress(
+      __1: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmDecompress()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmDistance(
+      configuration: Configuration
+    , __1: Any?
+    , __2: String?
+    , __3: Short?
+    , __4: Long?
+    , __5: Any?
+): Double? {
+    val f = GtrgmDistance()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmDistance(
+      __1: Any?
+    , __2: String?
+    , __3: Short?
+    , __4: Long?
+    , __5: Any?
+): Field<Double?> {
+    val f = GtrgmDistance()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmDistance(
+      __1: Field<Any?>
+    , __2: Field<String?>
+    , __3: Field<Short?>
+    , __4: Field<Long?>
+    , __5: Field<Any?>
+): Field<Double?> {
+    val f = GtrgmDistance()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+    f.set__5(__5)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmIn(
+      configuration: Configuration
+    , __1: Any?
+): Any? {
+    val f = GtrgmIn()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmIn(
+      __1: Any?
+): Field<Any?> {
+    val f = GtrgmIn()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmIn(
+      __1: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmIn()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmOptions(
+      configuration: Configuration
+    , __1: Any?
+): Unit {
+    val p = GtrgmOptions()
+    p.set__1(__1)
+
+    p.execute(configuration)
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmOut(
+      configuration: Configuration
+    , __1: Any?
+): Any? {
+    val f = GtrgmOut()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmOut(
+      __1: Any?
+): Field<Any?> {
+    val f = GtrgmOut()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmOut(
+      __1: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmOut()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmPenalty(
+      configuration: Configuration
+    , __1: Any?
+    , __2: Any?
+    , __3: Any?
+): Any? {
+    val f = GtrgmPenalty()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmPenalty(
+      __1: Any?
+    , __2: Any?
+    , __3: Any?
+): Field<Any?> {
+    val f = GtrgmPenalty()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmPenalty(
+      __1: Field<Any?>
+    , __2: Field<Any?>
+    , __3: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmPenalty()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmPicksplit(
+      configuration: Configuration
+    , __1: Any?
+    , __2: Any?
+): Any? {
+    val f = GtrgmPicksplit()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmPicksplit(
+      __1: Any?
+    , __2: Any?
+): Field<Any?> {
+    val f = GtrgmPicksplit()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmPicksplit(
+      __1: Field<Any?>
+    , __2: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmPicksplit()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmSame(
+      configuration: Configuration
+    , __1: Any?
+    , __2: Any?
+    , __3: Any?
+): Any? {
+    val f = GtrgmSame()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmSame(
+      __1: Any?
+    , __2: Any?
+    , __3: Any?
+): Field<Any?> {
+    val f = GtrgmSame()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmSame(
+      __1: Field<Any?>
+    , __2: Field<Any?>
+    , __3: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmSame()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmUnion(
+      configuration: Configuration
+    , __1: Any?
+    , __2: Any?
+): Any? {
+    val f = GtrgmUnion()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmUnion(
+      __1: Any?
+    , __2: Any?
+): Field<Any?> {
+    val f = GtrgmUnion()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun gtrgmUnion(
+      __1: Field<Any?>
+    , __2: Field<Any?>
+): Field<Any?> {
+    val f = GtrgmUnion()
     f.set__1(__1)
     f.set__2(__2)
 
@@ -1659,6 +2353,824 @@ fun pgpSymEncryptBytea2(
     f.set__1(__1)
     f.set__2(__2)
     f.set__3(__3)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.set_limit</code>
+ */
+fun setLimit(
+      configuration: Configuration
+    , __1: Float?
+): Float? {
+    val f = SetLimit()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.set_limit</code> as a field.
+ */
+fun setLimit(
+      __1: Float?
+): Field<Float?> {
+    val f = SetLimit()
+    f.set__1(__1)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.set_limit</code> as a field.
+ */
+fun setLimit(
+      __1: Field<Float?>
+): Field<Float?> {
+    val f = SetLimit()
+    f.set__1(__1)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.show_limit</code>
+ */
+fun showLimit(
+      configuration: Configuration
+): Float? {
+    val f = ShowLimit()
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.show_limit</code> as a field.
+ */
+fun showLimit(): Field<Float?> {
+    val f = ShowLimit()
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.show_trgm</code>
+ */
+fun showTrgm(
+      configuration: Configuration
+    , __1: String?
+): Array<String?>? {
+    val f = ShowTrgm()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.show_trgm</code> as a field.
+ */
+fun showTrgm(
+      __1: String?
+): Field<Array<String?>?> {
+    val f = ShowTrgm()
+    f.set__1(__1)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.show_trgm</code> as a field.
+ */
+fun showTrgm(
+      __1: Field<String?>
+): Field<Array<String?>?> {
+    val f = ShowTrgm()
+    f.set__1(__1)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.similarity</code>
+ */
+fun similarity(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = Similarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.similarity</code> as a field.
+ */
+fun similarity(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = Similarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.similarity</code> as a field.
+ */
+fun similarity(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = Similarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.similarity_dist</code>
+ */
+fun similarityDist(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = SimilarityDist()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.similarity_dist</code> as a field.
+ */
+fun similarityDist(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = SimilarityDist()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.similarity_dist</code> as a field.
+ */
+fun similarityDist(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = SimilarityDist()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.similarity_op</code>
+ */
+fun similarityOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Boolean? {
+    val f = SimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.similarity_op</code> as a field.
+ */
+fun similarityOp(
+      __1: String?
+    , __2: String?
+): Field<Boolean?> {
+    val f = SimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.similarity_op</code> as a field.
+ */
+fun similarityOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Boolean?> {
+    val f = SimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.strict_word_similarity</code>
+ */
+fun strictWordSimilarity(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = StrictWordSimilarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.strict_word_similarity</code> as a field.
+ */
+fun strictWordSimilarity(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = StrictWordSimilarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.strict_word_similarity</code> as a field.
+ */
+fun strictWordSimilarity(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = StrictWordSimilarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.strict_word_similarity_commutator_op</code>
+ */
+fun strictWordSimilarityCommutatorOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Boolean? {
+    val f = StrictWordSimilarityCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.strict_word_similarity_commutator_op</code> as a field.
+ */
+fun strictWordSimilarityCommutatorOp(
+      __1: String?
+    , __2: String?
+): Field<Boolean?> {
+    val f = StrictWordSimilarityCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.strict_word_similarity_commutator_op</code> as a field.
+ */
+fun strictWordSimilarityCommutatorOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Boolean?> {
+    val f = StrictWordSimilarityCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.strict_word_similarity_dist_commutator_op</code>
+ */
+fun strictWordSimilarityDistCommutatorOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = StrictWordSimilarityDistCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.strict_word_similarity_dist_commutator_op</code> as a field.
+ */
+fun strictWordSimilarityDistCommutatorOp(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = StrictWordSimilarityDistCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.strict_word_similarity_dist_commutator_op</code> as a field.
+ */
+fun strictWordSimilarityDistCommutatorOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = StrictWordSimilarityDistCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.strict_word_similarity_dist_op</code>
+ */
+fun strictWordSimilarityDistOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = StrictWordSimilarityDistOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.strict_word_similarity_dist_op</code> as a field.
+ */
+fun strictWordSimilarityDistOp(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = StrictWordSimilarityDistOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.strict_word_similarity_dist_op</code> as a field.
+ */
+fun strictWordSimilarityDistOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = StrictWordSimilarityDistOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.strict_word_similarity_op</code>
+ */
+fun strictWordSimilarityOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Boolean? {
+    val f = StrictWordSimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.strict_word_similarity_op</code> as a field.
+ */
+fun strictWordSimilarityOp(
+      __1: String?
+    , __2: String?
+): Field<Boolean?> {
+    val f = StrictWordSimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.strict_word_similarity_op</code> as a field.
+ */
+fun strictWordSimilarityOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Boolean?> {
+    val f = StrictWordSimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccent1(
+      configuration: Configuration
+    , __1: Any?
+    , __2: String?
+): String? {
+    val f = Unaccent1()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccent1(
+      __1: Any?
+    , __2: String?
+): Field<String?> {
+    val f = Unaccent1()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. Parameter type or return type is unknown. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccent1(
+      __1: Field<Any?>
+    , __2: Field<String?>
+): Field<String?> {
+    val f = Unaccent1()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.unaccent</code>
+ */
+fun unaccent2(
+      configuration: Configuration
+    , __1: String?
+): String? {
+    val f = Unaccent2()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.unaccent</code> as a field.
+ */
+fun unaccent2(
+      __1: String?
+): Field<String?> {
+    val f = Unaccent2()
+    f.set__1(__1)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.unaccent</code> as a field.
+ */
+fun unaccent2(
+      __1: Field<String?>
+): Field<String?> {
+    val f = Unaccent2()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccentInit(
+      configuration: Configuration
+    , __1: Any?
+): Any? {
+    val f = UnaccentInit()
+    f.set__1(__1)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccentInit(
+      __1: Any?
+): Field<Any?> {
+    val f = UnaccentInit()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccentInit(
+      __1: Field<Any?>
+): Field<Any?> {
+    val f = UnaccentInit()
+    f.set__1(__1)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccentLexize(
+      configuration: Configuration
+    , __1: Any?
+    , __2: Any?
+    , __3: Any?
+    , __4: Any?
+): Any? {
+    val f = UnaccentLexize()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccentLexize(
+      __1: Any?
+    , __2: Any?
+    , __3: Any?
+    , __4: Any?
+): Field<Any?> {
+    val f = UnaccentLexize()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+
+    return f.asField()
+}
+@Deprecated(message = "Unknown data type. If this is a qualified, user-defined type, it may have been excluded from code generation. If this is a built-in type, you can define an explicit org.jooq.Binding to specify how this type should be handled. Deprecation can be turned off using <deprecationOnUnknownTypes/> in your code generator configuration.")
+fun unaccentLexize(
+      __1: Field<Any?>
+    , __2: Field<Any?>
+    , __3: Field<Any?>
+    , __4: Field<Any?>
+): Field<Any?> {
+    val f = UnaccentLexize()
+    f.set__1(__1)
+    f.set__2(__2)
+    f.set__3(__3)
+    f.set__4(__4)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.word_similarity</code>
+ */
+fun wordSimilarity(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = WordSimilarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.word_similarity</code> as a field.
+ */
+fun wordSimilarity(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = WordSimilarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.word_similarity</code> as a field.
+ */
+fun wordSimilarity(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = WordSimilarity()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.word_similarity_commutator_op</code>
+ */
+fun wordSimilarityCommutatorOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Boolean? {
+    val f = WordSimilarityCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.word_similarity_commutator_op</code> as a field.
+ */
+fun wordSimilarityCommutatorOp(
+      __1: String?
+    , __2: String?
+): Field<Boolean?> {
+    val f = WordSimilarityCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.word_similarity_commutator_op</code> as a field.
+ */
+fun wordSimilarityCommutatorOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Boolean?> {
+    val f = WordSimilarityCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.word_similarity_dist_commutator_op</code>
+ */
+fun wordSimilarityDistCommutatorOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = WordSimilarityDistCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.word_similarity_dist_commutator_op</code> as a field.
+ */
+fun wordSimilarityDistCommutatorOp(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = WordSimilarityDistCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.word_similarity_dist_commutator_op</code> as a field.
+ */
+fun wordSimilarityDistCommutatorOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = WordSimilarityDistCommutatorOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.word_similarity_dist_op</code>
+ */
+fun wordSimilarityDistOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Float? {
+    val f = WordSimilarityDistOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.word_similarity_dist_op</code> as a field.
+ */
+fun wordSimilarityDistOp(
+      __1: String?
+    , __2: String?
+): Field<Float?> {
+    val f = WordSimilarityDistOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.word_similarity_dist_op</code> as a field.
+ */
+fun wordSimilarityDistOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Float?> {
+    val f = WordSimilarityDistOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Call <code>public.word_similarity_op</code>
+ */
+fun wordSimilarityOp(
+      configuration: Configuration
+    , __1: String?
+    , __2: String?
+): Boolean? {
+    val f = WordSimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    f.execute(configuration)
+    return f.returnValue
+}
+
+/**
+ * Get <code>public.word_similarity_op</code> as a field.
+ */
+fun wordSimilarityOp(
+      __1: String?
+    , __2: String?
+): Field<Boolean?> {
+    val f = WordSimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
+
+    return f.asField()
+}
+
+/**
+ * Get <code>public.word_similarity_op</code> as a field.
+ */
+fun wordSimilarityOp(
+      __1: Field<String?>
+    , __2: Field<String?>
+): Field<Boolean?> {
+    val f = WordSimilarityOp()
+    f.set__1(__1)
+    f.set__2(__2)
 
     return f.asField()
 }

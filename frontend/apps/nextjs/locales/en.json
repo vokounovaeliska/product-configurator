@@ -113,6 +113,12 @@
     "welcome": "Welcome, {name}!"
   },
   "ProductModels": {
+    "card": {
+      "active": "Active",
+      "deleteButton": "Delete",
+      "editButton": "Edit",
+      "inactive": "Inactive"
+    },
     "create": {
       "cancelButton": "Cancel",
       "description": "Create a new product model that customers can configure",
@@ -127,12 +133,46 @@
       "title": "Create Product Model"
     },
     "description": "Manage your product models. Create and configure models that customers can customize.",
+    "edit": {
+      "cancelButton": "Cancel",
+      "currency": "Currency",
+      "currencyPlaceholder": "Select currency",
+      "description": "Update the product model details",
+      "descriptionPlaceholder": "Enter a description for your product model",
+      "errorMessages": {
+        "currencyRequiredMessage": "Please select a currency",
+        "generalError": "Something went wrong",
+        "nameRequiredMessage": "Please enter a model name",
+        "priceMinMessage": "Price must be at least 0",
+        "priceRequiredMessage": "Please enter a price"
+      },
+      "isActive": "Active",
+      "isActiveDescription": "Whether this product model is currently active and available for customers",
+      "name": "Model Name",
+      "namePlaceholder": "e.g., Table Icatu, Wardrobe Oslo",
+      "price": "Base Price",
+      "pricePlaceholder": "0.00",
+      "submitButton": "Save Changes",
+      "title": "Edit Product Model"
+    },
+    "delete": {
+      "cancelButton": "Cancel",
+      "confirmButton": "Delete Model",
+      "description": "Are you sure you want to delete this product model? This action cannot be undone.",
+      "errorMessages": {
+        "generalError": "Something went wrong"
+      },
+      "title": "Delete Product Model",
+      "warningMessage": "You are about to delete \"{name}\". This action is permanent and cannot be undone.",
+      "warningTitle": "Warning: This action cannot be undone"
+    },
     "list": {
       "createButton": "Create Model",
       "emptyState": {
         "createButton": "Create Your First Model",
         "message": "You haven't created any product models yet. Get started by creating your first model."
       },
+      "errorMessage": "Failed to load product models. Please try again later.",
       "title": "Product Models"
     },
     "title": "Product Models"

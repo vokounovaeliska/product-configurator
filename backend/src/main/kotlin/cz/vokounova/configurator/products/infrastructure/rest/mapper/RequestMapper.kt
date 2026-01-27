@@ -1,35 +1,46 @@
 package cz.vokounova.configurator.products.infrastructure.rest.mapper
 
-import cz.vokounova.configurator.shared.rest.jsonpatch.JsonPatchOperation
-import cz.vokounova.configurator.products.domain.ComponentCreateParams
-import cz.vokounova.configurator.products.domain.ComponentJsonPatchParams
-import cz.vokounova.configurator.products.domain.ComponentJsonPatchParamsPath
+import cz.vokounova.configurator.products.domain.ProductModelCreateParams
+import cz.vokounova.configurator.products.domain.ProductModelFilter
 import cz.vokounova.configurator.products.domain.ProductModelId
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ComponentCreateRequestDto
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ComponentPatchRequestDto
-import java.util.UUID
+import cz.vokounova.configurator.products.domain.ProductModelJsonPatchParams
+import cz.vokounova.configurator.products.domain.ProductModelJsonPatchParamsPath
+import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ProductModelCreateRequestDto
+import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ProductModelPatchRequestDto
+import cz.vokounova.configurator.products.infrastructure.rest.request.ProductModelListQueryParams
+import cz.vokounova.configurator.shared.rest.jsonpatch.JsonPatchOperation
+import cz.vokounova.configurator.users.api.dto.UserIdDto
 
-fun ComponentCreateRequestDto.toParams(productModelId: ProductModelId): ComponentCreateParams =
-    ComponentCreateParams(
-        productModelId = productModelId,
-        code = code,
-        label = label,
+fun ProductModelCreateRequestDto.toParams(userId: UserIdDto): ProductModelCreateParams =
+    ProductModelCreateParams(
+        userId = userId,
+        name = name,
         description = description,
-        sortOrder = sortOrder,
+        price = price,
+        currency = currency,
+        isActive = isActive,
     )
 
-fun ComponentPatchRequestDto.toParams(): ComponentJsonPatchParams =
-    ComponentJsonPatchParams(
+fun ProductModelPatchRequestDto.toParams(): ProductModelJsonPatchParams =
+    ProductModelJsonPatchParams(
         path =
             when (path) {
-                ComponentPatchRequestDtoPath.SlashCode -> ComponentJsonPatchParamsPath.CODE
-                ComponentPatchRequestDtoPath.SlashLabel -> ComponentJsonPatchParamsPath.LABEL
-                ComponentPatchRequestDtoPath.SlashDescription -> ComponentJsonPatchParamsPath.DESCRIPTION
-                ComponentPatchRequestDtoPath.SlashSortOrder -> ComponentJsonPatchParamsPath.SORT_ORDER
+                ProductModelPatchRequestDto.Path.SlashName -> ProductModelJsonPatchParamsPath.NAME
+                ProductModelPatchRequestDto.Path.SlashDescription -> ProductModelJsonPatchParamsPath.DESCRIPTION
+                ProductModelPatchRequestDto.Path.SlashPrice -> ProductModelJsonPatchParamsPath.PRICE
+                ProductModelPatchRequestDto.Path.SlashCurrency -> ProductModelJsonPatchParamsPath.CURRENCY
+                ProductModelPatchRequestDto.Path.SlashIsActive -> ProductModelJsonPatchParamsPath.IS_ACTIVE
             },
         value = value,
         op =
             when (op) {
-                ComponentPatchRequestDtoOp.Replace -> JsonPatchOperation.REPLACE
+                ProductModelPatchRequestDto.Op.Replace -> JsonPatchOperation.REPLACE
             },
+    )
+
+fun ProductModelListQueryParams.toFilter(): ProductModelFilter =
+    ProductModelFilter(
+        ids = ids?.map { ProductModelId(it) },
+        userIds = userIds?.map { UserIdDto(it) },
+        isActive = isActive,
     )

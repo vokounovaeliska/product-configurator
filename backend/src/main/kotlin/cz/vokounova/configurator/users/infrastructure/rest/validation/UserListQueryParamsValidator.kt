@@ -2,6 +2,7 @@ package cz.vokounova.configurator.users.infrastructure.rest.validation
 
 import cz.vokounova.configurator.shared.exceptions.ValidationExceptionError
 import cz.vokounova.configurator.shared.validations.AppValidator
+import cz.vokounova.configurator.shared.validations.ValidationConstants.MIN_SEARCH_TEXT_LENGTH
 import cz.vokounova.configurator.users.domain.UserSortingConfig
 import cz.vokounova.configurator.users.infrastructure.rest.request.UserListQueryParams
 import org.springframework.stereotype.Component
@@ -19,5 +20,9 @@ class UserListQueryParamsValidator : AppValidator<UserListQueryParams> {
             }
 
             field("limit", value.limit) { min(1) }
+
+            field("search", value.search) {
+                minLength(MIN_SEARCH_TEXT_LENGTH)
+            }
         }
 }

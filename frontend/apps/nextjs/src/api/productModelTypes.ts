@@ -1,0 +1,56 @@
+/**
+ * Product Model API Types
+ * These types match the backend DTOs
+ */
+
+export type ProductModelDto = {
+  /** Format: uuid */
+  id: string
+  /** Format: uuid */
+  userId: string
+  name: string
+  description: string | null
+  price: number
+  currency: string
+  isActive: boolean
+  /** Format: date-time */
+  createdAt: string
+  /** Format: date-time */
+  modifiedAt: string
+}
+
+export type ProductModelPaginatedResponseDto = {
+  items: ProductModelDto[]
+  pageMetadata: {
+    /** Format: int32 */
+    pagesTotal: number
+    nextPageAfter?: string
+    prevPageBefore?: string
+  }
+}
+
+export type ProductModelCreateRequestDto = {
+  name: string
+  description?: string | null
+  price?: number | null
+  currency?: string | null
+  isActive?: boolean | null
+}
+
+export type ProductModelPatchRequestDto = {
+  /** @enum {string} */
+  path: "SlashName" | "SlashDescription" | "SlashPrice" | "SlashCurrency" | "SlashIsActive"
+  value?: unknown
+  /** @enum {string} */
+  op: "Replace"
+}
+
+export type ProductModelListQueryParams = {
+  limit?: number
+  after?: string
+  before?: string
+  orderBy?: string[]
+  ids?: string[]
+  userIds?: string[]
+  isActive?: boolean
+}

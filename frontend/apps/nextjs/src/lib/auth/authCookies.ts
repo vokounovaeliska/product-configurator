@@ -11,3 +11,30 @@ export const getAuthCookies = async () => {
 
   return cookieHeader
 }
+
+/**
+ * Gets the access token from cookies for JWT authentication (server-side)
+ */
+export const getAccessToken = async (): Promise<string | null> => {
+  const accessTokenCookie = await getCookie("access_token")
+  return accessTokenCookie?.value ?? null
+}
+
+/**
+ * Gets the access token from cookies for JWT authentication (client-side)
+ */
+export const getAccessTokenClient = (): string | null => {
+  if (typeof document === "undefined") {
+    return null
+  }
+
+  const cookies = document.cookie.split(";")
+  const accessTokenCookie = cookies.find((cookie) => cookie.trim().startsWith("access_token="))
+
+  if (!accessTokenCookie) {
+    return null
+  }
+
+  const value = accessTokenCookie.split("=")[1]
+  return value ? decodeURIComponent(value) : null
+}

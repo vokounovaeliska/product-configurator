@@ -5,7 +5,6 @@ import type {
   RegistrationResponse,
 } from "@/api/userTypes"
 import { publicApi } from "@/lib/api/restClient"
-import { authClient } from "@/lib/auth/authClient"
 import { useRouter } from "@/lib/i18n/navigation"
 import { getQueryClient } from "@/lib/react-query/queryClient"
 import { ROUTES } from "@/lib/routes"
@@ -62,12 +61,25 @@ export const useAuth = () => {
   }
 
   const signOut = async () => {
-    await authClient.signOut()
+    try {
+      // Call logout endpoint to invalidate refresh token on backend
+      await publicApi.post("users/api/v1/auth/logout", {
+        credentials: "include", // Include cookies for refresh token
+      })
+    } catch (error) {
+      // Continue with logout even if backend call fails
+      console.warn("Logout API call failed, continuing with local logout:", error)
+    }
+
+    // Clear access token cookie
     if (typeof document !== "undefined") {
       document.cookie = "access_token=; Path=/; Max-Age=0"
     }
-    router.refresh()
+
+    // Clear React Query cache and redirect
     queryClient.clear()
+    router.push(ROUTES.home)
+    router.refresh()
   }
 
   const signUp = async (

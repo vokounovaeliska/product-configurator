@@ -15,6 +15,8 @@ import cz.vokounova.configurator.shared.pagination.jooq.NextPageRequest
 import cz.vokounova.configurator.shared.pagination.jooq.PageResult
 import cz.vokounova.configurator.shared.pagination.jooq.PreviousPageRequest
 import cz.vokounova.configurator.shared.pagination.jooq.useSeekPagination
+import cz.vokounova.configurator.shared.persistence.jooq.PostgresFunctions
+import cz.vokounova.configurator.shared.persistence.jooq.ignoreFields
 import cz.vokounova.configurator.users.application.configuration.UserPasswordEncoder
 import cz.vokounova.configurator.users.domain.User
 import cz.vokounova.configurator.users.domain.UserFilter
@@ -26,6 +28,7 @@ import cz.vokounova.configurator.users.infrastructure.persistence.mapper.toPersi
 import cz.vokounova.configurator.users.ports.outboud.UserRepository
 import org.jooq.Condition
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
@@ -69,6 +72,7 @@ class UserRepositoryDB(
             userWithEncodedPassword
                 .copy(checkSum = userWithEncodedPassword.getChecksum())
                 .toPersistence()
+                .ignoreFields(USER.SEARCH_VECTOR)
 
         return dslContext
             .insertInto(USER)
@@ -84,6 +88,7 @@ class UserRepositoryDB(
             updatedUser
                 .copy(checkSum = updatedUser.getChecksum())
                 .toPersistence()
+                .ignoreFields(USER.SEARCH_VECTOR)
 
         return dslContext
             .update(USER)
@@ -192,6 +197,14 @@ class UserRepositoryDB(
         filter.ids?.let { userIds ->
             conditions.add(
                 USER.ID.`in`(userIds.map { it.value }),
+            )
+        }
+
+        filter.search?.let { search ->
+            conditions.add(
+                USER.SEARCH_VECTOR.likeIgnoreCase(
+                    DSL.function(PostgresFunctions.F_UNACCENT.value, String::class.java, DSL.inline("%$search%")),
+                ),
             )
         }
 
