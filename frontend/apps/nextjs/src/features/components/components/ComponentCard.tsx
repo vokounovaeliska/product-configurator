@@ -1,13 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { PencilIcon, TrashIcon } from "lucide-react"
+import { PencilIcon, SettingsIcon, TrashIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 
 import type { ComponentDto } from "@/api/componentTypes"
+import { Link } from "@/lib/i18n/navigation"
+import { ROUTES } from "@/lib/routes"
 
 import { DeleteComponentDialog } from "./DeleteComponentDialog"
 import { EditComponentDialog } from "./EditComponentDialog"
@@ -65,6 +67,16 @@ export const ComponentCard = ({ component, productModelId }: Props) => {
               {t("card.sortOrder")}: {component.sortOrder}
             </Typography>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <Link href={ROUTES.setupAttributes(productModelId, component.id)}>
+                  <SettingsIcon className="size-4" />
+                  <span className="sr-only">{t("card.attributesButton")}</span>
+                </Link>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"

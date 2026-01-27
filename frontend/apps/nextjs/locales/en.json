@@ -217,6 +217,7 @@
     "title": "Components",
     "description": "Manage components for this product model. Components are the building blocks that customers can configure.",
     "card": {
+      "attributesButton": "Manage Attributes",
       "deleteButton": "Delete",
       "editButton": "Edit",
       "sortOrder": "Sort Order"
@@ -280,6 +281,117 @@
       },
       "errorMessage": "Failed to load components. Please try again later.",
       "title": "Components"
+    }
+  },
+  "Attributes": {
+    "title": "Attributes",
+    "description": "Manage attributes for this component. Attributes define the configurable properties that customers can select.",
+    "card": {
+      "deleteButton": "Delete",
+      "editButton": "Edit",
+      "required": "Required",
+      "range": "Range",
+      "sortOrder": "Sort Order"
+    },
+    "create": {
+      "cancelButton": "Cancel",
+      "code": "Code",
+      "codePlaceholder": "e.g., COLOR, WIDTH, HEIGHT",
+      "description": "Create a new attribute for this component",
+      "errorMessages": {
+        "codeRequiredMessage": "Please enter an attribute code",
+        "generalError": "Something went wrong",
+        "labelRequiredMessage": "Please enter an attribute label",
+        "integerRangeInvalid": "Minimum value must be less than or equal to maximum value",
+        "decimalRangeInvalid": "Minimum value must be less than or equal to maximum value",
+        "integerCannotHaveDecimal": "INTEGER attributes cannot have decimal fields",
+        "decimalCannotHaveInteger": "DECIMAL attributes cannot have integer fields"
+      },
+      "isRequired": "Required",
+      "label": "Label",
+      "labelPlaceholder": "e.g., Color, Width, Height",
+      "maxDecimal": "Maximum Decimal",
+      "maxDecimalPlaceholder": "e.g., 100.5",
+      "maxInt": "Maximum Integer",
+      "maxIntPlaceholder": "e.g., 2000",
+      "minDecimal": "Minimum Decimal",
+      "minDecimalPlaceholder": "e.g., 10.5",
+      "minInt": "Minimum Integer",
+      "minIntPlaceholder": "e.g., 800",
+      "sortOrder": "Sort Order",
+      "submitButton": "Create Attribute",
+      "title": "Create Attribute",
+      "type": "Type",
+      "typeBoolean": "Boolean",
+      "typeDecimal": "Decimal",
+      "typeEnum": "Enum",
+      "typeInteger": "Integer",
+      "typePlaceholder": "Select attribute type"
+    },
+    "delete": {
+      "cancelButton": "Cancel",
+      "confirmButton": "Delete Attribute",
+      "description": "Are you sure you want to delete this attribute? This action cannot be undone.",
+      "errorMessages": {
+        "generalError": "Something went wrong"
+      },
+      "title": "Delete Attribute",
+      "warningMessage": "You are about to delete \"{name}\". This action is permanent and cannot be undone.",
+      "warningTitle": "Warning: This action cannot be undone"
+    },
+    "edit": {
+      "cancelButton": "Cancel",
+      "code": "Code",
+      "codePlaceholder": "e.g., COLOR, WIDTH, HEIGHT",
+      "description": "Update the attribute details",
+      "errorMessages": {
+        "codeRequiredMessage": "Please enter an attribute code",
+        "generalError": "Something went wrong",
+        "labelRequiredMessage": "Please enter an attribute label",
+        "integerRangeInvalid": "Minimum value must be less than or equal to maximum value",
+        "decimalRangeInvalid": "Minimum value must be less than or equal to maximum value",
+        "integerCannotHaveDecimal": "INTEGER attributes cannot have decimal fields",
+        "decimalCannotHaveInteger": "DECIMAL attributes cannot have integer fields"
+      },
+      "isRequired": "Required",
+      "label": "Label",
+      "labelPlaceholder": "e.g., Color, Width, Height",
+      "maxDecimal": "Maximum Decimal",
+      "maxDecimalPlaceholder": "e.g., 100.5",
+      "maxInt": "Maximum Integer",
+      "maxIntPlaceholder": "e.g., 2000",
+      "minDecimal": "Minimum Decimal",
+      "minDecimalPlaceholder": "e.g., 10.5",
+      "minInt": "Minimum Integer",
+      "minIntPlaceholder": "e.g., 800",
+      "sortOrder": "Sort Order",
+      "submitButton": "Save Changes",
+      "title": "Edit Attribute",
+      "type": "Type",
+      "typeBoolean": "Boolean",
+      "typeDecimal": "Decimal",
+      "typeEnum": "Enum",
+      "typeInteger": "Integer",
+      "typePlaceholder": "Select attribute type"
+    },
+    "form": {
+      "errorMessages": {
+        "codeRequiredMessage": "Please enter an attribute code",
+        "labelRequiredMessage": "Please enter an attribute label",
+        "integerRangeInvalid": "Minimum value must be less than or equal to maximum value",
+        "decimalRangeInvalid": "Minimum value must be less than or equal to maximum value",
+        "integerCannotHaveDecimal": "INTEGER attributes cannot have decimal fields",
+        "decimalCannotHaveInteger": "DECIMAL attributes cannot have integer fields"
+      }
+    },
+    "list": {
+      "createButton": "Create Attribute",
+      "emptyState": {
+        "createButton": "Create Your First Attribute",
+        "message": "You haven't created any attributes yet. Get started by creating your first attribute."
+      },
+      "errorMessage": "Failed to load attributes. Please try again later.",
+      "title": "Attributes"
     }
   }
 }

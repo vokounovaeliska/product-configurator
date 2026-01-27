@@ -107,6 +107,7 @@
     "description": "Vítejte na vašem nastavení. Zde můžete spravovat modely produktů a konfigurovat svůj konfigurátor.",
     "navigation": {
       "allComponents": "Všechny komponenty",
+      "attributes": "Atributy",
       "components": "Komponenty",
       "dashboard": "Nástěnka",
       "productModels": "Modely produktů",
@@ -216,6 +217,7 @@
     "title": "Komponenty",
     "description": "Spravujte komponenty pro tento model produktu. Komponenty jsou stavební bloky, které mohou zákazníci konfigurovat.",
     "card": {
+      "attributesButton": "Spravovat atributy",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
       "sortOrder": "Pořadí"
@@ -279,6 +281,117 @@
       },
       "errorMessage": "Nepodařilo se načíst komponenty. Zkuste to prosím později.",
       "title": "Komponenty"
+    }
+  },
+  "Attributes": {
+    "title": "Atributy",
+    "description": "Spravujte atributy pro tento komponent. Atributy definují konfigurovatelné vlastnosti, které mohou zákazníci vybrat.",
+    "card": {
+      "deleteButton": "Smazat",
+      "editButton": "Upravit",
+      "required": "Povinné",
+      "range": "Rozsah",
+      "sortOrder": "Pořadí"
+    },
+    "create": {
+      "cancelButton": "Zrušit",
+      "code": "Kód",
+      "codePlaceholder": "např. COLOR, WIDTH, HEIGHT",
+      "description": "Vytvořte nový atribut pro tento komponent",
+      "errorMessages": {
+        "codeRequiredMessage": "Zadejte kód atributu",
+        "generalError": "Něco se pokazilo",
+        "labelRequiredMessage": "Zadejte název atributu",
+        "integerRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
+        "decimalRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
+        "integerCannotHaveDecimal": "Atributy typu INTEGER nemohou mít desetinná pole",
+        "decimalCannotHaveInteger": "Atributy typu DECIMAL nemohou mít celočíselná pole"
+      },
+      "isRequired": "Povinné",
+      "label": "Název",
+      "labelPlaceholder": "např. Barva, Šířka, Výška",
+      "maxDecimal": "Maximální desetinné číslo",
+      "maxDecimalPlaceholder": "např. 100.5",
+      "maxInt": "Maximální celé číslo",
+      "maxIntPlaceholder": "např. 2000",
+      "minDecimal": "Minimální desetinné číslo",
+      "minDecimalPlaceholder": "např. 10.5",
+      "minInt": "Minimální celé číslo",
+      "minIntPlaceholder": "např. 800",
+      "sortOrder": "Pořadí",
+      "submitButton": "Vytvořit atribut",
+      "title": "Vytvořit atribut",
+      "type": "Typ",
+      "typeBoolean": "Boolean",
+      "typeDecimal": "Desetinné číslo",
+      "typeEnum": "Výčet",
+      "typeInteger": "Celé číslo",
+      "typePlaceholder": "Vyberte typ atributu"
+    },
+    "delete": {
+      "cancelButton": "Zrušit",
+      "confirmButton": "Smazat atribut",
+      "description": "Opravdu chcete smazat tento atribut? Tuto akci nelze vrátit zpět.",
+      "errorMessages": {
+        "generalError": "Něco se pokazilo"
+      },
+      "title": "Smazat atribut",
+      "warningMessage": "Chystáte se smazat \"{name}\". Tato akce je trvalá a nelze ji vrátit zpět.",
+      "warningTitle": "Varování: Tuto akci nelze vrátit zpět"
+    },
+    "edit": {
+      "cancelButton": "Zrušit",
+      "code": "Kód",
+      "codePlaceholder": "např. COLOR, WIDTH, HEIGHT",
+      "description": "Aktualizujte údaje o atributu",
+      "errorMessages": {
+        "codeRequiredMessage": "Zadejte kód atributu",
+        "generalError": "Něco se pokazilo",
+        "labelRequiredMessage": "Zadejte název atributu",
+        "integerRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
+        "decimalRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
+        "integerCannotHaveDecimal": "Atributy typu INTEGER nemohou mít desetinná pole",
+        "decimalCannotHaveInteger": "Atributy typu DECIMAL nemohou mít celočíselná pole"
+      },
+      "isRequired": "Povinné",
+      "label": "Název",
+      "labelPlaceholder": "např. Barva, Šířka, Výška",
+      "maxDecimal": "Maximální desetinné číslo",
+      "maxDecimalPlaceholder": "např. 100.5",
+      "maxInt": "Maximální celé číslo",
+      "maxIntPlaceholder": "např. 2000",
+      "minDecimal": "Minimální desetinné číslo",
+      "minDecimalPlaceholder": "např. 10.5",
+      "minInt": "Minimální celé číslo",
+      "minIntPlaceholder": "např. 800",
+      "sortOrder": "Pořadí",
+      "submitButton": "Uložit změny",
+      "title": "Upravit atribut",
+      "type": "Typ",
+      "typeBoolean": "Boolean",
+      "typeDecimal": "Desetinné číslo",
+      "typeEnum": "Výčet",
+      "typeInteger": "Celé číslo",
+      "typePlaceholder": "Vyberte typ atributu"
+    },
+    "form": {
+      "errorMessages": {
+        "codeRequiredMessage": "Zadejte kód atributu",
+        "labelRequiredMessage": "Zadejte název atributu",
+        "integerRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
+        "decimalRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
+        "integerCannotHaveDecimal": "Atributy typu INTEGER nemohou mít desetinná pole",
+        "decimalCannotHaveInteger": "Atributy typu DECIMAL nemohou mít celočíselná pole"
+      }
+    },
+    "list": {
+      "createButton": "Vytvořit atribut",
+      "emptyState": {
+        "createButton": "Vytvořit první atribut",
+        "message": "Zatím jste nevytvořili žádné atributy. Začněte vytvořením svého prvního atributu."
+      },
+      "errorMessage": "Nepodařilo se načíst atributy. Zkuste to prosím později.",
+      "title": "Atributy"
     }
   }
 }
