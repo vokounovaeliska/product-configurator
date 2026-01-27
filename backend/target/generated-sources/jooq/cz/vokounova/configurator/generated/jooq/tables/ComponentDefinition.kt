@@ -118,11 +118,6 @@ open class ComponentDefinition(
     val SORT_ORDER: TableField<ComponentDefinitionRecord, Int?> = createField(DSL.name("sort_order"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.INTEGER)), this, "")
 
     /**
-     * The column <code>public.component_definition.preview_image_url</code>.
-     */
-    val PREVIEW_IMAGE_URL: TableField<ComponentDefinitionRecord, String?> = createField(DSL.name("preview_image_url"), SQLDataType.CLOB, this, "")
-
-    /**
      * The column <code>public.component_definition.created_at</code>.
      */
     val CREATED_AT: TableField<ComponentDefinitionRecord, OffsetDateTime?> = createField(DSL.name("created_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "")

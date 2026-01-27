@@ -1,8 +1,8 @@
 package cz.vokounova.configurator.mocks
 
-import cz.vokounova.configurator.products.domain.ProductModel
-import cz.vokounova.configurator.products.domain.ProductModelCreateParams
-import cz.vokounova.configurator.products.domain.ProductModelId
+import cz.vokounova.configurator.products.models.domain.ProductModel
+import cz.vokounova.configurator.products.models.domain.ProductModelCreateParams
+import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import java.time.OffsetDateTime
 import java.util.UUID

@@ -6,11 +6,11 @@ import cz.vokounova.configurator.generated.jooq.tables.references.USER
 import cz.vokounova.configurator.mocks.AuthMocks
 import cz.vokounova.configurator.mocks.ProductModelMocks
 import cz.vokounova.configurator.mocks.UserMocks
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ProductModelCreateRequestDto
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ProductModelPatchRequestDto
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.response.ProductModelDto
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.response.ProductModelPaginatedResponseDto
-import cz.vokounova.configurator.products.ports.inbound.ProductModelAPI
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.request.ProductModelCreateRequestDto
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.request.ProductModelPatchRequestDto
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.response.ProductModelDto
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.response.ProductModelPaginatedResponseDto
+import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import cz.vokounova.configurator.users.domain.UserId
 import cz.vokounova.configurator.users.ports.outboud.UserRepository

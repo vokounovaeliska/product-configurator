@@ -1,8 +1,8 @@
 package cz.vokounova.configurator.unit.products
 
 import cz.vokounova.configurator.mocks.ProductModelMocks
-import cz.vokounova.configurator.products.domain.ProductModel
-import cz.vokounova.configurator.products.domain.ProductModelCreateParams
+import cz.vokounova.configurator.products.models.domain.ProductModel
+import cz.vokounova.configurator.products.models.domain.ProductModelCreateParams
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
