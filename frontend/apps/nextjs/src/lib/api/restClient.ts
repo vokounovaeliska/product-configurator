@@ -2,17 +2,19 @@ import ky from "ky"
 
 import { env } from "@/config/env"
 
-import { getAuthCookies } from "../auth/authCookies"
+import { getAccessTokenClient } from "../auth/authCookies"
 
-// Authenticated API client (with auth cookies)
+// Authenticated API client (with JWT Bearer token)
 export const api = ky.create({
   prefixUrl: env.NEXT_PUBLIC_REST_API_URL,
   hooks: {
     beforeRequest: [
-      async (request) => {
-        const authCookies = await getAuthCookies()
+      (request) => {
+        const accessToken = getAccessTokenClient()
 
-        request.headers.set("cookie", authCookies)
+        if (accessToken) {
+          request.headers.set("Authorization", `Bearer ${accessToken}`)
+        }
       },
     ],
   },

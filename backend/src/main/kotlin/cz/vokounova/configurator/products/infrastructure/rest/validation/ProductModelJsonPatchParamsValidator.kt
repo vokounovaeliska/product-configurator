@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.products.infrastructure.rest.validation
 
+import cz.vokounova.configurator.products.domain.ProductModel
 import cz.vokounova.configurator.products.domain.ProductModelJsonPatchParams
 import cz.vokounova.configurator.products.domain.ProductModelJsonPatchParamsPath
 import cz.vokounova.configurator.shared.exceptions.ValidationExceptionError
@@ -30,6 +31,7 @@ class ProductModelJsonPatchParamsValidator : AppValidator<ProductModelJsonPatchP
                     field(path.value, value.value as? String) {
                         notNull()
                         notEmpty()
+                        isOneOf(ProductModel.ALLOWED_CURRENCIES)
                     }
                 }
                 ProductModelJsonPatchParamsPath.IS_ACTIVE -> {

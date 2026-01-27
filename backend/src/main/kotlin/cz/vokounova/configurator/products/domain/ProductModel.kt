@@ -21,6 +21,8 @@ data class ProductModel(
     val modifiedAt: OffsetDateTime,
 ) {
     companion object {
+        val ALLOWED_CURRENCIES = listOf("CZK", "EUR", "USD", "GBP")
+
         fun create(params: ProductModelCreateParams): ProductModel {
             val timestamp = OffsetDateTime.now()
             return ProductModel(

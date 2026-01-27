@@ -4,7 +4,6 @@ import cz.vokounova.configurator.shared.security.doesNotContainBearerToken
 import cz.vokounova.configurator.shared.security.extractBearerTokenValue
 import cz.vokounova.configurator.shared.security.getAuthorizationHeader
 import cz.vokounova.configurator.shared.utils.logger
-import cz.vokounova.configurator.users.application.configuration.UserSecurityConfiguration.Companion.usersPathMatcher
 import cz.vokounova.configurator.users.domain.UserId
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -12,6 +11,8 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.web.util.matcher.OrRequestMatcher
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import kotlin.getValue
@@ -23,6 +24,9 @@ class UserJwtAuthorizationFilter(
 ) : OncePerRequestFilter() {
     companion object {
         private val LOG by logger()
+        private val usersPathMatcher = AntPathRequestMatcher("/users/**")
+        private val productsPathMatcher = AntPathRequestMatcher("/products/**")
+        private val authenticatedPathsMatcher = OrRequestMatcher(usersPathMatcher, productsPathMatcher)
     }
 
     override fun doFilterInternal(
@@ -60,6 +64,6 @@ class UserJwtAuthorizationFilter(
     }
 
     // returns true → filter will be skipped.
-    // Path must be limited to apply filter only for /users/**
-    override fun shouldNotFilter(request: HttpServletRequest): Boolean = !usersPathMatcher.matches(request)
+    // Path must be limited to apply filter only for /users/** and /products/**
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean = !authenticatedPathsMatcher.matches(request)
 }

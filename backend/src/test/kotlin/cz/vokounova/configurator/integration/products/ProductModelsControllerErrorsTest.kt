@@ -59,7 +59,7 @@ class ProductModelsControllerErrorsTest : BaseIntegrationTest() {
             .perform(
                 get(PRODUCT_MODELS_URL)
                     .contentType(MediaType.APPLICATION_JSON),
-            ).andExpect(status().isForbidden)
+            ).andExpect(status().isUnauthorized)
     }
 
     @Test
