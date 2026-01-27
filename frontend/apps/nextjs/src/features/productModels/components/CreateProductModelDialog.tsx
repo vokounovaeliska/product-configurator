@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
@@ -22,16 +21,16 @@ import {
   type ProductModelFormSchema,
 } from "@/features/productModels/schemas/productModelFormSchema"
 
+import { useCreateProductModel } from "../api/productModelQueries"
+
 type Props = {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
 }
 
 export const CreateProductModelDialog = ({ isOpen, onOpenChange }: Props) => {
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
   const t = useTranslations("ProductModels")
+  const createProductModel = useCreateProductModel()
 
   const productModelFormSchema = getProductModelFormSchema(t)
 
@@ -43,22 +42,18 @@ export const CreateProductModelDialog = ({ isOpen, onOpenChange }: Props) => {
     resolver: zodResolver(productModelFormSchema),
   })
 
-  const onSubmit = (_values: ProductModelFormSchema) => {
-    setError(null)
-    setIsSubmitting(true)
-
+  const onSubmit = async (values: ProductModelFormSchema) => {
     try {
-      // TODO: Call API to create product model
-      // await api.post("product-models", { json: values })
+      await createProductModel.mutateAsync({
+        name: values.name,
+        description: values.description ?? null,
+      })
 
-      // For now, just close the dialog
       onOpenChange(false)
       form.reset()
-      // TODO: Refresh the product models list
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("create.errorMessages.generalError"))
-    } finally {
-      setIsSubmitting(false)
+      // Error is handled by react-query, but we can show a message if needed
+      console.error("Failed to create product model:", err)
     }
   }
 
@@ -115,20 +110,26 @@ export const CreateProductModelDialog = ({ isOpen, onOpenChange }: Props) => {
               )}
             />
 
-            {error && <div className="rounded-lg bg-red-50 p-4 text-red-800">{error}</div>}
+            {createProductModel.isError && (
+              <div className="rounded-lg bg-destructive/10 p-4 text-destructive">
+                {createProductModel.error instanceof Error
+                  ? createProductModel.error.message
+                  : t("create.errorMessages.generalError")}
+              </div>
+            )}
 
             <Dialog.Content.Footer>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={createProductModel.isPending}
               >
                 {t("create.cancelButton")}
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={createProductModel.isPending}
               >
                 {t("create.submitButton")}
               </Button>

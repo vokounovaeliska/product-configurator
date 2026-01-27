@@ -3,16 +3,34 @@
 import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { useProductModelsList } from "../api/productModelQueries"
 import { CreateProductModelDialog } from "./CreateProductModelDialog"
+import { ProductModelCard } from "./ProductModelCard"
 
 export const ProductModelsList = () => {
   const t = useTranslations("ProductModels")
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
-  // TODO: Fetch product models from API
-  const productModels: Record<string, unknown>[] = []
+  const { data, isLoading, error } = useProductModelsList({ limit: 50 })
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+        <Typography
+          as="p"
+          variant="body-md"
+          className="text-destructive"
+        >
+          {t("list.errorMessage")}
+        </Typography>
+      </div>
+    )
+  }
+
+  const productModels = data?.items ?? []
 
   return (
     <div className="space-y-6">
@@ -27,7 +45,16 @@ export const ProductModelsList = () => {
         <Button onClick={() => setIsCreateDialogOpen(true)}>{t("list.createButton")}</Button>
       </div>
 
-      {productModels.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className="h-48 rounded-lg"
+            />
+          ))}
+        </div>
+      ) : productModels.length === 0 ? (
         <div className="rounded-lg border border-dashed p-12 text-center">
           <Typography
             as="p"
@@ -45,7 +72,12 @@ export const ProductModelsList = () => {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* TODO: Map over product models */}
+          {productModels.map((productModel) => (
+            <ProductModelCard
+              key={productModel.id}
+              productModel={productModel}
+            />
+          ))}
         </div>
       )}
 

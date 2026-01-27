@@ -21,3 +21,5 @@ target/generated-sources/*
 # OS
 .DS_Store
 
+user_stories_asana.json
+

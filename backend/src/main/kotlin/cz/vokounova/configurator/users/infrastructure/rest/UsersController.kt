@@ -99,12 +99,14 @@ class UsersController(
         @RequestParam(required = false) before: String?,
         @RequestParam(required = false) orderBy: List<String>?,
         @RequestParam(required = false) ids: List<UUID>?,
+        @RequestParam(required = false) search: String?,
     ): ResponseEntity<UserPaginatedResponseDto> {
         val queryParamsDto =
             UserListQueryParams(
                 limit = limit,
                 orderBy = orderBy,
                 ids = ids,
+                search = search,
             )
 
         queryParamsValidator.validate(queryParamsDto).throwIfNotEmpty()

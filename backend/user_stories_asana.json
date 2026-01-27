@@ -1,0 +1,1495 @@
+{
+  "data": [
+    {
+      "gid": "1211955127518420",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:22:06.052Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:22:47.982Z",
+      "name": "Add components to a product model",
+      "notes": "As a manufacturer, I want to add components to a product model (e.g. tabletop, legs, door, shelf), so that the product is built from meaningful parts that customers can configure.\n\n\nAcceptance Criteria\n    I can add a component with a name and code (e.g. “TOP”, “LEGS”).\n    A component is linked to a chosen product model.\n    I can see all components belonging to a model.\n    Only admin/manufacturer users can manage components.\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518420",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518422",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:22:56.463Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:23:07.266Z",
+      "name": "Add attributes to a component",
+      "notes": "As a manufacturer, I want to add attributes to a component (e.g. width, height, color, material), so that customers can customize the component during configuration.\n\n\nAcceptance Criteria\n    I can add an attribute with: code, label, and type (ENUM, INTEGER, DECIMAL, BOOLEAN).\n    For ENUM attributes, I can define allowed values.\n    For numeric attributes, I can define minimum and maximum values.\n    The attribute is linked to a specific component.\n    I can see all attributes assigned to a component.\n    Only admin/manufacturer users can manage attributes.\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518422",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518424",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:23:58.791Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:24:20.003Z",
+      "name": "Add image layers to a component",
+      "notes": "As a manufacturer, I want to upload image layers for a component (e.g. top, legs, doors), so that the configurator can visually display the product based on customer-selected attributes.\n\n\nAcceptance Criteria\n    I can upload or link an image file (stored externally or by URL).\n    I can assign each image layer a view (e.g. FRONT, TOP, SIDE, PERSPECTIVE).\n    I can assign each layer a z-index to define stacking order.\n    I can define conditions when the layer should be shown (e.g. “COLOR = OAK_01”, “WIDTH between 1200–1600”).\n    The layer is linked to a specific component.\n    I can see all image layers for the selected component.\n    Only admin/manufacturer users can manage image layers.\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518424",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518426",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:25:44.149Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:26:18.948Z",
+      "name": "Define pricing rules for attributes",
+      "notes": "As a manufacturer, I want to define how each attribute affects the price of the product (e.g. larger size = higher price, premium material = extra cost), so that the system can automatically calculate the final price of any configuration.\n\n\nAcceptance Criteria\n    I can specify a base price for the product model.\n    I can define price modifiers on attributes, such as:\n        fixed amount (e.g. +500 CZK for color “Walnut”)\n        incremental amount (e.g. +1 CZK per mm of width)\n        dynamic or conditional rules (future)\n    I can assign price modifiers to:\n        a specific attribute value (e.g. COLOR = OAK_01 adds +300 CZK),\n        or a numeric range (e.g. WIDTH \u003E 1400 adds +1000 CZK).\n    The system calculates the price by:\n        base model price\n        sum of all attribute modifiers.\n    The updated price is returned through the configuration preview API.\n    Price rules are visible and editable for the manufacturer.\n    Only admin/manufacturer users can manage pricing.\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518426",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518428",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:26:58.033Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:27:29.285Z",
+      "name": "Customer can view a configurable product",
+      "notes": "As a customer, I want to open a product model in the configurator, so that I can see its options and start customizing it.\n\nAcceptance Criteria\n    I can open a URL/page for a specific product model.\n    I see basic info: product name, description, and starting price.\n    I see a list of configurable components (e.g. tabletop, legs, doors).\n    For each component, I see available attributes (size, color, material, etc.).\n    The configurator loads all data from the backend (model, components, attributes, pricing rules, image rules).\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518428",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518430",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:28:04.780Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:28:19.799Z",
+      "name": "Customer sees live price and visual update",
+      "notes": "As a customer, I want the product preview and price to update when I change options, so that I immediately see how my choices affect the product and its cost.\n\nAcceptance Criteria\n    When I change any attribute (size, color, material…), the configurator:\n        sends my current configuration to the backend,\n        receives an updated price based on the pricing rules,\n        receives the correct image layers for the chosen attributes.\n    The total price on the page updates without reloading.\n    The product image updates (layers change) to reflect the chosen attributes.\n    If I choose an invalid combination, I see a clear error or validation message and no price is calculated.\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518430",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518432",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:29:11.101Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:32:28.207Z",
+      "name": " Submit a request (Customer → Manufacturer)",
+      "notes": "As a customer, I want to submit my configuration together with contact details, so that the manufacturer can prepare a personalized offer.\n\nAcceptance Criteria\n    I can enter contact details (name, email, optional phone, optional note).\n    The system sends my entire configuration, including:\n        selected product model\n        selected component attributes\n        calculated price\n        timestamp\n        contact details\n    After submitting, I receive a confirmation message.\n    The backend stores the inquiry and links it to:\n        the product model\n        the configuration snapshot\n        the user’s contact info\n    The configurator prevents submitting incomplete or invalid configurations.\n    No account is required for customers (public submission).\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518432",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518434",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:31:22.947Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-15T15:32:34.407Z",
+      "name": " Manufacturer views list of requests",
+      "notes": "As a manufacturer, I want to see a list of all customer inquiries, so that I can review and process incoming requests.\n\nAcceptance Criteria\n\n    I can open an admin page with a list of inquiries.\n    For each inquiry, I see at least:\n        customer name\n        email\n        product model name\n        date/time of submission\n        current status (e.g. New / In progress / Offer sent / Closed)\n    The newest inquiries are shown first.\n    Only admin/manufacturer users can access this list.\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518434",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211973339730212",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-17T21:25:18.948Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-17T21:26:10.391Z",
+      "name": "Prepare initial image set for testing the configurator",
+      "notes": "As a developer, I want to upload a small set of test image layers for one sample product so that I can verify that the configurator correctly displays and updates visuals.\n\nAcceptance Criteria\n    A test product (e.g., table) has image layers for each component.\n    Each attribute option has at least one corresponding PNG layer.\n    All images are aligned to the same canvas size.\n    Images are uploaded to storage and linked in the database.\n    The frontend can load and update these images during configuration.\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211973339730212",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211973339730214",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-17T21:44:42.537Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-17T21:45:20.472Z",
+      "name": "Embed configurator on external website",
+      "notes": "As a manufacturer, I want to copy an embed code from the admin interface so that I can easily add the configurator to my website without technical knowledge.\n\nAs a manufacturer, I want options for width/height/theme when generating the embed code so that the configurator fits my website design.\n\nAcceptance Criteria\n\n    Admin UI shows a ready-to-copy embed script.\n    Embed script includes product ID and company ID.\n    Inserting the script on any website displays the configurator.\n    No backend setup required by the manufacturer.\n    Changes in admin automatically propagate to the embedded configurator.\n\n\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211973339730214",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1212054623452214",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-23T09:39:40.538Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T09:42:09.337Z",
+      "name": "Configure domain for the app",
+      "notes": "Buy domain and configure it for the deploy",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1212054623452214",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211973339730206",
+      "actual_time_minutes": null,
+      "assignee": {
+        "gid": "1210785809147768",
+        "name": "Eliška Vokounová",
+        "resource_type": "user"
+      },
+      "assignee_status": "inbox",
+      "assignee_section": {
+        "gid": "1210786272596588",
+        "name": "Recently assigned",
+        "resource_type": "section"
+      },
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-17T21:21:43.624Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T09:41:41.990Z",
+      "name": "Figma prototype",
+      "notes": "Create a Figma prototype so that it can be tested the with real users.",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211973339730206",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1212054623452222",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-23T23:10:57.441Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T23:11:06.275Z",
+      "name": "Change password",
+      "notes": "As an admin user, I want to change my password, so that I can secure my account after the initial setup.\n    The system must provide an endpoint to change the currently logged-in user’s password.\n    Changing the password requires the current password and a new password that meets security rules.\n    After a successful password change, existing sessions can optionally be invalidated.\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1212054623452222",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1212054623452224",
+      "actual_time_minutes": null,
+      "assignee": null,
+      "assignee_status": "upcoming",
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-23T23:11:25.821Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955126397991",
+            "name": "Todo",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T23:11:49.328Z",
+      "name": "Create users - members of the team",
+      "notes": "As an admin user, I want to create new users, so that I can give access to other team members.\n    Only users with the ADMIN role can create new users.\n    Newly created users receive credentials (or an invitation flow) to log in.\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1212054623452224",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518418",
+      "actual_time_minutes": null,
+      "assignee": {
+        "gid": "1210785809147768",
+        "name": "Eliška Vokounová",
+        "resource_type": "user"
+      },
+      "assignee_status": "inbox",
+      "assignee_section": {
+        "gid": "1210786272596588",
+        "name": "Recently assigned",
+        "resource_type": "section"
+      },
+      "completed": false,
+      "completed_at": null,
+      "created_at": "2025-11-15T15:20:55.006Z",
+      "due_at": null,
+      "due_on": "2025-12-01",
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955127518390",
+            "name": "In progress",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-30T23:03:42.226Z",
+      "name": "Create a product model",
+      "notes": "As a manufacturer, I want to create a new product model (e.g. a table or wardrobe), so that I can start defining what customers will later configure.\n\nAcceptance Criteria\n\n    I can enter a model name and description.\n    The model is saved and gets a unique ID.\n    The model appears in my list of product models.\n    Only admin users can create models.\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518418",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518416",
+      "actual_time_minutes": null,
+      "assignee": {
+        "gid": "1210785809147768",
+        "name": "Eliška Vokounová",
+        "resource_type": "user"
+      },
+      "assignee_status": "inbox",
+      "assignee_section": {
+        "gid": "1210786272596588",
+        "name": "Recently assigned",
+        "resource_type": "section"
+      },
+      "completed": true,
+      "completed_at": "2025-11-24T18:46:04.294Z",
+      "created_at": "2025-11-15T15:18:06.982Z",
+      "due_at": null,
+      "due_on": "2025-12-01",
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955127518409",
+            "name": "Done",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-24T18:46:04.967Z",
+      "name": "User setup & basic authentication",
+      "notes": "As an admin user, I want to log into the system using my email and password, so that I can access admin functionality.\n    The system must support logging in only with valid credentials of an existing, active user.\n    After login, the admin is redirected to the admin area.\n\nAs a system, I want to allow login only to registered users, so that unauthorized people cannot access the admin.\n    Login attempts with unknown email addresses or invalid passwords are rejected.\n    The system must not create users implicitly during login.\n\nAs a system, I want to restrict admin routes to users with the ADMIN role, so that only admins can manage product models and other admin features.\n    All admin HTTP endpoints and UI routes are accessible only to authenticated users with role ADMIN.\n    Non-admin users are either redirected or receive an appropriate error when accessing admin routes.\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518416",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955126397985",
+      "actual_time_minutes": null,
+      "assignee": {
+        "gid": "1210785809147768",
+        "name": "Eliška Vokounová",
+        "resource_type": "user"
+      },
+      "assignee_status": "inbox",
+      "assignee_section": {
+        "gid": "1210786272596588",
+        "name": "Recently assigned",
+        "resource_type": "section"
+      },
+      "completed": true,
+      "completed_at": "2025-11-23T09:41:24.262Z",
+      "created_at": "2025-11-15T15:04:34.095Z",
+      "due_at": null,
+      "due_on": "2025-12-01",
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955127518409",
+            "name": "Done",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T09:41:41.700Z",
+      "name": "Project Setup",
+      "notes": "",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955126397985",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [
+        {
+          "gid": "1211955127518412",
+          "actual_time_minutes": null,
+          "assignee": {
+            "gid": "1210785809147768",
+            "name": "Eliška Vokounová",
+            "resource_type": "user"
+          },
+          "assignee_status": "inbox",
+          "assignee_section": {
+            "gid": "1210786272596588",
+            "name": "Recently assigned",
+            "resource_type": "section"
+          },
+          "completed": true,
+          "completed_at": "2025-11-23T09:35:05.379Z",
+          "created_at": "2025-11-15T15:13:27.835Z",
+          "due_at": null,
+          "due_on": null,
+          "followers": [
+            {
+              "gid": "1210785809147768",
+              "name": "Eliška Vokounová",
+              "resource_type": "user"
+            }
+          ],
+          "hearted": false,
+          "hearts": [],
+          "liked": false,
+          "likes": [],
+          "memberships": [
+            {
+              "project": {
+                "gid": "1211955126397982",
+                "name": "Product Configurator",
+                "resource_type": "project"
+              },
+              "section": {
+                "gid": "1211955127518409",
+                "name": "Done",
+                "resource_type": "section"
+              }
+            }
+          ],
+          "modified_at": "2025-11-23T09:40:50.107Z",
+          "name": "Project Setup - Backend",
+          "notes": "Create repository and project structure\n    Create Git repository configurator-backend\n    Initialize .gitignore (Kotlin, Maven, IntelliJ)\n    Set up multi-module Maven (domain, application, infrastructure, bootstrap)\nConfigure Kotlin & Spring Boot\n    Add Kotlin + Spring Boot dependencies in parent pom.xml\n    Verify project compiles and runs\nSetup Docker environment\n    Create Dockerfile for backend\n    Create docker-compose.yml with Postgres\n    Test running backend + DB with docker compose up\nConfigure database connection\n    Add application.yml with Postgres settings\n    Add basic JPA config\n    Test successful DB connection on startup\n",
+          "num_hearts": 0,
+          "num_likes": 0,
+          "parent": {
+            "gid": "1211955126397985",
+            "name": "Project Setup",
+            "resource_type": "task",
+            "resource_subtype": "default_task"
+          },
+          "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518412",
+          "projects": [
+            {
+              "gid": "1211955126397982",
+              "name": "Product Configurator",
+              "resource_type": "project"
+            }
+          ],
+          "resource_type": "task",
+          "start_at": null,
+          "start_on": null,
+          "subtasks": [],
+          "tags": [],
+          "resource_subtype": "default_task",
+          "workspace": {
+            "gid": "1195932726431414",
+            "name": "kulhanek-nabytek.cz",
+            "resource_type": "workspace"
+          }
+        },
+        {
+          "gid": "1211955127518413",
+          "actual_time_minutes": null,
+          "assignee": {
+            "gid": "1210785809147768",
+            "name": "Eliška Vokounová",
+            "resource_type": "user"
+          },
+          "assignee_status": "inbox",
+          "assignee_section": {
+            "gid": "1210786272596588",
+            "name": "Recently assigned",
+            "resource_type": "section"
+          },
+          "completed": true,
+          "completed_at": "2025-11-23T09:35:25.562Z",
+          "created_at": "2025-11-15T15:13:32.430Z",
+          "due_at": null,
+          "due_on": null,
+          "followers": [
+            {
+              "gid": "1210785809147768",
+              "name": "Eliška Vokounová",
+              "resource_type": "user"
+            }
+          ],
+          "hearted": false,
+          "hearts": [],
+          "liked": false,
+          "likes": [],
+          "memberships": [
+            {
+              "project": {
+                "gid": "1211955126397982",
+                "name": "Product Configurator",
+                "resource_type": "project"
+              },
+              "section": {
+                "gid": "1211955127518409",
+                "name": "Done",
+                "resource_type": "section"
+              }
+            }
+          ],
+          "modified_at": "2025-11-23T09:40:45.545Z",
+          "name": "Project Setup - Frontend",
+          "notes": "    Initialize React + TypeScript project\n    Set up basic folder structure (components, pages, api)\n    Install and configure React Router\n    Create base layout (header, container)\n    Add .env and .env.example\n    Configure ESLint + Prettier\n    Add Dockerfile for frontend + connect to docker-compose\n    Add minimal placeholder pages (Configurator, Admin)\n\n",
+          "num_hearts": 0,
+          "num_likes": 0,
+          "parent": {
+            "gid": "1211955126397985",
+            "name": "Project Setup",
+            "resource_type": "task",
+            "resource_subtype": "default_task"
+          },
+          "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518413",
+          "projects": [
+            {
+              "gid": "1211955126397982",
+              "name": "Product Configurator",
+              "resource_type": "project"
+            }
+          ],
+          "resource_type": "task",
+          "start_at": null,
+          "start_on": null,
+          "subtasks": [],
+          "tags": [],
+          "resource_subtype": "default_task",
+          "workspace": {
+            "gid": "1195932726431414",
+            "name": "kulhanek-nabytek.cz",
+            "resource_type": "workspace"
+          }
+        },
+        {
+          "gid": "1211955127518438",
+          "actual_time_minutes": null,
+          "assignee": null,
+          "assignee_status": "upcoming",
+          "completed": true,
+          "completed_at": "2025-11-23T09:38:24.891Z",
+          "created_at": "2025-11-15T15:43:09.947Z",
+          "due_at": null,
+          "due_on": null,
+          "followers": [
+            {
+              "gid": "1210785809147768",
+              "name": "Eliška Vokounová",
+              "resource_type": "user"
+            }
+          ],
+          "hearted": false,
+          "hearts": [],
+          "liked": false,
+          "likes": [],
+          "memberships": [],
+          "modified_at": "2025-11-23T09:38:25.369Z",
+          "name": "Database model",
+          "notes": "Create a database model and think about all the entities that will be needed",
+          "num_hearts": 0,
+          "num_likes": 0,
+          "parent": {
+            "gid": "1211955126397985",
+            "name": "Project Setup",
+            "resource_type": "task",
+            "resource_subtype": "default_task"
+          },
+          "permalink_url": "https://app.asana.com/1/1195932726431414/task/1211955127518438",
+          "projects": [],
+          "resource_type": "task",
+          "start_at": null,
+          "start_on": null,
+          "subtasks": [],
+          "tags": [],
+          "resource_subtype": "default_task",
+          "workspace": {
+            "gid": "1195932726431414",
+            "name": "kulhanek-nabytek.cz",
+            "resource_type": "workspace"
+          }
+        }
+      ],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518436",
+      "actual_time_minutes": null,
+      "assignee": {
+        "gid": "1210785809147768",
+        "name": "Eliška Vokounová",
+        "resource_type": "user"
+      },
+      "assignee_status": "inbox",
+      "assignee_section": {
+        "gid": "1210786272596588",
+        "name": "Recently assigned",
+        "resource_type": "section"
+      },
+      "completed": true,
+      "completed_at": "2025-11-23T09:41:16.133Z",
+      "created_at": "2025-11-15T15:40:05.915Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955127518409",
+            "name": "Done",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T09:41:52.603Z",
+      "name": "Deploy the app",
+      "notes": "As a developer, I want to host the backend, database, and frontend on fully managed services (Railway, Supabase, Vercel), so that I don’t need to maintain servers or deal with infrastructure.\n\nAcceptance Criteria\n    Backend deployed on Railway.\n    Database hosted in Supabase.\n    Frontend deployed on Netlify/Vercel.\n    Domain configured\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": null,
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518436",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518412",
+      "actual_time_minutes": null,
+      "assignee": {
+        "gid": "1210785809147768",
+        "name": "Eliška Vokounová",
+        "resource_type": "user"
+      },
+      "assignee_status": "inbox",
+      "assignee_section": {
+        "gid": "1210786272596588",
+        "name": "Recently assigned",
+        "resource_type": "section"
+      },
+      "completed": true,
+      "completed_at": "2025-11-23T09:35:05.379Z",
+      "created_at": "2025-11-15T15:13:27.835Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955127518409",
+            "name": "Done",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T09:40:50.107Z",
+      "name": "Project Setup - Backend",
+      "notes": "Create repository and project structure\n    Create Git repository configurator-backend\n    Initialize .gitignore (Kotlin, Maven, IntelliJ)\n    Set up multi-module Maven (domain, application, infrastructure, bootstrap)\nConfigure Kotlin & Spring Boot\n    Add Kotlin + Spring Boot dependencies in parent pom.xml\n    Verify project compiles and runs\nSetup Docker environment\n    Create Dockerfile for backend\n    Create docker-compose.yml with Postgres\n    Test running backend + DB with docker compose up\nConfigure database connection\n    Add application.yml with Postgres settings\n    Add basic JPA config\n    Test successful DB connection on startup\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": {
+        "gid": "1211955126397985",
+        "name": "Project Setup",
+        "resource_type": "task",
+        "resource_subtype": "default_task"
+      },
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518412",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    },
+    {
+      "gid": "1211955127518413",
+      "actual_time_minutes": null,
+      "assignee": {
+        "gid": "1210785809147768",
+        "name": "Eliška Vokounová",
+        "resource_type": "user"
+      },
+      "assignee_status": "inbox",
+      "assignee_section": {
+        "gid": "1210786272596588",
+        "name": "Recently assigned",
+        "resource_type": "section"
+      },
+      "completed": true,
+      "completed_at": "2025-11-23T09:35:25.562Z",
+      "created_at": "2025-11-15T15:13:32.430Z",
+      "due_at": null,
+      "due_on": null,
+      "followers": [
+        {
+          "gid": "1210785809147768",
+          "name": "Eliška Vokounová",
+          "resource_type": "user"
+        }
+      ],
+      "hearted": false,
+      "hearts": [],
+      "liked": false,
+      "likes": [],
+      "memberships": [
+        {
+          "project": {
+            "gid": "1211955126397982",
+            "name": "Product Configurator",
+            "resource_type": "project"
+          },
+          "section": {
+            "gid": "1211955127518409",
+            "name": "Done",
+            "resource_type": "section"
+          }
+        }
+      ],
+      "modified_at": "2025-11-23T09:40:45.545Z",
+      "name": "Project Setup - Frontend",
+      "notes": "    Initialize React + TypeScript project\n    Set up basic folder structure (components, pages, api)\n    Install and configure React Router\n    Create base layout (header, container)\n    Add .env and .env.example\n    Configure ESLint + Prettier\n    Add Dockerfile for frontend + connect to docker-compose\n    Add minimal placeholder pages (Configurator, Admin)\n\n",
+      "num_hearts": 0,
+      "num_likes": 0,
+      "parent": {
+        "gid": "1211955126397985",
+        "name": "Project Setup",
+        "resource_type": "task",
+        "resource_subtype": "default_task"
+      },
+      "permalink_url": "https://app.asana.com/1/1195932726431414/project/1211955126397982/task/1211955127518413",
+      "projects": [
+        {
+          "gid": "1211955126397982",
+          "name": "Product Configurator",
+          "resource_type": "project"
+        }
+      ],
+      "resource_type": "task",
+      "start_at": null,
+      "start_on": null,
+      "subtasks": [],
+      "tags": [],
+      "resource_subtype": "default_task",
+      "workspace": {
+        "gid": "1195932726431414",
+        "name": "kulhanek-nabytek.cz",
+        "resource_type": "workspace"
+      }
+    }
+  ]
+}

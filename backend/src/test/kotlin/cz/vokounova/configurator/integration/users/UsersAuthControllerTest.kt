@@ -6,11 +6,13 @@ import cz.vokounova.configurator.generated.jooq.tables.references.USER_REFRESH_T
 import cz.vokounova.configurator.mocks.UserMocks
 import cz.vokounova.configurator.users.application.configuration.UserJwtService
 import cz.vokounova.configurator.users.domain.UserRefreshToken
+import cz.vokounova.configurator.users.infrastructure.rest.mapper.response.JwtTokenDto
 import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
 import cz.vokounova.configurator.users.ports.outboud.UserRepository
 import jakarta.servlet.http.Cookie
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -64,9 +66,13 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload),
                 ).andExpect(status().isOk)
-                .andExpect(jsonPath("$.accessToken").isNotEmpty)
+                .andReturn()
 
-        val cookie = result.andReturn().response.getCookie(REFRESH_TOKEN_COOKIE)
+        val parsedResult = readResponse<JwtTokenDto>(result)
+        assertNotNull(parsedResult)
+        assertFalse(parsedResult.token.isNullOrBlank())
+
+        val cookie = result.response.getCookie(REFRESH_TOKEN_COOKIE)
 
         assertFalse(cookie?.value.isNullOrBlank())
     }
@@ -132,7 +138,6 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
     fun `Refresh - returns new access token`() {
         val user = UserMocks.getUser()
         val refreshToken = jwtService.generateRefreshToken(user.id)
-        val cookie = Cookie(REFRESH_TOKEN_COOKIE, refreshToken.token)
 
         userRepository.create(user)
         refreshTokenRepository.createToken(
@@ -144,59 +149,61 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
             ),
         )
 
-        mockMvc
-            .perform(
-                post(REFRESH_URL)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .cookie(cookie),
-            ).andExpect(status().is2xxSuccessful)
-            .andExpect(jsonPath("$.accessToken").isNotEmpty)
+        val result =
+            mockMvc
+                .perform(
+                    get(REFRESH_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer ${refreshToken.token}"),
+                ).andExpect(status().is2xxSuccessful)
+                .andReturn()
+
+        val parsedResult = readResponse<JwtTokenDto>(result)
+        assertNotNull(parsedResult)
+        assertFalse(parsedResult.token.isNullOrBlank())
     }
 
     @Test
-    fun `Refresh - throw EXPIRED_REFRESH_TOKEN error`() {
+    fun `Refresh - throw UNAUTHORIZED error`() {
         val user = UserMocks.getUser()
         val refreshToken = jwtService.generateRefreshToken(user.id, { OffsetDateTime.now().minusDays(1) })
-        val cookie = Cookie(REFRESH_TOKEN_COOKIE, refreshToken.token)
 
         mockMvc
             .perform(
-                post(REFRESH_URL)
+                get(REFRESH_URL)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .cookie(cookie),
+                    .header("Authorization", "Bearer ${refreshToken.token}"),
             ).andExpect(status().is4xxClientError)
-            .andExpect(jsonPath("$.errors[0].code").value("EXPIRED_REFRESH_TOKEN"))
+            .andExpect(jsonPath("$.errors[0].code").value("UNAUTHORIZED"))
     }
 
     @Test
     fun `Refresh - throw 401 error if user does not exist`() {
         val user = UserMocks.getUser()
         val refreshToken = jwtService.generateRefreshToken(user.id)
-        val cookie = Cookie(REFRESH_TOKEN_COOKIE, refreshToken.token)
 
         mockMvc
             .perform(
-                post(REFRESH_URL)
+                get(REFRESH_URL)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .cookie(cookie),
+                    .header("Authorization", "Bearer ${refreshToken.token}"),
             ).andExpect(status().isUnauthorized)
-            .andExpect(jsonPath("$.errors[0].code").value("INVALID_REFRESH_TOKEN"))
-            .andExpect(jsonPath("$.errors[0].message").value("Invalid refresh token"))
+            .andExpect(jsonPath("$.errors[0].code").value("UNAUTHORIZED"))
+            .andExpect(jsonPath("$.errors[0].message").value("Unauthorized"))
     }
 
     @Test
     fun `Refresh - throw 401 error if refresh token does not exist`() {
         val user = UserMocks.getUser()
         val refreshToken = jwtService.generateRefreshToken(user.id)
-        val cookie = Cookie(REFRESH_TOKEN_COOKIE, refreshToken.token)
 
         userRepository.create(user)
 
         mockMvc
             .perform(
-                post(REFRESH_URL)
+                get(REFRESH_URL)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .cookie(cookie),
+                    .header("Authorization", "Bearer ${refreshToken.token}"),
             ).andExpect(status().isUnauthorized)
             .andExpect(jsonPath("$.errors[0].code").value("INVALID_REFRESH_TOKEN"))
             .andExpect(jsonPath("$.errors[0].message").value("Invalid refresh token"))
@@ -217,9 +224,13 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload),
                 ).andExpect(status().isOk)
-                .andExpect(jsonPath("$.accessToken").isNotEmpty)
+                .andReturn()
 
-        val cookieAfterLogin = loginResult.andReturn().response.getCookie(REFRESH_TOKEN_COOKIE)
+        val parsedLoginResult = readResponse<JwtTokenDto>(loginResult)
+        assertNotNull(parsedLoginResult)
+        assertFalse(parsedLoginResult.token.isNullOrBlank())
+
+        val cookieAfterLogin = loginResult.response.getCookie(REFRESH_TOKEN_COOKIE)
         val refreshTokensCountAfterLogin = refreshTokenRepository.getTokens().size
 
         assertFalse(cookieAfterLogin?.value.isNullOrBlank())

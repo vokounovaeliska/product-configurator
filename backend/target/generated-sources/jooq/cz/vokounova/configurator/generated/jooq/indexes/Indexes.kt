@@ -13,6 +13,7 @@ import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
 import cz.vokounova.configurator.generated.jooq.tables.ImageLayerDefinition
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
+import cz.vokounova.configurator.generated.jooq.tables.User
 import cz.vokounova.configurator.generated.jooq.tables.UserRefreshToken
 
 import org.jooq.Index
@@ -35,4 +36,5 @@ val IDX_CUSTOMER_REQUEST_EMAIL: Index = Internal.createIndex(DSL.name("idx_custo
 val IDX_CUSTOMER_REQUEST_STATUS_CREATED: Index = Internal.createIndex(DSL.name("idx_customer_request_status_created"), CustomerRequest.CUSTOMER_REQUEST, arrayOf(CustomerRequest.CUSTOMER_REQUEST.STATUS, CustomerRequest.CUSTOMER_REQUEST.CREATED_AT.desc()), false)
 val IDX_IMAGE_LAYER_COMPONENT_ID: Index = Internal.createIndex(DSL.name("idx_image_layer_component_id"), ImageLayerDefinition.IMAGE_LAYER_DEFINITION, arrayOf(ImageLayerDefinition.IMAGE_LAYER_DEFINITION.COMPONENT_ID), false)
 val IDX_PRODUCT_MODEL_USER_ID: Index = Internal.createIndex(DSL.name("idx_product_model_user_id"), ProductModel.PRODUCT_MODEL, arrayOf(ProductModel.PRODUCT_MODEL.USER_ID), false)
+val IX_USER_SEARCH_VECTOR: Index = Internal.createIndex(DSL.name("ix_user_search_vector"), User.USER, arrayOf(User.USER.SEARCH_VECTOR), false)
 val USER_REFRESH_TOKEN_USER_ID_IDX: Index = Internal.createIndex(DSL.name("user_refresh_token_user_id_idx"), UserRefreshToken.USER_REFRESH_TOKEN, arrayOf(UserRefreshToken.USER_REFRESH_TOKEN.USER_ID), false)

@@ -17,6 +17,7 @@ import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest.CustomerR
 import cz.vokounova.configurator.generated.jooq.tables.User.UserPath
 import cz.vokounova.configurator.generated.jooq.tables.records.ProductModelRecord
 
+import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -105,9 +106,9 @@ open class ProductModel(
     val DESCRIPTION: TableField<ProductModelRecord, String?> = createField(DSL.name("description"), SQLDataType.CLOB, this, "")
 
     /**
-     * The column <code>public.product_model.base_price_cents</code>.
+     * The column <code>public.product_model.price</code>.
      */
-    val BASE_PRICE_CENTS: TableField<ProductModelRecord, Int?> = createField(DSL.name("base_price_cents"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.INTEGER)), this, "")
+    val PRICE: TableField<ProductModelRecord, BigDecimal?> = createField(DSL.name("price"), SQLDataType.NUMERIC.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.NUMERIC)), this, "")
 
     /**
      * The column <code>public.product_model.currency</code>.
