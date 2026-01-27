@@ -38,3 +38,21 @@ export const getAccessTokenClient = (): string | null => {
   const value = accessTokenCookie.split("=")[1]
   return value ? decodeURIComponent(value) : null
 }
+
+/**
+ * Note: The refresh token is stored in an httpOnly cookie by the backend,
+ * so it cannot be accessed from client-side JavaScript.
+ * Use the server-side API route /api/auth/refresh to refresh tokens.
+ */
+
+/**
+ * Sets the access token in a cookie (client-side)
+ */
+export const setAccessTokenClient = (token: string, maxAgeSeconds?: number): void => {
+  if (typeof document === "undefined") {
+    return
+  }
+
+  const maxAge = maxAgeSeconds ? `; Max-Age=${maxAgeSeconds}` : ""
+  document.cookie = `access_token=${encodeURIComponent(token)}; Path=/${maxAge}`
+}

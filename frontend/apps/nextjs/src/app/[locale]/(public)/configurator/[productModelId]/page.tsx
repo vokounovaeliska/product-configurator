@@ -2,9 +2,8 @@ import type { Metadata } from "next"
 import { type Locale } from "next-intl"
 import { getTranslations } from "next-intl/server"
 
+import { ProductConfiguratorWrapper } from "@/app/_wrappers/ProductConfiguratorWrapper"
 import { env } from "@/config/env"
-
-import { ProductConfiguratorWrapper } from "./ProductConfiguratorWrapper"
 
 type Props = {
   params: Promise<{ locale: Locale; productModelId: string }>

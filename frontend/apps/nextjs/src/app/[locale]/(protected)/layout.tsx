@@ -1,13 +1,12 @@
 import { hasLocale } from "next-intl"
 
+import { SetupSidebarWrapper } from "@/app/_wrappers/SetupSidebarWrapper"
 import { SidebarToggle } from "@/components/SetupNavigation/SidebarToggle"
 import { SidebarProvider } from "@/components/SetupNavigation/useSidebar"
 import { getSession } from "@/lib/auth/session"
 import { redirect } from "@/lib/i18n/navigation"
 import { routing } from "@/lib/i18n/routing"
 import { ROUTES } from "@/lib/routes"
-
-import { SetupSidebarWrapper } from "./SetupSidebarWrapper"
 
 type Props = {
   children: React.ReactNode

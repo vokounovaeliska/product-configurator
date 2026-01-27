@@ -3,7 +3,6 @@ package cz.vokounova.configurator.products.components.infrastructure.rest
 import cz.vokounova.configurator.products.components.domain.ComponentId
 import cz.vokounova.configurator.products.components.domain.ComponentSortableField
 import cz.vokounova.configurator.products.components.domain.ComponentSortingConfig
-import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.components.infrastructure.rest.mapper.request.ComponentCreateRequestDto
 import cz.vokounova.configurator.products.components.infrastructure.rest.mapper.request.ComponentPatchRequestDto
 import cz.vokounova.configurator.products.components.infrastructure.rest.mapper.response.ComponentDto
@@ -16,6 +15,7 @@ import cz.vokounova.configurator.products.components.infrastructure.rest.validat
 import cz.vokounova.configurator.products.components.infrastructure.rest.validation.ComponentJsonPatchParamsValidator
 import cz.vokounova.configurator.products.components.infrastructure.rest.validation.ComponentListQueryParamsValidator
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
+import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.pagination.PaginationUtils
 import cz.vokounova.configurator.shared.pagination.SortingUtils

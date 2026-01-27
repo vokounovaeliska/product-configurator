@@ -77,7 +77,6 @@ class ComponentsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Get - Returns single component`() {
-
         val productModelCreateParams = ProductModelMocks.getProductModelCreateParams(userId = userId0Dto)
         val productModel = productModelAPI.create(productModelCreateParams)
 
