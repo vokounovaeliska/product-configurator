@@ -8,6 +8,7 @@ import { publicApi } from "@/lib/api/restClient"
 import { useRouter } from "@/lib/i18n/navigation"
 import { getQueryClient } from "@/lib/react-query/queryClient"
 import { ROUTES } from "@/lib/routes"
+import { extractErrorMessage } from "@/lib/utils"
 
 export const useAuth = () => {
   const router = useRouter()
@@ -116,9 +117,10 @@ export const useAuth = () => {
 
       return { error: null }
     } catch (error) {
+      const message = await extractErrorMessage(error)
       return {
         error: {
-          message: error instanceof Error ? error.message : "Registration failed",
+          message,
         },
       }
     }

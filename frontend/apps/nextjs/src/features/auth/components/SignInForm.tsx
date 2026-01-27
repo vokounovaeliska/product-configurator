@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { AlertCircleIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
@@ -15,6 +16,8 @@ import {
   FormMessage,
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
+import { Typography } from "@workspace/ui/components/typography"
+import { cn } from "@workspace/ui/lib/utils"
 
 import { useAuth } from "@/hooks/useAuth"
 
@@ -103,11 +106,27 @@ export const SignInForm = () => {
           <Button
             type="submit"
             className="w-full"
+            disabled={form.formState.isSubmitting}
           >
-            {t("loginButton")}
+            {form.formState.isSubmitting ? t("loginButton") + "..." : t("loginButton")}
           </Button>
 
-          {error && <div className="text-red-500">{error}</div>}
+          {error && (
+            <div
+              className={cn(
+                "flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4",
+              )}
+            >
+              <AlertCircleIcon className="mt-0.5 size-5 shrink-0 text-destructive" />
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="text-destructive"
+              >
+                {error}
+              </Typography>
+            </div>
+          )}
         </form>
       </Form>
     </div>

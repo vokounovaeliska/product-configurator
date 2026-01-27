@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { PencilIcon, TrashIcon } from "lucide-react"
+import { ExternalLinkIcon, PencilIcon, TrashIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
@@ -9,6 +9,8 @@ import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
 import type { ProductModelDto } from "@/api/productModelTypes"
+import { Link } from "@/lib/i18n/navigation"
+import { ROUTES } from "@/lib/routes"
 
 import { DeleteProductModelDialog } from "./DeleteProductModelDialog"
 import { EditProductModelDialog } from "./EditProductModelDialog"
@@ -65,31 +67,57 @@ export const ProductModelCard = ({ productModel }: Props) => {
             </Typography>
           )}
 
-          <div className="flex items-center justify-between border-t pt-4">
-            <Typography
-              as="p"
-              variant="body-lg"
-              weight="semibold"
-            >
-              {formatPrice(productModel.price, productModel.currency)}
-            </Typography>
+          <div className="space-y-3 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <Typography
+                as="p"
+                variant="body-lg"
+                weight="semibold"
+              >
+                {formatPrice(productModel.price, productModel.currency)}
+              </Typography>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditDialogOpen(true)}
+                >
+                  <PencilIcon className="size-4" />
+                  <span className="sr-only">{t("card.editButton")}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <TrashIcon className="size-4" />
+                  <span className="sr-only">{t("card.deleteButton")}</span>
+                </Button>
+              </div>
+            </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditDialogOpen(true)}
+              <Link
+                href={ROUTES.setupComponents(productModel.id)}
+                className="flex-1"
               >
-                <PencilIcon className="size-4" />
-                <span className="sr-only">{t("card.editButton")}</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <TrashIcon className="size-4" />
-                <span className="sr-only">{t("card.deleteButton")}</span>
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                >
+                  {t("card.manageComponentsButton")}
+                </Button>
+              </Link>
+              {productModel.isActive && (
+                <Link href={ROUTES.configurator(productModel.id)}>
+                  <Button
+                    variant="default"
+                    className="flex-1"
+                  >
+                    {t("card.configureButton")}
+                    <ExternalLinkIcon className="ml-2 size-4" />
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>

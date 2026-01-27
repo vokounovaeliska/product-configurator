@@ -45,7 +45,7 @@ jwt:
   users:
     key: ${JWT_USERS_KEY:eYO3lM2ZbmOICY3rPDIqsTRVNBOf5PtI}
     access-token-expiration-in-minutes: 10
-    refresh-token-expiration-in-minutes: 20
+    refresh-token-expiration-in-minutes: 10080  # 7 days (7 * 24 * 60)
 
 cors:
   allowed-origins: >
