@@ -45,8 +45,10 @@
       "emailInvalidMessage": "Neplatný formát emailu",
       "emailRequiredMessage": "Zadejte e-mail",
       "generalError": "Něco se pokazilo",
+      "invalidCredentials": "Neplatný e-mail nebo heslo. Zkontrolujte prosím své přihlašovací údaje a zkuste to znovu.",
       "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
-      "passwordRequiredMessage": "Zadejte heslo"
+      "passwordRequiredMessage": "Zadejte heslo",
+      "serverError": "Chyba serveru. Zkuste to prosím později."
     },
     "loginButton": "Přihlásit",
     "password": "Heslo",
@@ -103,6 +105,13 @@
   },
   "Setup": {
     "description": "Vítejte na vašem nastavení. Zde můžete spravovat modely produktů a konfigurovat svůj konfigurátor.",
+    "navigation": {
+      "allComponents": "Všechny komponenty",
+      "components": "Komponenty",
+      "dashboard": "Nástěnka",
+      "productModels": "Modely produktů",
+      "title": "Nastavení"
+    },
     "productModels": {
       "action": "Spravovat modely",
       "description": "Vytvářejte a spravujte modely produktů, které mohou zákazníci konfigurovat",
@@ -114,9 +123,11 @@
   "ProductModels": {
     "card": {
       "active": "Aktivní",
+      "configureButton": "Konfigurovat",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
-      "inactive": "Neaktivní"
+      "inactive": "Neaktivní",
+      "manageComponentsButton": "Spravovat"
     },
     "create": {
       "cancelButton": "Zrušit",
@@ -175,5 +186,99 @@
       "title": "Modely produktů"
     },
     "title": "Modely produktů"
+  },
+  "Configurator": {
+    "breadcrumbs": {
+      "home": "Domů"
+    },
+    "title": "Konfigurátor produktů",
+    "error": {
+      "loadingProductModel": "Nepodařilo se načíst model produktu. Zkuste to prosím později.",
+      "productModelNotFound": "Model produktu nebyl nalezen."
+    },
+    "components": {
+      "title": "Komponenty",
+      "emptyState": "Pro tento model produktu nejsou k dispozici žádné komponenty."
+    },
+    "attributes": {
+      "title": "Konfigurace",
+      "comingSoon": "Konfigurace atributů bude brzy k dispozici."
+    },
+    "preview": {
+      "placeholder": "Náhled produktu",
+      "comingSoon": "Vizuální náhled s obrazovými vrstvami bude brzy k dispozici."
+    },
+    "price": {
+      "title": "Celková cena"
+    }
+  },
+  "Components": {
+    "title": "Komponenty",
+    "description": "Spravujte komponenty pro tento model produktu. Komponenty jsou stavební bloky, které mohou zákazníci konfigurovat.",
+    "card": {
+      "deleteButton": "Smazat",
+      "editButton": "Upravit",
+      "sortOrder": "Pořadí"
+    },
+    "create": {
+      "cancelButton": "Zrušit",
+      "code": "Kód",
+      "codePlaceholder": "např. TOP, LEGS, DOOR",
+      "description": "Vytvořte nový komponent pro tento model produktu",
+      "descriptionPlaceholder": "Zadejte popis komponentu",
+      "errorMessages": {
+        "codeRequiredMessage": "Zadejte kód komponentu",
+        "generalError": "Něco se pokazilo",
+        "labelRequiredMessage": "Zadejte název komponentu"
+      },
+      "label": "Název",
+      "labelPlaceholder": "např. Deska stolu, Nohy, Dveře",
+      "sortOrder": "Pořadí",
+      "submitButton": "Vytvořit komponent",
+      "title": "Vytvořit komponent"
+    },
+    "delete": {
+      "cancelButton": "Zrušit",
+      "confirmButton": "Smazat komponent",
+      "description": "Opravdu chcete smazat tento komponent? Tuto akci nelze vrátit zpět.",
+      "errorMessages": {
+        "generalError": "Něco se pokazilo"
+      },
+      "title": "Smazat komponent",
+      "warningMessage": "Chystáte se smazat \"{name}\". Tato akce je trvalá a nelze ji vrátit zpět.",
+      "warningTitle": "Varování: Tuto akci nelze vrátit zpět"
+    },
+    "edit": {
+      "cancelButton": "Zrušit",
+      "code": "Kód",
+      "codePlaceholder": "např. TOP, LEGS, DOOR",
+      "description": "Aktualizujte údaje o komponentu",
+      "descriptionPlaceholder": "Zadejte popis komponentu",
+      "errorMessages": {
+        "codeRequiredMessage": "Zadejte kód komponentu",
+        "generalError": "Něco se pokazilo",
+        "labelRequiredMessage": "Zadejte název komponentu"
+      },
+      "label": "Název",
+      "labelPlaceholder": "např. Deska stolu, Nohy, Dveře",
+      "sortOrder": "Pořadí",
+      "submitButton": "Uložit změny",
+      "title": "Upravit komponent"
+    },
+    "form": {
+      "errorMessages": {
+        "codeRequiredMessage": "Zadejte kód komponentu",
+        "labelRequiredMessage": "Zadejte název komponentu"
+      }
+    },
+    "list": {
+      "createButton": "Vytvořit komponent",
+      "emptyState": {
+        "createButton": "Vytvořit první komponent",
+        "message": "Zatím jste nevytvořili žádné komponenty. Začněte vytvořením svého prvního komponentu."
+      },
+      "errorMessage": "Nepodařilo se načíst komponenty. Zkuste to prosím později.",
+      "title": "Komponenty"
+    }
   }
 }

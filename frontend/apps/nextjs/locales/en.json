@@ -45,8 +45,10 @@
       "emailInvalidMessage": "Invalid e-mail format",
       "emailRequiredMessage": "Please enter an e-mail",
       "generalError": "Something went wrong",
+      "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
       "passwordLengthMessage": "Password must be at least 8 characters",
-      "passwordRequiredMessage": "Please enter a password"
+      "passwordRequiredMessage": "Please enter a password",
+      "serverError": "Server error. Please try again later."
     },
     "loginButton": "Login",
     "password": "Password",
@@ -104,6 +106,13 @@
   },
   "Setup": {
     "description": "Welcome to your setup dashboard. Here you can manage your product models and configure your configurator.",
+    "navigation": {
+      "allComponents": "All Components",
+      "components": "Components",
+      "dashboard": "Dashboard",
+      "productModels": "Product Models",
+      "title": "Setup"
+    },
     "productModels": {
       "action": "Manage Models",
       "description": "Create and manage product models that customers can configure",
@@ -115,9 +124,11 @@
   "ProductModels": {
     "card": {
       "active": "Active",
+      "configureButton": "Configure",
       "deleteButton": "Delete",
       "editButton": "Edit",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "manageComponentsButton": "Manage"
     },
     "create": {
       "cancelButton": "Cancel",
@@ -176,5 +187,99 @@
       "title": "Product Models"
     },
     "title": "Product Models"
+  },
+  "Configurator": {
+    "breadcrumbs": {
+      "home": "Home"
+    },
+    "title": "Product Configurator",
+    "error": {
+      "loadingProductModel": "Failed to load product model. Please try again later.",
+      "productModelNotFound": "Product model not found."
+    },
+    "components": {
+      "title": "Components",
+      "emptyState": "No components available for this product model."
+    },
+    "attributes": {
+      "title": "Configuration",
+      "comingSoon": "Attribute configuration will be available soon."
+    },
+    "preview": {
+      "placeholder": "Product Preview",
+      "comingSoon": "Visual preview with image layers will be available soon."
+    },
+    "price": {
+      "title": "Total Price"
+    }
+  },
+  "Components": {
+    "title": "Components",
+    "description": "Manage components for this product model. Components are the building blocks that customers can configure.",
+    "card": {
+      "deleteButton": "Delete",
+      "editButton": "Edit",
+      "sortOrder": "Sort Order"
+    },
+    "create": {
+      "cancelButton": "Cancel",
+      "code": "Code",
+      "codePlaceholder": "e.g., TOP, LEGS, DOOR",
+      "description": "Create a new component for this product model",
+      "descriptionPlaceholder": "Enter a description for the component",
+      "errorMessages": {
+        "codeRequiredMessage": "Please enter a component code",
+        "generalError": "Something went wrong",
+        "labelRequiredMessage": "Please enter a component label"
+      },
+      "label": "Label",
+      "labelPlaceholder": "e.g., Tabletop, Legs, Door",
+      "sortOrder": "Sort Order",
+      "submitButton": "Create Component",
+      "title": "Create Component"
+    },
+    "delete": {
+      "cancelButton": "Cancel",
+      "confirmButton": "Delete Component",
+      "description": "Are you sure you want to delete this component? This action cannot be undone.",
+      "errorMessages": {
+        "generalError": "Something went wrong"
+      },
+      "title": "Delete Component",
+      "warningMessage": "You are about to delete \"{name}\". This action is permanent and cannot be undone.",
+      "warningTitle": "Warning: This action cannot be undone"
+    },
+    "edit": {
+      "cancelButton": "Cancel",
+      "code": "Code",
+      "codePlaceholder": "e.g., TOP, LEGS, DOOR",
+      "description": "Update the component details",
+      "descriptionPlaceholder": "Enter a description for the component",
+      "errorMessages": {
+        "codeRequiredMessage": "Please enter a component code",
+        "generalError": "Something went wrong",
+        "labelRequiredMessage": "Please enter a component label"
+      },
+      "label": "Label",
+      "labelPlaceholder": "e.g., Tabletop, Legs, Door",
+      "sortOrder": "Sort Order",
+      "submitButton": "Save Changes",
+      "title": "Edit Component"
+    },
+    "form": {
+      "errorMessages": {
+        "codeRequiredMessage": "Please enter a component code",
+        "labelRequiredMessage": "Please enter a component label"
+      }
+    },
+    "list": {
+      "createButton": "Create Component",
+      "emptyState": {
+        "createButton": "Create Your First Component",
+        "message": "You haven't created any components yet. Get started by creating your first component."
+      },
+      "errorMessage": "Failed to load components. Please try again later.",
+      "title": "Components"
+    }
   }
 }

@@ -5,9 +5,9 @@ import cz.vokounova.configurator.generated.jooq.tables.references.PRODUCT_MODEL
 import cz.vokounova.configurator.mocks.AuthMocks
 import cz.vokounova.configurator.mocks.ProductModelMocks
 import cz.vokounova.configurator.mocks.UserMocks
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ProductModelCreateRequestDto
-import cz.vokounova.configurator.products.infrastructure.rest.mapper.request.ProductModelPatchRequestDto
-import cz.vokounova.configurator.products.ports.inbound.ProductModelAPI
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.request.ProductModelCreateRequestDto
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.request.ProductModelPatchRequestDto
+import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.shared.rest.response.ValidationErrorResponse
 import cz.vokounova.configurator.shared.validations.BaseValidationCode
 import cz.vokounova.configurator.users.api.dto.UserIdDto

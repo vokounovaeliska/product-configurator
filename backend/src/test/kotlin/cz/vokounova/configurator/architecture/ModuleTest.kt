@@ -49,19 +49,38 @@ class ModuleTest {
                 .toTypedArray()
 
         modulePackages.forEach { packageName ->
-            val rule =
-                classes()
-                    .that()
-                    .resideInAnyPackage(
-                        "cz.vokounova.configurator.$packageName.application..",
-                        "cz.vokounova.configurator.$packageName.domain..",
-                        "cz.vokounova.configurator.$packageName.infrastructure..",
-                        "cz.vokounova.configurator.$packageName.ports..",
-                    ).should()
-                    .onlyBeAccessed()
-                    .byAnyPackage("cz.vokounova.configurator.$packageName..")
-                    .because("Classes in internal package of application module must not be used by other application modules")
-            rule.check(importedClasses)
+            // Special handling for products module which has models and components submodules
+            if (packageName == Modules.PRODUCTS.packageName) {
+                listOf("models", "components").forEach { subModule ->
+                    val rule =
+                        classes()
+                            .that()
+                            .resideInAnyPackage(
+                                "cz.vokounova.configurator.$packageName.$subModule.application..",
+                                "cz.vokounova.configurator.$packageName.$subModule.domain..",
+                                "cz.vokounova.configurator.$packageName.$subModule.infrastructure..",
+                                "cz.vokounova.configurator.$packageName.$subModule.ports..",
+                            ).should()
+                            .onlyBeAccessed()
+                            .byAnyPackage("cz.vokounova.configurator.$packageName..")
+                            .because("Classes in internal package of application module must not be used by other application modules")
+                    rule.check(importedClasses)
+                }
+            } else {
+                val rule =
+                    classes()
+                        .that()
+                        .resideInAnyPackage(
+                            "cz.vokounova.configurator.$packageName.application..",
+                            "cz.vokounova.configurator.$packageName.domain..",
+                            "cz.vokounova.configurator.$packageName.infrastructure..",
+                            "cz.vokounova.configurator.$packageName.ports..",
+                        ).should()
+                        .onlyBeAccessed()
+                        .byAnyPackage("cz.vokounova.configurator.$packageName..")
+                        .because("Classes in internal package of application module must not be used by other application modules")
+                rule.check(importedClasses)
+            }
         }
     }
 }

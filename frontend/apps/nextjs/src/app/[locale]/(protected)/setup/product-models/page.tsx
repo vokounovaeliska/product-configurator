@@ -3,6 +3,7 @@ import { type Locale } from "next-intl"
 import { getTranslations } from "next-intl/server"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 import { env } from "@/config/env"
 
 import { ProductModelsList } from "@/features/productModels/components/ProductModelsList"
@@ -40,6 +41,7 @@ const ProductModelsPage = async (props: Props) => {
 
   return (
     <div className="flex-1 rounded-2xl bg-muted/50 p-10">
+      <Breadcrumbs />
       <div className="mb-8">
         <Typography
           as="h1"

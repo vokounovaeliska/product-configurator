@@ -43,17 +43,13 @@ open class ComponentDefinitionRecord private constructor() : UpdatableRecordImpl
         set(value): Unit = set(5, value)
         get(): Int? = get(5) as Int?
 
-    open var previewImageUrl: String?
-        set(value): Unit = set(6, value)
-        get(): String? = get(6) as String?
-
     open var createdAt: OffsetDateTime
-        set(value): Unit = set(7, value)
-        get(): OffsetDateTime = get(7) as OffsetDateTime
+        set(value): Unit = set(6, value)
+        get(): OffsetDateTime = get(6) as OffsetDateTime
 
     open var modifiedAt: OffsetDateTime
-        set(value): Unit = set(8, value)
-        get(): OffsetDateTime = get(8) as OffsetDateTime
+        set(value): Unit = set(7, value)
+        get(): OffsetDateTime = get(7) as OffsetDateTime
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -64,14 +60,13 @@ open class ComponentDefinitionRecord private constructor() : UpdatableRecordImpl
     /**
      * Create a detached, initialised ComponentDefinitionRecord
      */
-    constructor(id: UUID, productModelId: UUID, code: String, label: String, description: String? = null, sortOrder: Int? = null, previewImageUrl: String? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, productModelId: UUID, code: String, label: String, description: String? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
         this.id = id
         this.productModelId = productModelId
         this.code = code
         this.label = label
         this.description = description
         this.sortOrder = sortOrder
-        this.previewImageUrl = previewImageUrl
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
         resetChangedOnNotNull()
