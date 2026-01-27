@@ -37,7 +37,7 @@ export const ProductModelCard = ({ productModel }: Props) => {
           <div className="flex items-start justify-between gap-2">
             <Typography
               as="h3"
-              variant="heading-lg"
+              variant="display-md"
               weight="semibold"
               className="line-clamp-2 flex-1"
             >
