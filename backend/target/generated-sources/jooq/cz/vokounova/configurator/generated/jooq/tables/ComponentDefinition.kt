@@ -12,11 +12,9 @@ import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_PRICING_RULE__ATT
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION_PKEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION_PRODUCT_MODEL_ID_CODE_KEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION__COMPONENT_DEFINITION_PRODUCT_MODEL_ID_FKEY
-import cz.vokounova.configurator.generated.jooq.keys.IMAGE_LAYER_DEFINITION__IMAGE_LAYER_DEFINITION_COMPONENT_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition.AttributeDefinitionPath
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOptionConstraint.AttributeOptionConstraintPath
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule.AttributePricingRulePath
-import cz.vokounova.configurator.generated.jooq.tables.ImageLayerDefinition.ImageLayerDefinitionPath
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel.ProductModelPath
 import cz.vokounova.configurator.generated.jooq.tables.records.ComponentDefinitionRecord
 
@@ -127,6 +125,11 @@ open class ComponentDefinition(
      */
     val MODIFIED_AT: TableField<ComponentDefinitionRecord, OffsetDateTime?> = createField(DSL.name("modified_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "")
 
+    /**
+     * The column <code>public.component_definition.image_z_index</code>.
+     */
+    val IMAGE_Z_INDEX: TableField<ComponentDefinitionRecord, Int?> = createField(DSL.name("image_z_index"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.INTEGER)), this, "")
+
     private constructor(alias: Name, aliased: Table<ComponentDefinitionRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<ComponentDefinitionRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<ComponentDefinitionRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
@@ -229,22 +232,6 @@ open class ComponentDefinition(
 
     val attributePricingRule: AttributePricingRulePath
         get(): AttributePricingRulePath = attributePricingRule()
-
-    private lateinit var _imageLayerDefinition: ImageLayerDefinitionPath
-
-    /**
-     * Get the implicit to-many join path to the
-     * <code>public.image_layer_definition</code> table
-     */
-    fun imageLayerDefinition(): ImageLayerDefinitionPath {
-        if (!this::_imageLayerDefinition.isInitialized)
-            _imageLayerDefinition = ImageLayerDefinitionPath(this, null, IMAGE_LAYER_DEFINITION__IMAGE_LAYER_DEFINITION_COMPONENT_ID_FKEY.inverseKey)
-
-        return _imageLayerDefinition;
-    }
-
-    val imageLayerDefinition: ImageLayerDefinitionPath
-        get(): ImageLayerDefinitionPath = imageLayerDefinition()
     override fun `as`(alias: String): ComponentDefinition = ComponentDefinition(DSL.name(alias), this)
     override fun `as`(alias: Name): ComponentDefinition = ComponentDefinition(alias, this)
     override fun `as`(alias: Table<*>): ComponentDefinition = ComponentDefinition(alias.qualifiedName, this)

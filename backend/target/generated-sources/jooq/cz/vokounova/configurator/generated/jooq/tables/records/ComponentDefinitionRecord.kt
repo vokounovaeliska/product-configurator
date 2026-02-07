@@ -51,6 +51,10 @@ open class ComponentDefinitionRecord private constructor() : UpdatableRecordImpl
         set(value): Unit = set(7, value)
         get(): OffsetDateTime = get(7) as OffsetDateTime
 
+    open var imageZIndex: Int?
+        set(value): Unit = set(8, value)
+        get(): Int? = get(8) as Int?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -60,7 +64,7 @@ open class ComponentDefinitionRecord private constructor() : UpdatableRecordImpl
     /**
      * Create a detached, initialised ComponentDefinitionRecord
      */
-    constructor(id: UUID, productModelId: UUID, code: String, label: String, description: String? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, productModelId: UUID, code: String, label: String, description: String? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, imageZIndex: Int? = null): this() {
         this.id = id
         this.productModelId = productModelId
         this.code = code
@@ -69,6 +73,7 @@ open class ComponentDefinitionRecord private constructor() : UpdatableRecordImpl
         this.sortOrder = sortOrder
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
+        this.imageZIndex = imageZIndex
         resetChangedOnNotNull()
     }
 }

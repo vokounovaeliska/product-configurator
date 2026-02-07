@@ -151,6 +151,11 @@ open class AttributeDefinition(
      */
     val MODIFIED_AT: TableField<AttributeDefinitionRecord, OffsetDateTime?> = createField(DSL.name("modified_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "")
 
+    /**
+     * The column <code>public.attribute_definition.unit</code>.
+     */
+    val UNIT: TableField<AttributeDefinitionRecord, String?> = createField(DSL.name("unit"), SQLDataType.CLOB, this, "")
+
     private constructor(alias: Name, aliased: Table<AttributeDefinitionRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<AttributeDefinitionRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<AttributeDefinitionRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

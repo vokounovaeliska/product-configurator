@@ -16,6 +16,7 @@ data class AttributeDto(
     val maxInt: Int?,
     val minDecimal: BigDecimal?,
     val maxDecimal: BigDecimal?,
+    val unit: String?,
     val sortOrder: Int,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,

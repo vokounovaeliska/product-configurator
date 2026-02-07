@@ -35,6 +35,13 @@ class ComponentJsonPatchParamsValidator : AppValidator<ComponentJsonPatchParams>
                         min(0)
                     }
                 }
+
+                ComponentJsonPatchParamsPath.IMAGE_Z_INDEX -> {
+                    field(path.value, value.value as? Number) {
+                        notNull()
+                        min(0)
+                    }
+                }
             }
         }
 }

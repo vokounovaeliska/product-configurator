@@ -27,6 +27,7 @@ object AttributeMocks {
         maxInt: Int? = 2000,
         minDecimal: BigDecimal? = null,
         maxDecimal: BigDecimal? = null,
+        unit: String? = null,
         sortOrder: Int = 1,
         createdAt: OffsetDateTime = OffsetDateTime.now(),
         modifiedAt: OffsetDateTime = OffsetDateTime.now(),
@@ -41,6 +42,7 @@ object AttributeMocks {
         maxInt = maxInt,
         minDecimal = minDecimal,
         maxDecimal = maxDecimal,
+        unit = unit,
         sortOrder = sortOrder,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
@@ -56,6 +58,7 @@ object AttributeMocks {
         maxInt: Int? = 2000,
         minDecimal: BigDecimal? = null,
         maxDecimal: BigDecimal? = null,
+        unit: String? = null,
         sortOrder: Int? = 1,
     ) = AttributeCreateParams(
         componentId = componentId,
@@ -67,6 +70,7 @@ object AttributeMocks {
         maxInt = maxInt,
         minDecimal = minDecimal,
         maxDecimal = maxDecimal,
+        unit = unit,
         sortOrder = sortOrder,
     )
 

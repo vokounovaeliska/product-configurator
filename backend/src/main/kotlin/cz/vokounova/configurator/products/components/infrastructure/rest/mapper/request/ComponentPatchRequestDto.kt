@@ -5,6 +5,7 @@ enum class ComponentPatchRequestDtoPath {
     SlashLabel,
     SlashDescription,
     SlashSortOrder,
+    SlashImageZIndex,
 }
 
 enum class ComponentPatchRequestDtoOp {

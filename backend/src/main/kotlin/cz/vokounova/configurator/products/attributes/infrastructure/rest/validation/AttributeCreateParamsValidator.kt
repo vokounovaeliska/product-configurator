@@ -27,6 +27,17 @@ class AttributeCreateParamsValidator : AppValidator<AttributeCreateParams> {
                     min(0)
                 }
             }
+            value.unit?.let { unitStr ->
+                if (unitStr.isBlank()) {
+                    addError(
+                        ValidationExceptionError(
+                            field = "unit",
+                            code = BaseValidationCode.VALUE_IS_INVALID.name,
+                            message = "Unit must not be blank when provided",
+                        ),
+                    )
+                }
+            }
             // Type-specific validations
             when (value.type) {
                 AttributeType.INTEGER -> {

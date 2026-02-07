@@ -17,6 +17,7 @@ object ComponentMocks {
         label: String = "Table Top",
         description: String? = "The top surface of the table",
         sortOrder: Int = 1,
+        imageZIndex: Int = 0,
         createdAt: OffsetDateTime = OffsetDateTime.now(),
         modifiedAt: OffsetDateTime = OffsetDateTime.now(),
     ) = Component(
@@ -26,6 +27,7 @@ object ComponentMocks {
         label = label,
         description = description,
         sortOrder = sortOrder,
+        imageZIndex = imageZIndex,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )
@@ -36,11 +38,13 @@ object ComponentMocks {
         label: String = "Table Top",
         description: String? = "The top surface of the table",
         sortOrder: Int? = 1,
+        imageZIndex: Int? = null,
     ) = ComponentCreateParams(
         productModelId = productModelId,
         code = code,
         label = label,
         description = description,
         sortOrder = sortOrder,
+        imageZIndex = imageZIndex,
     )
 }

@@ -11,6 +11,8 @@ data class ComponentCreateParams(
     val label: String,
     val description: String? = null,
     val sortOrder: Int? = null,
+    /** Z-index for stacking (lower = back, higher = front). Default 0. */
+    val imageZIndex: Int? = null,
 )
 
 data class ComponentJsonPatchParams(
@@ -26,6 +28,7 @@ enum class ComponentJsonPatchParamsPath(
     LABEL("/label"),
     DESCRIPTION("/description"),
     SORT_ORDER("/sortOrder"),
+    IMAGE_Z_INDEX("/imageZIndex"),
     ;
 
     @JsonValue

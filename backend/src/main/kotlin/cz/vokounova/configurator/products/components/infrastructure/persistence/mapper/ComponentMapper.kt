@@ -13,6 +13,7 @@ fun Component.toPersistence(): ComponentDefinitionRecord =
         label = label,
         description = description,
         sortOrder = sortOrder,
+        imageZIndex = imageZIndex,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )
@@ -25,6 +26,7 @@ fun ComponentDefinitionRecord.toDomain(): Component =
         label = label,
         description = description,
         sortOrder = sortOrder ?: 0,
+        imageZIndex = imageZIndex ?: 0,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

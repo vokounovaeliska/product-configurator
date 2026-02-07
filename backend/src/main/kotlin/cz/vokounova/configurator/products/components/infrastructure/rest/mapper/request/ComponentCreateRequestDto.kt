@@ -5,4 +5,5 @@ data class ComponentCreateRequestDto(
     val label: String,
     val description: String? = null,
     val sortOrder: Int? = null,
+    val imageZIndex: Int? = null,
 )

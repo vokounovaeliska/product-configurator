@@ -5,6 +5,8 @@ import cz.vokounova.configurator.products.attributes.domain.AttributeOption
 import cz.vokounova.configurator.products.attributes.domain.AttributeOptionId
 
 interface AttributeOptionRepository {
+    fun findById(id: AttributeOptionId): AttributeOption?
+
     fun findByAttributeId(attributeId: AttributeId): List<AttributeOption>
 
     fun create(option: AttributeOption): AttributeOption?

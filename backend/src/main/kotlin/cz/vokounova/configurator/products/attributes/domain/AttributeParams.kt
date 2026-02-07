@@ -17,6 +17,8 @@ data class AttributeCreateParams(
     val maxInt: Int? = null,
     val minDecimal: BigDecimal? = null,
     val maxDecimal: BigDecimal? = null,
+    /** Optional unit for numeric attributes (e.g. "mm"). */
+    val unit: String? = null,
     val sortOrder: Int? = null,
 )
 
@@ -37,6 +39,7 @@ enum class AttributeJsonPatchParamsPath(
     MAX_INT("/maxInt"),
     MIN_DECIMAL("/minDecimal"),
     MAX_DECIMAL("/maxDecimal"),
+    UNIT("/unit"),
     SORT_ORDER("/sortOrder"),
     ;
 

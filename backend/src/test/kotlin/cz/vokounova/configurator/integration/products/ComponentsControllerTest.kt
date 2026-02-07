@@ -101,6 +101,7 @@ class ComponentsControllerTest : BaseIntegrationTest() {
         assertEquals(created.label, parsedResult.label)
         assertEquals(created.description, parsedResult.description)
         assertEquals(created.sortOrder, parsedResult.sortOrder)
+        assertEquals(created.imageZIndex, parsedResult.imageZIndex)
         assertNotNull(parsedResult.createdAt)
         assertNotNull(parsedResult.modifiedAt)
     }
@@ -175,6 +176,7 @@ class ComponentsControllerTest : BaseIntegrationTest() {
         assertEquals(params.label, parsedResult.label)
         assertEquals(null, parsedResult.description)
         assertEquals(0, parsedResult.sortOrder)
+        assertEquals(0, parsedResult.imageZIndex)
     }
 
     @Test

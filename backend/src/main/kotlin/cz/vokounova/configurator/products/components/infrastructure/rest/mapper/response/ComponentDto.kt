@@ -10,6 +10,7 @@ data class ComponentDto(
     val label: String,
     val description: String?,
     val sortOrder: Int,
+    val imageZIndex: Int,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
 )

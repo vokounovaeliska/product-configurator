@@ -16,6 +16,13 @@ import org.springframework.stereotype.Component as ComponentStereotype
 class AttributeOptionRepositoryDB(
     private val dslContext: DSLContext,
 ) : AttributeOptionRepository {
+    override fun findById(id: AttributeOptionId): AttributeOption? =
+        dslContext
+            .selectFrom(ATTRIBUTE_OPTION)
+            .where(ATTRIBUTE_OPTION.ID.eq(id.value))
+            .fetchOne()
+            ?.toDomain()
+
     override fun findByAttributeId(attributeId: AttributeId): List<AttributeOption> =
         dslContext
             .selectFrom(ATTRIBUTE_OPTION)

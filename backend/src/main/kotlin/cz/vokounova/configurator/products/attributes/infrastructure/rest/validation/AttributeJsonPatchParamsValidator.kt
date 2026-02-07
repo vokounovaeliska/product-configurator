@@ -71,6 +71,21 @@ class AttributeJsonPatchParamsValidator : AppValidator<AttributeJsonPatchParams>
                     }
                 }
 
+                AttributeJsonPatchParamsPath.UNIT -> {
+                    // Unit can be null or non-empty string
+                    (value.value as? String)?.let { unitStr ->
+                        if (unitStr.isBlank()) {
+                            addError(
+                                ValidationExceptionError(
+                                    field = path.value,
+                                    code = BaseValidationCode.VALUE_IS_INVALID.name,
+                                    message = "Unit must not be blank when provided",
+                                ),
+                            )
+                        }
+                    }
+                }
+
                 AttributeJsonPatchParamsPath.SORT_ORDER -> {
                     field(path.value, value.value as? Number) {
                         notNull()

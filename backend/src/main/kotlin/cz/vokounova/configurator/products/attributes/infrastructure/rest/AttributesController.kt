@@ -16,6 +16,8 @@ import cz.vokounova.configurator.products.attributes.infrastructure.rest.validat
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.validation.AttributeListQueryParamsValidator
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.components.domain.ComponentId
+import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
+import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.pagination.PaginationUtils
 import cz.vokounova.configurator.shared.pagination.SortingUtils
@@ -37,6 +39,7 @@ import java.util.UUID
 @RequestMapping("/products/api/v1/product-models/{productModelId}/components/{componentId}/attributes")
 class AttributesController(
     private val attributeAPI: AttributeAPI,
+    private val componentAPI: ComponentAPI,
     private val queryParamsValidator: AttributeListQueryParamsValidator,
     private val createParamsValidator: AttributeCreateParamsValidator,
     private val jsonPatchValidator: AttributeJsonPatchParamsValidator,
@@ -60,6 +63,18 @@ class AttributesController(
         @PathVariable componentId: UUID,
         @PathVariable attributeId: UUID,
     ): ResponseEntity<Unit> {
+        // Validate that component belongs to product model
+        val component = componentAPI.getOne(ComponentId(componentId))
+        if (component.productModelId.value != productModelId) {
+            throw ResourceNotFoundException("Component with id $componentId does not belong to product model $productModelId")
+        }
+
+        // Validate that attribute belongs to component
+        val attribute = attributeAPI.getOne(AttributeId(attributeId))
+        if (attribute.componentId.value != componentId) {
+            throw ResourceNotFoundException("Attribute with id $attributeId does not belong to component $componentId")
+        }
+
         attributeAPI.delete(AttributeId(attributeId))
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
@@ -70,7 +85,18 @@ class AttributesController(
         @PathVariable componentId: UUID,
         @PathVariable attributeId: UUID,
     ): ResponseEntity<AttributeDto> {
+        // Validate that component belongs to product model
+        val component = componentAPI.getOne(ComponentId(componentId))
+        if (component.productModelId.value != productModelId) {
+            throw ResourceNotFoundException("Component with id $componentId does not belong to product model $productModelId")
+        }
+
+        // Validate that attribute belongs to component
         val attribute = attributeAPI.getOne(AttributeId(attributeId))
+        if (attribute.componentId.value != componentId) {
+            throw ResourceNotFoundException("Attribute with id $attributeId does not belong to component $componentId")
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(attribute.toDto())
     }
 
@@ -131,6 +157,18 @@ class AttributesController(
         @PathVariable attributeId: UUID,
         @RequestBody attributePatchRequestDto: List<AttributePatchRequestDto>,
     ): ResponseEntity<AttributeDto> {
+        // Validate that component belongs to product model
+        val component = componentAPI.getOne(ComponentId(componentId))
+        if (component.productModelId.value != productModelId) {
+            throw ResourceNotFoundException("Component with id $componentId does not belong to product model $productModelId")
+        }
+
+        // Validate that attribute belongs to component
+        val existingAttribute = attributeAPI.getOne(AttributeId(attributeId))
+        if (existingAttribute.componentId.value != componentId) {
+            throw ResourceNotFoundException("Attribute with id $attributeId does not belong to component $componentId")
+        }
+
         val params = attributePatchRequestDto.map { it.toParams() }
         jsonPatchValidator.validate(params).throwIfNotEmpty()
 

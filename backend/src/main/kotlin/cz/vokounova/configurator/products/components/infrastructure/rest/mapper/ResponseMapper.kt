@@ -11,6 +11,7 @@ fun Component.toDto(): ComponentDto =
         label = label,
         description = description,
         sortOrder = sortOrder,
+        imageZIndex = imageZIndex,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

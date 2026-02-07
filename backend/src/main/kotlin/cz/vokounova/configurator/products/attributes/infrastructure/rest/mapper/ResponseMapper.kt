@@ -17,6 +17,7 @@ fun Attribute.toDto(): AttributeDto =
         maxInt = maxInt,
         minDecimal = minDecimal,
         maxDecimal = maxDecimal,
+        unit = unit,
         sortOrder = sortOrder,
         createdAt = createdAt,
         modifiedAt = modifiedAt,

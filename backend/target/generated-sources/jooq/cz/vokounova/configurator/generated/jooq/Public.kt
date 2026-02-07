@@ -11,7 +11,6 @@ import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
-import cz.vokounova.configurator.generated.jooq.tables.ImageLayerDefinition
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
 import cz.vokounova.configurator.generated.jooq.tables.User
@@ -77,11 +76,6 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val CUSTOMER_REQUEST_COMPONENT: CustomerRequestComponent get() = CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT
 
     /**
-     * The table <code>public.image_layer_definition</code>.
-     */
-    val IMAGE_LAYER_DEFINITION: ImageLayerDefinition get() = ImageLayerDefinition.IMAGE_LAYER_DEFINITION
-
-    /**
      * The table <code>public.pgp_armor_headers</code>.
      */
     val PGP_ARMOR_HEADERS: PgpArmorHeaders get() = PgpArmorHeaders.PGP_ARMOR_HEADERS
@@ -139,7 +133,6 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
         ComponentDefinition.COMPONENT_DEFINITION,
         CustomerRequest.CUSTOMER_REQUEST,
         CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT,
-        ImageLayerDefinition.IMAGE_LAYER_DEFINITION,
         PgpArmorHeaders.PGP_ARMOR_HEADERS,
         ProductModel.PRODUCT_MODEL,
         User.USER,

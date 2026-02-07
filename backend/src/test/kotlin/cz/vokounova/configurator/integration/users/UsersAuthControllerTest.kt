@@ -164,7 +164,7 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `Refresh - throw UNAUTHORIZED error`() {
+    fun `Refresh - throw EXPIRED_REFRESH_TOKEN error when token is expired`() {
         val user = UserMocks.getUser()
         val refreshToken = jwtService.generateRefreshToken(user.id, { OffsetDateTime.now().minusDays(1) })
 
@@ -173,12 +173,12 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
                 get(REFRESH_URL)
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer ${refreshToken.token}"),
-            ).andExpect(status().is4xxClientError)
-            .andExpect(jsonPath("$.errors[0].code").value("UNAUTHORIZED"))
+            ).andExpect(status().isUnauthorized)
+            .andExpect(jsonPath("$.errors[0].code").value("EXPIRED_REFRESH_TOKEN"))
     }
 
     @Test
-    fun `Refresh - throw 401 error if user does not exist`() {
+    fun `Refresh - throw INVALID_REFRESH_TOKEN error if user does not exist`() {
         val user = UserMocks.getUser()
         val refreshToken = jwtService.generateRefreshToken(user.id)
 
@@ -188,8 +188,8 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
                     .contentType(MediaType.APPLICATION_JSON)
                     .header("Authorization", "Bearer ${refreshToken.token}"),
             ).andExpect(status().isUnauthorized)
-            .andExpect(jsonPath("$.errors[0].code").value("UNAUTHORIZED"))
-            .andExpect(jsonPath("$.errors[0].message").value("Unauthorized"))
+            .andExpect(jsonPath("$.errors[0].code").value("INVALID_REFRESH_TOKEN"))
+            .andExpect(jsonPath("$.errors[0].message").value("Invalid refresh token"))
     }
 
     @Test
