@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile
 import java.nio.file.AccessDeniedException
 import java.nio.file.Files
 import java.nio.file.Path
+import org.slf4j.LoggerFactory
 import java.nio.file.Paths
 import java.util.UUID
 
@@ -21,6 +22,7 @@ class FileUploadController(
     @Value("\${app.files.upload-dir}") private val uploadDir: String,
 ) {
     companion object {
+        private val log = LoggerFactory.getLogger(FileUploadController::class.java)
         private val ALLOWED_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "webp", "svg")
         private const val MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
     }
@@ -29,7 +31,9 @@ class FileUploadController(
         // Try to create upload directory at startup; do not fail bean creation if e.g. read-only filesystem
         try {
             ensureUploadDirExists(Paths.get(uploadDir))
-        } catch (_: Exception) {
+            log.info("File upload directory: {}", Paths.get(uploadDir).toAbsolutePath())
+        } catch (e: Exception) {
+            log.warn("Upload directory not writable at startup: {} - {}", uploadDir, e.message)
             // Directory will be created on first upload if permitted
         }
     }
