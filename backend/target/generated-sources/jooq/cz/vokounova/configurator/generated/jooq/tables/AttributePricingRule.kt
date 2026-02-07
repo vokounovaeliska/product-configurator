@@ -131,6 +131,15 @@ open class AttributePricingRule(
      */
     val MODIFIED_AT: TableField<AttributePricingRuleRecord, OffsetDateTime?> = createField(DSL.name("modified_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "")
 
+    /**
+     * The column
+     * <code>public.attribute_pricing_rule.price_per_unit_cents</code>. When
+     * set, this rule adds (numeric_value * price_per_unit_cents) cents. Used
+     * for INTEGER/DECIMAL attributes. Mutually exclusive with fixed
+     * price_delta_cents for the same rule.
+     */
+    val PRICE_PER_UNIT_CENTS: TableField<AttributePricingRuleRecord, Int?> = createField(DSL.name("price_per_unit_cents"), SQLDataType.INTEGER, this, "When set, this rule adds (numeric_value * price_per_unit_cents) cents. Used for INTEGER/DECIMAL attributes. Mutually exclusive with fixed price_delta_cents for the same rule.")
+
     private constructor(alias: Name, aliased: Table<AttributePricingRuleRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<AttributePricingRuleRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<AttributePricingRuleRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

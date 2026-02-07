@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
+import Image from "next/image"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
@@ -12,6 +13,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
+import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 import { getImageUrl } from "@/utils/imageUrl"
 
 type Props = {
@@ -19,6 +21,11 @@ type Props = {
   productModelId: string
   selectedOptionsByAttribute: Record<string, AttributeOptionDto | null>
   onSelectOption: (attributeId: string, option: AttributeOptionDto | null) => void
+  /** When provided with onOtherChange, numeric/boolean values are controlled by parent (for price preview). */
+  selectedOtherValuesByAttribute?: Record<string, number | boolean>
+  onOtherChange?: (attributeId: string, value: number | boolean) => void
+  pricingRules?: AttributePricingRuleDto[]
+  currency?: string
 }
 
 export const AttributeConfiguration = ({
@@ -26,9 +33,23 @@ export const AttributeConfiguration = ({
   productModelId,
   selectedOptionsByAttribute,
   onSelectOption,
+  selectedOtherValuesByAttribute,
+  onOtherChange,
+  pricingRules = [],
+  currency,
 }: Props) => {
   const t = useTranslations("Configurator")
-  const [otherValues, setOtherValues] = useState<Record<string, number | boolean>>({})
+  const [localOtherValues, setLocalOtherValues] = useState<Record<string, number | boolean>>({})
+
+  const otherValues =
+    onOtherChange && selectedOtherValuesByAttribute != null
+      ? selectedOtherValuesByAttribute
+      : localOtherValues
+  const handleOtherChange =
+    onOtherChange ??
+    ((attributeId: string, value: number | boolean) => {
+      setLocalOtherValues((prev) => ({ ...prev, [attributeId]: value }))
+    })
 
   const { data: attributesData, isLoading: isAttributesLoading } = useAttributesList(
     productModelId,
@@ -77,10 +98,6 @@ export const AttributeConfiguration = ({
     )
   }
 
-  const handleOtherChange = (attributeId: string, value: number | boolean) => {
-    setOtherValues((prev) => ({ ...prev, [attributeId]: value }))
-  }
-
   return (
     <div className="space-y-4">
       <Typography
@@ -101,6 +118,8 @@ export const AttributeConfiguration = ({
             onSelectOption={(option) => onSelectOption(attr.id, option)}
             otherValue={otherValues[attr.id]}
             onOtherChange={(value) => handleOtherChange(attr.id, value)}
+            pricingRules={pricingRules}
+            currency={currency}
           />
         ))}
       </div>
@@ -116,6 +135,8 @@ type AttributeFieldProps = {
   onSelectOption: (option: AttributeOptionDto | null) => void
   otherValue: number | boolean | undefined
   onOtherChange: (value: number | boolean) => void
+  pricingRules?: AttributePricingRuleDto[]
+  currency?: string
 }
 
 const AttributeField = ({
@@ -126,6 +147,8 @@ const AttributeField = ({
   onSelectOption,
   otherValue,
   onOtherChange,
+  pricingRules = [],
+  currency = "CZK",
 }: AttributeFieldProps) => {
   const t = useTranslations("Configurator")
 
@@ -135,15 +158,25 @@ const AttributeField = ({
         productModelId={productModelId}
         componentId={componentId}
         attributeId={attribute.id}
+        attributeCode={attribute.code}
         attributeLabel={attribute.label}
         selectedOption={selectedOption}
         onSelectOption={onSelectOption}
+        pricingRules={pricingRules}
+        currency={currency}
       />
     )
   }
 
   if (attribute.type === "INTEGER") {
     const value = typeof otherValue === "number" ? otherValue : (attribute.minInt ?? 0)
+    const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
+    const formatPrice = (cents: number) =>
+      new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency,
+        minimumFractionDigits: 2,
+      }).format(cents / 100)
     return (
       <div className="space-y-2">
         <Label htmlFor={`attr-${attribute.id}`}>
@@ -169,12 +202,30 @@ const AttributeField = ({
             <span className="shrink-0 text-sm text-muted-foreground">{attribute.unit.trim()}</span>
           )}
         </div>
+        {rule && (
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="text-muted-foreground"
+          >
+            {rule.pricePerUnitCents != null
+              ? t("attributes.pricePerUnit", { amount: formatPrice(rule.pricePerUnitCents) })
+              : t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+          </Typography>
+        )}
       </div>
     )
   }
 
   if (attribute.type === "DECIMAL") {
     const value = typeof otherValue === "number" ? otherValue : (attribute.minDecimal ?? 0)
+    const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
+    const formatPrice = (cents: number) =>
+      new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency,
+        minimumFractionDigits: 2,
+      }).format(cents / 100)
     return (
       <div className="space-y-2">
         <Label htmlFor={`attr-${attribute.id}`}>
@@ -201,6 +252,17 @@ const AttributeField = ({
             <span className="shrink-0 text-sm text-muted-foreground">{attribute.unit.trim()}</span>
           )}
         </div>
+        {rule && (
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="text-muted-foreground"
+          >
+            {rule.pricePerUnitCents != null
+              ? t("attributes.pricePerUnit", { amount: formatPrice(rule.pricePerUnitCents) })
+              : t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+          </Typography>
+        )}
       </div>
     )
   }
@@ -231,20 +293,70 @@ type AttributeSelectProps = {
   productModelId: string
   componentId: string
   attributeId: string
+  attributeCode: string
   attributeLabel: string
   selectedOption: AttributeOptionDto | null
   onSelectOption: (option: AttributeOptionDto | null) => void
+  pricingRules?: AttributePricingRuleDto[]
+  currency?: string
+}
+
+function getPriceForOption(
+  rules: AttributePricingRuleDto[],
+  componentId: string,
+  attributeCode: string,
+  optionValue: string,
+): number | null {
+  const rule = rules.find(
+    (r) =>
+      (r.componentId === componentId || r.componentId == null) &&
+      r.attributeCode === attributeCode &&
+      r.operator === "EQ" &&
+      r.value === optionValue,
+  )
+  return rule ? rule.priceDeltaCents : null
+}
+
+/** Find the pricing rule that applies to the current numeric value (EQ or BETWEEN). */
+function getRuleForNumericValue(
+  rules: AttributePricingRuleDto[],
+  componentId: string,
+  attributeCode: string,
+  currentValue: number,
+): AttributePricingRuleDto | undefined {
+  return rules.find((r) => {
+    if (r.componentId !== componentId && r.componentId != null) return false
+    if (r.attributeCode !== attributeCode) return false
+    const from = Number.parseFloat(r.value)
+    if (Number.isNaN(from)) return false
+    if (r.operator === "EQ") return currentValue === from
+    if (r.operator === "BETWEEN") {
+      const to = r.toValue != null ? Number.parseFloat(r.toValue) : from
+      return !Number.isNaN(to) && currentValue >= from && currentValue <= to
+    }
+    return false
+  })
 }
 
 const AttributeSelect = ({
   productModelId,
   componentId,
   attributeId,
+  attributeCode,
   attributeLabel,
   selectedOption,
   onSelectOption,
+  pricingRules = [],
+  currency = "CZK",
 }: AttributeSelectProps) => {
   const t = useTranslations("Configurator")
+  const formatPrice = (cents: number) =>
+    new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(cents / 100)
+
   const { data: options, isLoading } = useAttributeOptionsList(
     productModelId,
     componentId,
@@ -273,6 +385,12 @@ const AttributeSelect = ({
   }
 
   const hasImages = sortedOptions.some((o) => o.imageUrl)
+  const optionsWithPrices = sortedOptions
+    .map((opt) => {
+      const priceCents = getPriceForOption(pricingRules, componentId, attributeCode, opt.value)
+      return priceCents != null ? { opt, priceCents } : null
+    })
+    .filter((x): x is { opt: (typeof sortedOptions)[number]; priceCents: number } => x != null)
 
   return (
     <div className="space-y-2">
@@ -318,10 +436,12 @@ const AttributeSelect = ({
               {hasImages && opt.imageUrl ? (
                 <>
                   <div className="relative aspect-square w-full bg-muted">
-                    <img
+                    <Image
                       src={getImageUrl(opt.imageUrl)}
                       alt=""
-                      className="h-full w-full object-contain"
+                      fill
+                      className="object-contain"
+                      unoptimized
                     />
                   </div>
                   <span className="w-full truncate px-2 pb-2 text-center text-xs font-medium">
@@ -335,6 +455,35 @@ const AttributeSelect = ({
           )
         })}
       </div>
+      {optionsWithPrices.length > 0 && (
+        <div className="overflow-hidden rounded-md border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="px-3 py-2 text-left font-medium text-foreground">
+                  {t("attributes.priceTableOption" as "attributes.title")}
+                </th>
+                <th className="px-3 py-2 text-right font-medium text-foreground">
+                  {t("attributes.priceTablePrice" as "attributes.title")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {optionsWithPrices.map(({ opt, priceCents }) => (
+                <tr
+                  key={opt.id}
+                  className="border-b border-border last:border-b-0"
+                >
+                  <td className="px-3 py-2 text-muted-foreground">{opt.label}</td>
+                  <td className="px-3 py-2 text-right font-medium tabular-nums">
+                    {t("attributes.optionPrice", { amount: formatPrice(priceCents) })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }

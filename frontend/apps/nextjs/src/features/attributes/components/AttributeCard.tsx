@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ListIcon, PencilIcon, TrashIcon } from "lucide-react"
+import { BanknoteIcon, ListIcon, PencilIcon, TrashIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
@@ -108,6 +108,18 @@ export const AttributeCard = ({ attribute, productModelId, componentId }: Props)
               {t("card.sortOrder")}: {attribute.sortOrder}
             </Typography>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <Link
+                  href={ROUTES.setupAttributePricing(productModelId, componentId, attribute.id)}
+                >
+                  <BanknoteIcon className="size-4" />
+                  <span className="sr-only">{t("card.pricingButton")}</span>
+                </Link>
+              </Button>
               {attribute.type === "ENUM" && (
                 <Button
                   variant="outline"

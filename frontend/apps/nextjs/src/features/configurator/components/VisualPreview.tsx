@@ -30,7 +30,7 @@ export const VisualPreview = ({
 
   if (!selectedComponentId && layerItems.length === 0) {
     return (
-      <Card className="flex h-full min-h-[70vh] flex-1 items-center justify-center p-10">
+      <Card className="flex h-full min-h-[40vh] flex-1 items-center justify-center p-10">
         <Typography
           as="p"
           variant="body-md"
@@ -44,7 +44,7 @@ export const VisualPreview = ({
 
   if (layerItems.length === 0) {
     return (
-      <Card className="flex h-full min-h-[70vh] flex-1 items-center justify-center p-10">
+      <Card className="flex h-full min-h-[40vh] flex-1 items-center justify-center p-10">
         <div className="space-y-4 text-center">
           <div className="mx-auto flex h-64 w-64 items-center justify-center rounded-lg bg-muted">
             <Typography
@@ -72,7 +72,7 @@ export const VisualPreview = ({
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <SmartImageComposer
           layers={layerItems}
-          maxSize={1200}
+          maxSize={560}
           className="rounded-lg border bg-muted/30"
         />
       </div>
