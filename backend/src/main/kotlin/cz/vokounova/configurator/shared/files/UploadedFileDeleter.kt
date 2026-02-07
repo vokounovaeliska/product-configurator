@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.shared.files
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
@@ -11,10 +12,10 @@ import java.nio.file.Paths
  * so that old image files are not left on disk.
  */
 @Component
-class UploadedFileDeleter {
+class UploadedFileDeleter(
+    @Value("\${app.files.upload-dir}") private val uploadDir: String,
+) {
     companion object {
-        private const val UPLOAD_DIR = "uploads/images"
-
         /** Filename: UUID plus optional extension (e.g. xxx.png) - no path traversal */
         private val SAFE_FILENAME = Regex("^[a-zA-Z0-9_.-]+\$")
     }
@@ -28,7 +29,7 @@ class UploadedFileDeleter {
         if (url.isNullOrBlank()) return
         val filename = filenameFromUrl(url) ?: return
         if (!SAFE_FILENAME.matches(filename)) return
-        val path: Path = Paths.get(UPLOAD_DIR, filename)
+        val path: Path = Paths.get(uploadDir, filename)
         if (Files.exists(path) && Files.isRegularFile(path)) {
             try {
                 Files.delete(path)

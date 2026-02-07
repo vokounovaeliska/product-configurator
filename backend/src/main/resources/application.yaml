@@ -1,3 +1,7 @@
+app:
+  files:
+    upload-dir: ${UPLOAD_DIR:uploads/images}
+
 spring:
   application:
     name: Configurator Backend
