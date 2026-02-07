@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.shared.files
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
@@ -15,16 +16,14 @@ import java.nio.file.Paths
 
 @RestController
 @RequestMapping("/api/v1/files")
-class FileDownloadController {
-    companion object {
-        private const val UPLOAD_DIR = "uploads/images"
-    }
-
+class FileDownloadController(
+    @Value("\${app.files.upload-dir}") private val uploadDir: String,
+) {
     @GetMapping("/{filename}")
     fun getFile(
         @PathVariable filename: String,
     ): ResponseEntity<Resource> {
-        val filePath = Paths.get(UPLOAD_DIR, filename)
+        val filePath = Paths.get(uploadDir, filename)
         val file = filePath.toFile()
 
         if (!file.exists() || !file.isFile) {

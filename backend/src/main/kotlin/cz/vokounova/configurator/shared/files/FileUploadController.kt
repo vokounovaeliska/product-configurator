@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.shared.files
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -8,22 +9,32 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.nio.file.AccessDeniedException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/files")
-class FileUploadController {
+class FileUploadController(
+    @Value("\${app.files.upload-dir}") private val uploadDir: String,
+) {
     companion object {
-        private const val UPLOAD_DIR = "uploads/images"
         private val ALLOWED_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "webp", "svg")
         private const val MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
     }
 
     init {
-        // Create upload directory if it doesn't exist
-        val uploadPath = Paths.get(UPLOAD_DIR)
+        // Try to create upload directory at startup; do not fail bean creation if e.g. read-only filesystem
+        try {
+            ensureUploadDirExists(Paths.get(uploadDir))
+        } catch (_: Exception) {
+            // Directory will be created on first upload if permitted
+        }
+    }
+
+    private fun ensureUploadDirExists(uploadPath: Path) {
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath)
         }
@@ -60,9 +71,12 @@ class FileUploadController {
         }
 
         try {
+            val uploadPath = Paths.get(uploadDir)
+            ensureUploadDirExists(uploadPath)
+
             // Generate unique filename
             val uniqueFilename = "${UUID.randomUUID()}.$extension"
-            val filePath = Paths.get(UPLOAD_DIR, uniqueFilename)
+            val filePath = uploadPath.resolve(uniqueFilename)
 
             // Save file
             Files.write(filePath, file.bytes)
@@ -73,6 +87,15 @@ class FileUploadController {
 
             return ResponseEntity.status(HttpStatus.OK)
                 .body(FileUploadResponse(success = true, message = "File uploaded successfully", url = fileUrl))
+        } catch (e: AccessDeniedException) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(
+                    FileUploadResponse(
+                        success = false,
+                        message = "File upload is not available: the server does not have write access to the upload directory.",
+                        url = null,
+                    ),
+                )
         } catch (e: Exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(FileUploadResponse(success = false, message = "Failed to upload file: ${e.message}", url = null))

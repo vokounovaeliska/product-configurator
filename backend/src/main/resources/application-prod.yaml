@@ -1,3 +1,7 @@
+app:
+  files:
+    upload-dir: ${UPLOAD_DIR:/data/uploads/images}
+
 jwt:
   users:
     key: ${JWT_USERS_KEY}
