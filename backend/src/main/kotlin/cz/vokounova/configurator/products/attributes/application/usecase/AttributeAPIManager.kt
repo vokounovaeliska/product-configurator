@@ -1,6 +1,5 @@
 package cz.vokounova.configurator.products.attributes.application.usecase
 
-import cz.vokounova.configurator.generated.jooq.enums.AttributeType
 import cz.vokounova.configurator.products.attributes.application.exception.AttributeErrorCode
 import cz.vokounova.configurator.products.attributes.application.exception.AttributeException
 import cz.vokounova.configurator.products.attributes.application.validation.AttributeDomainValidator
@@ -13,13 +12,13 @@ import cz.vokounova.configurator.products.attributes.domain.AttributeSortableFie
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.attributes.ports.outbound.AttributeOptionRepository
 import cz.vokounova.configurator.products.attributes.ports.outbound.AttributeRepository
-import cz.vokounova.configurator.shared.files.UploadedFileDeleter
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
+import cz.vokounova.configurator.shared.files.UploadedFileDeleter
 import cz.vokounova.configurator.shared.jsonpatch.JsonPatchUtils
 import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest
-import org.springframework.stereotype.Component as ComponentStereotype
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.stereotype.Component as ComponentStereotype
 
 @ComponentStereotype
 class AttributeAPIManager(

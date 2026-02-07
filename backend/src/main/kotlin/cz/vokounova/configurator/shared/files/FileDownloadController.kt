@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -22,7 +21,9 @@ class FileDownloadController {
     }
 
     @GetMapping("/{filename}")
-    fun getFile(@PathVariable filename: String): ResponseEntity<Resource> {
+    fun getFile(
+        @PathVariable filename: String,
+    ): ResponseEntity<Resource> {
         val filePath = Paths.get(UPLOAD_DIR, filename)
         val file = filePath.toFile()
 

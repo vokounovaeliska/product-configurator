@@ -12,7 +12,6 @@ import cz.vokounova.configurator.mocks.AuthMocks
 import cz.vokounova.configurator.mocks.ComponentMocks
 import cz.vokounova.configurator.mocks.ProductModelMocks
 import cz.vokounova.configurator.mocks.UserMocks
-import cz.vokounova.configurator.products.attributes.domain.AttributeId
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributeCreateRequestDto
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributePatchRequestDto
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributePatchRequestDtoOp
@@ -20,9 +19,7 @@ import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.response.AttributeDto
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.response.AttributePaginatedResponseDto
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
-import cz.vokounova.configurator.products.components.domain.ComponentId
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
-import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import cz.vokounova.configurator.users.domain.User
@@ -66,9 +63,6 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     private val userId0: UserId = UserId(UUID.fromString("00000000-0000-0000-0000-000000000000"))
     private val userId0Dto: UserIdDto = UserIdDto.fromDomain(userId0)
-    private val productModelId0 = ProductModelId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-    private val componentId0 = ComponentId(UUID.fromString("22222222-2222-2222-2222-222222222222"))
-    private val attributeId0 = AttributeId(UUID.fromString("33333333-3333-3333-3333-333333333333"))
 
     private lateinit var user: User
     private lateinit var productModel: cz.vokounova.configurator.products.models.domain.ProductModel
@@ -266,20 +260,22 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `List - returns paginated attributes`() {
-        val attribute1 = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "WIDTH",
-                sortOrder = 1,
-            ),
-        )
-        val attribute2 = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "HEIGHT",
-                sortOrder = 2,
-            ),
-        )
+        val attribute1 =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "WIDTH",
+                    sortOrder = 1,
+                ),
+            )
+        val attribute2 =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "HEIGHT",
+                    sortOrder = 2,
+                ),
+            )
 
         val result =
             mockMvc
@@ -300,9 +296,10 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates attribute label`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         val patchParams =
             listOf(
@@ -367,18 +364,20 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `List - filters by ids`() {
-        val attribute1 = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "WIDTH",
-            ),
-        )
-        val attribute2 = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "HEIGHT",
-            ),
-        )
+        val attribute1 =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "WIDTH",
+                ),
+            )
+        val attribute2 =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "HEIGHT",
+                ),
+            )
         attributeAPI.create(
             AttributeMocks.getAttributeCreateParams(
                 componentId = component.id,
@@ -425,15 +424,16 @@ class AttributesControllerTest : BaseIntegrationTest() {
                 maxDecimal = null,
             ),
         )
-        val decimalAttribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "DEPTH",
-                type = AttributeType.DECIMAL,
-                minInt = null,
-                maxInt = null,
-            ),
-        )
+        val decimalAttribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "DEPTH",
+                    type = AttributeType.DECIMAL,
+                    minInt = null,
+                    maxInt = null,
+                ),
+            )
 
         val result =
             mockMvc
@@ -495,27 +495,30 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `List - sorts by sortOrder ascending`() {
-        val attribute3 = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "WIDTH",
-                sortOrder = 3,
-            ),
-        )
-        val attribute1 = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "HEIGHT",
-                sortOrder = 1,
-            ),
-        )
-        val attribute2 = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "DEPTH",
-                sortOrder = 2,
-            ),
-        )
+        val attribute3 =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "WIDTH",
+                    sortOrder = 3,
+                ),
+            )
+        val attribute1 =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "HEIGHT",
+                    sortOrder = 1,
+                ),
+            )
+        val attribute2 =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "DEPTH",
+                    sortOrder = 2,
+                ),
+            )
 
         val result =
             mockMvc
@@ -538,15 +541,16 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates multiple fields`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                code = "WIDTH",
-                label = "Width",
-                isRequired = true,
-                sortOrder = 1,
-            ),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    code = "WIDTH",
+                    label = "Width",
+                    isRequired = true,
+                    sortOrder = 1,
+                ),
+            )
 
         val patchParams =
             listOf(
@@ -589,9 +593,10 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates code`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         val patchParams =
             listOf(
@@ -621,14 +626,15 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates INTEGER min and max values`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                type = AttributeType.INTEGER,
-                minInt = 100,
-                maxInt = 200,
-            ),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    type = AttributeType.INTEGER,
+                    minInt = 100,
+                    maxInt = 200,
+                ),
+            )
 
         val patchParams =
             listOf(
@@ -664,16 +670,17 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates DECIMAL min and max values`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                type = AttributeType.DECIMAL,
-                minInt = null,
-                maxInt = null,
-                minDecimal = BigDecimal("10.0"),
-                maxDecimal = BigDecimal("100.0"),
-            ),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    type = AttributeType.DECIMAL,
+                    minInt = null,
+                    maxInt = null,
+                    minDecimal = BigDecimal("10.0"),
+                    maxDecimal = BigDecimal("100.0"),
+                ),
+            )
 
         val patchParams =
             listOf(
@@ -709,9 +716,10 @@ class AttributesControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Delete - deletes attribute`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         mockMvc
             .perform(

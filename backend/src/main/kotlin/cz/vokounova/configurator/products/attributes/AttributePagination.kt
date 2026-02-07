@@ -1,7 +1,6 @@
 package cz.vokounova.configurator.products.attributes
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import cz.vokounova.configurator.generated.jooq.enums.AttributeType
 import cz.vokounova.configurator.generated.jooq.tables.records.AttributeDefinitionRecord
 import cz.vokounova.configurator.generated.jooq.tables.references.ATTRIBUTE_DEFINITION
 import cz.vokounova.configurator.products.attributes.domain.AttributeSortableField

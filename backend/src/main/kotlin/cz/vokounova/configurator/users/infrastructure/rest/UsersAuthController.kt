@@ -1,7 +1,7 @@
 package cz.vokounova.configurator.users.infrastructure.rest
 
-import cz.vokounova.configurator.shared.exceptions.AuthException
 import cz.vokounova.configurator.shared.exceptions.AuthErrorCode
+import cz.vokounova.configurator.shared.exceptions.AuthException
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.security.extractBearerTokenValue
 import cz.vokounova.configurator.users.domain.UserAuthenticationRequestLoginPassword

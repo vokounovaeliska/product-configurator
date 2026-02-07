@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
 class AttributeExceptionHandler {
-
     companion object {
         val LOGGER by logger()
     }

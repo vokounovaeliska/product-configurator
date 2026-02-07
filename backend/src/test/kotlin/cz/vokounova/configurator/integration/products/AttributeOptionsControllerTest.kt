@@ -12,8 +12,6 @@ import cz.vokounova.configurator.mocks.AuthMocks
 import cz.vokounova.configurator.mocks.ComponentMocks
 import cz.vokounova.configurator.mocks.ProductModelMocks
 import cz.vokounova.configurator.mocks.UserMocks
-import cz.vokounova.configurator.products.attributes.domain.AttributeId
-import cz.vokounova.configurator.products.attributes.domain.AttributeOptionId
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributeOptionCreateRequestDto
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributeOptionPatchRequestDto
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributeOptionPatchRequestDtoOp
@@ -21,9 +19,7 @@ import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.response.AttributeOptionDto
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeOptionAPI
-import cz.vokounova.configurator.products.components.domain.ComponentId
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
-import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import cz.vokounova.configurator.users.domain.UserId
@@ -94,14 +90,15 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
         val componentCreateParams = ComponentMocks.getComponentCreateParams(productModelId = productModel.id)
         component = componentAPI.create(componentCreateParams)
 
-        val attributeCreateParams = AttributeMocks.getAttributeCreateParams(
-            componentId = component.id,
-            type = AttributeType.ENUM,
-            minInt = null,
-            maxInt = null,
-            minDecimal = null,
-            maxDecimal = null,
-        )
+        val attributeCreateParams =
+            AttributeMocks.getAttributeCreateParams(
+                componentId = component.id,
+                type = AttributeType.ENUM,
+                minInt = null,
+                maxInt = null,
+                minDecimal = null,
+                maxDecimal = null,
+            )
         attribute = attributeAPI.create(attributeCreateParams)
     }
 
@@ -115,8 +112,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${created.id.value}",
-                    )
-                        .contentType(MediaType.APPLICATION_JSON)
+                    ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
                 ).andExpect(status().isOk)
                 .andReturn()
@@ -150,9 +146,9 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     post(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options",
-                    )
-                        .contentType(MediaType.APPLICATION_JSON)
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/" +
+                            "${component.id.value}/attributes/${attribute.id.value}/options",
+                    ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isCreated)
@@ -188,8 +184,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     post(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options",
-                    )
-                        .contentType(MediaType.APPLICATION_JSON)
+                    ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isCreated)
@@ -206,38 +201,40 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `List - returns all attribute options for attribute`() {
-        val option1 = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(
-                attributeId = attribute.id,
-                value = "SMALL",
-                label = "Small",
-                sortOrder = 1,
-            ),
-        )
-        val option2 = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(
-                attributeId = attribute.id,
-                value = "MEDIUM",
-                label = "Medium",
-                sortOrder = 2,
-            ),
-        )
-        val option3 = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(
-                attributeId = attribute.id,
-                value = "LARGE",
-                label = "Large",
-                sortOrder = 3,
-            ),
-        )
+        val option1 =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(
+                    attributeId = attribute.id,
+                    value = "SMALL",
+                    label = "Small",
+                    sortOrder = 1,
+                ),
+            )
+        val option2 =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(
+                    attributeId = attribute.id,
+                    value = "MEDIUM",
+                    label = "Medium",
+                    sortOrder = 2,
+                ),
+            )
+        val option3 =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(
+                    attributeId = attribute.id,
+                    value = "LARGE",
+                    label = "Large",
+                    sortOrder = 3,
+                ),
+            )
 
         val result =
             mockMvc
                 .perform(
                     get(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options",
-                    )
-                        .contentType(MediaType.APPLICATION_JSON)
+                    ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
                 ).andExpect(status().isOk)
                 .andReturn()
@@ -258,8 +255,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     get(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options",
-                    )
-                        .contentType(MediaType.APPLICATION_JSON)
+                    ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
                 ).andExpect(status().isOk)
                 .andReturn()
@@ -272,9 +268,10 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates attribute option label`() {
-        val option = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(attributeId = attribute.id),
-        )
+        val option =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(attributeId = attribute.id),
+            )
 
         val patchParams =
             listOf(
@@ -292,8 +289,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     patch(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                    )
-                        .contentType("application/json-patch+json")
+                    ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isOk)
@@ -307,9 +303,10 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates attribute option value`() {
-        val option = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(attributeId = attribute.id),
-        )
+        val option =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(attributeId = attribute.id),
+            )
 
         val patchParams =
             listOf(
@@ -327,8 +324,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     patch(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                    )
-                        .contentType("application/json-patch+json")
+                    ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isOk)
@@ -341,12 +337,13 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates attribute option imageUrl`() {
-        val option = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(
-                attributeId = attribute.id,
-                imageUrl = "https://old-image.com/image.png",
-            ),
-        )
+        val option =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(
+                    attributeId = attribute.id,
+                    imageUrl = "https://old-image.com/image.png",
+                ),
+            )
 
         val patchParams =
             listOf(
@@ -364,8 +361,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     patch(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                    )
-                        .contentType("application/json-patch+json")
+                    ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isOk)
@@ -378,12 +374,13 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates attribute option imageUrl to null`() {
-        val option = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(
-                attributeId = attribute.id,
-                imageUrl = "https://example.com/image.png",
-            ),
-        )
+        val option =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(
+                    attributeId = attribute.id,
+                    imageUrl = "https://example.com/image.png",
+                ),
+            )
 
         val patchParams =
             listOf(
@@ -401,8 +398,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     patch(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                    )
-                        .contentType("application/json-patch+json")
+                    ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isOk)
@@ -415,12 +411,13 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates attribute option sortOrder`() {
-        val option = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(
-                attributeId = attribute.id,
-                sortOrder = 1,
-            ),
-        )
+        val option =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(
+                    attributeId = attribute.id,
+                    sortOrder = 1,
+                ),
+            )
 
         val patchParams =
             listOf(
@@ -438,8 +435,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     patch(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                    )
-                        .contentType("application/json-patch+json")
+                    ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isOk)
@@ -452,15 +448,16 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - updates multiple fields at once`() {
-        val option = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(
-                attributeId = attribute.id,
-                value = "OLD_VALUE",
-                label = "Old Label",
-                imageUrl = "https://old.com/image.png",
-                sortOrder = 1,
-            ),
-        )
+        val option =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(
+                    attributeId = attribute.id,
+                    value = "OLD_VALUE",
+                    label = "Old Label",
+                    imageUrl = "https://old.com/image.png",
+                    sortOrder = 1,
+                ),
+            )
 
         val patchParams =
             listOf(
@@ -493,8 +490,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                 .perform(
                     patch(
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                    )
-                        .contentType("application/json-patch+json")
+                    ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
                 ).andExpect(status().isOk)
@@ -510,16 +506,16 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Delete - deletes attribute option`() {
-        val option = attributeOptionAPI.create(
-            AttributeMocks.getAttributeOptionCreateParams(attributeId = attribute.id),
-        )
+        val option =
+            attributeOptionAPI.create(
+                AttributeMocks.getAttributeOptionCreateParams(attributeId = attribute.id),
+            )
 
         mockMvc
             .perform(
                 delete(
                     "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                )
-                    .contentType(MediaType.APPLICATION_JSON)
+                ).contentType(MediaType.APPLICATION_JSON)
                     .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNoContent)
             .andReturn()
@@ -529,8 +525,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             .perform(
                 get(
                     "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
-                )
-                    .contentType(MediaType.APPLICATION_JSON)
+                ).contentType(MediaType.APPLICATION_JSON)
                     .with(AuthMocks.mockAdmin()),
             ).andExpect(status().isNotFound)
     }

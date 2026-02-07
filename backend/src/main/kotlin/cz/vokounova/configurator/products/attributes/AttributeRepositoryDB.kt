@@ -1,6 +1,5 @@
 package cz.vokounova.configurator.products.attributes
 
-import cz.vokounova.configurator.generated.jooq.enums.AttributeType
 import cz.vokounova.configurator.generated.jooq.tables.records.AttributeDefinitionRecord
 import cz.vokounova.configurator.generated.jooq.tables.references.ATTRIBUTE_DEFINITION
 import cz.vokounova.configurator.products.attributes.domain.Attribute

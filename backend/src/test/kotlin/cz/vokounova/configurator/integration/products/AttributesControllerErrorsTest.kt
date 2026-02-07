@@ -12,15 +12,12 @@ import cz.vokounova.configurator.mocks.AuthMocks
 import cz.vokounova.configurator.mocks.ComponentMocks
 import cz.vokounova.configurator.mocks.ProductModelMocks
 import cz.vokounova.configurator.mocks.UserMocks
-import cz.vokounova.configurator.products.attributes.domain.AttributeId
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributeCreateRequestDto
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributePatchRequestDto
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributePatchRequestDtoOp
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.request.AttributePatchRequestDtoPath
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
-import cz.vokounova.configurator.products.components.domain.ComponentId
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
-import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.shared.rest.response.ValidationErrorResponse
 import cz.vokounova.configurator.shared.validations.BaseValidationCode
@@ -91,9 +88,10 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
 
     @Test
     fun `Get - Unauthorized - when authentication is missing`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         mockMvc
             .perform(
@@ -117,18 +115,20 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
     @Test
     fun `Get - NotFound - when attribute belongs to different component`() {
         // Create a second component in the same product model
-        val component2 = componentAPI.create(
-            ComponentMocks.getComponentCreateParams(
-                productModelId = productModel.id,
-                code = "BOTTOM",
-                label = "Table Bottom",
-            ),
-        )
+        val component2 =
+            componentAPI.create(
+                ComponentMocks.getComponentCreateParams(
+                    productModelId = productModel.id,
+                    code = "BOTTOM",
+                    label = "Table Bottom",
+                ),
+            )
 
         // Create an attribute for component2
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component2.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component2.id),
+            )
 
         // Try to access the attribute using component1's ID
         mockMvc
@@ -142,23 +142,26 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
     @Test
     fun `Get - NotFound - when component belongs to different product model`() {
         // Create a second product model
-        val productModel2 = productModelAPI.create(
-            ProductModelMocks.getProductModelCreateParams(userId = userId0Dto),
-        )
+        val productModel2 =
+            productModelAPI.create(
+                ProductModelMocks.getProductModelCreateParams(userId = userId0Dto),
+            )
 
         // Create a component for productModel2
-        val component2 = componentAPI.create(
-            ComponentMocks.getComponentCreateParams(
-                productModelId = productModel2.id,
-                code = "SIDE",
-                label = "Table Side",
-            ),
-        )
+        val component2 =
+            componentAPI.create(
+                ComponentMocks.getComponentCreateParams(
+                    productModelId = productModel2.id,
+                    code = "SIDE",
+                    label = "Table Side",
+                ),
+            )
 
         // Create an attribute for component2
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component2.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component2.id),
+            )
 
         // Try to access the attribute using productModel1's ID but component2's ID
         mockMvc
@@ -347,9 +350,10 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - BadRequest - when label is null`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         val params =
             listOf(
@@ -379,9 +383,10 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - BadRequest - when label is empty`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         val params =
             listOf(
@@ -411,9 +416,10 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - BadRequest - when code is null`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         val params =
             listOf(
@@ -443,9 +449,10 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - BadRequest - when code is empty`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component.id),
+            )
 
         val params =
             listOf(
@@ -475,14 +482,15 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - BadRequest - when minInt is greater than maxInt`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                type = AttributeType.INTEGER,
-                minInt = 100,
-                maxInt = 200,
-            ),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    type = AttributeType.INTEGER,
+                    minInt = 100,
+                    maxInt = 200,
+                ),
+            )
 
         val params =
             listOf(
@@ -511,16 +519,17 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
 
     @Test
     fun `Patch - BadRequest - when minDecimal is greater than maxDecimal`() {
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(
-                componentId = component.id,
-                type = AttributeType.DECIMAL,
-                minInt = null,
-                maxInt = null,
-                minDecimal = BigDecimal("10.0"),
-                maxDecimal = BigDecimal("100.0"),
-            ),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(
+                    componentId = component.id,
+                    type = AttributeType.DECIMAL,
+                    minInt = null,
+                    maxInt = null,
+                    minDecimal = BigDecimal("10.0"),
+                    maxDecimal = BigDecimal("100.0"),
+                ),
+            )
 
         val params =
             listOf(
@@ -586,18 +595,20 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
     @Test
     fun `Delete - NotFound - when attribute belongs to different component`() {
         // Create a second component in the same product model
-        val component2 = componentAPI.create(
-            ComponentMocks.getComponentCreateParams(
-                productModelId = productModel.id,
-                code = "BOTTOM",
-                label = "Table Bottom",
-            ),
-        )
+        val component2 =
+            componentAPI.create(
+                ComponentMocks.getComponentCreateParams(
+                    productModelId = productModel.id,
+                    code = "BOTTOM",
+                    label = "Table Bottom",
+                ),
+            )
 
         // Create an attribute for component2
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component2.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component2.id),
+            )
 
         // Try to delete the attribute using component1's ID
         mockMvc
@@ -611,18 +622,20 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
     @Test
     fun `Patch - NotFound - when attribute belongs to different component`() {
         // Create a second component in the same product model
-        val component2 = componentAPI.create(
-            ComponentMocks.getComponentCreateParams(
-                productModelId = productModel.id,
-                code = "BOTTOM",
-                label = "Table Bottom",
-            ),
-        )
+        val component2 =
+            componentAPI.create(
+                ComponentMocks.getComponentCreateParams(
+                    productModelId = productModel.id,
+                    code = "BOTTOM",
+                    label = "Table Bottom",
+                ),
+            )
 
         // Create an attribute for component2
-        val attribute = attributeAPI.create(
-            AttributeMocks.getAttributeCreateParams(componentId = component2.id),
-        )
+        val attribute =
+            attributeAPI.create(
+                AttributeMocks.getAttributeCreateParams(componentId = component2.id),
+            )
 
         val params =
             listOf(

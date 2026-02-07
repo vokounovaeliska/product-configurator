@@ -26,6 +26,7 @@ class UserJwtAuthorizationFilter(
         private val LOG by logger()
         private val usersPathMatcher = AntPathRequestMatcher("/users/**")
         private val productsPathMatcher = AntPathRequestMatcher("/products/**")
+
         // File uploads (POST) require authentication, downloads (GET) are public
         private val filesUploadPathMatcher = AntPathRequestMatcher("/api/v1/files/upload")
         private val authenticatedPathsMatcher = OrRequestMatcher(usersPathMatcher, productsPathMatcher, filesUploadPathMatcher)

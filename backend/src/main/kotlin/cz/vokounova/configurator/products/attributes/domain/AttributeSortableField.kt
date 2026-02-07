@@ -21,5 +21,7 @@ object AttributeSortingConfig : SortingConfig<AttributeSortableField> {
     override fun defaultField(): AttributeSortableField = AttributeSortableField.SORT_ORDER
 
     override fun getValue(field: String): AttributeSortableField =
-        AttributeSortableField.entries.first { it.fieldName == field }
+        AttributeSortableField.entries.first {
+            it.fieldName == field
+        }
 }

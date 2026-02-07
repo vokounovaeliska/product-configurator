@@ -14,8 +14,8 @@ import cz.vokounova.configurator.products.attributes.ports.outbound.AttributeOpt
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.shared.files.UploadedFileDeleter
 import cz.vokounova.configurator.shared.jsonpatch.JsonPatchUtils
-import org.springframework.stereotype.Component as ComponentStereotype
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.stereotype.Component as ComponentStereotype
 
 @ComponentStereotype
 class AttributeOptionAPIManager(
@@ -42,8 +42,11 @@ class AttributeOptionAPIManager(
 
     @Transactional
     override fun delete(id: AttributeOptionId) {
-        val existing = attributeOptionRepository.findById(id)
-            ?: throw ResourceNotFoundException("Attribute option with id ${id.value} not found")
+        val existing =
+            attributeOptionRepository.findById(id)
+                ?: throw ResourceNotFoundException(
+                    "Attribute option with id ${id.value} not found",
+                )
         uploadedFileDeleter.deleteByUrl(existing.imageUrl)
         val deletedCount = attributeOptionRepository.delete(id)
         if (deletedCount == 0) {

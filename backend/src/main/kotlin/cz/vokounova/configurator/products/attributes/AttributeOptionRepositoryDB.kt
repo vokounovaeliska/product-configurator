@@ -1,6 +1,5 @@
 package cz.vokounova.configurator.products.attributes
 
-import cz.vokounova.configurator.generated.jooq.tables.records.AttributeOptionRecord
 import cz.vokounova.configurator.generated.jooq.tables.references.ATTRIBUTE_OPTION
 import cz.vokounova.configurator.products.attributes.domain.AttributeId
 import cz.vokounova.configurator.products.attributes.domain.AttributeOption

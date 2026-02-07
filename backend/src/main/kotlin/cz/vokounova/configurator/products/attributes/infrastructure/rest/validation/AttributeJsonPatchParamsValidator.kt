@@ -1,6 +1,5 @@
 package cz.vokounova.configurator.products.attributes.infrastructure.rest.validation
 
-import cz.vokounova.configurator.generated.jooq.enums.AttributeType
 import cz.vokounova.configurator.products.attributes.domain.AttributeJsonPatchParams
 import cz.vokounova.configurator.products.attributes.domain.AttributeJsonPatchParamsPath
 import cz.vokounova.configurator.shared.exceptions.ValidationExceptionError
@@ -40,7 +39,8 @@ class AttributeJsonPatchParamsValidator : AppValidator<AttributeJsonPatchParams>
                 }
 
                 AttributeJsonPatchParamsPath.MIN_INT,
-                AttributeJsonPatchParamsPath.MAX_INT -> {
+                AttributeJsonPatchParamsPath.MAX_INT,
+                -> {
                     // Can be null or integer
                     value.value?.let {
                         if (it !is Number) {
@@ -56,7 +56,8 @@ class AttributeJsonPatchParamsValidator : AppValidator<AttributeJsonPatchParams>
                 }
 
                 AttributeJsonPatchParamsPath.MIN_DECIMAL,
-                AttributeJsonPatchParamsPath.MAX_DECIMAL -> {
+                AttributeJsonPatchParamsPath.MAX_DECIMAL,
+                -> {
                     // Can be null or decimal
                     value.value?.let {
                         if (it !is Number) {

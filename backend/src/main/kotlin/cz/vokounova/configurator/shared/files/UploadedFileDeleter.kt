@@ -12,9 +12,9 @@ import java.nio.file.Paths
  */
 @Component
 class UploadedFileDeleter {
-
     companion object {
         private const val UPLOAD_DIR = "uploads/images"
+
         /** Filename: UUID plus optional extension (e.g. xxx.png) - no path traversal */
         private val SAFE_FILENAME = Regex("^[a-zA-Z0-9_.-]+\$")
     }
