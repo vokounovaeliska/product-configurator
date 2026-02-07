@@ -17,6 +17,7 @@ import { Label } from "@workspace/ui/components/label"
 import { Typography } from "@workspace/ui/components/typography"
 
 import { api } from "@/lib/api/restClient"
+import type { TFunction } from "@/types/tFunction"
 
 import { exportSelectionAsPngBlob } from "./exportSelection"
 import { computeMagicWandMask } from "./magicWand"
@@ -34,7 +35,7 @@ type Props = {
   onComplete: (imageUrl: string) => void
   onError?: (message: string) => void
   /** Translation function for OptionImageEditor keys (passed from parent to avoid portal context issues) */
-  t: (key: string) => string
+  t: TFunction<"OptionImageEditor">
 }
 
 export const OptionImageEditor = ({

@@ -9,6 +9,7 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
 import { ImageUpload } from "@/components/ImageUpload"
+import type { TFunction } from "@/types/tFunction"
 import { getEditorImageUrl } from "@/utils/imageUrl"
 
 import { useUpdateAttributeOption } from "../api/attributeOptionQueries"
@@ -24,8 +25,8 @@ type Props = {
   isImageEditorOpen: boolean
   onImageEditorOpenChange: (open: boolean) => void
   /** Passed from parent to avoid missing NextIntl context inside Dialog portal */
-  t: (key: string) => string
-  tEditor: (key: string) => string
+  t: TFunction<"AttributeOptions">
+  tEditor: TFunction<"OptionImageEditor">
 }
 
 export const EditAttributeOptionDialog = ({
