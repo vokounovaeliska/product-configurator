@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.shared.files
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -12,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile
 import java.nio.file.AccessDeniedException
 import java.nio.file.Files
 import java.nio.file.Path
-import org.slf4j.LoggerFactory
 import java.nio.file.Paths
 import java.util.UUID
 
@@ -50,13 +50,15 @@ class FileUploadController(
     ): ResponseEntity<FileUploadResponse> {
         // Validate file
         if (file.isEmpty) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(FileUploadResponse(success = false, message = "File is empty", url = null))
         }
 
         // Validate file size
         if (file.size > MAX_FILE_SIZE) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(FileUploadResponse(success = false, message = "File size exceeds 10MB limit", url = null))
         }
 
@@ -64,7 +66,8 @@ class FileUploadController(
         val originalFilename = file.originalFilename ?: ""
         val extension = originalFilename.substringAfterLast('.', "").lowercase()
         if (extension !in ALLOWED_EXTENSIONS) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(
                     FileUploadResponse(
                         success = false,
@@ -89,10 +92,12 @@ class FileUploadController(
             // For now, return relative path that will be served by FileDownloadController
             val fileUrl = "/api/v1/files/$uniqueFilename"
 
-            return ResponseEntity.status(HttpStatus.OK)
+            return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(FileUploadResponse(success = true, message = "File uploaded successfully", url = fileUrl))
         } catch (e: AccessDeniedException) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(
                     FileUploadResponse(
                         success = false,
@@ -101,7 +106,8 @@ class FileUploadController(
                     ),
                 )
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(FileUploadResponse(success = false, message = "Failed to upload file: ${e.message}", url = null))
         }
     }
