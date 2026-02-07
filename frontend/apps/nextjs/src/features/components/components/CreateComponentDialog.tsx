@@ -37,6 +37,7 @@ export const CreateComponentDialog = ({ productModelId, isOpen, onOpenChange }: 
       label: "",
       description: "",
       sortOrder: 0,
+      imageZIndex: 0,
     },
     resolver: zodResolver(componentFormSchema),
   })
@@ -48,6 +49,7 @@ export const CreateComponentDialog = ({ productModelId, isOpen, onOpenChange }: 
         label: values.label,
         description: values.description ?? null,
         sortOrder: values.sortOrder ?? 0,
+        imageZIndex: values.imageZIndex ?? 0,
       })
 
       onOpenChange(false)
@@ -141,6 +143,29 @@ export const CreateComponentDialog = ({ productModelId, isOpen, onOpenChange }: 
                       {...field}
                       value={field.value ?? 0}
                       onChange={(e) => field.onChange(Number.parseInt(e.target.value, 10) || 0)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="imageZIndex"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("create.imageZIndex")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder={t("create.imageZIndexPlaceholder")}
+                      {...field}
+                      value={field.value ?? 0}
+                      onChange={(e) =>
+                        field.onChange(Math.max(0, Number.parseInt(e.target.value, 10) || 0))
+                      }
                     />
                   </FormControl>
                   <FormMessage />

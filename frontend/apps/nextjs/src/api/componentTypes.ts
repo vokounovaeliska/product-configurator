@@ -13,6 +13,8 @@ export type ComponentDto = {
   description: string | null
   /** Format: int32 */
   sortOrder: number
+  /** Z-index for stacking component image (lower = back, higher = front). Format: int32 */
+  imageZIndex: number
   /** Format: date-time */
   createdAt: string
   /** Format: date-time */
@@ -34,11 +36,12 @@ export type ComponentCreateRequestDto = {
   label: string
   description?: string | null
   sortOrder?: number | null
+  imageZIndex?: number | null
 }
 
 export type ComponentPatchRequestDto = {
   /** @enum {string} */
-  path: "SlashCode" | "SlashLabel" | "SlashDescription" | "SlashSortOrder"
+  path: "SlashCode" | "SlashLabel" | "SlashDescription" | "SlashSortOrder" | "SlashImageZIndex"
   value?: unknown
   /** @enum {string} */
   op: "Replace"

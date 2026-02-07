@@ -26,4 +26,14 @@ interface AppValidator<T> {
         ctx.init()
         return ctx.getErrors()
     }
+
+    fun ValidationExceptionError(
+        field: String,
+        message: String,
+    ): ValidationExceptionError =
+        ValidationExceptionError(
+            field = field,
+            code = BaseValidationCode.VALUE_IS_INVALID.name,
+            message = message,
+        )
 }

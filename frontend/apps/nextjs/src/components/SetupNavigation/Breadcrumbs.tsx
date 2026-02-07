@@ -10,9 +10,16 @@ import { ROUTES } from "@/lib/routes"
 type Props = {
   productModelId?: string
   productModelName?: string
+  componentId?: string
+  componentName?: string
 }
 
-export const Breadcrumbs = ({ productModelId, productModelName }: Props) => {
+export const Breadcrumbs = ({
+  productModelId,
+  productModelName,
+  componentId,
+  componentName,
+}: Props) => {
   const tSetup = useTranslations("Setup")
   const tConfigurator = useTranslations("Configurator")
   const pathname = usePathname()
@@ -109,6 +116,33 @@ export const Breadcrumbs = ({ productModelId, productModelName }: Props) => {
           label: tSetup("navigation.components"),
           href: ROUTES.setupComponents(productModelId),
         })
+
+        // Add specific component if we have an ID and name
+        if (componentId && componentName && productModelId) {
+          breadcrumbs.push({
+            label: componentName,
+            href: ROUTES.setupComponents(productModelId), // Link back to components list
+          })
+
+          // Add Attributes if we're in attributes section
+          if (segments.includes("attributes")) {
+            breadcrumbs.push({
+              label: tSetup("navigation.attributes"),
+              href: ROUTES.setupAttributes(productModelId, componentId),
+            })
+          }
+
+          // Add Options if we're in options section (attributes/[attributeId]/options)
+          if (segments.includes("options")) {
+            const attributeId = segments[segments.indexOf("attributes") + 1]
+            if (attributeId) {
+              breadcrumbs.push({
+                label: tSetup("navigation.options"),
+                href: ROUTES.setupAttributeOptions(productModelId, componentId, attributeId),
+              })
+            }
+          }
+        }
       }
     }
   }

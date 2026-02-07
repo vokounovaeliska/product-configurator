@@ -41,6 +41,7 @@ export const EditComponentDialog = ({ component, productModelId, isOpen, onOpenC
       label: component.label,
       description: component.description ?? "",
       sortOrder: component.sortOrder,
+      imageZIndex: component.imageZIndex,
     },
     resolver: zodResolver(componentFormSchema),
   })
@@ -52,6 +53,7 @@ export const EditComponentDialog = ({ component, productModelId, isOpen, onOpenC
         label: component.label,
         description: component.description ?? "",
         sortOrder: component.sortOrder,
+        imageZIndex: component.imageZIndex,
       })
     }
   }, [component, isOpen, form])
@@ -78,6 +80,13 @@ export const EditComponentDialog = ({ component, productModelId, isOpen, onOpenC
           path: "SlashSortOrder" as const,
           op: "Replace" as const,
           value: values.sortOrder ?? 0,
+        })
+      }
+      if (values.imageZIndex !== component.imageZIndex) {
+        patches.push({
+          path: "SlashImageZIndex" as const,
+          op: "Replace" as const,
+          value: values.imageZIndex ?? 0,
         })
       }
 
@@ -178,6 +187,29 @@ export const EditComponentDialog = ({ component, productModelId, isOpen, onOpenC
                       {...field}
                       value={field.value ?? 0}
                       onChange={(e) => field.onChange(Number.parseInt(e.target.value, 10) || 0)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="imageZIndex"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("edit.imageZIndex")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      placeholder={t("edit.imageZIndexPlaceholder")}
+                      {...field}
+                      value={field.value ?? 0}
+                      onChange={(e) =>
+                        field.onChange(Math.max(0, Number.parseInt(e.target.value, 10) || 0))
+                      }
                     />
                   </FormControl>
                   <FormMessage />

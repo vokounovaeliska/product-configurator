@@ -17,6 +17,7 @@ fun ComponentCreateRequestDto.toParams(productModelId: ProductModelId): Componen
         label = label,
         description = description,
         sortOrder = sortOrder,
+        imageZIndex = imageZIndex,
     )
 
 fun ComponentPatchRequestDto.toParams(): ComponentJsonPatchParams =
@@ -27,6 +28,7 @@ fun ComponentPatchRequestDto.toParams(): ComponentJsonPatchParams =
                 ComponentPatchRequestDtoPath.SlashLabel -> ComponentJsonPatchParamsPath.LABEL
                 ComponentPatchRequestDtoPath.SlashDescription -> ComponentJsonPatchParamsPath.DESCRIPTION
                 ComponentPatchRequestDtoPath.SlashSortOrder -> ComponentJsonPatchParamsPath.SORT_ORDER
+                ComponentPatchRequestDtoPath.SlashImageZIndex -> ComponentJsonPatchParamsPath.IMAGE_Z_INDEX
             },
         value = value,
         op =

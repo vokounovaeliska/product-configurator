@@ -11,7 +11,6 @@ import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
-import cz.vokounova.configurator.generated.jooq.tables.ImageLayerDefinition
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
 import cz.vokounova.configurator.generated.jooq.tables.User
@@ -58,11 +57,6 @@ val CUSTOMER_REQUEST: CustomerRequest = CustomerRequest.CUSTOMER_REQUEST
  * The table <code>public.customer_request_component</code>.
  */
 val CUSTOMER_REQUEST_COMPONENT: CustomerRequestComponent = CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT
-
-/**
- * The table <code>public.image_layer_definition</code>.
- */
-val IMAGE_LAYER_DEFINITION: ImageLayerDefinition = ImageLayerDefinition.IMAGE_LAYER_DEFINITION
 
 /**
  * The table <code>public.pgp_armor_headers</code>.

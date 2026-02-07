@@ -8,38 +8,82 @@ import { getAccessTokenClient, setAccessTokenClient } from "../auth/authCookies"
 let isRefreshing = false
 let refreshPromise: Promise<string | null> | null = null
 
+/** Default access token lifetime when not provided by backend (1 hour). */
+const DEFAULT_ACCESS_TOKEN_MAX_AGE_SECONDS = 60 * 60
+
 /**
- * Attempts to refresh the access token using the refresh token
- * Since the refresh token cookie has path="/users/api/v1/auth", we need to call
- * the backend refresh endpoint directly. The cookie will be sent automatically
- * with credentials: "include", but the backend expects it in Authorization header.
- *
- * Note: This won't work as-is because the refresh token is httpOnly and we can't
- * read it from JS. We need the backend to also accept refresh token from cookie.
+ * Refreshes the access token using the refresh token cookie.
+ * The refresh token is httpOnly with path="/users/api/v1/auth"; the browser
+ * sends it when we call the backend refresh URL with credentials. The backend
+ * accepts refresh token from cookie or Authorization header.
  */
 const refreshAccessToken = async (): Promise<string | null> => {
-  // If already refreshing, return the existing promise
   if (isRefreshing && refreshPromise) {
     return refreshPromise
   }
 
   isRefreshing = true
-  refreshPromise = Promise.resolve(null).finally(() => {
-    isRefreshing = false
-    refreshPromise = null
-  })
+  refreshPromise = (async () => {
+    try {
+      const url = `${env.NEXT_PUBLIC_REST_API_URL}/users/api/v1/auth/refresh`
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      })
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = (await response.json()) as { token?: string }
+      const newToken = data.token
+
+      if (typeof newToken !== "string" || !newToken) {
+        return null
+      }
+
+      setAccessTokenClient(newToken, DEFAULT_ACCESS_TOKEN_MAX_AGE_SECONDS)
+      return newToken
+    } catch {
+      return null
+    } finally {
+      isRefreshing = false
+      refreshPromise = null
+    }
+  })()
 
   return refreshPromise
+}
+
+/** Returns true if the JWT payload exp is within the next marginSeconds. */
+function isAccessTokenExpiringSoon(token: string, marginSeconds = 120): boolean {
+  try {
+    const payload = token.split(".")[1]
+    if (!payload) return true
+    const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))) as {
+      exp?: number
+    }
+    const exp = decoded.exp
+    if (typeof exp !== "number") return true
+    return exp * 1000 - Date.now() < marginSeconds * 1000
+  } catch {
+    return true
+  }
 }
 
 // Authenticated API client (with JWT Bearer token and automatic refresh)
 export const api = ky.create({
   prefixUrl: env.NEXT_PUBLIC_REST_API_URL,
+  credentials: "include",
   hooks: {
     beforeRequest: [
-      (request) => {
-        const accessToken = getAccessTokenClient()
-
+      async (request) => {
+        let accessToken = getAccessTokenClient()
+        if (accessToken && isAccessTokenExpiringSoon(accessToken)) {
+          const newToken = await refreshAccessToken()
+          accessToken = newToken ?? accessToken
+        }
         if (accessToken) {
           request.headers.set("Authorization", `Bearer ${accessToken}`)
         }
@@ -64,8 +108,7 @@ export const api = ky.create({
               body: request.body,
             }
 
-            // Use ky with the same prefixUrl to retry
-            return ky(request.url, retryOptions)
+            return ky(request.url, { ...retryOptions, credentials: "include" })
           } else {
             // Refresh failed - user needs to log in again
             // Clear the access token cookie

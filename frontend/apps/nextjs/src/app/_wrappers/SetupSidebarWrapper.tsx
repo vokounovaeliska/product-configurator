@@ -1,22 +1,31 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
+
 import { SetupSidebar } from "@/components/SetupNavigation/SetupSidebar"
 import { usePathname } from "@/lib/i18n/navigation"
 
 import { useComponentsList } from "@/features/components/api/componentQueries"
+import { getProductModelQueryOptions } from "@/features/productModels/api/productModelQueries"
 
 export const SetupSidebarWrapper = () => {
   const pathname = usePathname()
 
-  // Extract productModelId from pathname if we're on a product model or components page
   const pathSegments = pathname.split("/").filter(Boolean)
-  const productModelIndex = pathSegments.indexOf("product-models")
+  const productModelIndexFromSetup = pathSegments.indexOf("product-models")
+  const productModelIndexFromConfigurator = pathSegments.indexOf("configurator")
   const productModelId =
-    productModelIndex !== -1 && pathSegments[productModelIndex + 1]
-      ? pathSegments[productModelIndex + 1]
-      : null
+    productModelIndexFromSetup !== -1 && pathSegments[productModelIndexFromSetup + 1]
+      ? pathSegments[productModelIndexFromSetup + 1]
+      : productModelIndexFromConfigurator !== -1 &&
+          pathSegments[productModelIndexFromConfigurator + 1]
+        ? pathSegments[productModelIndexFromConfigurator + 1]
+        : null
 
-  // Fetch components if we have a productModelId
+  const { data: productModel } = useQuery({
+    ...getProductModelQueryOptions(productModelId ?? ""),
+    enabled: Boolean(productModelId),
+  })
   const { data: componentsData, isLoading: isLoadingComponents } = useComponentsList(
     productModelId ?? "",
     { limit: 100 },
@@ -29,6 +38,7 @@ export const SetupSidebarWrapper = () => {
     <SetupSidebar
       components={components}
       isLoadingComponents={isLoadingComponents}
+      productModelName={productModel?.name}
     />
   )
 }

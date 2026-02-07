@@ -4,46 +4,77 @@ import { useTranslations } from "next-intl"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { SmartImageComposer } from "@/components/SmartImageComposer"
+
+export type PreviewLayer = {
+  id: string
+  imageUrl: string
+  zIndex: number
+}
+
 type Props = {
   productModelId: string
   selectedComponentId: string | null
+  /** Layers from selected attribute options (configurator) */
+  selectedOptionLayers?: PreviewLayer[]
 }
 
-/**
- * Visual preview component that displays layered images based on configuration
- * This will be enhanced when image layers API is available
- */
 export const VisualPreview = ({
   productModelId: _productModelId,
-  selectedComponentId: _selectedComponentId,
+  selectedComponentId,
+  selectedOptionLayers = [],
 }: Props) => {
   const t = useTranslations("Configurator")
 
-  // TODO: Fetch image layers based on current configuration
-  // TODO: Filter layers by conditions (attribute values)
-  // TODO: Sort layers by z-index
-  // TODO: Render layers as stacked images
+  const layerItems = selectedOptionLayers
 
-  return (
-    <Card className="flex h-full min-h-[500px] items-center justify-center p-10">
-      <div className="space-y-4 text-center">
-        <div className="mx-auto flex h-64 w-64 items-center justify-center rounded-lg bg-muted">
-          {/* Placeholder for image layers */}
-          <Typography
-            as="p"
-            variant="body-md"
-            className="text-muted-foreground"
-          >
-            {t("preview.placeholder")}
-          </Typography>
-        </div>
+  if (!selectedComponentId && layerItems.length === 0) {
+    return (
+      <Card className="flex h-full min-h-[70vh] flex-1 items-center justify-center p-10">
         <Typography
           as="p"
-          variant="body-sm"
+          variant="body-md"
           className="text-muted-foreground"
         >
-          {t("preview.comingSoon")}
+          {t("preview.selectComponent")}
         </Typography>
+      </Card>
+    )
+  }
+
+  if (layerItems.length === 0) {
+    return (
+      <Card className="flex h-full min-h-[70vh] flex-1 items-center justify-center p-10">
+        <div className="space-y-4 text-center">
+          <div className="mx-auto flex h-64 w-64 items-center justify-center rounded-lg bg-muted">
+            <Typography
+              as="p"
+              variant="body-md"
+              className="text-muted-foreground"
+            >
+              {t("preview.placeholder")}
+            </Typography>
+          </div>
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="text-muted-foreground"
+          >
+            {t("preview.selectOptions")}
+          </Typography>
+        </div>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="flex h-full min-h-0 flex-1 flex-col overflow-hidden p-4 md:p-6">
+      <div className="flex min-h-0 flex-1 items-center justify-center">
+        <SmartImageComposer
+          layers={layerItems}
+          maxSize={1200}
+          className="rounded-lg border bg-muted/30"
+        />
       </div>
     </Card>
   )

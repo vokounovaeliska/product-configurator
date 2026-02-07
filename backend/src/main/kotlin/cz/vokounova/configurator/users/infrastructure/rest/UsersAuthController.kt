@@ -1,5 +1,7 @@
 package cz.vokounova.configurator.users.infrastructure.rest
 
+import cz.vokounova.configurator.shared.exceptions.AuthErrorCode
+import cz.vokounova.configurator.shared.exceptions.AuthException
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.security.extractBearerTokenValue
 import cz.vokounova.configurator.users.domain.UserAuthenticationRequestLoginPassword
@@ -39,9 +41,13 @@ class UsersAuthController(
 
     @GetMapping("/refresh")
     fun getUserRefreshToken(
-        @RequestHeader(HttpHeaders.AUTHORIZATION) authorization: String,
+        @RequestHeader(HttpHeaders.AUTHORIZATION, required = false) authorization: String?,
+        @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) refreshTokenCookie: String?,
     ): ResponseEntity<JwtTokenDto> {
-        val refreshToken = authorization.extractBearerTokenValue()
+        val refreshToken =
+            authorization?.takeIf { it.isNotBlank() }?.extractBearerTokenValue()
+                ?: refreshTokenCookie?.takeIf { it.isNotBlank() }
+                ?: throw AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN)
         return ResponseEntity
             .ok()
             .body(JwtTokenDto(userRefreshToken.run(refreshToken).token))

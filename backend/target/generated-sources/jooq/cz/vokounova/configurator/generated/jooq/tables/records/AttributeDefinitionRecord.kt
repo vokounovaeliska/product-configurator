@@ -75,6 +75,10 @@ open class AttributeDefinitionRecord private constructor() : UpdatableRecordImpl
         set(value): Unit = set(12, value)
         get(): OffsetDateTime = get(12) as OffsetDateTime
 
+    open var unit: String?
+        set(value): Unit = set(13, value)
+        get(): String? = get(13) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -84,7 +88,7 @@ open class AttributeDefinitionRecord private constructor() : UpdatableRecordImpl
     /**
      * Create a detached, initialised AttributeDefinitionRecord
      */
-    constructor(id: UUID, componentId: UUID, code: String, label: String, type: AttributeType, isRequired: Boolean? = null, minInt: Int? = null, maxInt: Int? = null, minDecimal: BigDecimal? = null, maxDecimal: BigDecimal? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, componentId: UUID, code: String, label: String, type: AttributeType, isRequired: Boolean? = null, minInt: Int? = null, maxInt: Int? = null, minDecimal: BigDecimal? = null, maxDecimal: BigDecimal? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, unit: String? = null): this() {
         this.id = id
         this.componentId = componentId
         this.code = code
@@ -98,6 +102,7 @@ open class AttributeDefinitionRecord private constructor() : UpdatableRecordImpl
         this.sortOrder = sortOrder
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
+        this.unit = unit
         resetChangedOnNotNull()
     }
 }

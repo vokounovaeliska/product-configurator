@@ -22,5 +22,10 @@ class ComponentCreateParamsValidator : AppValidator<ComponentCreateParams> {
                     min(0)
                 }
             }
+            value.imageZIndex?.let { zIndex ->
+                field("imageZIndex", zIndex as Number) {
+                    min(0)
+                }
+            }
         }
 }

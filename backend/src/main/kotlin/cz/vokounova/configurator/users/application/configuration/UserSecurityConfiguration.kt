@@ -9,6 +9,7 @@ import cz.vokounova.configurator.users.infrastructure.rest.UsersAuthController.C
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -40,6 +41,7 @@ class UserSecurityConfiguration {
         http.defaultSecurityConfig(corsConfig)
         http.authorizeHttpRequests {
             it.requestMatchers("/users/api/v1/auth/public/**").permitAll()
+            it.requestMatchers(HttpMethod.GET, "/users/api/v1/auth/refresh").permitAll()
             it.anyRequest().authenticated()
         }
         http.logout {

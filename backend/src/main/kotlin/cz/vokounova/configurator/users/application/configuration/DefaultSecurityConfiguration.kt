@@ -8,6 +8,7 @@ import cz.vokounova.configurator.shared.security.defaultSecurityConfig
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.ProviderManager
@@ -35,6 +36,9 @@ class DefaultSecurityConfiguration {
         http.defaultSecurityConfig(corsConfig)
         http.authorizeHttpRequests {
             it.requestMatchers("/swagger/**", "/actuator/**").permitAll()
+            // File downloads (GET) are public so images can be displayed in frontend
+            // File uploads (POST) require authentication (handled by anyRequest().authenticated())
+            it.requestMatchers(HttpMethod.GET, "/api/v1/files/**").permitAll()
             it.anyRequest().authenticated()
         }
         http.authenticationManager(authenticationManager)
