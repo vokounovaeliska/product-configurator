@@ -111,7 +111,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     get(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${created.id.value}",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options/${created.id.value}",
                     ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
                 ).andExpect(status().isOk)
@@ -183,7 +184,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     post(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options",
                     ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
@@ -233,7 +235,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     get(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options",
                     ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
                 ).andExpect(status().isOk)
@@ -254,7 +257,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     get(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options",
                     ).contentType(MediaType.APPLICATION_JSON)
                         .with(AuthMocks.mockAdmin()),
                 ).andExpect(status().isOk)
@@ -288,7 +292,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     patch(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options/${option.id.value}",
                     ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
@@ -323,7 +328,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     patch(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options/${option.id.value}",
                     ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
@@ -360,7 +366,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     patch(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options/${option.id.value}",
                     ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
@@ -397,7 +404,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     patch(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options/${option.id.value}",
                     ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
@@ -434,7 +442,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     patch(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options/${option.id.value}",
                     ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
@@ -489,7 +498,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
             mockMvc
                 .perform(
                     patch(
-                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                        "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                            "attributes/${attribute.id.value}/options/${option.id.value}",
                     ).contentType("application/json-patch+json")
                         .with(AuthMocks.mockUser(userId = user.id, email = user.email))
                         .content(payload),
@@ -514,7 +524,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
         mockMvc
             .perform(
                 delete(
-                    "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                    "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                        "attributes/${attribute.id.value}/options/${option.id.value}",
                 ).contentType(MediaType.APPLICATION_JSON)
                     .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNoContent)
@@ -524,7 +535,8 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
         mockMvc
             .perform(
                 get(
-                    "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}/options/${option.id.value}",
+                    "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
+                        "attributes/${attribute.id.value}/options/${option.id.value}",
                 ).contentType(MediaType.APPLICATION_JSON)
                     .with(AuthMocks.mockAdmin()),
             ).andExpect(status().isNotFound)
