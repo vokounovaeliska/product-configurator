@@ -33,7 +33,12 @@ class FileUploadController(
             ensureUploadDirExists(Paths.get(uploadDir))
             log.info("File upload directory: {}", Paths.get(uploadDir).toAbsolutePath())
         } catch (e: Exception) {
-            log.warn("Upload directory not writable at startup: {} - {}", uploadDir, e.message)
+            log.warn(
+                "Upload directory not writable at startup: {} ({}: {})",
+                uploadDir,
+                e.javaClass.simpleName,
+                e.message,
+            )
             // Directory will be created on first upload if permitted
         }
     }
@@ -96,6 +101,7 @@ class FileUploadController(
                 .status(HttpStatus.OK)
                 .body(FileUploadResponse(success = true, message = "File uploaded successfully", url = fileUrl))
         } catch (e: AccessDeniedException) {
+            log.error("File upload denied: path={}, message={}", uploadDir, e.message, e)
             return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(
