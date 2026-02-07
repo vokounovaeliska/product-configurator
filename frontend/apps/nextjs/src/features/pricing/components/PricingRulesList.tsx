@@ -1,0 +1,303 @@
+"use client"
+
+import { useMemo, useState } from "react"
+import { useTranslations } from "next-intl"
+import { Button } from "@workspace/ui/components/button"
+import { Card } from "@workspace/ui/components/card"
+import { Skeleton } from "@workspace/ui/components/skeleton"
+import { Typography } from "@workspace/ui/components/typography"
+
+import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
+
+/* eslint-disable-next-line import/no-restricted-paths -- pricing needs components and product model */
+import { useComponentsList } from "@/features/components/api/componentQueries"
+/* eslint-disable-next-line import/no-restricted-paths -- pricing needs product model for currency */
+import { useProductModel } from "@/features/productModels/api/productModelQueries"
+
+import {
+  useCreatePricingRule,
+  useDeletePricingRule,
+  usePricingRulesList,
+  useUpdatePricingRule,
+} from "../api/pricingRulesQueries"
+import { CreatePricingRuleDialog } from "./CreatePricingRuleDialog"
+import { EditPricingRuleDialog } from "./EditPricingRuleDialog"
+
+type Props = {
+  productModelId: string
+}
+
+const FILTER_OPERATOR_ALL = "all"
+const FILTER_PRICE_TYPE_ALL = "all"
+
+export const PricingRulesList = ({ productModelId }: Props) => {
+  const t = useTranslations("Pricing")
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [editingRule, setEditingRule] = useState<AttributePricingRuleDto | null>(null)
+  const [filterAttributeCode, setFilterAttributeCode] = useState("")
+  const [filterOperator, setFilterOperator] = useState<string>(FILTER_OPERATOR_ALL)
+  const [filterPriceType, setFilterPriceType] = useState<string>(FILTER_PRICE_TYPE_ALL)
+
+  const { data: productModel } = useProductModel(productModelId)
+  const { data: componentsData } = useComponentsList(productModelId, { limit: 100 })
+  const components = useMemo(() => componentsData?.items ?? [], [componentsData?.items])
+  const componentById = useMemo(
+    () => Object.fromEntries(components.map((c) => [c.id, c])),
+    [components],
+  )
+
+  const currency = productModel?.currency ?? "CZK"
+  const formatPrice = (amountInMainUnit: number) =>
+    new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(amountInMainUnit)
+
+  const { data: rules = [], isLoading, error } = usePricingRulesList(productModelId)
+  const createMutation = useCreatePricingRule(productModelId)
+  const updateMutation = useUpdatePricingRule(productModelId)
+  const deleteMutation = useDeletePricingRule(productModelId)
+
+  const attributeCodes = useMemo(
+    () => [...new Set(rules.map((r) => r.attributeCode))].sort(),
+    [rules],
+  )
+
+  const filteredRules = useMemo(() => {
+    return rules.filter((rule) => {
+      if (filterAttributeCode !== "" && rule.attributeCode !== filterAttributeCode) {
+        return false
+      }
+      if (filterOperator !== FILTER_OPERATOR_ALL && rule.operator !== filterOperator) {
+        return false
+      }
+      if (filterPriceType !== FILTER_PRICE_TYPE_ALL) {
+        const isPerUnit = rule.pricePerUnitCents != null
+        if (filterPriceType === "perUnit" && !isPerUnit) return false
+        if (filterPriceType === "fixed" && isPerUnit) return false
+      }
+      return true
+    })
+  }, [rules, filterAttributeCode, filterOperator, filterPriceType])
+
+  const handleDelete = (ruleId: string) => {
+    if (window.confirm(t("list.deleteButton") + "?")) {
+      deleteMutation.mutate(ruleId)
+    }
+  }
+
+  if (error) {
+    return (
+      <Card className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+        <Typography
+          as="p"
+          variant="body-md"
+          className="text-destructive"
+        >
+          {t("list.errorMessage")}
+        </Typography>
+      </Card>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Typography
+          as="h2"
+          variant="display-lg"
+          weight="semibold"
+        >
+          {t("list.title")}
+        </Typography>
+        <Button onClick={() => setIsCreateOpen(true)}>{t("list.createButton")}</Button>
+      </div>
+
+      {rules.length === 0 ? (
+        <Card className="rounded-lg border border-dashed p-12 text-center">
+          <Typography
+            as="p"
+            variant="body-lg"
+            className="mb-4 text-muted-foreground"
+          >
+            {t("list.emptyState")}
+          </Typography>
+          <Button
+            variant="outline"
+            onClick={() => setIsCreateOpen(true)}
+          >
+            {t("list.createButton")}
+          </Button>
+        </Card>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={filterAttributeCode}
+              onChange={(e) => setFilterAttributeCode(e.target.value)}
+              className="h-9 w-[180px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={t("list.filterAttribute")}
+            >
+              <option value="">{t("list.filterAttributeAll")}</option>
+              {attributeCodes.map((code) => (
+                <option
+                  key={code}
+                  value={code}
+                >
+                  {code}
+                </option>
+              ))}
+            </select>
+            <select
+              value={filterOperator}
+              onChange={(e) => setFilterOperator(e.target.value)}
+              className="h-9 w-[180px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={t("list.filterOperator")}
+            >
+              <option value={FILTER_OPERATOR_ALL}>{t("list.filterOperatorAll")}</option>
+              <option value="EQ">{t("list.operatorEq")}</option>
+              <option value="BETWEEN">{t("list.operatorBetween")}</option>
+            </select>
+            <select
+              value={filterPriceType}
+              onChange={(e) => setFilterPriceType(e.target.value)}
+              className="h-9 w-[180px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={t("list.filterPriceType")}
+            >
+              <option value={FILTER_PRICE_TYPE_ALL}>{t("list.filterPriceTypeAll")}</option>
+              <option value="fixed">{t("list.priceFixed")}</option>
+              <option value="perUnit">{t("list.pricePerUnit")}</option>
+            </select>
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/50">
+                  <th className="px-4 py-3 text-left font-medium text-foreground">
+                    {t("list.columnAttribute")}
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-foreground">
+                    {t("list.columnComponent")}
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-foreground">
+                    {t("list.columnCondition")}
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-foreground">
+                    {t("list.columnPriceType")}
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-foreground">
+                    {t("list.columnPrice")}
+                  </th>
+                  <th className="w-0 px-4 py-3 text-right font-medium text-foreground">
+                    {t("list.columnActions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRules.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-4 py-8 text-center text-muted-foreground"
+                    >
+                      {t("list.filterNoResults")}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRules.map((rule) => (
+                    <tr
+                      key={rule.id}
+                      className="border-b border-border last:border-b-0 hover:bg-muted/30"
+                    >
+                      <td className="px-4 py-3 font-medium">{rule.attributeCode}</td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {rule.componentId
+                          ? (componentById[rule.componentId]?.label ?? rule.componentId)
+                          : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {rule.operator === "EQ"
+                          ? `${t("list.operatorEq")} "${rule.value}"`
+                          : `${t("list.operatorBetween")} ${rule.value}–${rule.toValue ?? ""}`}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {rule.pricePerUnitCents != null
+                          ? t("list.pricePerUnit")
+                          : t("list.priceFixed")}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums">
+                        {rule.pricePerUnitCents != null
+                          ? formatPrice(rule.pricePerUnitCents / 100)
+                          : formatPrice(rule.priceDeltaCents / 100)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingRule(rule)}
+                          >
+                            {t("list.editButton")}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDelete(rule.id)}
+                          >
+                            {t("list.deleteButton")}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      <CreatePricingRuleDialog
+        productModelId={productModelId}
+        currency={currency}
+        isOpen={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onSubmit={async (body: AttributePricingRuleCreateDto) => {
+          await createMutation.mutateAsync(body)
+          setIsCreateOpen(false)
+        }}
+        isSubmitting={createMutation.isPending}
+      />
+
+      {editingRule && (
+        <EditPricingRuleDialog
+          rule={editingRule}
+          currency={currency}
+          isOpen={Boolean(editingRule)}
+          onOpenChange={(isOpen) => !isOpen && setEditingRule(null)}
+          onSubmit={async (body) => {
+            await updateMutation.mutateAsync({
+              ruleId: editingRule.id,
+              body,
+            })
+            setEditingRule(null)
+          }}
+          isSubmitting={updateMutation.isPending}
+        />
+      )}
+    </div>
+  )
+}

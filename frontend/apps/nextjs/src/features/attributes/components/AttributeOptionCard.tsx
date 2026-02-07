@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ImageIcon, PencilIcon, TrashIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
+import Image from "next/image"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
@@ -40,10 +41,12 @@ export const AttributeOptionCard = ({
         <div className="flex flex-1 flex-col">
           <div className="relative h-24 w-32 shrink-0 bg-muted sm:w-full">
             {imageUrl ? (
-              <img
+              <Image
                 src={imageUrl}
                 alt=""
-                className="h-full w-full object-contain"
+                fill
+                className="object-contain"
+                unoptimized
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">

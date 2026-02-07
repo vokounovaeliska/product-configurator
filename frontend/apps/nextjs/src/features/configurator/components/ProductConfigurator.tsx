@@ -9,7 +9,8 @@ import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 
-import { useConfigurationPrice } from "../hooks/useConfigurationPrice"
+import { useConfigurationPrice } from "@/features/configurator/hooks/useConfigurationPrice"
+
 import { ComponentSelector } from "./ComponentSelector"
 import { PriceDisplay } from "./PriceDisplay"
 import { VisualPreview } from "./VisualPreview"
