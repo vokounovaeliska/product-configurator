@@ -18,6 +18,8 @@ export type AttributeDto = {
   maxInt: number | null
   minDecimal: number | null
   maxDecimal: number | null
+  /** Optional unit for numeric attributes (e.g. "mm") */
+  unit: string | null
   /** Format: int32 */
   sortOrder: number
   /** Format: date-time */
@@ -45,21 +47,25 @@ export type AttributeCreateRequestDto = {
   maxInt?: number | null
   minDecimal?: number | null
   maxDecimal?: number | null
+  unit?: string | null
   sortOrder?: number | null
 }
 
+/** JSON Pointer path for attribute PATCH (RFC 6901). Backend accepts these path values. */
+export type AttributePatchPath =
+  | "/code"
+  | "/label"
+  | "/type"
+  | "/isRequired"
+  | "/minInt"
+  | "/maxInt"
+  | "/minDecimal"
+  | "/maxDecimal"
+  | "/unit"
+  | "/sortOrder"
+
 export type AttributePatchRequestDto = {
-  /** @enum {string} */
-  path:
-    | "SlashCode"
-    | "SlashLabel"
-    | "SlashType"
-    | "SlashIsRequired"
-    | "SlashMinInt"
-    | "SlashMaxInt"
-    | "SlashMinDecimal"
-    | "SlashMaxDecimal"
-    | "SlashSortOrder"
+  path: AttributePatchPath
   value?: unknown
   /** @enum {string} */
   op: "Replace"
@@ -89,4 +95,17 @@ export type AttributeOptionDto = {
   createdAt: string
   /** Format: date-time */
   modifiedAt: string
+}
+
+export type AttributeOptionCreateRequestDto = {
+  value: string
+  label: string
+  imageUrl?: string | null
+  sortOrder?: number | null
+}
+
+export type AttributeOptionPatchRequestDto = {
+  path: "SlashValue" | "SlashLabel" | "SlashImageUrl" | "SlashSortOrder"
+  value: unknown
+  op: "Replace"
 }

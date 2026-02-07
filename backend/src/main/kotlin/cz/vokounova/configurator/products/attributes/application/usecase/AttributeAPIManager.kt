@@ -13,6 +13,7 @@ import cz.vokounova.configurator.products.attributes.domain.AttributeSortableFie
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.attributes.ports.outbound.AttributeOptionRepository
 import cz.vokounova.configurator.products.attributes.ports.outbound.AttributeRepository
+import cz.vokounova.configurator.shared.files.UploadedFileDeleter
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.shared.jsonpatch.JsonPatchUtils
 import cz.vokounova.configurator.shared.pagination.PaginatedResult
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional
 class AttributeAPIManager(
     private val attributeRepository: AttributeRepository,
     private val attributeOptionRepository: AttributeOptionRepository,
+    private val uploadedFileDeleter: UploadedFileDeleter,
     private val jsonPatchUtils: JsonPatchUtils,
     private val attributeDomainValidator: AttributeDomainValidator,
 ) : AttributeAPI {
@@ -37,7 +39,9 @@ class AttributeAPIManager(
 
     @Transactional
     override fun delete(id: AttributeId) {
-        // Delete options first (cascade should handle this, but being explicit)
+        attributeOptionRepository.findByAttributeId(id).forEach { option ->
+            uploadedFileDeleter.deleteByUrl(option.imageUrl)
+        }
         attributeOptionRepository.deleteByAttributeId(id)
         val deletedCount = attributeRepository.delete(id)
         if (deletedCount == 0) {

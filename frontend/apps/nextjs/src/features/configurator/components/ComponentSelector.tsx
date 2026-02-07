@@ -5,15 +5,24 @@ import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
+import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 
 import { AttributeConfiguration } from "./AttributeConfiguration"
+
+type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
 
 type Props = {
   components: ComponentDto[]
   selectedComponentId: string | null
   onSelectComponent: (componentId: string) => void
   productModelId: string
+  selectedOptionsByComponent: SelectedOptionsByComponent
+  onSelectOption: (
+    componentId: string,
+    attributeId: string,
+    option: AttributeOptionDto | null,
+  ) => void
 }
 
 export const ComponentSelector = ({
@@ -21,6 +30,8 @@ export const ComponentSelector = ({
   selectedComponentId,
   onSelectComponent,
   productModelId,
+  selectedOptionsByComponent,
+  onSelectOption,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -89,6 +100,10 @@ export const ComponentSelector = ({
                     <AttributeConfiguration
                       componentId={component.id}
                       productModelId={productModelId}
+                      selectedOptionsByAttribute={selectedOptionsByComponent[component.id] ?? {}}
+                      onSelectOption={(attributeId, option) =>
+                        onSelectOption(component.id, attributeId, option)
+                      }
                     />
                   </div>
                 )}

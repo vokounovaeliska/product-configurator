@@ -1,13 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { PencilIcon, TrashIcon } from "lucide-react"
+import { ListIcon, PencilIcon, TrashIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeDto } from "@/api/attributeTypes"
+import { Link } from "@/lib/i18n/navigation"
+import { ROUTES } from "@/lib/routes"
 
 import { DeleteAttributeDialog } from "./DeleteAttributeDialog"
 import { EditAttributeDialog } from "./EditAttributeDialog"
@@ -24,26 +26,30 @@ export const AttributeCard = ({ attribute, productModelId, componentId }: Props)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const getRangeDisplay = () => {
+    const unitSuffix =
+      (attribute.type === "INTEGER" || attribute.type === "DECIMAL") && attribute.unit?.trim()
+        ? ` ${attribute.unit.trim()}`
+        : ""
     if (attribute.type === "INTEGER") {
       if (attribute.minInt != null && attribute.maxInt != null) {
-        return `${attribute.minInt} - ${attribute.maxInt}`
+        return `${attribute.minInt} - ${attribute.maxInt}${unitSuffix}`
       }
       if (attribute.minInt != null) {
-        return `≥ ${attribute.minInt}`
+        return `≥ ${attribute.minInt}${unitSuffix}`
       }
       if (attribute.maxInt != null) {
-        return `≤ ${attribute.maxInt}`
+        return `≤ ${attribute.maxInt}${unitSuffix}`
       }
     }
     if (attribute.type === "DECIMAL") {
       if (attribute.minDecimal != null && attribute.maxDecimal != null) {
-        return `${attribute.minDecimal} - ${attribute.maxDecimal}`
+        return `${attribute.minDecimal} - ${attribute.maxDecimal}${unitSuffix}`
       }
       if (attribute.minDecimal != null) {
-        return `≥ ${attribute.minDecimal}`
+        return `≥ ${attribute.minDecimal}${unitSuffix}`
       }
       if (attribute.maxDecimal != null) {
-        return `≤ ${attribute.maxDecimal}`
+        return `≤ ${attribute.maxDecimal}${unitSuffix}`
       }
     }
     return null
@@ -102,6 +108,20 @@ export const AttributeCard = ({ attribute, productModelId, componentId }: Props)
               {t("card.sortOrder")}: {attribute.sortOrder}
             </Typography>
             <div className="flex gap-2">
+              {attribute.type === "ENUM" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                >
+                  <Link
+                    href={ROUTES.setupAttributeOptions(productModelId, componentId, attribute.id)}
+                  >
+                    <ListIcon className="size-4" />
+                    <span className="sr-only">{t("card.manageOptionsButton")}</span>
+                  </Link>
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"

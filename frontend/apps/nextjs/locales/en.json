@@ -108,8 +108,11 @@
     "description": "Welcome to your setup dashboard. Here you can manage your product models and configure your configurator.",
     "navigation": {
       "allComponents": "All Components",
+      "attributes": "Attributes",
       "components": "Components",
       "dashboard": "Dashboard",
+      "imageLayers": "Image Layers",
+      "options": "Options",
       "productModels": "Product Models",
       "title": "Setup"
     },
@@ -203,11 +206,20 @@
     },
     "attributes": {
       "title": "Configuration",
-      "comingSoon": "Attribute configuration will be available soon."
+      "comingSoon": "Attribute configuration will be available soon.",
+      "noAttributes": "No configurable attributes for this component.",
+      "selectOption": "Select an option…",
+      "noSelection": "— None —",
+      "numberPlaceholder": "Enter value",
+      "booleanLabel": "Yes / No"
     },
     "preview": {
       "placeholder": "Product Preview",
-      "comingSoon": "Visual preview with image layers will be available soon."
+      "comingSoon": "Visual preview with image layers will be available soon.",
+      "selectComponent": "Select a component to see its preview.",
+      "selectOptions": "Select options below to see the preview.",
+      "noLayers": "No image layers for this component. Add layers in setup.",
+      "loadError": "Failed to load preview."
     },
     "price": {
       "title": "Total Price"
@@ -220,6 +232,9 @@
       "attributesButton": "Manage Attributes",
       "deleteButton": "Delete",
       "editButton": "Edit",
+      "imageLayersButton": "Image Layers",
+      "imageZIndex": "Image z-index",
+      "manageOptionsButton": "Manage options",
       "sortOrder": "Sort Order"
     },
     "create": {
@@ -233,6 +248,8 @@
         "generalError": "Something went wrong",
         "labelRequiredMessage": "Please enter a component label"
       },
+      "imageZIndex": "Image z-index",
+      "imageZIndexPlaceholder": "0",
       "label": "Label",
       "labelPlaceholder": "e.g., Tabletop, Legs, Door",
       "sortOrder": "Sort Order",
@@ -261,6 +278,8 @@
         "generalError": "Something went wrong",
         "labelRequiredMessage": "Please enter a component label"
       },
+      "imageZIndex": "Image z-index",
+      "imageZIndexPlaceholder": "0",
       "label": "Label",
       "labelPlaceholder": "e.g., Tabletop, Legs, Door",
       "sortOrder": "Sort Order",
@@ -283,12 +302,43 @@
       "title": "Components"
     }
   },
+  "OptionImageEditor": {
+    "title": "Option image editor",
+    "description": "Select a region (magic wand or lasso), then save as PNG with transparent background at a fixed size so the configurator can stack options by z-index.",
+    "toolMagicWand": "Magic wand",
+    "toolLasso": "Lasso",
+    "toolBrushAdd": "Brush add",
+    "toolBrushRemove": "Brush remove",
+    "tolerance": "Tolerance",
+    "brushSize": "Brush size",
+    "brushHint": "Drag on the image to add to or remove from the selection.",
+    "clickHint": "Click on the image to select a region by color.",
+    "magicWandShiftHint": "Hold Shift and click to add to the selection.",
+    "lassoHint": "Click to add points, then close the polygon to create the selection.",
+    "closePolygon": "Close polygon",
+    "invertSelection": "Invert",
+    "clearSelection": "Clear",
+    "canvasAriaLabel": "Image with selection overlay",
+    "loading": "Loading image…",
+    "preparing": "Preparing editor…",
+    "cancel": "Cancel",
+    "exporting": "Exporting…",
+    "useAsOptionImage": "Save as option image (PNG, transparent, fixed size)",
+    "errors": {
+      "corsOrTainted": "Image could not be read (CORS or tainted canvas).",
+      "loadFailed": "Failed to load image. Check that the backend URL is correct and CORS allows your frontend origin.",
+      "loadTimeout": "Image took too long to load. Check backend URL and CORS.",
+      "noSelection": "Please make a selection first.",
+      "uploadFailed": "Upload failed. Please try again."
+    }
+  },
   "Attributes": {
     "title": "Attributes",
     "description": "Manage attributes for this component. Attributes define the configurable properties that customers can select.",
     "card": {
       "deleteButton": "Delete",
       "editButton": "Edit",
+      "manageOptionsButton": "Manage options",
       "required": "Required",
       "range": "Range",
       "sortOrder": "Sort Order"
@@ -326,7 +376,9 @@
       "typeDecimal": "Decimal",
       "typeEnum": "Enum",
       "typeInteger": "Integer",
-      "typePlaceholder": "Select attribute type"
+      "typePlaceholder": "Select attribute type",
+      "unit": "Unit",
+      "unitPlaceholder": "e.g., mm, cm, kg"
     },
     "delete": {
       "cancelButton": "Cancel",
@@ -372,7 +424,9 @@
       "typeDecimal": "Decimal",
       "typeEnum": "Enum",
       "typeInteger": "Integer",
-      "typePlaceholder": "Select attribute type"
+      "typePlaceholder": "Select attribute type",
+      "unit": "Unit",
+      "unitPlaceholder": "e.g., mm, cm, kg"
     },
     "form": {
       "errorMessages": {
@@ -392,6 +446,97 @@
       },
       "errorMessage": "Failed to load attributes. Please try again later.",
       "title": "Attributes"
+    }
+  },
+  "AttributeOptions": {
+    "title": "Options",
+    "description": "Manage options for this attribute. Each option must have a value, label, and image (same size for configurator z-index stacking).",
+    "list": {
+      "title": "Options",
+      "createButton": "Add Option",
+      "emptyState": {
+        "message": "No options yet. Add options for customers to choose from.",
+        "createButton": "Add First Option"
+      },
+      "errorMessage": "Failed to load options.",
+      "sortOrder": "Order",
+      "deleteButton": "Delete",
+      "editButton": "Edit",
+      "editImageButton": "Edit image"
+    },
+    "create": {
+      "title": "Add Option",
+      "description": "Create a new option for this attribute. Each option must have an image (same size for configurator stacking).",
+      "valueLabel": "Value",
+      "valuePlaceholder": "e.g., red, 1",
+      "labelLabel": "Label",
+      "labelPlaceholder": "e.g., Red",
+      "imageLabel": "Image (required)",
+      "imageLabelRequired": "Image (required)",
+      "imageHint": "Upload an image or use \"Edit image\" on the option card to crop from a photo (magic wand / lasso). Exported as PNG with transparent background at a fixed size for z-index stacking.",
+      "sortOrderLabel": "Order",
+      "sortOrderPlaceholder": "0",
+      "submitButton": "Add Option",
+      "cancelButton": "Cancel",
+      "errorMessages": {
+        "valueRequired": "Value is required.",
+        "labelRequired": "Label is required.",
+        "imageRequired": "Image is required. Upload an image or use the editor to crop from a photo.",
+        "generalError": "Something went wrong."
+      }
+    },
+    "edit": {
+      "title": "Edit Option",
+      "description": "Update the option details.",
+      "valueLabel": "Value",
+      "labelLabel": "Label",
+      "imageLabel": "Image (optional)",
+      "sortOrderLabel": "Order",
+      "submitButton": "Save",
+      "cancelButton": "Cancel",
+      "editImageWithEditor": "Crop from photo",
+      "editImageSourceHint": "Upload a source photo, then open the editor to select a region.",
+      "openEditor": "Open image editor"
+    },
+    "delete": {
+      "title": "Delete Option",
+      "description": "This option will be removed from the attribute.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel"
+    }
+  },
+  "ImageLayers": {
+    "title": "Image Layers",
+    "description": "Manage image layers for this component. Layers are stacked by z-index and shown in the configurator preview.",
+    "list": {
+      "title": "Layers",
+      "createButton": "Add Layer",
+      "emptyState": {
+        "message": "No image layers yet. Add a layer to see it in the configurator preview.",
+        "createButton": "Add First Layer"
+      },
+      "errorMessage": "Failed to load image layers.",
+      "zIndex": "Order (z-index)",
+      "deleteButton": "Delete"
+    },
+    "create": {
+      "title": "Add Image Layer",
+      "description": "Upload an image and set its order. Lower z-index is drawn first (behind).",
+      "imageLabel": "Image",
+      "zIndexLabel": "Order (z-index)",
+      "zIndexPlaceholder": "0",
+      "submitButton": "Add Layer",
+      "cancelButton": "Cancel",
+      "errorMessages": {
+        "imageRequired": "Please upload an image.",
+        "generalError": "Something went wrong."
+      }
+    },
+    "delete": {
+      "title": "Delete Layer",
+      "description": "This layer will be removed from the component.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel"
     }
   }
 }

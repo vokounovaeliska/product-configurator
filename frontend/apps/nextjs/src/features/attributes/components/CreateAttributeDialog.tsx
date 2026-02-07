@@ -48,6 +48,7 @@ export const CreateAttributeDialog = ({
       maxInt: null,
       minDecimal: null,
       maxDecimal: null,
+      unit: null,
       sortOrder: 0,
     },
     resolver: zodResolver(attributeFormSchema),
@@ -66,6 +67,10 @@ export const CreateAttributeDialog = ({
         maxInt: values.type === "INTEGER" ? values.maxInt : null,
         minDecimal: values.type === "DECIMAL" ? values.minDecimal : null,
         maxDecimal: values.type === "DECIMAL" ? values.maxDecimal : null,
+        unit:
+          values.type === "INTEGER" || values.type === "DECIMAL"
+            ? (values.unit?.trim() ?? null)
+            : null,
         sortOrder: values.sortOrder ?? 0,
       })
 
@@ -244,6 +249,27 @@ export const CreateAttributeDialog = ({
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="unit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("create.unit")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t("create.unitPlaceholder")}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value === "" ? null : e.target.value)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             )}
 
@@ -292,6 +318,27 @@ export const CreateAttributeDialog = ({
                             field.onChange(
                               e.target.value === "" ? null : Number.parseFloat(e.target.value),
                             )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="unit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("create.unit")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t("create.unitPlaceholder")}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value === "" ? null : e.target.value)
                           }
                         />
                       </FormControl>

@@ -110,6 +110,8 @@
       "attributes": "Atributy",
       "components": "Komponenty",
       "dashboard": "Nástěnka",
+      "imageLayers": "Obrazové vrstvy",
+      "options": "Možnosti",
       "productModels": "Modely produktů",
       "title": "Nastavení"
     },
@@ -203,11 +205,20 @@
     },
     "attributes": {
       "title": "Konfigurace",
-      "comingSoon": "Konfigurace atributů bude brzy k dispozici."
+      "comingSoon": "Konfigurace atributů bude brzy k dispozici.",
+      "noAttributes": "Tato komponenta nemá konfigurovatelné atributy.",
+      "selectOption": "Vyberte možnost…",
+      "noSelection": "— Žádná —",
+      "numberPlaceholder": "Zadejte hodnotu",
+      "booleanLabel": "Ano / Ne"
     },
     "preview": {
       "placeholder": "Náhled produktu",
-      "comingSoon": "Vizuální náhled s obrazovými vrstvami bude brzy k dispozici."
+      "comingSoon": "Vizuální náhled s obrazovými vrstvami bude brzy k dispozici.",
+      "selectComponent": "Vyberte komponentu pro zobrazení náhledu.",
+      "selectOptions": "Vyberte možnosti níže pro zobrazení náhledu.",
+      "noLayers": "Pro tuto komponentu nejsou žádné obrazové vrstvy. Přidejte je v nastavení.",
+      "loadError": "Nepodařilo se načíst náhled."
     },
     "price": {
       "title": "Celková cena"
@@ -220,6 +231,9 @@
       "attributesButton": "Spravovat atributy",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
+      "imageLayersButton": "Obrazové vrstvy",
+      "imageZIndex": "Z-index obrázku",
+      "manageOptionsButton": "Spravovat možnosti",
       "sortOrder": "Pořadí"
     },
     "create": {
@@ -233,6 +247,8 @@
         "generalError": "Něco se pokazilo",
         "labelRequiredMessage": "Zadejte název komponentu"
       },
+      "imageZIndex": "Z-index obrázku",
+      "imageZIndexPlaceholder": "0",
       "label": "Název",
       "labelPlaceholder": "např. Deska stolu, Nohy, Dveře",
       "sortOrder": "Pořadí",
@@ -261,6 +277,8 @@
         "generalError": "Něco se pokazilo",
         "labelRequiredMessage": "Zadejte název komponentu"
       },
+      "imageZIndex": "Z-index obrázku",
+      "imageZIndexPlaceholder": "0",
       "label": "Název",
       "labelPlaceholder": "např. Deska stolu, Nohy, Dveře",
       "sortOrder": "Pořadí",
@@ -283,12 +301,43 @@
       "title": "Komponenty"
     }
   },
+  "OptionImageEditor": {
+    "title": "Editor obrázku možnosti",
+    "description": "Vyberte oblast (kouzelná hůlka nebo laso) a uložte jako PNG s průhledným pozadím a pevnou velikostí, aby konfigurátor mohl skládat možnosti podle z-indexu.",
+    "toolMagicWand": "Kouzelná hůlka",
+    "toolLasso": "Lasso",
+    "toolBrushAdd": "Štětec přidat",
+    "toolBrushRemove": "Štětec odebrat",
+    "tolerance": "Tolerance",
+    "brushSize": "Velikost štětce",
+    "brushHint": "Táhněte po obrázku pro přidání nebo odebrání z výběru.",
+    "clickHint": "Klikněte na obrázek pro výběr oblasti podle barvy.",
+    "magicWandShiftHint": "Podržte Shift a klikněte pro přidání k výběru.",
+    "lassoHint": "Klikněte pro přidání bodů, poté uzavřete polygon pro vytvoření výběru.",
+    "closePolygon": "Uzavřít polygon",
+    "invertSelection": "Invertovat",
+    "clearSelection": "Vymazat",
+    "canvasAriaLabel": "Obrázek s překryvnou vrstvou výběru",
+    "loading": "Načítání obrázku…",
+    "preparing": "Příprava editoru…",
+    "cancel": "Zrušit",
+    "exporting": "Exportuji…",
+    "useAsOptionImage": "Uložit jako obrázek možnosti (PNG, průhledné, pevná velikost)",
+    "errors": {
+      "corsOrTainted": "Obrázek nebylo možné načíst (CORS nebo tainted canvas).",
+      "loadFailed": "Nepodařilo se načíst obrázek. Zkontrolujte URL backendu a CORS pro váš frontend.",
+      "loadTimeout": "Načítání obrázku trvalo příliš dlouho. Zkontrolujte URL backendu a CORS.",
+      "noSelection": "Nejprve proveďte výběr.",
+      "uploadFailed": "Nahrání se nezdařilo. Zkuste to prosím znovu."
+    }
+  },
   "Attributes": {
     "title": "Atributy",
     "description": "Spravujte atributy pro tento komponent. Atributy definují konfigurovatelné vlastnosti, které mohou zákazníci vybrat.",
     "card": {
       "deleteButton": "Smazat",
       "editButton": "Upravit",
+      "manageOptionsButton": "Spravovat možnosti",
       "required": "Povinné",
       "range": "Rozsah",
       "sortOrder": "Pořadí"
@@ -326,7 +375,9 @@
       "typeDecimal": "Desetinné číslo",
       "typeEnum": "Výčet",
       "typeInteger": "Celé číslo",
-      "typePlaceholder": "Vyberte typ atributu"
+      "typePlaceholder": "Vyberte typ atributu",
+      "unit": "Jednotka",
+      "unitPlaceholder": "např. mm, cm, kg"
     },
     "delete": {
       "cancelButton": "Zrušit",
@@ -372,7 +423,9 @@
       "typeDecimal": "Desetinné číslo",
       "typeEnum": "Výčet",
       "typeInteger": "Celé číslo",
-      "typePlaceholder": "Vyberte typ atributu"
+      "typePlaceholder": "Vyberte typ atributu",
+      "unit": "Jednotka",
+      "unitPlaceholder": "např. mm, cm, kg"
     },
     "form": {
       "errorMessages": {
@@ -392,6 +445,97 @@
       },
       "errorMessage": "Nepodařilo se načíst atributy. Zkuste to prosím později.",
       "title": "Atributy"
+    }
+  },
+  "AttributeOptions": {
+    "title": "Možnosti",
+    "description": "Spravujte možnosti tohoto atributu. Každá možnost musí mít hodnotu, název a obrázek (stejná velikost pro skládání v konfigurátoru).",
+    "list": {
+      "title": "Možnosti",
+      "createButton": "Přidat možnost",
+      "emptyState": {
+        "message": "Zatím žádné možnosti. Přidejte možnosti pro výběr zákazníků.",
+        "createButton": "Přidat první možnost"
+      },
+      "errorMessage": "Nepodařilo se načíst možnosti.",
+      "sortOrder": "Pořadí",
+      "deleteButton": "Smazat",
+      "editButton": "Upravit",
+      "editImageButton": "Upravit obrázek"
+    },
+    "create": {
+      "title": "Přidat možnost",
+      "description": "Vytvořte novou možnost pro tento atribut. Každá možnost musí mít obrázek (stejná velikost pro skládání v konfigurátoru).",
+      "valueLabel": "Hodnota",
+      "valuePlaceholder": "např. red, 1",
+      "labelLabel": "Název",
+      "labelPlaceholder": "např. Červená",
+      "imageLabel": "Obrázek (povinné)",
+      "imageLabelRequired": "Obrázek (povinné)",
+      "imageHint": "Nahrajte obrázek nebo na kartě možnosti použijte „Upravit obrázek“ a vyřízněte z fotky (kouzelná hůlka / laso). Export jako PNG s průhledným pozadím a pevnou velikostí pro skládání po z-indexu.",
+      "sortOrderLabel": "Pořadí",
+      "sortOrderPlaceholder": "0",
+      "submitButton": "Přidat možnost",
+      "cancelButton": "Zrušit",
+      "errorMessages": {
+        "valueRequired": "Hodnota je povinná.",
+        "labelRequired": "Název je povinný.",
+        "imageRequired": "Obrázek je povinný. Nahrajte obrázek nebo použijte editor k výřezu z fotky.",
+        "generalError": "Něco se pokazilo."
+      }
+    },
+    "edit": {
+      "title": "Upravit možnost",
+      "description": "Upravte údaje možnosti.",
+      "valueLabel": "Hodnota",
+      "labelLabel": "Název",
+      "imageLabel": "Obrázek (volitelné)",
+      "sortOrderLabel": "Pořadí",
+      "submitButton": "Uložit",
+      "cancelButton": "Zrušit",
+      "editImageWithEditor": "Výřez z fotky",
+      "editImageSourceHint": "Nahrajte zdrojovou fotku, pak otevřete editor a vyberte oblast.",
+      "openEditor": "Otevřít editor obrázků"
+    },
+    "delete": {
+      "title": "Smazat možnost",
+      "description": "Tato možnost bude z atributu odstraněna.",
+      "confirmButton": "Smazat",
+      "cancelButton": "Zrušit"
+    }
+  },
+  "ImageLayers": {
+    "title": "Obrazové vrstvy",
+    "description": "Spravujte obrazové vrstvy této komponenty. Vrstvy se skládají podle z-indexu a zobrazují se v náhledu konfigurátoru.",
+    "list": {
+      "title": "Vrstvy",
+      "createButton": "Přidat vrstvu",
+      "emptyState": {
+        "message": "Zatím žádné obrazové vrstvy. Přidejte vrstvu pro zobrazení v náhledu.",
+        "createButton": "Přidat první vrstvu"
+      },
+      "errorMessage": "Nepodařilo se načíst obrazové vrstvy.",
+      "zIndex": "Pořadí (z-index)",
+      "deleteButton": "Smazat"
+    },
+    "create": {
+      "title": "Přidat obrazovou vrstvu",
+      "description": "Nahrajte obrázek a nastavte pořadí. Nižší z-index se vykreslí první (vzadu).",
+      "imageLabel": "Obrázek",
+      "zIndexLabel": "Pořadí (z-index)",
+      "zIndexPlaceholder": "0",
+      "submitButton": "Přidat vrstvu",
+      "cancelButton": "Zrušit",
+      "errorMessages": {
+        "imageRequired": "Prosím nahrajte obrázek.",
+        "generalError": "Něco se pokazilo."
+      }
+    },
+    "delete": {
+      "title": "Smazat vrstvu",
+      "description": "Tato vrstva bude z komponenty odstraněna.",
+      "confirmButton": "Smazat",
+      "cancelButton": "Zrušit"
     }
   }
 }

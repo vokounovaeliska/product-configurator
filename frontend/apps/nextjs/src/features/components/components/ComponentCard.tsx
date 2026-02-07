@@ -59,13 +59,22 @@ export const ComponentCard = ({ component, productModelId }: Props) => {
           )}
 
           <div className="flex items-center justify-between border-t pt-4">
-            <Typography
-              as="p"
-              variant="body-sm"
-              className="text-muted-foreground"
-            >
-              {t("card.sortOrder")}: {component.sortOrder}
-            </Typography>
+            <div className="flex gap-4">
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="text-muted-foreground"
+              >
+                {t("card.sortOrder")}: {component.sortOrder}
+              </Typography>
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="text-muted-foreground"
+              >
+                {t("card.imageZIndex")}: {component.imageZIndex}
+              </Typography>
+            </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"

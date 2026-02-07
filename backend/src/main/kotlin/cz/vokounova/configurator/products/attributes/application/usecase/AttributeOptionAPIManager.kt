@@ -12,6 +12,7 @@ import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeOptionAPI
 import cz.vokounova.configurator.products.attributes.ports.outbound.AttributeOptionRepository
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
+import cz.vokounova.configurator.shared.files.UploadedFileDeleter
 import cz.vokounova.configurator.shared.jsonpatch.JsonPatchUtils
 import org.springframework.stereotype.Component as ComponentStereotype
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +22,7 @@ class AttributeOptionAPIManager(
     private val attributeOptionRepository: AttributeOptionRepository,
     private val attributeAPI: AttributeAPI,
     private val jsonPatchUtils: JsonPatchUtils,
+    private val uploadedFileDeleter: UploadedFileDeleter,
 ) : AttributeOptionAPI {
     @Transactional
     override fun create(params: AttributeOptionCreateParams): AttributeOption {
@@ -40,6 +42,9 @@ class AttributeOptionAPIManager(
 
     @Transactional
     override fun delete(id: AttributeOptionId) {
+        val existing = attributeOptionRepository.findById(id)
+            ?: throw ResourceNotFoundException("Attribute option with id ${id.value} not found")
+        uploadedFileDeleter.deleteByUrl(existing.imageUrl)
         val deletedCount = attributeOptionRepository.delete(id)
         if (deletedCount == 0) {
             throw ResourceNotFoundException("Attribute option with id ${id.value} not found")
@@ -58,7 +63,9 @@ class AttributeOptionAPIManager(
     ): AttributeOption {
         val existingOption = findAttributeOption(id)
         val patched = jsonPatchUtils.applyAndMapJsonPatch(jsonPatchParams, existingOption)
-
+        if (existingOption.imageUrl != patched.imageUrl && !existingOption.imageUrl.isNullOrBlank()) {
+            uploadedFileDeleter.deleteByUrl(existingOption.imageUrl)
+        }
         return attributeOptionRepository.update(patched)
             ?: throw AttributeException(AttributeErrorCode.UPDATE_ATTRIBUTE_OPTION_FAILED)
     }

@@ -18,7 +18,7 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { Select } from "@workspace/ui/components/select"
 
-import type { AttributeDto } from "@/api/attributeTypes"
+import type { AttributeDto, AttributePatchRequestDto } from "@/api/attributeTypes"
 
 import { useUpdateAttribute } from "../api/attributeQueries"
 import { getAttributeFormSchema, type AttributeFormSchema } from "../schemas/attributeFormSchema"
@@ -53,6 +53,7 @@ export const EditAttributeDialog = ({
       maxInt: attribute.maxInt,
       minDecimal: attribute.minDecimal,
       maxDecimal: attribute.maxDecimal,
+      unit: attribute.unit ?? null,
       sortOrder: attribute.sortOrder,
     },
     resolver: zodResolver(attributeFormSchema),
@@ -71,6 +72,7 @@ export const EditAttributeDialog = ({
         maxInt: attribute.maxInt,
         minDecimal: attribute.minDecimal,
         maxDecimal: attribute.maxDecimal,
+        unit: attribute.unit ?? null,
         sortOrder: attribute.sortOrder,
       })
     }
@@ -78,27 +80,27 @@ export const EditAttributeDialog = ({
 
   const onSubmit = async (values: AttributeFormSchema) => {
     try {
-      const patches = []
+      const patches: AttributePatchRequestDto[] = []
 
       if (values.code !== attribute.code) {
-        patches.push({ path: "SlashCode" as const, op: "Replace" as const, value: values.code })
+        patches.push({ path: "/code", op: "Replace" as const, value: values.code })
       }
       if (values.label !== attribute.label) {
-        patches.push({ path: "SlashLabel" as const, op: "Replace" as const, value: values.label })
+        patches.push({ path: "/label", op: "Replace" as const, value: values.label })
       }
       if (values.type !== attribute.type) {
-        patches.push({ path: "SlashType" as const, op: "Replace" as const, value: values.type })
+        patches.push({ path: "/type", op: "Replace" as const, value: values.type })
       }
       if (values.isRequired !== attribute.isRequired) {
         patches.push({
-          path: "SlashIsRequired" as const,
+          path: "/isRequired",
           op: "Replace" as const,
           value: values.isRequired ?? true,
         })
       }
       if (values.sortOrder !== attribute.sortOrder) {
         patches.push({
-          path: "SlashSortOrder" as const,
+          path: "/sortOrder",
           op: "Replace" as const,
           value: values.sortOrder ?? 0,
         })
@@ -107,18 +109,10 @@ export const EditAttributeDialog = ({
       // INTEGER fields
       if (values.type === "INTEGER") {
         if (values.minInt !== attribute.minInt) {
-          patches.push({
-            path: "SlashMinInt" as const,
-            op: "Replace" as const,
-            value: values.minInt,
-          })
+          patches.push({ path: "/minInt", op: "Replace" as const, value: values.minInt })
         }
         if (values.maxInt !== attribute.maxInt) {
-          patches.push({
-            path: "SlashMaxInt" as const,
-            op: "Replace" as const,
-            value: values.maxInt,
-          })
+          patches.push({ path: "/maxInt", op: "Replace" as const, value: values.maxInt })
         }
       }
 
@@ -126,16 +120,28 @@ export const EditAttributeDialog = ({
       if (values.type === "DECIMAL") {
         if (values.minDecimal !== attribute.minDecimal) {
           patches.push({
-            path: "SlashMinDecimal" as const,
+            path: "/minDecimal",
             op: "Replace" as const,
             value: values.minDecimal,
           })
         }
         if (values.maxDecimal !== attribute.maxDecimal) {
           patches.push({
-            path: "SlashMaxDecimal" as const,
+            path: "/maxDecimal",
             op: "Replace" as const,
             value: values.maxDecimal,
+          })
+        }
+      }
+
+      // Unit (INTEGER or DECIMAL)
+      if (values.type === "INTEGER" || values.type === "DECIMAL") {
+        const newUnit = values.unit?.trim() ?? null
+        if (newUnit !== (attribute.unit ?? null)) {
+          patches.push({
+            path: "/unit",
+            op: "Replace" as const,
+            value: newUnit,
           })
         }
       }
@@ -321,6 +327,27 @@ export const EditAttributeDialog = ({
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="unit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("edit.unit")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t("edit.unitPlaceholder")}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value === "" ? null : e.target.value)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             )}
 
@@ -369,6 +396,27 @@ export const EditAttributeDialog = ({
                             field.onChange(
                               e.target.value === "" ? null : Number.parseFloat(e.target.value),
                             )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="unit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("edit.unit")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder={t("edit.unitPlaceholder")}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value === "" ? null : e.target.value)
                           }
                         />
                       </FormControl>

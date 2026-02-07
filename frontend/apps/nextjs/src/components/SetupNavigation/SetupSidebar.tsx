@@ -4,6 +4,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   LayoutDashboardIcon,
+  ListIcon,
   PackageIcon,
   SettingsIcon,
 } from "lucide-react"
@@ -22,22 +23,39 @@ import { useSidebar } from "./useSidebar"
 type Props = {
   components?: ComponentDto[]
   isLoadingComponents?: boolean
+  productModelName?: string | null
 }
 
-export const SetupSidebar = ({ components = [], isLoadingComponents = false }: Props) => {
+export const SetupSidebar = ({
+  components = [],
+  isLoadingComponents = false,
+  productModelName = null,
+}: Props) => {
   const t = useTranslations("Setup")
   const pathname = usePathname()
   const { isOpen, toggle } = useSidebar()
 
-  // Extract productModelId from pathname if we're on a product model or components page
   const pathSegments = pathname.split("/").filter(Boolean)
   const productModelIndex = pathSegments.indexOf("product-models")
   const productModelId =
     productModelIndex !== -1 && pathSegments[productModelIndex + 1]
       ? pathSegments[productModelIndex + 1]
       : null
+  const componentsIndex = pathSegments.indexOf("components")
+  const componentIdFromPath =
+    componentsIndex !== -1 && pathSegments[componentsIndex + 1]
+      ? pathSegments[componentsIndex + 1]
+      : null
 
   const sortedComponents = [...components].sort((a, b) => a.sortOrder - b.sortOrder)
+  const currentComponent = componentIdFromPath
+    ? sortedComponents.find((c) => c.id === componentIdFromPath)
+    : null
+
+  const isOnAttributes = (componentId: string) =>
+    productModelId &&
+    (pathname === ROUTES.setupAttributes(productModelId, componentId) ||
+      pathname.startsWith(ROUTES.setupAttributes(productModelId, componentId) + "/"))
 
   const navItems = [
     {
@@ -63,9 +81,9 @@ export const SetupSidebar = ({ components = [], isLoadingComponents = false }: P
           "lg:shrink-0",
         )}
       >
-        <div className={cn("flex h-full flex-col", isOpen ? "p-6" : "p-2")}>
+        <div className={cn("flex h-full flex-col", isOpen ? "p-4" : "p-2")}>
           <div
-            className={cn("mb-6 flex items-center", isOpen ? "justify-between" : "justify-center")}
+            className={cn("mb-4 flex items-center", isOpen ? "justify-between" : "justify-center")}
           >
             {isOpen ? (
               <>
@@ -73,16 +91,16 @@ export const SetupSidebar = ({ components = [], isLoadingComponents = false }: P
                   as="h2"
                   variant="display-sm"
                   weight="semibold"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 truncate"
                 >
-                  <SettingsIcon className="size-5" />
-                  {t("navigation.title")}
+                  <SettingsIcon className="size-5 shrink-0" />
+                  <span className="truncate">{t("navigation.title")}</span>
                 </Typography>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={toggle}
-                  className="hover:bg-accent"
+                  className="shrink-0 hover:bg-accent"
                   aria-label="Collapse sidebar"
                 >
                   <ChevronLeftIcon className="size-4" />
@@ -96,12 +114,12 @@ export const SetupSidebar = ({ components = [], isLoadingComponents = false }: P
                 className="w-full hover:bg-accent"
                 aria-label="Expand sidebar"
               >
-                <ChevronLeftIcon className="size-4 rotate-180" />
+                <ChevronRightIcon className="size-4" />
               </Button>
             )}
           </div>
 
-          <nav className="space-y-1 overflow-y-auto">
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
               const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
               const Icon = item.icon
@@ -128,15 +146,35 @@ export const SetupSidebar = ({ components = [], isLoadingComponents = false }: P
                     {isOpen && <span className="truncate">{item.label}</span>}
                   </Link>
 
-                  {/* Show components when on a product model page */}
                   {showComponents && (
-                    <div className="ml-4 space-y-1 border-l pl-3">
+                    <div className="ml-3 space-y-0.5 border-l border-border pl-3">
+                      {productModelName && (
+                        <div className="mt-1 mb-2 px-2">
+                          <Typography
+                            as="p"
+                            variant="body-sm"
+                            weight="semibold"
+                            className="truncate text-muted-foreground"
+                          >
+                            {productModelName}
+                          </Typography>
+                          {currentComponent && (
+                            <Typography
+                              as="p"
+                              variant="body-sm"
+                              className="truncate text-muted-foreground/80"
+                            >
+                              {currentComponent.label}
+                            </Typography>
+                          )}
+                        </div>
+                      )}
                       {isLoadingComponents ? (
-                        <div className="space-y-2">
+                        <div className="space-y-2 py-1">
                           {Array.from({ length: 3 }).map((_, i) => (
                             <Skeleton
                               key={i}
-                              className="h-8 w-full"
+                              className="h-7 w-full"
                             />
                           ))}
                         </div>
@@ -145,34 +183,35 @@ export const SetupSidebar = ({ components = [], isLoadingComponents = false }: P
                           <Link
                             href={ROUTES.setupComponents(productModelId)}
                             className={cn(
-                              "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-                              pathname.includes("/components") &&
-                                !pathname.includes(productModelId + "/components/")
+                              "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                              pathname === ROUTES.setupComponents(productModelId)
                                 ? "bg-primary/10 text-primary"
                                 : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                             )}
                           >
-                            <ChevronRightIcon className="size-3 shrink-0" />
+                            <ListIcon className="size-3.5 shrink-0" />
                             <span className="truncate">{t("navigation.allComponents")}</span>
                           </Link>
                           {sortedComponents.map((component) => {
-                            const isComponentActive = pathname.includes(
-                              `/product-models/${productModelId}/components/${component.id}`,
+                            const attributesHref = ROUTES.setupAttributes(
+                              productModelId,
+                              component.id,
                             )
+                            const isAttributesActive = isOnAttributes(component.id)
 
                             return (
                               <Link
                                 key={component.id}
-                                href={ROUTES.setupComponents(productModelId)}
+                                href={attributesHref}
                                 className={cn(
-                                  "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs transition-colors",
-                                  isComponentActive
-                                    ? "bg-primary/10 font-medium text-primary"
+                                  "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                                  isAttributesActive
+                                    ? "bg-primary/10 text-primary"
                                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                                 )}
                                 title={component.description ?? undefined}
                               >
-                                <PackageIcon className="size-3 shrink-0" />
+                                <PackageIcon className="size-3.5 shrink-0" />
                                 <span className="truncate">{component.label}</span>
                               </Link>
                             )
@@ -188,7 +227,6 @@ export const SetupSidebar = ({ components = [], isLoadingComponents = false }: P
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
       {isOpen && (
         <div
           className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"

@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { Button } from "@workspace/ui/components/button"
 
 import { getSession } from "@/lib/auth/session"
-import { Link } from "@/lib/i18n/navigation"
+import { Link, redirect } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 type Props = {
@@ -16,9 +16,14 @@ export default async function Page({ params }: Props) {
   // Enable static rendering
   setRequestLocale(locale)
 
-  const t = await getTranslations({ locale })
   const { session } = await getSession()
   const isLoggedIn = Boolean(session?.isValid ?? false)
+
+  if (isLoggedIn) {
+    redirect({ href: ROUTES.setupProductModels, locale })
+  }
+
+  const t = await getTranslations({ locale })
 
   return (
     <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-8">
@@ -27,13 +32,11 @@ export default async function Page({ params }: Props) {
         <p className="text-lg text-muted-foreground sm:text-xl">{t("HomePage.description")}</p>
       </div>
 
-      {isLoggedIn && (
-        <div className="flex gap-4">
-          <Button asChild>
-            <Link href={ROUTES.setup}>{t("HomePage.setupCta")}</Link>
-          </Button>
-        </div>
-      )}
+      <div className="flex gap-4">
+        <Button asChild>
+          <Link href={ROUTES.login}>{t("HomePage.loginButton")}</Link>
+        </Button>
+      </div>
     </div>
   )
 }

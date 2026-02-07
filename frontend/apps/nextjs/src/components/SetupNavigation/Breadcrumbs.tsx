@@ -131,6 +131,17 @@ export const Breadcrumbs = ({
               href: ROUTES.setupAttributes(productModelId, componentId),
             })
           }
+
+          // Add Options if we're in options section (attributes/[attributeId]/options)
+          if (segments.includes("options")) {
+            const attributeId = segments[segments.indexOf("attributes") + 1]
+            if (attributeId) {
+              breadcrumbs.push({
+                label: tSetup("navigation.options"),
+                href: ROUTES.setupAttributeOptions(productModelId, componentId, attributeId),
+              })
+            }
+          }
         }
       }
     }

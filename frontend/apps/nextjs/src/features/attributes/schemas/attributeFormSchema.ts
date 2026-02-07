@@ -17,6 +17,7 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
       maxInt: z.number().int().optional().nullable(),
       minDecimal: z.number().optional().nullable(),
       maxDecimal: z.number().optional().nullable(),
+      unit: z.string().optional().nullable(),
       sortOrder: z.number().int().min(0).optional().nullable(),
     })
     .refine(
@@ -47,13 +48,14 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // ENUM/BOOLEAN: should not have numeric fields
+        // ENUM/BOOLEAN: should not have numeric fields or unit
         if (data.type === "ENUM" || data.type === "BOOLEAN") {
           return (
             data.minInt == null &&
             data.maxInt == null &&
             data.minDecimal == null &&
-            data.maxDecimal == null
+            data.maxDecimal == null &&
+            (data.unit == null || data.unit === "")
           )
         }
         return true

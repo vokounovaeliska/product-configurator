@@ -12,6 +12,7 @@ export const getComponentFormSchema = (t: TFunction<"Components">) =>
       .min(1, t("form.errorMessages.labelRequiredMessage")),
     description: z.string().optional().nullable(),
     sortOrder: z.number().int().min(0).optional().nullable(),
+    imageZIndex: z.number().int().min(0).optional().nullable(),
   })
 
 export type ComponentFormSchema = z.infer<ReturnType<typeof getComponentFormSchema>>
