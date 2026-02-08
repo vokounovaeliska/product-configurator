@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import type { SubmitHandler } from "react-hook-form"
 import { useForm } from "react-hook-form"
@@ -15,8 +16,11 @@ import {
   FormMessage,
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
+import { Popover } from "@workspace/ui/components/popover"
 import { Select } from "@workspace/ui/components/select"
+import { cn } from "@workspace/ui/lib/utils"
 
+import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributePricingRuleCreateDto } from "@/api/pricingTypes"
 
@@ -68,21 +72,43 @@ export const CreatePricingRuleDialog = ({
     limit: 100,
   })
   const attributes = [...(attributesData?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
+  const selectedAttributeCode = form.watch("attributeCode")
+  const selectedAttribute = attributes.find((a) => a.code === selectedAttributeCode)
+  const isEnumAttribute = selectedAttribute?.type === "ENUM"
+  const { data: optionsData } = useAttributeOptionsList(
+    productModelId,
+    selectedComponentId,
+    selectedAttribute?.id ?? "",
+    { enabled: Boolean(selectedAttribute?.id && isEnumAttribute) },
+  )
+  const enumOptions = [...(optionsData ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
 
   const handleSubmit: SubmitHandler<PricingRuleFormSchema> = async (values) => {
     const componentId =
       values.componentId === NO_COMPONENT_VALUE || values.componentId == null
         ? undefined
         : values.componentId
-    await onSubmit({
+    const baseBody: Omit<AttributePricingRuleCreateDto, "value" | "toValue"> = {
       componentId,
       attributeCode: values.attributeCode,
       operator: values.operator,
-      value: values.value,
-      toValue: values.toValue ?? undefined,
       priceDeltaCents: values.priceDeltaCents,
       pricePerUnitCents: values.pricePerUnitCents ?? undefined,
-    })
+    }
+    const valuesForSubmit =
+      isEnumAttribute && values.operator === "EQ" && values.value.includes(",")
+        ? values.value
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean)
+        : [values.value]
+    for (const value of valuesForSubmit) {
+      await onSubmit({
+        ...baseBody,
+        value,
+        toValue: values.toValue ?? undefined,
+      })
+    }
     onOpenChange(false)
   }
 
@@ -191,18 +217,148 @@ export const CreatePricingRuleDialog = ({
             <FormField
               control={form.control}
               name="value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("create.value")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="e.g. 100 or OAK_01"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const selectedSet = new Set(
+                  field.value
+                    ? field.value
+                        .split(",")
+                        .map((v) => v.trim())
+                        .filter(Boolean)
+                    : [],
+                )
+                const toggleOption = (optValue: string) => {
+                  const next = new Set(selectedSet)
+                  if (next.has(optValue)) next.delete(optValue)
+                  else next.add(optValue)
+                  field.onChange([...next].join(","))
+                }
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      {isEnumAttribute && form.watch("operator") === "EQ"
+                        ? t("create.enumOptionsLabel")
+                        : t("create.value")}
+                    </FormLabel>
+                    {isEnumAttribute ? (
+                      enumOptions.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">{t("create.enumNoOptions")}</p>
+                      ) : form.watch("operator") === "EQ" ? (
+                        <Popover>
+                          <FormControl>
+                            <Popover.Trigger asChild>
+                              <button
+                                type="button"
+                                className={cn(
+                                  "flex min-h-9 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm transition-colors",
+                                  "hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+                                  "disabled:cursor-not-allowed disabled:opacity-50",
+                                )}
+                              >
+                                <span className="flex min-w-0 flex-1 flex-wrap gap-2">
+                                  {selectedSet.size === 0 ? (
+                                    <span className="text-muted-foreground">
+                                      {t("create.valuePlaceholderOption")}
+                                    </span>
+                                  ) : (
+                                    Array.from(selectedSet).map((val) => {
+                                      const opt = enumOptions.find((o) => o.value === val)
+                                      const label = opt ? opt.label || opt.value : val
+                                      return (
+                                        <span
+                                          key={val}
+                                          className="inline-flex items-center gap-1 rounded border border-border bg-muted/50 px-2 py-0.5 text-sm text-foreground"
+                                        >
+                                          {label}
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.preventDefault()
+                                              e.stopPropagation()
+                                              toggleOption(val)
+                                            }}
+                                            className="rounded p-0.5 hover:bg-muted"
+                                            aria-label={t("create.enumClear")}
+                                          >
+                                            <XIcon className="size-3.5 text-muted-foreground" />
+                                          </button>
+                                        </span>
+                                      )
+                                    })
+                                  )}
+                                </span>
+                                <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+                              </button>
+                            </Popover.Trigger>
+                          </FormControl>
+                          <Popover.Content
+                            align="start"
+                            className="max-h-60 w-[var(--radix-popover-trigger-width)] overflow-y-auto rounded-md border bg-popover p-1 shadow-md"
+                          >
+                            {enumOptions.map((opt) => {
+                              const isSelected = selectedSet.has(opt.value)
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => toggleOption(opt.value)}
+                                  className={cn(
+                                    "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm",
+                                    "hover:bg-muted/80",
+                                    isSelected && "bg-muted/60",
+                                  )}
+                                >
+                                  {isSelected ? (
+                                    <CheckIcon className="size-3.5 shrink-0 text-foreground" />
+                                  ) : (
+                                    <span
+                                      className="size-3.5 shrink-0"
+                                      aria-hidden
+                                    />
+                                  )}
+                                  <span className={isSelected ? "font-medium" : ""}>
+                                    {opt.label || opt.value}
+                                  </span>
+                                </button>
+                              )
+                            })}
+                          </Popover.Content>
+                        </Popover>
+                      ) : (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <Select.Trigger>
+                              <Select.Trigger.Value
+                                placeholder={t("create.valuePlaceholderOption")}
+                              />
+                            </Select.Trigger>
+                          </FormControl>
+                          <Select.Content>
+                            {enumOptions.map((opt) => (
+                              <Select.Content.Item
+                                key={opt.id}
+                                value={opt.value}
+                              >
+                                {opt.label || opt.value}
+                              </Select.Content.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                      )
+                    ) : (
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="e.g. 100 or OAK_01"
+                        />
+                      </FormControl>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
             {form.watch("operator") === "BETWEEN" && (
               <FormField
@@ -211,13 +367,38 @@ export const CreatePricingRuleDialog = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{t("create.rangeTo")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
+                    {isEnumAttribute && enumOptions.length > 0 ? (
+                      <Select
                         value={field.value ?? ""}
-                        onChange={(e) => field.onChange(e.target.value || null)}
-                      />
-                    </FormControl>
+                        onValueChange={(v) => field.onChange(v || null)}
+                      >
+                        <FormControl>
+                          <Select.Trigger>
+                            <Select.Trigger.Value
+                              placeholder={t("create.valuePlaceholderOption")}
+                            />
+                          </Select.Trigger>
+                        </FormControl>
+                        <Select.Content>
+                          {enumOptions.map((opt) => (
+                            <Select.Content.Item
+                              key={opt.id}
+                              value={opt.value}
+                            >
+                              {opt.label || opt.value}
+                            </Select.Content.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    ) : (
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => field.onChange(e.target.value || null)}
+                        />
+                      </FormControl>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

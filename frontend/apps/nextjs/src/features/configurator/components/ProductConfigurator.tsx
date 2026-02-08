@@ -9,7 +9,7 @@ import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 
-import { useConfigurationPrice } from "@/features/configurator/hooks/useConfigurationPrice"
+import { useComputedPrice } from "@/features/configurator/hooks/useComputedPrice"
 
 import { ComponentSelector } from "./ComponentSelector"
 import { PriceDisplay } from "./PriceDisplay"
@@ -60,13 +60,16 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
 
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
 
-  const { data: pricingRules = [] } = usePricingRulesList(productModelId)
-  const { data: pricePreview, isLoading: isPriceLoading } = useConfigurationPrice(
+  const { data: pricingRules = [] } = usePricingRulesList({ productModelId })
+  const { data: computedPrice, isLoading: isPriceLoading } = useComputedPrice(
     productModelId,
+    productModel.price,
     components,
     selectedOptionsByComponent,
     selectedOtherValuesByComponent,
+    pricingRules,
   )
+  const shouldShowPriceSkeleton = isPriceLoading && computedPrice == null
 
   const handleSelectComponent = useCallback((componentId: string) => {
     setSelectedComponentId(componentId)
@@ -141,10 +144,10 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
         <div className="space-y-6">
           <PriceDisplay
             basePrice={productModel.price}
-            totalPrice={pricePreview?.totalPrice}
-            modifiersCents={pricePreview?.modifiersCents ?? 0}
+            totalPrice={computedPrice?.totalPrice}
+            modifiersCents={computedPrice?.modifiersCents ?? 0}
             currency={productModel.currency}
-            isLoading={isPriceLoading}
+            isLoading={shouldShowPriceSkeleton}
           />
           <ComponentSelector
             components={components}

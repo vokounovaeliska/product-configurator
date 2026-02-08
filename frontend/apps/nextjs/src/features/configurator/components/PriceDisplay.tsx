@@ -12,7 +12,10 @@ type Props = {
   totalPrice?: number
   /** Modifier in cents (added to base). When > 0, shown as "+ X" next to base. */
   modifiersCents?: number
+  /** True when no price data yet (show skeleton). */
   isLoading?: boolean
+  /** True when refetching in background (show subtle updating state, keep showing current price). */
+  isUpdating?: boolean
 }
 
 export const PriceDisplay = ({
@@ -21,6 +24,7 @@ export const PriceDisplay = ({
   totalPrice: totalPriceProp,
   modifiersCents = 0,
   isLoading,
+  isUpdating = false,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -67,9 +71,15 @@ export const PriceDisplay = ({
           as="p"
           variant="display-lg"
           weight="bold"
-          className="text-primary"
+          className={`text-primary ${isUpdating ? "opacity-70" : ""}`}
         >
           {formatPrice(totalPrice, currency)}
+          {isUpdating && (
+            <span
+              className="ml-2 inline-block size-4 animate-spin rounded-full border-2 border-primary border-t-transparent"
+              aria-hidden
+            />
+          )}
         </Typography>
         {hasModifier && (
           <Typography

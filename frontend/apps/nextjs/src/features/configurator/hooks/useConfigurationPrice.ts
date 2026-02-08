@@ -1,6 +1,7 @@
 "use client"
 
-import { useQueries, useQuery } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import { keepPreviousData, useQueries, useQuery } from "@tanstack/react-query"
 
 import { getAttributesListQueryOptions } from "@/api/attributeQueries"
 import type { AttributeOptionDto } from "@/api/attributeTypes"
@@ -10,6 +11,8 @@ import type { ConfigurationPreviewSelectionDto } from "@/api/pricingTypes"
 
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
 type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
+
+const PREVIEW_DEBOUNCE_MS = 80
 
 const configurationPreviewKey = (
   productModelId: string,
@@ -79,10 +82,24 @@ export function useConfigurationPrice(
       )
     : []
 
+  const selectionsKey = JSON.stringify(selections)
+  const [debouncedSelectionsKey, setDebouncedSelectionsKey] = useState(selectionsKey)
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSelectionsKey(selectionsKey), PREVIEW_DEBOUNCE_MS)
+    return () => clearTimeout(t)
+  }, [selectionsKey])
+
+  const debouncedSelections =
+    debouncedSelectionsKey === selectionsKey
+      ? selections
+      : (JSON.parse(debouncedSelectionsKey) as ConfigurationPreviewSelectionDto[])
+
   const previewQuery = useQuery({
-    queryKey: configurationPreviewKey(productModelId, selections),
-    queryFn: () => fetchConfigurationPreview(productModelId, { selections }),
+    queryKey: configurationPreviewKey(productModelId, debouncedSelections),
+    queryFn: () => fetchConfigurationPreview(productModelId, { selections: debouncedSelections }),
     enabled: Boolean(productModelId && hasAllAttributesLoaded && components.length > 0),
+    placeholderData: keepPreviousData,
+    staleTime: 15_000,
   })
 
   return previewQuery
