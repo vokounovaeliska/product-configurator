@@ -470,7 +470,7 @@ export const EditPricingRuleDialog = ({
               name="priceDeltaCents"
               render={({ field }) => {
                 const isPerUnit = form.watch("pricePerUnitCents") != null
-                if (isPerUnit) return null
+                if (isPerUnit) return <></>
                 return (
                   <FormItem className="pt-3">
                     <FormLabel>{t("create.price")}</FormLabel>
@@ -506,7 +506,7 @@ export const EditPricingRuleDialog = ({
               name="pricePerUnitCents"
               render={({ field }) => {
                 const isPerUnit = field.value != null
-                if (!isPerUnit) return null
+                if (!isPerUnit) return <></>
                 return (
                   <FormItem className="pt-3">
                     <FormLabel>{t("create.pricePerUnit")}</FormLabel>
