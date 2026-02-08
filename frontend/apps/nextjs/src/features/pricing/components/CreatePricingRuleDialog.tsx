@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -18,11 +19,13 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { Popover } from "@workspace/ui/components/popover"
 import { Select } from "@workspace/ui/components/select"
+import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
 import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributePricingRuleCreateDto } from "@/api/pricingTypes"
+import { DualRangeSlider } from "@/components/DualRangeSlider"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing dialog needs components list */
 import { useComponentsList } from "@/features/components/api/componentQueries"
@@ -31,6 +34,8 @@ import { pricingRuleFormSchema, type PricingRuleFormSchema } from "../schemas/pr
 
 const NO_COMPONENT_VALUE = "__none__"
 
+const isNumericType = (t: string) => t === "INTEGER" || t === "DECIMAL"
+
 type Props = {
   productModelId: string
   isOpen: boolean
@@ -38,6 +43,12 @@ type Props = {
   onSubmit: (body: AttributePricingRuleCreateDto) => Promise<void>
   isSubmitting: boolean
   currency?: string
+  /** When set (e.g. from attribute pricing page), component and attribute are preset and hidden. */
+  presetComponentId?: string
+  presetAttributeCode?: string
+  /** When set (e.g. from attribute pricing page), unit/range/type shown before attribute loads. */
+  presetNumericUnit?: string | null
+  presetNumericRange?: { min: number; max: number }
 }
 
 export const CreatePricingRuleDialog = ({
@@ -47,15 +58,21 @@ export const CreatePricingRuleDialog = ({
   onSubmit,
   isSubmitting,
   currency,
+  presetComponentId,
+  presetAttributeCode,
+  presetNumericUnit,
+  presetNumericRange,
 }: Props) => {
   const t = useTranslations("Pricing")
+  const hasPreset = Boolean(presetComponentId && presetAttributeCode)
+
   const { data: componentsData } = useComponentsList(productModelId, { limit: 100 })
   const components = componentsData?.items ?? []
 
   const form = useForm<PricingRuleFormSchema>({
     defaultValues: {
-      componentId: NO_COMPONENT_VALUE,
-      attributeCode: "",
+      componentId: presetComponentId ?? NO_COMPONENT_VALUE,
+      attributeCode: presetAttributeCode ?? "",
       operator: "EQ",
       value: "",
       toValue: null,
@@ -67,14 +84,59 @@ export const CreatePricingRuleDialog = ({
 
   const rawComponentId = form.watch("componentId")
   const selectedComponentId =
-    rawComponentId === NO_COMPONENT_VALUE || rawComponentId == null ? "" : rawComponentId
-  const { data: attributesData } = useAttributesList(productModelId, selectedComponentId, {
-    limit: 100,
-  })
+    hasPreset && presetComponentId
+      ? presetComponentId
+      : rawComponentId === NO_COMPONENT_VALUE || rawComponentId == null
+        ? ""
+        : rawComponentId
+
+  const { data: attributesData } = useAttributesList(
+    productModelId,
+    selectedComponentId,
+    { limit: 100 },
+    { enabled: Boolean(selectedComponentId) },
+  )
   const attributes = [...(attributesData?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
   const selectedAttributeCode = form.watch("attributeCode")
-  const selectedAttribute = attributes.find((a) => a.code === selectedAttributeCode)
+  const selectedAttribute = attributes.find(
+    (a) => a.code === (hasPreset ? presetAttributeCode : selectedAttributeCode),
+  )
   const isEnumAttribute = selectedAttribute?.type === "ENUM"
+  const isNumericAttribute =
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- boolean OR intent
+    (selectedAttribute && isNumericType(selectedAttribute.type)) ||
+    (hasPreset && presetNumericRange != null)
+  const numericRange: { min: number; max: number } | undefined =
+    selectedAttribute && isNumericAttribute
+      ? selectedAttribute.type === "INTEGER"
+        ? {
+            min: selectedAttribute.minInt ?? 0,
+            max: selectedAttribute.maxInt ?? 100,
+          }
+        : {
+            min: selectedAttribute.minDecimal ?? 0,
+            max: selectedAttribute.maxDecimal ?? 100,
+          }
+      : presetNumericRange
+  const numericUnit = selectedAttribute?.unit?.trim() ?? presetNumericUnit?.trim() ?? null
+  const isDecimal = selectedAttribute?.type === "DECIMAL"
+  const rangeStep =
+    isDecimal && numericRange ? Math.max((numericRange.max - numericRange.min) / 100, 0.01) : 1
+
+  useEffect(() => {
+    if (isOpen && hasPreset && presetComponentId && presetAttributeCode) {
+      form.reset({
+        componentId: presetComponentId,
+        attributeCode: presetAttributeCode,
+        operator: "EQ",
+        value: "",
+        toValue: null,
+        priceDeltaCents: 0,
+        pricePerUnitCents: null,
+      })
+    }
+  }, [isOpen, hasPreset, presetComponentId, presetAttributeCode, form])
+
   const { data: optionsData } = useAttributeOptionsList(
     productModelId,
     selectedComponentId,
@@ -126,68 +188,92 @@ export const CreatePricingRuleDialog = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="componentId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("create.componentId")}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value ?? NO_COMPONENT_VALUE}
-                  >
-                    <FormControl>
-                      <Select.Trigger>
-                        <Select.Trigger.Value placeholder="—" />
-                      </Select.Trigger>
-                    </FormControl>
-                    <Select.Content>
-                      <Select.Content.Item value={NO_COMPONENT_VALUE}>—</Select.Content.Item>
-                      {components.map((c) => (
-                        <Select.Content.Item
-                          key={c.id}
-                          value={c.id}
-                        >
-                          {c.label} ({c.code})
-                        </Select.Content.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="attributeCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("create.attributeCode")}</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value ?? ""}
-                    disabled={!selectedComponentId}
-                  >
-                    <FormControl>
-                      <Select.Trigger>
-                        <Select.Trigger.Value placeholder={t("create.attributeCodePlaceholder")} />
-                      </Select.Trigger>
-                    </FormControl>
-                    <Select.Content>
-                      {attributes.map((a) => (
-                        <Select.Content.Item
-                          key={a.id}
-                          value={a.code}
-                        >
-                          {a.label ?? a.code} ({a.code})
-                        </Select.Content.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {hasPreset ? (
+              <div className="space-y-1">
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  weight="medium"
+                  className="text-muted-foreground"
+                >
+                  {selectedAttribute?.label ?? presetAttributeCode} ({presetAttributeCode})
+                </Typography>
+              </div>
+            ) : (
+              <>
+                <FormField
+                  control={form.control}
+                  name="componentId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("create.componentId")}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? NO_COMPONENT_VALUE}
+                      >
+                        <FormControl>
+                          <Select.Trigger>
+                            <Select.Trigger.Value placeholder="—" />
+                          </Select.Trigger>
+                        </FormControl>
+                        <Select.Content>
+                          <Select.Content.Item value={NO_COMPONENT_VALUE}>—</Select.Content.Item>
+                          {components.map((c) => (
+                            <Select.Content.Item
+                              key={c.id}
+                              value={c.id}
+                            >
+                              {c.label} ({c.code})
+                            </Select.Content.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="attributeCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("create.attributeCode")}</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? ""}
+                        disabled={!selectedComponentId}
+                      >
+                        <FormControl>
+                          <Select.Trigger>
+                            <Select.Trigger.Value
+                              placeholder={t("create.attributeCodePlaceholder")}
+                            />
+                          </Select.Trigger>
+                        </FormControl>
+                        <Select.Content>
+                          {attributes.map((a) => (
+                            <Select.Content.Item
+                              key={a.id}
+                              value={a.code}
+                            >
+                              {a.label ?? a.code} ({a.code})
+                            </Select.Content.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="medium"
+            >
+              {t("create.rangeSection")}
+            </Typography>
             <FormField
               control={form.control}
               name="operator"
@@ -214,223 +300,453 @@ export const CreatePricingRuleDialog = ({
                 </FormItem>
               )}
             />
+            {form.watch("operator") === "BETWEEN" && isNumericAttribute && numericRange ? (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="value"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {numericUnit
+                            ? t("create.rangeMinWithUnit", { unit: numericUnit })
+                            : t("create.rangeMin")}
+                        </FormLabel>
+                        <div className="flex items-center gap-2">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step={isDecimal ? 0.01 : 1}
+                              min={numericRange.min}
+                              max={numericRange.max}
+                              placeholder={
+                                numericUnit
+                                  ? t("create.rangeFromPlaceholderWithUnit", { unit: numericUnit })
+                                  : t("create.rangeMinPlaceholder")
+                              }
+                              {...field}
+                            />
+                          </FormControl>
+                          {numericUnit && (
+                            <Typography
+                              as="span"
+                              variant="body-sm"
+                              className="shrink-0 text-muted-foreground"
+                            >
+                              {numericUnit}
+                            </Typography>
+                          )}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="toValue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {numericUnit
+                            ? t("create.rangeMaxWithUnit", { unit: numericUnit })
+                            : t("create.rangeMax")}
+                        </FormLabel>
+                        <div className="flex items-center gap-2">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step={isDecimal ? 0.01 : 1}
+                              min={numericRange.min}
+                              max={numericRange.max}
+                              placeholder={
+                                numericUnit
+                                  ? t("create.rangeToPlaceholderWithUnit", { unit: numericUnit })
+                                  : t("create.rangeMaxPlaceholder")
+                              }
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.value === "" ? null : e.target.value)
+                              }
+                            />
+                          </FormControl>
+                          {numericUnit && (
+                            <Typography
+                              as="span"
+                              variant="body-sm"
+                              className="shrink-0 text-muted-foreground"
+                            >
+                              {numericUnit}
+                            </Typography>
+                          )}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <DualRangeSlider
+                  min={numericRange.min}
+                  max={numericRange.max}
+                  step={rangeStep}
+                  fromValue={Number(form.watch("value") || numericRange.min)}
+                  toValue={(() => {
+                    const v = form.watch("toValue")
+                    return v != null && v !== "" ? Number(v) : numericRange.max
+                  })()}
+                  onFromChange={(v) => form.setValue("value", String(v))}
+                  onToChange={(v) => form.setValue("toValue", String(v))}
+                  isSliderOnly
+                />
+              </>
+            ) : (
+              <>
+                <FormField
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => {
+                    const selectedSet = new Set(
+                      field.value
+                        ? field.value
+                            .split(",")
+                            .map((v) => v.trim())
+                            .filter(Boolean)
+                        : [],
+                    )
+                    const toggleOption = (optValue: string) => {
+                      const next = new Set(selectedSet)
+                      if (next.has(optValue)) next.delete(optValue)
+                      else next.add(optValue)
+                      field.onChange([...next].join(","))
+                    }
+                    return (
+                      <FormItem>
+                        <FormLabel>
+                          {isEnumAttribute && form.watch("operator") === "EQ"
+                            ? t("create.enumOptionsLabel")
+                            : t("create.value")}
+                        </FormLabel>
+                        {isEnumAttribute ? (
+                          enumOptions.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                              {t("create.enumNoOptions")}
+                            </p>
+                          ) : form.watch("operator") === "EQ" ? (
+                            <Popover>
+                              <FormControl>
+                                <Popover.Trigger asChild>
+                                  <button
+                                    type="button"
+                                    className={cn(
+                                      "flex min-h-9 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm transition-colors",
+                                      "hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+                                      "disabled:cursor-not-allowed disabled:opacity-50",
+                                    )}
+                                  >
+                                    <span className="flex min-w-0 flex-1 flex-wrap gap-2">
+                                      {selectedSet.size === 0 ? (
+                                        <span className="text-muted-foreground">
+                                          {t("create.valuePlaceholderOption")}
+                                        </span>
+                                      ) : (
+                                        Array.from(selectedSet).map((val) => {
+                                          const opt = enumOptions.find((o) => o.value === val)
+                                          const label = opt ? opt.label || opt.value : val
+                                          return (
+                                            <span
+                                              key={val}
+                                              className="inline-flex items-center gap-1 rounded border border-border bg-muted/50 px-2 py-0.5 text-sm text-foreground"
+                                            >
+                                              {label}
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.preventDefault()
+                                                  e.stopPropagation()
+                                                  toggleOption(val)
+                                                }}
+                                                className="rounded p-0.5 hover:bg-muted"
+                                                aria-label={t("create.enumClear")}
+                                              >
+                                                <XIcon className="size-3.5 text-muted-foreground" />
+                                              </button>
+                                            </span>
+                                          )
+                                        })
+                                      )}
+                                    </span>
+                                    <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+                                  </button>
+                                </Popover.Trigger>
+                              </FormControl>
+                              <Popover.Content
+                                align="start"
+                                className="max-h-60 w-[var(--radix-popover-trigger-width)] overflow-y-auto rounded-md border bg-popover p-1 shadow-md"
+                              >
+                                {enumOptions.map((opt) => {
+                                  const isSelected = selectedSet.has(opt.value)
+                                  return (
+                                    <button
+                                      key={opt.id}
+                                      type="button"
+                                      onClick={() => toggleOption(opt.value)}
+                                      className={cn(
+                                        "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm",
+                                        "hover:bg-muted/80",
+                                        isSelected && "bg-muted/60",
+                                      )}
+                                    >
+                                      {isSelected ? (
+                                        <CheckIcon className="size-3.5 shrink-0 text-foreground" />
+                                      ) : (
+                                        <span
+                                          className="size-3.5 shrink-0"
+                                          aria-hidden
+                                        />
+                                      )}
+                                      <span className={isSelected ? "font-medium" : ""}>
+                                        {opt.label || opt.value}
+                                      </span>
+                                    </button>
+                                  )
+                                })}
+                              </Popover.Content>
+                            </Popover>
+                          ) : (
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <FormControl>
+                                <Select.Trigger>
+                                  <Select.Trigger.Value
+                                    placeholder={t("create.valuePlaceholderOption")}
+                                  />
+                                </Select.Trigger>
+                              </FormControl>
+                              <Select.Content>
+                                {enumOptions.map((opt) => (
+                                  <Select.Content.Item
+                                    key={opt.id}
+                                    value={opt.value}
+                                  >
+                                    {opt.label || opt.value}
+                                  </Select.Content.Item>
+                                ))}
+                              </Select.Content>
+                            </Select>
+                          )
+                        ) : (
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="e.g. 100 or OAK_01"
+                            />
+                          </FormControl>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )
+                  }}
+                />
+                {form.watch("operator") === "BETWEEN" && (
+                  <FormField
+                    control={form.control}
+                    name="toValue"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("create.rangeTo")}</FormLabel>
+                        {isEnumAttribute && enumOptions.length > 0 ? (
+                          <Select
+                            value={field.value ?? ""}
+                            onValueChange={(v) => field.onChange(v || null)}
+                          >
+                            <FormControl>
+                              <Select.Trigger>
+                                <Select.Trigger.Value
+                                  placeholder={t("create.valuePlaceholderOption")}
+                                />
+                              </Select.Trigger>
+                            </FormControl>
+                            <Select.Content>
+                              {enumOptions.map((opt) => (
+                                <Select.Content.Item
+                                  key={opt.id}
+                                  value={opt.value}
+                                >
+                                  {opt.label || opt.value}
+                                </Select.Content.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                        ) : (
+                          <FormControl>
+                            <Input
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) => field.onChange(e.target.value || null)}
+                            />
+                          </FormControl>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </>
+            )}
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="medium"
+            >
+              {t("create.priceSection")}
+            </Typography>
+            <Typography
+              as="p"
+              variant="body-sm"
+              className="text-muted-foreground"
+            >
+              {t("create.priceTypeOneOnly")}
+            </Typography>
+            <div
+              role="tablist"
+              aria-label={t("create.priceSection")}
+              className="flex border-b border-border"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={form.watch("pricePerUnitCents") == null}
+                className={cn(
+                  "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
+                  form.watch("pricePerUnitCents") == null
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                )}
+                onClick={() => form.setValue("pricePerUnitCents", null)}
+              >
+                {t("create.priceTypeFixed")}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={form.watch("pricePerUnitCents") != null}
+                className={cn(
+                  "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
+                  form.watch("pricePerUnitCents") != null
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                )}
+                onClick={() => {
+                  form.setValue("pricePerUnitCents", form.getValues("pricePerUnitCents") ?? 0)
+                  form.setValue("priceDeltaCents", 0)
+                }}
+              >
+                {t("create.priceTypePerUnit")}
+              </button>
+            </div>
             <FormField
               control={form.control}
-              name="value"
+              name="priceDeltaCents"
               render={({ field }) => {
-                const selectedSet = new Set(
-                  field.value
-                    ? field.value
-                        .split(",")
-                        .map((v) => v.trim())
-                        .filter(Boolean)
-                    : [],
-                )
-                const toggleOption = (optValue: string) => {
-                  const next = new Set(selectedSet)
-                  if (next.has(optValue)) next.delete(optValue)
-                  else next.add(optValue)
-                  field.onChange([...next].join(","))
-                }
-                return (
-                  <FormItem>
-                    <FormLabel>
-                      {isEnumAttribute && form.watch("operator") === "EQ"
-                        ? t("create.enumOptionsLabel")
-                        : t("create.value")}
-                    </FormLabel>
-                    {isEnumAttribute ? (
-                      enumOptions.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">{t("create.enumNoOptions")}</p>
-                      ) : form.watch("operator") === "EQ" ? (
-                        <Popover>
-                          <FormControl>
-                            <Popover.Trigger asChild>
-                              <button
-                                type="button"
-                                className={cn(
-                                  "flex min-h-9 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-sm transition-colors",
-                                  "hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
-                                  "disabled:cursor-not-allowed disabled:opacity-50",
-                                )}
-                              >
-                                <span className="flex min-w-0 flex-1 flex-wrap gap-2">
-                                  {selectedSet.size === 0 ? (
-                                    <span className="text-muted-foreground">
-                                      {t("create.valuePlaceholderOption")}
-                                    </span>
-                                  ) : (
-                                    Array.from(selectedSet).map((val) => {
-                                      const opt = enumOptions.find((o) => o.value === val)
-                                      const label = opt ? opt.label || opt.value : val
-                                      return (
-                                        <span
-                                          key={val}
-                                          className="inline-flex items-center gap-1 rounded border border-border bg-muted/50 px-2 py-0.5 text-sm text-foreground"
-                                        >
-                                          {label}
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.preventDefault()
-                                              e.stopPropagation()
-                                              toggleOption(val)
-                                            }}
-                                            className="rounded p-0.5 hover:bg-muted"
-                                            aria-label={t("create.enumClear")}
-                                          >
-                                            <XIcon className="size-3.5 text-muted-foreground" />
-                                          </button>
-                                        </span>
-                                      )
-                                    })
-                                  )}
-                                </span>
-                                <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
-                              </button>
-                            </Popover.Trigger>
-                          </FormControl>
-                          <Popover.Content
-                            align="start"
-                            className="max-h-60 w-[var(--radix-popover-trigger-width)] overflow-y-auto rounded-md border bg-popover p-1 shadow-md"
-                          >
-                            {enumOptions.map((opt) => {
-                              const isSelected = selectedSet.has(opt.value)
-                              return (
-                                <button
-                                  key={opt.id}
-                                  type="button"
-                                  onClick={() => toggleOption(opt.value)}
-                                  className={cn(
-                                    "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm",
-                                    "hover:bg-muted/80",
-                                    isSelected && "bg-muted/60",
-                                  )}
-                                >
-                                  {isSelected ? (
-                                    <CheckIcon className="size-3.5 shrink-0 text-foreground" />
-                                  ) : (
-                                    <span
-                                      className="size-3.5 shrink-0"
-                                      aria-hidden
-                                    />
-                                  )}
-                                  <span className={isSelected ? "font-medium" : ""}>
-                                    {opt.label || opt.value}
-                                  </span>
-                                </button>
-                              )
-                            })}
-                          </Popover.Content>
-                        </Popover>
-                      ) : (
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <FormControl>
-                            <Select.Trigger>
-                              <Select.Trigger.Value
-                                placeholder={t("create.valuePlaceholderOption")}
-                              />
-                            </Select.Trigger>
-                          </FormControl>
-                          <Select.Content>
-                            {enumOptions.map((opt) => (
-                              <Select.Content.Item
-                                key={opt.id}
-                                value={opt.value}
-                              >
-                                {opt.label || opt.value}
-                              </Select.Content.Item>
-                            ))}
-                          </Select.Content>
-                        </Select>
-                      )
-                    ) : (
+                const isPerUnit = form.watch("pricePerUnitCents") != null
+                if (isPerUnit) {
+                  return (
+                    <FormItem className="hidden">
                       <FormControl>
-                        <Input
+                        <input
+                          type="hidden"
                           {...field}
-                          placeholder="e.g. 100 or OAK_01"
+                          value={String(field.value ?? 0)}
+                          onChange={(e) => field.onChange(Number(e.target.value) || 0)}
                         />
                       </FormControl>
-                    )}
+                    </FormItem>
+                  )
+                }
+                return (
+                  <FormItem className="pt-3">
+                    <FormLabel>{t("create.price")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0"
+                        value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
+                        }}
+                      />
+                    </FormControl>
+                    <Typography
+                      as="p"
+                      variant="body-sm"
+                      className="text-muted-foreground"
+                    >
+                      {currency
+                        ? t("create.priceHintInCurrency", { currency })
+                        : t("create.priceHint")}
+                    </Typography>
                     <FormMessage />
                   </FormItem>
                 )
               }}
             />
-            {form.watch("operator") === "BETWEEN" && (
-              <FormField
-                control={form.control}
-                name="toValue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("create.rangeTo")}</FormLabel>
-                    {isEnumAttribute && enumOptions.length > 0 ? (
-                      <Select
-                        value={field.value ?? ""}
-                        onValueChange={(v) => field.onChange(v || null)}
-                      >
-                        <FormControl>
-                          <Select.Trigger>
-                            <Select.Trigger.Value
-                              placeholder={t("create.valuePlaceholderOption")}
-                            />
-                          </Select.Trigger>
-                        </FormControl>
-                        <Select.Content>
-                          {enumOptions.map((opt) => (
-                            <Select.Content.Item
-                              key={opt.id}
-                              value={opt.value}
-                            >
-                              {opt.label || opt.value}
-                            </Select.Content.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                    ) : (
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) => field.onChange(e.target.value || null)}
-                        />
-                      </FormControl>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
             <FormField
               control={form.control}
-              name="priceDeltaCents"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("create.price")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={field.value !== 0 ? field.value / 100 : ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? 0 : Math.round(Number(e.target.value) * 100),
-                        )
-                      }
-                    />
-                  </FormControl>
-                  {currency && (
-                    <p className="text-xs text-muted-foreground">
-                      {t("create.priceHintInCurrency", { currency })}
-                    </p>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
+              name="pricePerUnitCents"
+              render={({ field }) => {
+                const isPerUnit = field.value != null
+                if (!isPerUnit) {
+                  return (
+                    <FormItem className="hidden">
+                      <FormControl>
+                        <input
+                          type="hidden"
+                          {...field}
+                          value={field.value != null ? String(field.value) : ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === "" ? null : Number(e.target.value) || 0,
+                            )
+                          }
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )
+                }
+                return (
+                  <FormItem className="pt-3">
+                    <FormLabel>{t("create.pricePerUnit")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0"
+                        value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          field.onChange(v === "" ? null : Math.round(Number(v) * 100))
+                        }}
+                      />
+                    </FormControl>
+                    <Typography
+                      as="p"
+                      variant="body-sm"
+                      className="text-muted-foreground"
+                    >
+                      {currency
+                        ? t("create.pricePerUnitHintInCurrency", { currency })
+                        : t("create.pricePerUnitHint")}
+                    </Typography>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
             <div className="flex justify-end gap-2 pt-2">
               <Button
