@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { pricingRulesKey } from "@/api/pricingRulesQueries"
+import { pricingRulesKeyPrefix } from "@/api/pricingRulesQueries"
 import type {
   AttributePricingRuleCreateDto,
   AttributePricingRuleDto,
@@ -21,7 +21,7 @@ export const useCreatePricingRule = (productModelId: string) => {
         .json<AttributePricingRuleDto>()
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: pricingRulesKey(productModelId) })
+      void queryClient.invalidateQueries({ queryKey: pricingRulesKeyPrefix(productModelId) })
     },
   })
 }
@@ -43,7 +43,7 @@ export const useUpdatePricingRule = (productModelId: string) => {
         .json<AttributePricingRuleDto>()
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: pricingRulesKey(productModelId) })
+      void queryClient.invalidateQueries({ queryKey: pricingRulesKeyPrefix(productModelId) })
     },
   })
 }
@@ -55,7 +55,7 @@ export const useDeletePricingRule = (productModelId: string) => {
       await api.delete(`products/api/v1/product-models/${productModelId}/pricing-rules/${ruleId}`)
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: pricingRulesKey(productModelId) })
+      void queryClient.invalidateQueries({ queryKey: pricingRulesKeyPrefix(productModelId) })
     },
   })
 }

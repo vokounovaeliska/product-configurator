@@ -185,6 +185,14 @@ export const Breadcrumbs = ({
         })
       }
 
+      // Pricing rules at product model level (no component/attribute in path)
+      if (segments.includes("pricing-rules") && !segments.includes("attributes")) {
+        breadcrumbs.push({
+          label: tSetup("navigation.pricingRules"),
+          href: ROUTES.setupPricingRules(resolvedProductModelId),
+        })
+      }
+
       // Add Components section (names only, no "Components" label)
       if (segments.includes("components") && resolvedComponentId) {
         if (resolvedComponentName) {

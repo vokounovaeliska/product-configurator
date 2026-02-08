@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useQuery } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
@@ -19,8 +20,11 @@ import { Select } from "@workspace/ui/components/select"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
-import type { AttributeType } from "@/api/attributeTypes"
+import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
+import { useAttributesList } from "@/api/attributeQueries"
+import type { AttributeDto, AttributeType } from "@/api/attributeTypes"
 import type { AttributePricingRuleDto, AttributePricingRuleUpdateDto } from "@/api/pricingTypes"
+import { api } from "@/lib/api/restClient"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing dialog needs components list */
 import { useComponentsList } from "@/features/components/api/componentQueries"
@@ -67,6 +71,67 @@ export const EditPricingRuleDialog = ({
     limit: 100,
   })
   const components = componentsData?.items ?? []
+
+  const shouldResolveByCode =
+    !rule.componentId && !fixedAttribute?.componentId && Boolean(rule.attributeCode)
+  const { data: resolvedByCode } = useQuery({
+    queryKey: [
+      "attributeByCode",
+      rule.productModelId,
+      rule.attributeCode,
+      components
+        .map((c) => c.id)
+        .sort()
+        .join(","),
+    ],
+    queryFn: async (): Promise<{ attribute: AttributeDto; componentId: string } | null> => {
+      for (const comp of components) {
+        const res = await api
+          .get(
+            `products/api/v1/product-models/${rule.productModelId}/components/${comp.id}/attributes`,
+            {
+              searchParams: { limit: 500 },
+            },
+          )
+          .json<{ items?: AttributeDto[] }>()
+        const items = res.items ?? []
+        const attr = items.find(
+          (a) =>
+            a.code === rule.attributeCode ||
+            a.code.toLowerCase() === rule.attributeCode.toLowerCase(),
+        )
+        if (attr) return { attribute: attr, componentId: comp.id }
+      }
+      return null
+    },
+    enabled:
+      shouldResolveByCode && rule.productModelId.length > 0 && components.length > 0 && isOpen,
+  })
+
+  const editComponentId =
+    rule.componentId ?? fixedAttribute?.componentId ?? resolvedByCode?.componentId ?? ""
+  const { data: attributesData } = useAttributesList(
+    rule.productModelId,
+    editComponentId,
+    { limit: 500 },
+    { enabled: Boolean(rule.productModelId && editComponentId) },
+  )
+  const editAttributes = attributesData?.items ?? []
+  const selectedAttribute =
+    editAttributes.find(
+      (a) =>
+        a.code === rule.attributeCode || a.code.toLowerCase() === rule.attributeCode.toLowerCase(),
+    ) ??
+    resolvedByCode?.attribute ??
+    undefined
+  const isEnumAttribute = selectedAttribute?.type === "ENUM"
+  const { data: optionsData } = useAttributeOptionsList(
+    rule.productModelId,
+    editComponentId,
+    selectedAttribute?.id ?? "",
+    { enabled: Boolean(selectedAttribute?.id && isEnumAttribute) },
+  )
+  const enumOptions = [...(optionsData ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
 
   const numericRange = attributeContext?.numericRange
   const numericUnit = attributeContext?.unit?.trim() ?? null
@@ -339,20 +404,50 @@ export const EditPricingRuleDialog = ({
                             : t("create.rangeFrom")
                           : t("create.value")}
                       </FormLabel>
-                      <FormControl>
-                        <Input
-                          type={isNumericMode ? "number" : "text"}
-                          step={isDecimal ? 0.01 : 1}
-                          placeholder={
-                            form.watch("operator") === "BETWEEN"
-                              ? t("create.rangeFromPlaceholder")
-                              : isNumericMode
-                                ? "e.g. 800"
-                                : "e.g. OAK_01 or 1400"
-                          }
-                          {...field}
-                        />
-                      </FormControl>
+                      {isEnumAttribute ? (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          disabled={enumOptions.length === 0}
+                        >
+                          <FormControl>
+                            <Select.Trigger>
+                              <Select.Trigger.Value
+                                placeholder={
+                                  enumOptions.length === 0
+                                    ? t("create.enumNoOptions")
+                                    : t("create.valuePlaceholderOption")
+                                }
+                              />
+                            </Select.Trigger>
+                          </FormControl>
+                          <Select.Content>
+                            {enumOptions.map((opt) => (
+                              <Select.Content.Item
+                                key={opt.id}
+                                value={opt.value}
+                              >
+                                {opt.label || opt.value}
+                              </Select.Content.Item>
+                            ))}
+                          </Select.Content>
+                        </Select>
+                      ) : (
+                        <FormControl>
+                          <Input
+                            type={isNumericMode ? "number" : "text"}
+                            step={isDecimal ? 0.01 : 1}
+                            placeholder={
+                              form.watch("operator") === "BETWEEN"
+                                ? t("create.rangeFromPlaceholder")
+                                : isNumericMode
+                                  ? "e.g. 800"
+                                  : "e.g. OAK_01 or 1400"
+                            }
+                            {...field}
+                          />
+                        </FormControl>
+                      )}
                       {isNumericMode && numericUnit && (
                         <Typography
                           as="span"
@@ -378,23 +473,53 @@ export const EditPricingRuleDialog = ({
                             ? t("create.rangeToWithUnit", { unit: numericUnit })
                             : t("create.rangeTo")}
                         </FormLabel>
-                        <FormControl>
-                          <Input
-                            type={isNumericMode ? "number" : "text"}
-                            step={isDecimal ? 0.01 : 1}
-                            placeholder={
-                              numericUnit
-                                ? t("create.rangeToPlaceholderWithUnit", {
-                                    unit: numericUnit,
-                                  })
-                                : t("create.rangeToPlaceholder")
-                            }
+                        {isEnumAttribute ? (
+                          <Select
                             value={field.value ?? ""}
-                            onChange={(e) =>
-                              field.onChange(e.target.value === "" ? null : e.target.value)
-                            }
-                          />
-                        </FormControl>
+                            onValueChange={(v) => field.onChange(v || null)}
+                            disabled={enumOptions.length === 0}
+                          >
+                            <FormControl>
+                              <Select.Trigger>
+                                <Select.Trigger.Value
+                                  placeholder={
+                                    enumOptions.length === 0
+                                      ? t("create.enumNoOptions")
+                                      : t("create.valuePlaceholderOption")
+                                  }
+                                />
+                              </Select.Trigger>
+                            </FormControl>
+                            <Select.Content>
+                              {enumOptions.map((opt) => (
+                                <Select.Content.Item
+                                  key={opt.id}
+                                  value={opt.value}
+                                >
+                                  {opt.label || opt.value}
+                                </Select.Content.Item>
+                              ))}
+                            </Select.Content>
+                          </Select>
+                        ) : (
+                          <FormControl>
+                            <Input
+                              type={isNumericMode ? "number" : "text"}
+                              step={isDecimal ? 0.01 : 1}
+                              placeholder={
+                                numericUnit
+                                  ? t("create.rangeToPlaceholderWithUnit", {
+                                      unit: numericUnit,
+                                    })
+                                  : t("create.rangeToPlaceholder")
+                              }
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.value === "" ? null : e.target.value)
+                              }
+                            />
+                          </FormControl>
+                        )}
                         {isNumericMode && numericUnit && (
                           <Typography
                             as="span"
@@ -470,7 +595,20 @@ export const EditPricingRuleDialog = ({
               name="priceDeltaCents"
               render={({ field }) => {
                 const isPerUnit = form.watch("pricePerUnitCents") != null
-                if (isPerUnit) return <></>
+                if (isPerUnit) {
+                  return (
+                    <FormItem className="hidden">
+                      <FormControl>
+                        <input
+                          type="hidden"
+                          {...field}
+                          value={String(field.value ?? 0)}
+                          onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )
+                }
                 return (
                   <FormItem className="pt-3">
                     <FormLabel>{t("create.price")}</FormLabel>
@@ -506,7 +644,24 @@ export const EditPricingRuleDialog = ({
               name="pricePerUnitCents"
               render={({ field }) => {
                 const isPerUnit = field.value != null
-                if (!isPerUnit) return <></>
+                if (!isPerUnit) {
+                  return (
+                    <FormItem className="hidden">
+                      <FormControl>
+                        <input
+                          type="hidden"
+                          {...field}
+                          value={field.value != null ? String(field.value) : ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === "" ? null : Number(e.target.value) || 0,
+                            )
+                          }
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )
+                }
                 return (
                   <FormItem className="pt-3">
                     <FormLabel>{t("create.pricePerUnit")}</FormLabel>

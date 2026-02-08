@@ -25,18 +25,26 @@ import { EditPricingRuleDialog } from "./EditPricingRuleDialog"
 
 type Props = {
   productModelId: string
+  /** When set (e.g. from attribute pricing page), only rules for this attribute are shown and filter is preset. */
+  presetComponentId?: string
+  presetAttributeCode?: string
 }
 
 const FILTER_OPERATOR_ALL = "all"
 const FILTER_PRICE_TYPE_ALL = "all"
 
-export const PricingRulesList = ({ productModelId }: Props) => {
+export const PricingRulesList = ({
+  productModelId,
+  presetComponentId,
+  presetAttributeCode,
+}: Props) => {
   const t = useTranslations("Pricing")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingRule, setEditingRule] = useState<AttributePricingRuleDto | null>(null)
-  const [filterAttributeCode, setFilterAttributeCode] = useState("")
+  const [filterAttributeCode, setFilterAttributeCode] = useState(presetAttributeCode ?? "")
   const [filterOperator, setFilterOperator] = useState<string>(FILTER_OPERATOR_ALL)
   const [filterPriceType, setFilterPriceType] = useState<string>(FILTER_PRICE_TYPE_ALL)
+  const isAttributeScoped = Boolean(presetComponentId && presetAttributeCode)
 
   const { data: productModel } = useProductModel(productModelId)
   const { data: componentsData } = useComponentsList(productModelId, { limit: 100 })
@@ -54,7 +62,15 @@ export const PricingRulesList = ({ productModelId }: Props) => {
       minimumFractionDigits: 2,
     }).format(amountInMainUnit)
 
-  const { data: rules = [], isLoading, error } = usePricingRulesList(productModelId)
+  const {
+    data: rules = [],
+    isLoading,
+    error,
+  } = usePricingRulesList({
+    productModelId,
+    componentId: presetComponentId,
+    attributeCode: presetAttributeCode,
+  })
   const createMutation = useCreatePricingRule(productModelId)
   const updateMutation = useUpdatePricingRule(productModelId)
   const deleteMutation = useDeletePricingRule(productModelId)
@@ -66,7 +82,11 @@ export const PricingRulesList = ({ productModelId }: Props) => {
 
   const filteredRules = useMemo(() => {
     return rules.filter((rule) => {
-      if (filterAttributeCode !== "" && rule.attributeCode !== filterAttributeCode) {
+      if (isAttributeScoped) {
+        if (rule.componentId !== presetComponentId || rule.attributeCode !== presetAttributeCode) {
+          return false
+        }
+      } else if (filterAttributeCode !== "" && rule.attributeCode !== filterAttributeCode) {
         return false
       }
       if (filterOperator !== FILTER_OPERATOR_ALL && rule.operator !== filterOperator) {
@@ -79,7 +99,15 @@ export const PricingRulesList = ({ productModelId }: Props) => {
       }
       return true
     })
-  }, [rules, filterAttributeCode, filterOperator, filterPriceType])
+  }, [
+    rules,
+    filterAttributeCode,
+    filterOperator,
+    filterPriceType,
+    isAttributeScoped,
+    presetComponentId,
+    presetAttributeCode,
+  ])
 
   const handleDelete = (ruleId: string) => {
     if (window.confirm(t("list.deleteButton") + "?")) {
@@ -143,22 +171,24 @@ export const PricingRulesList = ({ productModelId }: Props) => {
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-3">
-            <select
-              value={filterAttributeCode}
-              onChange={(e) => setFilterAttributeCode(e.target.value)}
-              className="h-9 w-[180px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label={t("list.filterAttribute")}
-            >
-              <option value="">{t("list.filterAttributeAll")}</option>
-              {attributeCodes.map((code) => (
-                <option
-                  key={code}
-                  value={code}
-                >
-                  {code}
-                </option>
-              ))}
-            </select>
+            {!isAttributeScoped && (
+              <select
+                value={filterAttributeCode}
+                onChange={(e) => setFilterAttributeCode(e.target.value)}
+                className="h-9 w-[180px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={t("list.filterAttribute")}
+              >
+                <option value="">{t("list.filterAttributeAll")}</option>
+                {attributeCodes.map((code) => (
+                  <option
+                    key={code}
+                    value={code}
+                  >
+                    {code}
+                  </option>
+                ))}
+              </select>
+            )}
             <select
               value={filterOperator}
               onChange={(e) => setFilterOperator(e.target.value)}
@@ -296,6 +326,11 @@ export const PricingRulesList = ({ productModelId }: Props) => {
             setEditingRule(null)
           }}
           isSubmitting={updateMutation.isPending}
+          fixedAttribute={
+            isAttributeScoped && presetComponentId && presetAttributeCode
+              ? { componentId: presetComponentId, attributeCode: presetAttributeCode }
+              : undefined
+          }
         />
       )}
     </div>

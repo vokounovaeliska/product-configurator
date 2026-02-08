@@ -2,7 +2,7 @@ import ky, { HTTPError } from "ky"
 
 import { env } from "@/config/env"
 
-import { getAccessTokenClient, setAccessTokenClient } from "../auth/authCookies"
+import { getAccessToken, getAccessTokenClient, setAccessTokenClient } from "../auth/authCookies"
 
 // Track if we're currently refreshing to avoid multiple simultaneous refresh attempts
 let isRefreshing = false
@@ -128,3 +128,23 @@ export const publicApi = ky.create({
   prefixUrl: env.NEXT_PUBLIC_REST_API_URL,
   credentials: "include", // Include cookies in requests (needed for refresh token)
 })
+
+/**
+ * Creates an authenticated API client for use in Server Components / server context.
+ * Uses the access token from cookies (read via next/headers). Call this once per request.
+ */
+export async function getServerApi() {
+  const token = await getAccessToken()
+  return ky.create({
+    prefixUrl: env.NEXT_PUBLIC_REST_API_URL,
+    hooks: {
+      beforeRequest: [
+        (request) => {
+          if (token) {
+            request.headers.set("Authorization", `Bearer ${token}`)
+          }
+        },
+      ],
+    },
+  })
+}
