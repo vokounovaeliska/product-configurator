@@ -49,6 +49,13 @@ const AttributePricingPage = async (props: Props) => {
   let componentName: string | undefined
   let attributeName: string | undefined
   let attributeCode: string | undefined
+  let presetAttributeContext:
+    | {
+        unit: string | null
+        attributeType: AttributeDto["type"]
+        numericRange?: { min: number; max: number }
+      }
+    | undefined
   let hasLoadError = false
   try {
     const serverApi = await getServerApi()
@@ -67,6 +74,22 @@ const AttributePricingPage = async (props: Props) => {
     componentName = component.label
     attributeName = attribute.label
     attributeCode = attribute.code
+    presetAttributeContext = {
+      unit: attribute.unit ?? null,
+      attributeType: attribute.type,
+      numericRange:
+        attribute.type === "INTEGER"
+          ? {
+              min: attribute.minInt ?? 0,
+              max: attribute.maxInt ?? 100,
+            }
+          : attribute.type === "DECIMAL"
+            ? {
+                min: attribute.minDecimal ?? 0,
+                max: attribute.maxDecimal ?? 100,
+              }
+            : undefined,
+    }
   } catch {
     hasLoadError = true
   }
@@ -113,6 +136,7 @@ const AttributePricingPage = async (props: Props) => {
           productModelId={productModelId}
           presetComponentId={componentId}
           presetAttributeCode={attributeCode}
+          presetAttributeContext={presetAttributeContext}
         />
       )}
     </div>

@@ -1,12 +1,15 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useQueries } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { getAttributesListQueryOptions } from "@/api/attributeQueries"
+import type { AttributeType } from "@/api/attributeTypes"
 import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing needs components and product model */
@@ -23,11 +26,19 @@ import {
 import { CreatePricingRuleDialog } from "./CreatePricingRuleDialog"
 import { EditPricingRuleDialog } from "./EditPricingRuleDialog"
 
+export type PresetAttributeContext = {
+  unit?: string | null
+  attributeType?: AttributeType
+  numericRange?: { min: number; max: number }
+}
+
 type Props = {
   productModelId: string
   /** When set (e.g. from attribute pricing page), only rules for this attribute are shown and filter is preset. */
   presetComponentId?: string
   presetAttributeCode?: string
+  /** When set (e.g. from attribute pricing page), unit/type/range are shown in Create/Edit before attribute loads. */
+  presetAttributeContext?: PresetAttributeContext
 }
 
 const FILTER_OPERATOR_ALL = "all"
@@ -37,6 +48,7 @@ export const PricingRulesList = ({
   productModelId,
   presetComponentId,
   presetAttributeCode,
+  presetAttributeContext,
 }: Props) => {
   const t = useTranslations("Pricing")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -53,6 +65,48 @@ export const PricingRulesList = ({
     () => Object.fromEntries(components.map((c) => [c.id, c])),
     [components],
   )
+
+  const attributeQueries = useQueries({
+    queries: components.map((c) =>
+      getAttributesListQueryOptions(productModelId, c.id, { limit: 500 }),
+    ),
+  })
+  const attributeUnitByComponentAndCode = useMemo(() => {
+    const norm = (s: string) => s.toLowerCase().trim()
+    const map = new Map<string, string | null>()
+    attributeQueries.forEach((q, idx) => {
+      const componentId = components[idx]?.id
+      if (!componentId) return
+      const items = q.data?.items ?? []
+      items.forEach((a) => {
+        const key = `${componentId}:${norm(a.code)}`
+        if (!map.has(key)) map.set(key, a.unit?.trim() ?? null)
+      })
+    })
+    const codeOnlyMap = new Map<string, string | null>()
+    attributeQueries.forEach((q) => {
+      const items = q.data?.items ?? []
+      items.forEach((a) => {
+        const code = norm(a.code)
+        if (!codeOnlyMap.has(code)) codeOnlyMap.set(code, a.unit?.trim() ?? null)
+      })
+    })
+    return { byKey: map, byCode: codeOnlyMap }
+    // useQueries result is not referentially stable; we need to recompute when any query data changes
+  }, [attributeQueries, components]) // eslint-disable-line @tanstack/query/no-unstable-deps
+
+  const getUnitForRule = (rule: AttributePricingRuleDto): string | null => {
+    const code = rule.attributeCode?.toLowerCase().trim() ?? ""
+    if (!code) return null
+    if (rule.componentId) {
+      return (
+        attributeUnitByComponentAndCode.byKey.get(`${rule.componentId}:${code}`) ??
+        attributeUnitByComponentAndCode.byCode.get(code) ??
+        null
+      )
+    }
+    return attributeUnitByComponentAndCode.byCode.get(code) ?? null
+  }
 
   const currency = productModel?.currency ?? "CZK"
   const formatPrice = (amountInMainUnit: number) =>
@@ -269,7 +323,7 @@ export const PricingRulesList = ({
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
                         {rule.pricePerUnitCents != null
-                          ? formatPrice(rule.pricePerUnitCents / 100)
+                          ? `${formatPrice(rule.pricePerUnitCents / 100)} / —`
                           : formatPrice(rule.priceDeltaCents / 100)}
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -310,6 +364,10 @@ export const PricingRulesList = ({
           setIsCreateOpen(false)
         }}
         isSubmitting={createMutation.isPending}
+        presetComponentId={isAttributeScoped ? presetComponentId : undefined}
+        presetAttributeCode={isAttributeScoped ? presetAttributeCode : undefined}
+        presetNumericUnit={isAttributeScoped ? presetAttributeContext?.unit : undefined}
+        presetNumericRange={isAttributeScoped ? presetAttributeContext?.numericRange : undefined}
       />
 
       {editingRule && (
@@ -329,6 +387,21 @@ export const PricingRulesList = ({
           fixedAttribute={
             isAttributeScoped && presetComponentId && presetAttributeCode
               ? { componentId: presetComponentId, attributeCode: presetAttributeCode }
+              : editingRule.componentId && editingRule.attributeCode
+                ? {
+                    componentId: editingRule.componentId,
+                    attributeCode: editingRule.attributeCode,
+                  }
+                : undefined
+          }
+          attributeUnit={getUnitForRule(editingRule) ?? presetAttributeContext?.unit}
+          attributeContext={
+            isAttributeScoped && presetAttributeContext
+              ? {
+                  attributeType: presetAttributeContext.attributeType ?? "INTEGER",
+                  unit: presetAttributeContext.unit,
+                  numericRange: presetAttributeContext.numericRange,
+                }
               : undefined
           }
         />

@@ -17,6 +17,8 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { Select } from "@workspace/ui/components/select"
 
+import { DualRangeSlider } from "@/components/DualRangeSlider"
+
 import { useCreateAttribute } from "../api/attributeQueries"
 import { getAttributeFormSchema, type AttributeFormSchema } from "../schemas/attributeFormSchema"
 
@@ -202,53 +204,28 @@ export const CreateAttributeDialog = ({
             {/* INTEGER type fields */}
             {selectedType === "INTEGER" && (
               <>
-                <FormField
-                  control={form.control}
-                  name="minInt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("create.minInt")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder={t("create.minIntPlaceholder")}
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === "" ? null : Number.parseInt(e.target.value, 10),
-                            )
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                <div className="space-y-2">
+                  <FormLabel>
+                    {t("create.minInt")} – {t("create.maxInt")}
+                  </FormLabel>
+                  <DualRangeSlider
+                    min={0}
+                    max={10000}
+                    step={1}
+                    fromValue={form.watch("minInt") ?? 0}
+                    toValue={form.watch("maxInt") ?? 10000}
+                    onFromChange={(v) => form.setValue("minInt", v)}
+                    onToChange={(v) => form.setValue("maxInt", v)}
+                    minLabel={t("create.minInt")}
+                    maxLabel={t("create.maxInt")}
+                  />
+                  {(form.formState.errors.minInt ?? form.formState.errors.maxInt) && (
+                    <p className="text-sm font-medium text-destructive">
+                      {form.formState.errors.minInt?.message ??
+                        form.formState.errors.maxInt?.message}
+                    </p>
                   )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="maxInt"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("create.maxInt")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder={t("create.maxIntPlaceholder")}
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === "" ? null : Number.parseInt(e.target.value, 10),
-                            )
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -276,55 +253,28 @@ export const CreateAttributeDialog = ({
             {/* DECIMAL type fields */}
             {selectedType === "DECIMAL" && (
               <>
-                <FormField
-                  control={form.control}
-                  name="minDecimal"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("create.minDecimal")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder={t("create.minDecimalPlaceholder")}
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === "" ? null : Number.parseFloat(e.target.value),
-                            )
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                <div className="space-y-2">
+                  <FormLabel>
+                    {t("create.minDecimal")} – {t("create.maxDecimal")}
+                  </FormLabel>
+                  <DualRangeSlider
+                    min={0}
+                    max={100}
+                    step={0.01}
+                    fromValue={form.watch("minDecimal") ?? 0}
+                    toValue={form.watch("maxDecimal") ?? 100}
+                    onFromChange={(v) => form.setValue("minDecimal", v)}
+                    onToChange={(v) => form.setValue("maxDecimal", v)}
+                    minLabel={t("create.minDecimal")}
+                    maxLabel={t("create.maxDecimal")}
+                  />
+                  {(form.formState.errors.minDecimal ?? form.formState.errors.maxDecimal) && (
+                    <p className="text-sm font-medium text-destructive">
+                      {form.formState.errors.minDecimal?.message ??
+                        form.formState.errors.maxDecimal?.message}
+                    </p>
                   )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="maxDecimal"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("create.maxDecimal")}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder={t("create.maxDecimalPlaceholder")}
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === "" ? null : Number.parseFloat(e.target.value),
-                            )
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                </div>
 
                 <FormField
                   control={form.control}

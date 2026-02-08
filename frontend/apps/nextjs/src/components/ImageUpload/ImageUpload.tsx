@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react"
 import { UploadIcon } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@workspace/ui/components/button"
 import { Label } from "@workspace/ui/components/label"
 import { Typography } from "@workspace/ui/components/typography"
@@ -71,10 +72,12 @@ export const ImageUpload = ({
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
         {displayUrl ? (
           <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border bg-muted">
-            <img
+            <Image
               src={displayUrl}
               alt="Preview"
-              className="h-full w-full object-contain"
+              fill
+              className="object-contain"
+              sizes="96px"
             />
           </div>
         ) : (
