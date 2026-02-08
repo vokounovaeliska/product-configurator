@@ -7,10 +7,12 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
 import { AttributeConfiguration } from "./AttributeConfiguration"
 
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
+type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
 
 type Props = {
   components: ComponentDto[]
@@ -23,6 +25,10 @@ type Props = {
     attributeId: string,
     option: AttributeOptionDto | null,
   ) => void
+  selectedOtherValuesByComponent?: SelectedOtherValuesByComponent
+  onOtherValueChange?: (componentId: string, attributeId: string, value: number | boolean) => void
+  pricingRules?: AttributePricingRuleDto[]
+  currency?: string
 }
 
 export const ComponentSelector = ({
@@ -32,6 +38,10 @@ export const ComponentSelector = ({
   productModelId,
   selectedOptionsByComponent,
   onSelectOption,
+  selectedOtherValuesByComponent = {},
+  onOtherValueChange,
+  pricingRules = [],
+  currency,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -104,6 +114,17 @@ export const ComponentSelector = ({
                       onSelectOption={(attributeId, option) =>
                         onSelectOption(component.id, attributeId, option)
                       }
+                      selectedOtherValuesByAttribute={
+                        selectedOtherValuesByComponent[component.id] ?? {}
+                      }
+                      onOtherChange={
+                        onOtherValueChange
+                          ? (attributeId, value) =>
+                              onOtherValueChange(component.id, attributeId, value)
+                          : undefined
+                      }
+                      pricingRules={pricingRules}
+                      currency={currency}
                     />
                   </div>
                 )}

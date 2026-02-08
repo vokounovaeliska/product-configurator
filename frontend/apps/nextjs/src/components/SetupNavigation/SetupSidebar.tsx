@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  BanknoteIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   LayoutDashboardIcon,
@@ -178,7 +179,7 @@ export const SetupSidebar = ({
                             />
                           ))}
                         </div>
-                      ) : sortedComponents.length > 0 ? (
+                      ) : (
                         <>
                           <Link
                             href={ROUTES.setupComponents(productModelId)}
@@ -192,32 +193,46 @@ export const SetupSidebar = ({
                             <ListIcon className="size-3.5 shrink-0" />
                             <span className="truncate">{t("navigation.allComponents")}</span>
                           </Link>
-                          {sortedComponents.map((component) => {
-                            const attributesHref = ROUTES.setupAttributes(
-                              productModelId,
-                              component.id,
-                            )
-                            const isAttributesActive = isOnAttributes(component.id)
+                          <Link
+                            href={ROUTES.setupPricingRules(productModelId)}
+                            className={cn(
+                              "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                              pathname === ROUTES.setupPricingRules(productModelId)
+                                ? "bg-primary/10 text-primary"
+                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                            )}
+                          >
+                            <BanknoteIcon className="size-3.5 shrink-0" />
+                            <span className="truncate">{t("navigation.pricingRules")}</span>
+                          </Link>
+                          {sortedComponents.length > 0
+                            ? sortedComponents.map((component) => {
+                                const attributesHref = ROUTES.setupAttributes(
+                                  productModelId,
+                                  component.id,
+                                )
+                                const isAttributesActive = isOnAttributes(component.id)
 
-                            return (
-                              <Link
-                                key={component.id}
-                                href={attributesHref}
-                                className={cn(
-                                  "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-                                  isAttributesActive
-                                    ? "bg-primary/10 text-primary"
-                                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                                )}
-                                title={component.description ?? undefined}
-                              >
-                                <PackageIcon className="size-3.5 shrink-0" />
-                                <span className="truncate">{component.label}</span>
-                              </Link>
-                            )
-                          })}
+                                return (
+                                  <Link
+                                    key={component.id}
+                                    href={attributesHref}
+                                    className={cn(
+                                      "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                                      isAttributesActive
+                                        ? "bg-primary/10 text-primary"
+                                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                                    )}
+                                    title={component.description ?? undefined}
+                                  >
+                                    <PackageIcon className="size-3.5 shrink-0" />
+                                    <span className="truncate">{component.label}</span>
+                                  </Link>
+                                )
+                              })
+                            : null}
                         </>
-                      ) : null}
+                      )}
                     </div>
                   )}
                 </div>

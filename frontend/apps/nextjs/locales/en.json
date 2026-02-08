@@ -113,6 +113,8 @@
       "dashboard": "Dashboard",
       "imageLayers": "Image Layers",
       "options": "Options",
+      "pricing": "Pricing",
+      "pricingRules": "Pricing rules",
       "productModels": "Product Models",
       "title": "Setup"
     },
@@ -211,7 +213,12 @@
       "selectOption": "Select an option…",
       "noSelection": "— None —",
       "numberPlaceholder": "Enter value",
-      "booleanLabel": "Yes / No"
+      "booleanLabel": "Yes / No",
+      "optionPrice": "+ {amount}",
+      "priceTableOption": "Option",
+      "priceTablePrice": "Price",
+      "pricePerUnit": "Price per unit: {amount}",
+      "priceForRange": "Range: + {amount}"
     },
     "preview": {
       "placeholder": "Product Preview",
@@ -222,7 +229,8 @@
       "loadError": "Failed to load preview."
     },
     "price": {
-      "title": "Total Price"
+      "title": "Total Price",
+      "basePlusModifier": "{base} + {modifier}"
     }
   },
   "Components": {
@@ -302,6 +310,91 @@
       "title": "Components"
     }
   },
+  "Pricing": {
+    "title": "Pricing rules",
+    "description": "Define how attribute values affect the product price (fixed amount per option or incremental per unit).",
+    "attributePricing": {
+      "title": "Pricing for attribute",
+      "description": "Define how this attribute affects the product price.",
+      "descriptionWithAttribute": "Define how \"{attribute}\" affects the product price (fixed per option or per unit).",
+      "attributeNotFound": "Attribute not found.",
+      "listTitle": "Rules for {attribute}",
+      "emptyState": "No pricing rules for \"{attribute}\" yet. Add a rule to change price by value or range."
+    },
+    "list": {
+      "title": "Pricing rules",
+      "createButton": "Add rule",
+      "emptyState": "No pricing rules yet. Add rules to adjust price by attribute values.",
+      "errorMessage": "Failed to load pricing rules.",
+      "attributeCode": "Attribute",
+      "operator": "Type",
+      "value": "Value",
+      "toValue": "To value",
+      "columnAttribute": "Attribute",
+      "columnComponent": "Component",
+      "columnCondition": "Condition",
+      "columnPriceType": "Price type",
+      "columnPrice": "Price",
+      "columnActions": "Actions",
+      "filterAttribute": "Attribute",
+      "filterAttributeAll": "All attributes",
+      "filterOperator": "Rule type",
+      "filterOperatorAll": "All types",
+      "filterPriceType": "Price type",
+      "filterPriceTypeAll": "All",
+      "filterNoResults": "No rules match the filters.",
+      "priceFixed": "Price",
+      "pricePerUnit": "Per unit",
+      "operatorEq": "Equals",
+      "operatorBetween": "Range",
+      "deleteButton": "Delete",
+      "editButton": "Edit"
+    },
+    "create": {
+      "title": "Add pricing rule",
+      "attributeCode": "Attribute code",
+      "attributeCodePlaceholder": "Select attribute…",
+      "attributeCodeSelectComponentFirst": "Select component first",
+      "componentId": "Component",
+      "operator": "Rule type",
+      "value": "Value",
+      "toValue": "To value",
+      "rangeFrom": "From",
+      "rangeTo": "To",
+      "rangeMin": "Min",
+      "rangeMax": "Max",
+      "rangeMinWithUnit": "Min ({unit})",
+      "rangeMaxWithUnit": "Max ({unit})",
+      "rangeFromWithUnit": "From ({unit})",
+      "rangeToWithUnit": "To ({unit})",
+      "rangeFromPlaceholder": "Min value",
+      "rangeToPlaceholder": "Max value",
+      "rangeMinPlaceholder": "Attribute min",
+      "rangeMaxPlaceholder": "Attribute max",
+      "rangeFromPlaceholderWithUnit": "Min ({unit})",
+      "rangeToPlaceholderWithUnit": "Max ({unit})",
+      "valuePlaceholderWithUnit": "e.g. 800 ({unit})",
+      "price": "Price",
+      "priceHint": "Enter amount (e.g. 10.50)",
+      "priceHintInCurrency": "Enter amount in {currency} (e.g. 10.50)",
+      "pricePerUnit": "Price per unit",
+      "pricePerUnitHint": "Amount per unit (e.g. 0.50)",
+      "pricePerUnitHintInCurrency": "Amount per unit in {currency} (e.g. 0.50)",
+      "rangeSection": "Value range",
+      "priceSection": "Price",
+      "priceTypeFixed": "Fixed price",
+      "priceTypePerUnit": "Price per unit",
+      "priceTypeOneOnly": "Only one applies per rule",
+      "enumOptionsLabel": "Options (select one or more, same price for all)",
+      "enumNoOptions": "No options defined for this attribute. Add options in the attribute options page first.",
+      "cancelButton": "Cancel",
+      "submitButton": "Create"
+    },
+    "edit": {
+      "title": "Edit pricing rule",
+      "submitButton": "Save"
+    }
+  },
   "OptionImageEditor": {
     "title": "Option image editor",
     "description": "Select a region (magic wand or lasso), then save as PNG with transparent background at a fixed size so the configurator can stack options by z-index.",
@@ -339,6 +432,7 @@
       "deleteButton": "Delete",
       "editButton": "Edit",
       "manageOptionsButton": "Manage options",
+      "pricingButton": "Pricing",
       "required": "Required",
       "range": "Range",
       "sortOrder": "Sort Order"

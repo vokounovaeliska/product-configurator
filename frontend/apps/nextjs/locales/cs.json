@@ -112,6 +112,8 @@
       "dashboard": "Nástěnka",
       "imageLayers": "Obrazové vrstvy",
       "options": "Možnosti",
+      "pricing": "Cenění",
+      "pricingRules": "Cenová pravidla",
       "productModels": "Modely produktů",
       "title": "Nastavení"
     },
@@ -210,7 +212,12 @@
       "selectOption": "Vyberte možnost…",
       "noSelection": "— Žádná —",
       "numberPlaceholder": "Zadejte hodnotu",
-      "booleanLabel": "Ano / Ne"
+      "booleanLabel": "Ano / Ne",
+      "optionPrice": "+ {amount}",
+      "priceTableOption": "Možnost",
+      "priceTablePrice": "Cena",
+      "pricePerUnit": "Cena za jednotku: {amount}",
+      "priceForRange": "Rozsah: + {amount}"
     },
     "preview": {
       "placeholder": "Náhled produktu",
@@ -221,7 +228,8 @@
       "loadError": "Nepodařilo se načíst náhled."
     },
     "price": {
-      "title": "Celková cena"
+      "title": "Celková cena",
+      "basePlusModifier": "{base} + {modifier}"
     }
   },
   "Components": {
@@ -301,6 +309,91 @@
       "title": "Komponenty"
     }
   },
+  "Pricing": {
+    "title": "Cenová pravidla",
+    "description": "Definujte, jak hodnoty atributů ovlivňují cenu produktu (pevná částka za možnost nebo přírůstek za jednotku).",
+    "attributePricing": {
+      "title": "Cenění atributu",
+      "description": "Definujte, jak tento atribut ovlivňuje cenu produktu.",
+      "descriptionWithAttribute": "Definujte, jak „{attribute}“ ovlivňuje cenu produktu (pevně za možnost nebo za jednotku).",
+      "attributeNotFound": "Atribut nebyl nalezen.",
+      "listTitle": "Pravidla pro {attribute}",
+      "emptyState": "Zatím žádná cenová pravidla pro „{attribute}“. Přidejte pravidlo pro změnu ceny podle hodnoty nebo rozsahu."
+    },
+    "list": {
+      "title": "Cenová pravidla",
+      "createButton": "Přidat pravidlo",
+      "emptyState": "Zatím žádná cenová pravidla. Přidejte pravidla pro úpravu ceny podle hodnot atributů.",
+      "errorMessage": "Nepodařilo se načíst cenová pravidla.",
+      "attributeCode": "Atribut",
+      "operator": "Typ",
+      "value": "Hodnota",
+      "toValue": "Do hodnoty",
+      "columnAttribute": "Atribut",
+      "columnComponent": "Komponent",
+      "columnCondition": "Podmínka",
+      "columnPriceType": "Typ ceny",
+      "columnPrice": "Cena",
+      "columnActions": "Akce",
+      "filterAttribute": "Atribut",
+      "filterAttributeAll": "Všechny atributy",
+      "filterOperator": "Typ pravidla",
+      "filterOperatorAll": "Všechny typy",
+      "filterPriceType": "Typ ceny",
+      "filterPriceTypeAll": "Vše",
+      "filterNoResults": "Žádná pravidla nevyhovují filtrům.",
+      "priceFixed": "Cena",
+      "pricePerUnit": "Za jednotku",
+      "operatorEq": "Rovná se",
+      "operatorBetween": "Rozsah",
+      "deleteButton": "Smazat",
+      "editButton": "Upravit"
+    },
+    "create": {
+      "title": "Přidat cenové pravidlo",
+      "attributeCode": "Kód atributu",
+      "attributeCodePlaceholder": "Vyberte atribut…",
+      "attributeCodeSelectComponentFirst": "Nejdříve vyberte komponent",
+      "componentId": "Komponent",
+      "operator": "Typ pravidla",
+      "value": "Hodnota",
+      "toValue": "Do hodnoty",
+      "rangeFrom": "Od",
+      "rangeTo": "Do",
+      "rangeMin": "Min",
+      "rangeMax": "Max",
+      "rangeMinWithUnit": "Min ({unit})",
+      "rangeMaxWithUnit": "Max ({unit})",
+      "rangeFromWithUnit": "Od ({unit})",
+      "rangeToWithUnit": "Do ({unit})",
+      "rangeFromPlaceholder": "Min. hodnota",
+      "rangeToPlaceholder": "Max. hodnota",
+      "rangeMinPlaceholder": "Min. z atributu",
+      "rangeMaxPlaceholder": "Max. z atributu",
+      "rangeFromPlaceholderWithUnit": "Min. ({unit})",
+      "rangeToPlaceholderWithUnit": "Max. ({unit})",
+      "valuePlaceholderWithUnit": "např. 800 ({unit})",
+      "price": "Cena",
+      "priceHint": "Zadejte částku (např. 10,50)",
+      "priceHintInCurrency": "Zadejte částku v {currency} (např. 10,50)",
+      "pricePerUnit": "Cena za jednotku",
+      "pricePerUnitHint": "Částka za jednotku (např. 0,50)",
+      "pricePerUnitHintInCurrency": "Částka za jednotku v {currency} (např. 0,50)",
+      "rangeSection": "Rozsah hodnot",
+      "priceSection": "Cena",
+      "priceTypeFixed": "Pevná cena",
+      "priceTypePerUnit": "Cena za jednotku",
+      "priceTypeOneOnly": "U každého pravidla platí jen jeden typ",
+      "enumOptionsLabel": "Možnosti (vyberte jednu nebo více, stejná cena pro všechny)",
+      "enumNoOptions": "Pro tento atribut nejsou definovány žádné možnosti. Nejdříve přidejte možnosti na stránce možností atributu.",
+      "cancelButton": "Zrušit",
+      "submitButton": "Vytvořit"
+    },
+    "edit": {
+      "title": "Upravit cenové pravidlo",
+      "submitButton": "Uložit"
+    }
+  },
   "OptionImageEditor": {
     "title": "Editor obrázku možnosti",
     "description": "Vyberte oblast (kouzelná hůlka nebo laso) a uložte jako PNG s průhledným pozadím a pevnou velikostí, aby konfigurátor mohl skládat možnosti podle z-indexu.",
@@ -338,6 +431,7 @@
       "deleteButton": "Smazat",
       "editButton": "Upravit",
       "manageOptionsButton": "Spravovat možnosti",
+      "pricingButton": "Cenění",
       "required": "Povinné",
       "range": "Rozsah",
       "sortOrder": "Pořadí"

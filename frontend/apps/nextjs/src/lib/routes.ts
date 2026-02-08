@@ -9,7 +9,11 @@ export const ROUTES = {
     `/setup/product-models/${productModelId}/components/${componentId}/attributes`,
   setupAttributeOptions: (productModelId: string, componentId: string, attributeId: string) =>
     `/setup/product-models/${productModelId}/components/${componentId}/attributes/${attributeId}/options`,
+  setupAttributePricing: (productModelId: string, componentId: string, attributeId: string) =>
+    `/setup/product-models/${productModelId}/components/${componentId}/attributes/${attributeId}/pricing`,
   setupImageLayers: (productModelId: string, componentId: string) =>
     `/setup/product-models/${productModelId}/components/${componentId}/image-layers`,
+  setupPricingRules: (productModelId: string) =>
+    `/setup/product-models/${productModelId}/pricing-rules`,
   configurator: (productModelId: string) => `/configurator/${productModelId}`,
 } as const

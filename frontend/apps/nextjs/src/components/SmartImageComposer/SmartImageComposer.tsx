@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useState } from "react"
+import Image from "next/image"
 
 import { getImageUrl } from "@/utils/imageUrl"
 
@@ -76,7 +77,13 @@ type LayerImageProps = {
   onLoad: (width: number, height: number) => void
 }
 
-const LayerImage = ({ imageUrl, zIndex, containerSize, maxSize, onLoad }: LayerImageProps) => {
+const LayerImage = ({
+  imageUrl,
+  zIndex,
+  containerSize: _containerSize,
+  maxSize,
+  onLoad,
+}: LayerImageProps) => {
   const handleLoad = useCallback(
     (e: React.SyntheticEvent<HTMLImageElement>) => {
       const img = e.currentTarget
@@ -95,21 +102,18 @@ const LayerImage = ({ imageUrl, zIndex, containerSize, maxSize, onLoad }: LayerI
   )
 
   const style: React.CSSProperties = {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    width: containerSize ? containerSize.w : "100%",
-    height: containerSize ? containerSize.h : "100%",
     objectFit: "contain",
     zIndex,
   }
 
   return (
-    <img
+    <Image
       src={imageUrl}
       alt=""
+      fill
       style={style}
       onLoad={handleLoad}
+      unoptimized
     />
   )
 }

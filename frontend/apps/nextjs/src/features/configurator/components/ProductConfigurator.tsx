@@ -5,8 +5,11 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
+
+import { useConfigurationPrice } from "@/features/configurator/hooks/useConfigurationPrice"
 
 import { ComponentSelector } from "./ComponentSelector"
 import { PriceDisplay } from "./PriceDisplay"
@@ -18,8 +21,10 @@ type Props = {
   components: ComponentDto[]
 }
 
-/** Selected options per component: componentId -> attributeId -> option */
+/** Selected options per component: componentId -> attributeId -> option (ENUM) */
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
+/** Numeric/boolean values per component: componentId -> attributeId -> number | boolean */
+type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
 
 /** Build preview layers stacked by each component's imageZIndex (lower = back, higher = front). */
 function buildPreviewLayers(
@@ -50,8 +55,18 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null)
   const [selectedOptionsByComponent, setSelectedOptionsByComponent] =
     useState<SelectedOptionsByComponent>({})
+  const [selectedOtherValuesByComponent, setSelectedOtherValuesByComponent] =
+    useState<SelectedOtherValuesByComponent>({})
 
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
+
+  const { data: pricingRules = [] } = usePricingRulesList(productModelId)
+  const { data: pricePreview, isLoading: isPriceLoading } = useConfigurationPrice(
+    productModelId,
+    components,
+    selectedOptionsByComponent,
+    selectedOtherValuesByComponent,
+  )
 
   const handleSelectComponent = useCallback((componentId: string) => {
     setSelectedComponentId(componentId)
@@ -64,6 +79,19 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
         [componentId]: {
           ...(prev[componentId] ?? {}),
           [attributeId]: option,
+        },
+      }))
+    },
+    [],
+  )
+
+  const handleOtherValueChange = useCallback(
+    (componentId: string, attributeId: string, value: number | boolean) => {
+      setSelectedOtherValuesByComponent((prev) => ({
+        ...prev,
+        [componentId]: {
+          ...(prev[componentId] ?? {}),
+          [attributeId]: value,
         },
       }))
     },
@@ -102,7 +130,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
       </div>
 
       <div className="grid flex-1 gap-6 lg:min-h-0 lg:grid-cols-3">
-        <div className="flex min-h-[70vh] flex-col lg:col-span-2 lg:min-h-[75vh]">
+        <div className="flex min-h-[40vh] flex-col lg:col-span-2 lg:min-h-[50vh]">
           <VisualPreview
             productModelId={productModelId}
             selectedComponentId={activeComponentId}
@@ -113,7 +141,10 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
         <div className="space-y-6">
           <PriceDisplay
             basePrice={productModel.price}
+            totalPrice={pricePreview?.totalPrice}
+            modifiersCents={pricePreview?.modifiersCents ?? 0}
             currency={productModel.currency}
+            isLoading={isPriceLoading}
           />
           <ComponentSelector
             components={components}
@@ -122,6 +153,10 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             productModelId={productModelId}
             selectedOptionsByComponent={selectedOptionsByComponent}
             onSelectOption={handleSelectOption}
+            selectedOtherValuesByComponent={selectedOtherValuesByComponent}
+            onOtherValueChange={handleOtherValueChange}
+            pricingRules={pricingRules}
+            currency={productModel.currency}
           />
         </div>
       </div>

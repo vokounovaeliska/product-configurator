@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useTranslations } from "next-intl"
+import Image from "next/image"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -103,10 +104,12 @@ export const ImageLayersList = ({ productModelId, componentId }: Props) => {
                 className="flex overflow-hidden p-0"
               >
                 <div className="relative h-32 w-full shrink-0 bg-muted">
-                  <img
+                  <Image
                     src={getImageUrl(layer.imageUrl)}
                     alt=""
-                    className="h-full w-full object-contain"
+                    fill
+                    className="object-contain"
+                    unoptimized
                   />
                 </div>
                 <div className="flex items-center justify-between p-3">

@@ -39,6 +39,8 @@ class DefaultSecurityConfiguration {
             // File downloads (GET) are public so images can be displayed in frontend
             // File uploads (POST) require authentication (handled by anyRequest().authenticated())
             it.requestMatchers(HttpMethod.GET, "/api/v1/files/**").permitAll()
+            // Configuration preview (price calculation) is public for customer configurator
+            it.requestMatchers(HttpMethod.POST, "/products/api/v1/product-models/*/configuration-preview").permitAll()
             it.anyRequest().authenticated()
         }
         http.authenticationManager(authenticationManager)
