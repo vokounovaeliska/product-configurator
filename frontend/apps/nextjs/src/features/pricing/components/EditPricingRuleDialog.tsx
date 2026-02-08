@@ -421,7 +421,7 @@ export const EditPricingRuleDialog = ({
             </Typography>
             <Typography
               as="p"
-              variant="body-xs"
+              variant="body-sm"
               className="text-muted-foreground"
             >
               {t("create.priceTypeOneOnly")}
@@ -489,7 +489,7 @@ export const EditPricingRuleDialog = ({
                     </FormControl>
                     <Typography
                       as="p"
-                      variant="body-xs"
+                      variant="body-sm"
                       className="text-muted-foreground"
                     >
                       {currency
@@ -525,7 +525,7 @@ export const EditPricingRuleDialog = ({
                     </FormControl>
                     <Typography
                       as="p"
-                      variant="body-xs"
+                      variant="body-sm"
                       className="text-muted-foreground"
                     >
                       {currency
