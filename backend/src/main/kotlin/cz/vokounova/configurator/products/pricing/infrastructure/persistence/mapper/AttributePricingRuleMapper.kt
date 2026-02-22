@@ -16,7 +16,6 @@ fun AttributePricingRuleRecord.toDomain(): AttributePricingRule =
         value = value,
         toValue = toValue,
         priceDeltaCents = priceDeltaCents,
-        pricePerUnitCents = pricePerUnitCents,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )
@@ -36,5 +35,4 @@ fun AttributePricingRule.toPersistence(): AttributePricingRuleRecord =
         priceDeltaCents = priceDeltaCents,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
-        pricePerUnitCents = pricePerUnitCents,
     )

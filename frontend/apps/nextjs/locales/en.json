@@ -111,11 +111,11 @@
       "attributes": "Attributes",
       "components": "Components",
       "dashboard": "Dashboard",
-      "imageLayers": "Image Layers",
       "options": "Options",
       "pricing": "Pricing",
       "pricingRules": "Pricing rules",
       "productModels": "Product Models",
+      "importSketchup": "Import from SketchUp",
       "title": "Setup"
     },
     "productModels": {
@@ -124,7 +124,23 @@
       "title": "Product Models"
     },
     "title": "Setup",
+    "unified": {
+      "setupDescription": "Configure components, attributes, options, and pricing in one place. Expand sections to edit."
+    },
     "welcome": "Welcome, {name}!"
+  },
+  "SketchUpImport": {
+    "title": "Import from SketchUp",
+    "description": "Upload a SketchUp (.skp) and GLB file to create a product model. Only merchant-relevant params (colors, size, thickness, leg count) are imported. After import, set prices and preview in the configurator.",
+    "form": {
+      "productName": "Product name",
+      "productNamePlaceholder": "Optional – defaults to SKP filename",
+      "productNameHint": "Leave empty to use the SKP filename as the product name.",
+      "skpFile": "SketchUp file (.skp)",
+      "glbFile": "3D model file (.glb)",
+      "submit": "Import",
+      "submitting": "Importing…"
+    }
   },
   "ProductModels": {
     "card": {
@@ -217,16 +233,14 @@
       "optionPrice": "+ {amount}",
       "priceTableOption": "Option",
       "priceTablePrice": "Price",
-      "pricePerUnit": "Price per unit: {amount}",
       "priceForRange": "Range: + {amount}"
     },
     "preview": {
       "placeholder": "Product Preview",
-      "comingSoon": "Visual preview with image layers will be available soon.",
       "selectComponent": "Select a component to see its preview.",
       "selectOptions": "Select options below to see the preview.",
-      "noLayers": "No image layers for this component. Add layers in setup.",
-      "loadError": "Failed to load preview."
+      "loadError": "Failed to load preview.",
+      "loading3d": "Loading 3D model…"
     },
     "price": {
       "title": "Total Price",
@@ -240,7 +254,6 @@
       "attributesButton": "Manage Attributes",
       "deleteButton": "Delete",
       "editButton": "Edit",
-      "imageLayersButton": "Image Layers",
       "imageZIndex": "Image z-index",
       "manageOptionsButton": "Manage options",
       "sortOrder": "Sort Order"
@@ -334,18 +347,13 @@
       "columnAttribute": "Attribute",
       "columnComponent": "Component",
       "columnCondition": "Condition",
-      "columnPriceType": "Price type",
       "columnPrice": "Price",
       "columnActions": "Actions",
       "filterAttribute": "Attribute",
       "filterAttributeAll": "All attributes",
       "filterOperator": "Rule type",
       "filterOperatorAll": "All types",
-      "filterPriceType": "Price type",
-      "filterPriceTypeAll": "All",
       "filterNoResults": "No rules match the filters.",
-      "priceFixed": "Price",
-      "pricePerUnit": "Per unit",
       "operatorEq": "Equals",
       "operatorBetween": "Range",
       "deleteButton": "Delete",
@@ -379,19 +387,15 @@
       "price": "Price",
       "priceHint": "Enter amount (e.g. 10.50)",
       "priceHintInCurrency": "Enter amount in {currency} (e.g. 10.50)",
-      "pricePerUnit": "Price per unit",
-      "pricePerUnitHint": "Amount per unit (e.g. 0.50)",
-      "pricePerUnitHintInCurrency": "Amount per unit in {currency} (e.g. 0.50)",
       "rangeSection": "Value range",
       "priceSection": "Price",
-      "priceTypeFixed": "Fixed price",
-      "priceTypePerUnit": "Price per unit",
-      "priceTypeOneOnly": "Only one applies per rule",
       "enumOptionsLabel": "Options (select one or more, same price for all)",
       "enumSelectedCount": "{{count}} selected",
       "enumSelectAll": "All",
       "enumClear": "Clear",
       "enumNoOptions": "No options defined for this attribute. Add options in the attribute options page first.",
+      "optionAlreadyHasRule": "This option already has a pricing rule. Edit the existing rule instead.",
+      "optionHasRule": "Has rule",
       "cancelButton": "Cancel",
       "submitButton": "Create"
     },
@@ -434,6 +438,7 @@
     "title": "Attributes",
     "description": "Manage attributes for this component. Attributes define the configurable properties that customers can select.",
     "card": {
+      "default": "Default",
       "deleteButton": "Delete",
       "editButton": "Edit",
       "manageOptionsButton": "Manage options",
@@ -446,6 +451,10 @@
       "cancelButton": "Cancel",
       "code": "Code",
       "codePlaceholder": "e.g., COLOR, WIDTH, HEIGHT",
+      "defaultDecimal": "Default",
+      "defaultDecimalPlaceholder": "Optional – within min..max",
+      "defaultInt": "Default",
+      "defaultIntPlaceholder": "Optional – within min..max",
       "description": "Create a new attribute for this component",
       "errorMessages": {
         "codeRequiredMessage": "Please enter an attribute code",
@@ -507,6 +516,8 @@
       "isRequired": "Required",
       "label": "Label",
       "labelPlaceholder": "e.g., Color, Width, Height",
+      "defaultDecimal": "Default",
+      "defaultInt": "Default",
       "maxDecimal": "Maximum Decimal",
       "maxDecimalPlaceholder": "e.g., 100.5",
       "maxInt": "Maximum Integer",
@@ -534,7 +545,9 @@
         "integerRangeInvalid": "Minimum value must be less than or equal to maximum value",
         "decimalRangeInvalid": "Minimum value must be less than or equal to maximum value",
         "integerCannotHaveDecimal": "INTEGER attributes cannot have decimal fields",
-        "decimalCannotHaveInteger": "DECIMAL attributes cannot have integer fields"
+        "decimalCannotHaveInteger": "DECIMAL attributes cannot have integer fields",
+        "enumCannotHaveNumericOrUnit": "ENUM and BOOLEAN attributes cannot have numeric fields or unit",
+        "defaultOutOfRange": "Default value must be within min and max range"
       }
     },
     "list": {
@@ -600,40 +613,6 @@
     "delete": {
       "title": "Delete Option",
       "description": "This option will be removed from the attribute.",
-      "confirmButton": "Delete",
-      "cancelButton": "Cancel"
-    }
-  },
-  "ImageLayers": {
-    "title": "Image Layers",
-    "description": "Manage image layers for this component. Layers are stacked by z-index and shown in the configurator preview.",
-    "list": {
-      "title": "Layers",
-      "createButton": "Add Layer",
-      "emptyState": {
-        "message": "No image layers yet. Add a layer to see it in the configurator preview.",
-        "createButton": "Add First Layer"
-      },
-      "errorMessage": "Failed to load image layers.",
-      "zIndex": "Order (z-index)",
-      "deleteButton": "Delete"
-    },
-    "create": {
-      "title": "Add Image Layer",
-      "description": "Upload an image and set its order. Lower z-index is drawn first (behind).",
-      "imageLabel": "Image",
-      "zIndexLabel": "Order (z-index)",
-      "zIndexPlaceholder": "0",
-      "submitButton": "Add Layer",
-      "cancelButton": "Cancel",
-      "errorMessages": {
-        "imageRequired": "Please upload an image.",
-        "generalError": "Something went wrong."
-      }
-    },
-    "delete": {
-      "title": "Delete Layer",
-      "description": "This layer will be removed from the component.",
       "confirmButton": "Delete",
       "cancelButton": "Cancel"
     }

@@ -51,6 +51,10 @@ open class AttributeOptionRecord private constructor() : UpdatableRecordImpl<Att
         set(value): Unit = set(7, value)
         get(): OffsetDateTime = get(7) as OffsetDateTime
 
+    open var colorHex: String?
+        set(value): Unit = set(8, value)
+        get(): String? = get(8) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -60,7 +64,7 @@ open class AttributeOptionRecord private constructor() : UpdatableRecordImpl<Att
     /**
      * Create a detached, initialised AttributeOptionRecord
      */
-    constructor(id: UUID, attributeId: UUID, value: String, label: String, imageUrl: String? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, attributeId: UUID, value: String, label: String, imageUrl: String? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, colorHex: String? = null): this() {
         this.id = id
         this.attributeId = attributeId
         this.value = value
@@ -69,6 +73,7 @@ open class AttributeOptionRecord private constructor() : UpdatableRecordImpl<Att
         this.sortOrder = sortOrder
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
+        this.colorHex = colorHex
         resetChangedOnNotNull()
     }
 }

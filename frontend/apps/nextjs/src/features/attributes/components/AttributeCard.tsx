@@ -7,6 +7,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import type { AttributeDto } from "@/api/attributeTypes"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
@@ -24,6 +25,35 @@ export const AttributeCard = ({ attribute, productModelId, componentId }: Props)
   const t = useTranslations("Attributes")
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  const { data: options } = useAttributeOptionsList(productModelId, componentId, attribute.id, {
+    enabled: attribute.type === "ENUM",
+  })
+
+  const getDefaultDisplay = (): string | null => {
+    switch (attribute.type) {
+      case "ENUM": {
+        const first = [...(options ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)[0]
+        return first ? first.label : null
+      }
+      case "INTEGER":
+        return attribute.defaultInt != null
+          ? String(attribute.defaultInt)
+          : attribute.minInt != null
+            ? String(attribute.minInt)
+            : null
+      case "DECIMAL":
+        return attribute.defaultDecimal != null
+          ? String(attribute.defaultDecimal)
+          : attribute.minDecimal != null
+            ? String(attribute.minDecimal)
+            : null
+      case "BOOLEAN":
+        return "false"
+      default:
+        return null
+    }
+  }
 
   const getRangeDisplay = () => {
     const unitSuffix =
@@ -96,6 +126,16 @@ export const AttributeCard = ({ attribute, productModelId, componentId }: Props)
               className="text-muted-foreground"
             >
               {t("card.range")}: {getRangeDisplay()}
+            </Typography>
+          )}
+
+          {getDefaultDisplay() != null && (
+            <Typography
+              as="p"
+              variant="body-sm"
+              className="text-muted-foreground"
+            >
+              {t("card.default")}: {getDefaultDisplay()}
             </Typography>
           )}
 

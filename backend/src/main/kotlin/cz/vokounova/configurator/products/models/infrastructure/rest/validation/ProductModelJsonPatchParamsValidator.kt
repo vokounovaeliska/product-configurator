@@ -39,6 +39,12 @@ class ProductModelJsonPatchParamsValidator : AppValidator<ProductModelJsonPatchP
                         notNull()
                     }
                 }
+                ProductModelJsonPatchParamsPath.MODEL_3D_URL -> {
+                    field(path.value, value.value as? String) {
+                        // Can be null (remove 3D model) or non-empty URL
+                        notEmpty()
+                    }
+                }
             }
         }
 }

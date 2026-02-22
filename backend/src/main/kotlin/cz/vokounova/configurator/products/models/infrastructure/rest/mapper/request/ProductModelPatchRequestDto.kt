@@ -11,6 +11,7 @@ data class ProductModelPatchRequestDto(
         SlashPrice,
         SlashCurrency,
         SlashIsActive,
+        SlashModel3dUrl,
     }
 
     enum class Op {

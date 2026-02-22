@@ -110,11 +110,11 @@
       "attributes": "Atributy",
       "components": "Komponenty",
       "dashboard": "Nástěnka",
-      "imageLayers": "Obrazové vrstvy",
       "options": "Možnosti",
       "pricing": "Cenění",
       "pricingRules": "Cenová pravidla",
       "productModels": "Modely produktů",
+      "importSketchup": "Import ze SketchUp",
       "title": "Nastavení"
     },
     "productModels": {
@@ -123,7 +123,23 @@
       "title": "Modely produktů"
     },
     "title": "Nastavení",
+    "unified": {
+      "setupDescription": "Konfigurujte komponenty, atributy, možnosti a ceny na jednom místě. Rozbalte sekce pro úpravy."
+    },
     "welcome": "Vítejte, {name}!"
+  },
+  "SketchUpImport": {
+    "title": "Import ze SketchUp",
+    "description": "Nahrajte soubor SketchUp (.skp) a GLB pro vytvoření modelu produktu. Importují se pouze parametry pro merchant (barvy, rozměr, tloušťka, počet nohou). Po importu nastavte ceny a náhled v konfigurátoru.",
+    "form": {
+      "productName": "Název produktu",
+      "productNamePlaceholder": "Volitelné – výchozí je název SKP souboru",
+      "productNameHint": "Nechte prázdné pro použití názvu SKP souboru jako názvu produktu.",
+      "skpFile": "Soubor SketchUp (.skp)",
+      "glbFile": "3D model (.glb)",
+      "submit": "Importovat",
+      "submitting": "Importuji…"
+    }
   },
   "ProductModels": {
     "card": {
@@ -216,16 +232,14 @@
       "optionPrice": "+ {amount}",
       "priceTableOption": "Možnost",
       "priceTablePrice": "Cena",
-      "pricePerUnit": "Cena za jednotku: {amount}",
       "priceForRange": "Rozsah: + {amount}"
     },
     "preview": {
       "placeholder": "Náhled produktu",
-      "comingSoon": "Vizuální náhled s obrazovými vrstvami bude brzy k dispozici.",
       "selectComponent": "Vyberte komponentu pro zobrazení náhledu.",
       "selectOptions": "Vyberte možnosti níže pro zobrazení náhledu.",
-      "noLayers": "Pro tuto komponentu nejsou žádné obrazové vrstvy. Přidejte je v nastavení.",
-      "loadError": "Nepodařilo se načíst náhled."
+      "loadError": "Nepodařilo se načíst náhled.",
+      "loading3d": "Načítání 3D modelu…"
     },
     "price": {
       "title": "Celková cena",
@@ -239,7 +253,6 @@
       "attributesButton": "Spravovat atributy",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
-      "imageLayersButton": "Obrazové vrstvy",
       "imageZIndex": "Z-index obrázku",
       "manageOptionsButton": "Spravovat možnosti",
       "sortOrder": "Pořadí"
@@ -333,18 +346,13 @@
       "columnAttribute": "Atribut",
       "columnComponent": "Komponent",
       "columnCondition": "Podmínka",
-      "columnPriceType": "Typ ceny",
       "columnPrice": "Cena",
       "columnActions": "Akce",
       "filterAttribute": "Atribut",
       "filterAttributeAll": "Všechny atributy",
       "filterOperator": "Typ pravidla",
       "filterOperatorAll": "Všechny typy",
-      "filterPriceType": "Typ ceny",
-      "filterPriceTypeAll": "Vše",
       "filterNoResults": "Žádná pravidla nevyhovují filtrům.",
-      "priceFixed": "Cena",
-      "pricePerUnit": "Za jednotku",
       "operatorEq": "Rovná se",
       "operatorBetween": "Rozsah",
       "deleteButton": "Smazat",
@@ -378,19 +386,15 @@
       "price": "Cena",
       "priceHint": "Zadejte částku (např. 10,50)",
       "priceHintInCurrency": "Zadejte částku v {currency} (např. 10,50)",
-      "pricePerUnit": "Cena za jednotku",
-      "pricePerUnitHint": "Částka za jednotku (např. 0,50)",
-      "pricePerUnitHintInCurrency": "Částka za jednotku v {currency} (např. 0,50)",
       "rangeSection": "Rozsah hodnot",
       "priceSection": "Cena",
-      "priceTypeFixed": "Pevná cena",
-      "priceTypePerUnit": "Cena za jednotku",
-      "priceTypeOneOnly": "U každého pravidla platí jen jeden typ",
       "enumOptionsLabel": "Možnosti (vyberte jednu nebo více, stejná cena pro všechny)",
       "enumSelectedCount": "Vybráno {{count}}",
       "enumSelectAll": "Vše",
       "enumClear": "Zrušit",
       "enumNoOptions": "Pro tento atribut nejsou definovány žádné možnosti. Nejdříve přidejte možnosti na stránce možností atributu.",
+      "optionAlreadyHasRule": "Tato možnost již má cenové pravidlo. Upravte existující pravidlo.",
+      "optionHasRule": "Má pravidlo",
       "cancelButton": "Zrušit",
       "submitButton": "Vytvořit"
     },
@@ -433,6 +437,7 @@
     "title": "Atributy",
     "description": "Spravujte atributy pro tento komponent. Atributy definují konfigurovatelné vlastnosti, které mohou zákazníci vybrat.",
     "card": {
+      "default": "Výchozí",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
       "manageOptionsButton": "Spravovat možnosti",
@@ -445,6 +450,10 @@
       "cancelButton": "Zrušit",
       "code": "Kód",
       "codePlaceholder": "např. COLOR, WIDTH, HEIGHT",
+      "defaultDecimal": "Výchozí",
+      "defaultDecimalPlaceholder": "Volitelné – v rozsahu min..max",
+      "defaultInt": "Výchozí",
+      "defaultIntPlaceholder": "Volitelné – v rozsahu min..max",
       "description": "Vytvořte nový atribut pro tento komponent",
       "errorMessages": {
         "codeRequiredMessage": "Zadejte kód atributu",
@@ -506,6 +515,8 @@
       "isRequired": "Povinné",
       "label": "Název",
       "labelPlaceholder": "např. Barva, Šířka, Výška",
+      "defaultDecimal": "Výchozí",
+      "defaultInt": "Výchozí",
       "maxDecimal": "Maximální desetinné číslo",
       "maxDecimalPlaceholder": "např. 100.5",
       "maxInt": "Maximální celé číslo",
@@ -533,7 +544,9 @@
         "integerRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
         "decimalRangeInvalid": "Minimální hodnota musí být menší nebo rovna maximální hodnotě",
         "integerCannotHaveDecimal": "Atributy typu INTEGER nemohou mít desetinná pole",
-        "decimalCannotHaveInteger": "Atributy typu DECIMAL nemohou mít celočíselná pole"
+        "decimalCannotHaveInteger": "Atributy typu DECIMAL nemohou mít celočíselná pole",
+        "enumCannotHaveNumericOrUnit": "Atributy typu ENUM a BOOLEAN nemohou mít číselná pole ani jednotku",
+        "defaultOutOfRange": "Výchozí hodnota musí být v rozsahu min a max"
       }
     },
     "list": {
@@ -599,40 +612,6 @@
     "delete": {
       "title": "Smazat možnost",
       "description": "Tato možnost bude z atributu odstraněna.",
-      "confirmButton": "Smazat",
-      "cancelButton": "Zrušit"
-    }
-  },
-  "ImageLayers": {
-    "title": "Obrazové vrstvy",
-    "description": "Spravujte obrazové vrstvy této komponenty. Vrstvy se skládají podle z-indexu a zobrazují se v náhledu konfigurátoru.",
-    "list": {
-      "title": "Vrstvy",
-      "createButton": "Přidat vrstvu",
-      "emptyState": {
-        "message": "Zatím žádné obrazové vrstvy. Přidejte vrstvu pro zobrazení v náhledu.",
-        "createButton": "Přidat první vrstvu"
-      },
-      "errorMessage": "Nepodařilo se načíst obrazové vrstvy.",
-      "zIndex": "Pořadí (z-index)",
-      "deleteButton": "Smazat"
-    },
-    "create": {
-      "title": "Přidat obrazovou vrstvu",
-      "description": "Nahrajte obrázek a nastavte pořadí. Nižší z-index se vykreslí první (vzadu).",
-      "imageLabel": "Obrázek",
-      "zIndexLabel": "Pořadí (z-index)",
-      "zIndexPlaceholder": "0",
-      "submitButton": "Přidat vrstvu",
-      "cancelButton": "Zrušit",
-      "errorMessages": {
-        "imageRequired": "Prosím nahrajte obrázek.",
-        "generalError": "Něco se pokazilo."
-      }
-    },
-    "delete": {
-      "title": "Smazat vrstvu",
-      "description": "Tato vrstva bude z komponenty odstraněna.",
       "confirmButton": "Smazat",
       "cancelButton": "Zrušit"
     }

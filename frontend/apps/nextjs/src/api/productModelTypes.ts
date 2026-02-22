@@ -13,6 +13,8 @@ export type ProductModelDto = {
   price: number
   currency: string
   isActive: boolean
+  /** URL to 3D model (GLB) for configurator preview */
+  model3dUrl?: string | null
   /** Format: date-time */
   createdAt: string
   /** Format: date-time */

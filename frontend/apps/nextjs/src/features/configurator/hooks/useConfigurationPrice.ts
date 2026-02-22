@@ -19,9 +19,19 @@ const configurationPreviewKey = (
   selections: ConfigurationPreviewSelectionDto[],
 ) => ["configuration-preview", productModelId, JSON.stringify(selections)] as const
 
+type AttributeForSelection = {
+  code: string
+  type: string
+  id: string
+  defaultInt?: number | null
+  defaultDecimal?: number | null
+  minInt?: number | null
+  minDecimal?: number | null
+}
+
 function buildSelections(
   components: ComponentDto[],
-  attributesByComponent: Record<string, { code: string; type: string; id: string }[]>,
+  attributesByComponent: Record<string, AttributeForSelection[]>,
   selectedOptionsByComponent: SelectedOptionsByComponent,
   selectedOtherValuesByComponent: SelectedOtherValuesByComponent,
 ): ConfigurationPreviewSelectionDto[] {
@@ -37,6 +47,16 @@ function buildSelections(
       if (attr.type === "ENUM") {
         const option = optionsByAttr[attr.id]
         value = option?.value ?? ""
+      } else if (attr.type === "INTEGER" || attr.type === "DECIMAL") {
+        const raw = otherByAttr[attr.id]
+        const fallback =
+          attr.type === "INTEGER"
+            ? (attr.defaultInt ?? attr.minInt ?? 0)
+            : (attr.defaultDecimal ?? attr.minDecimal ?? 0)
+        value =
+          raw !== undefined && raw !== null && typeof raw === "number"
+            ? String(raw)
+            : String(fallback)
       } else {
         const raw = otherByAttr[attr.id]
         value = raw !== undefined && raw !== null ? String(raw) : ""
@@ -68,7 +88,18 @@ export function useConfigurationPrice(
   const attributesByComponent = Object.fromEntries(
     components.map((c, i) => {
       const items = attributeQueries[i]?.data?.items ?? []
-      return [c.id, items.map((a) => ({ code: a.code, type: a.type, id: a.id }))] as const
+      return [
+        c.id,
+        items.map((a) => ({
+          code: a.code,
+          type: a.type,
+          id: a.id,
+          defaultInt: a.defaultInt,
+          defaultDecimal: a.defaultDecimal,
+          minInt: a.minInt,
+          minDecimal: a.minDecimal,
+        })),
+      ] as const
     }),
   )
 

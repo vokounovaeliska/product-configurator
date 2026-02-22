@@ -29,6 +29,8 @@ fun AttributeCreateRequestDto.toParams(componentId: ComponentId): AttributeCreat
         maxInt = maxInt,
         minDecimal = minDecimal,
         maxDecimal = maxDecimal,
+        defaultInt = defaultInt,
+        defaultDecimal = defaultDecimal,
         unit = unit,
         sortOrder = sortOrder,
     )
@@ -45,6 +47,8 @@ fun AttributePatchRequestDto.toParams(): AttributeJsonPatchParams =
                 AttributePatchRequestDtoPath.SlashMaxInt -> AttributeJsonPatchParamsPath.MAX_INT
                 AttributePatchRequestDtoPath.SlashMinDecimal -> AttributeJsonPatchParamsPath.MIN_DECIMAL
                 AttributePatchRequestDtoPath.SlashMaxDecimal -> AttributeJsonPatchParamsPath.MAX_DECIMAL
+                AttributePatchRequestDtoPath.SlashDefaultInt -> AttributeJsonPatchParamsPath.DEFAULT_INT
+                AttributePatchRequestDtoPath.SlashDefaultDecimal -> AttributeJsonPatchParamsPath.DEFAULT_DECIMAL
                 AttributePatchRequestDtoPath.SlashUnit -> AttributeJsonPatchParamsPath.UNIT
                 AttributePatchRequestDtoPath.SlashSortOrder -> AttributeJsonPatchParamsPath.SORT_ORDER
             },
@@ -61,6 +65,7 @@ fun AttributeOptionCreateRequestDto.toParams(attributeId: AttributeId): Attribut
         value = value,
         label = label,
         imageUrl = imageUrl,
+        colorHex = colorHex,
         sortOrder = sortOrder,
     )
 
@@ -71,6 +76,7 @@ fun AttributeOptionPatchRequestDto.toParams(): AttributeOptionJsonPatchParams =
                 AttributeOptionPatchRequestDtoPath.SlashValue -> AttributeOptionJsonPatchParamsPath.VALUE
                 AttributeOptionPatchRequestDtoPath.SlashLabel -> AttributeOptionJsonPatchParamsPath.LABEL
                 AttributeOptionPatchRequestDtoPath.SlashImageUrl -> AttributeOptionJsonPatchParamsPath.IMAGE_URL
+                AttributeOptionPatchRequestDtoPath.SlashColorHex -> AttributeOptionJsonPatchParamsPath.COLOR_HEX
                 AttributeOptionPatchRequestDtoPath.SlashSortOrder -> AttributeOptionJsonPatchParamsPath.SORT_ORDER
             },
         value = value,

@@ -60,10 +60,6 @@ open class AttributePricingRuleRecord private constructor() : UpdatableRecordImp
         set(value): Unit = set(9, value)
         get(): OffsetDateTime = get(9) as OffsetDateTime
 
-    open var pricePerUnitCents: Int?
-        set(value): Unit = set(10, value)
-        get(): Int? = get(10) as Int?
-
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -73,7 +69,7 @@ open class AttributePricingRuleRecord private constructor() : UpdatableRecordImp
     /**
      * Create a detached, initialised AttributePricingRuleRecord
      */
-    constructor(id: UUID, productModelId: UUID, componentId: UUID? = null, attributeCode: String, `operator`: ConditionOperator? = null, value: String, toValue: String? = null, priceDeltaCents: Int, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, pricePerUnitCents: Int? = null): this() {
+    constructor(id: UUID, productModelId: UUID, componentId: UUID? = null, attributeCode: String, `operator`: ConditionOperator? = null, value: String, toValue: String? = null, priceDeltaCents: Int, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
         this.id = id
         this.productModelId = productModelId
         this.componentId = componentId
@@ -84,7 +80,6 @@ open class AttributePricingRuleRecord private constructor() : UpdatableRecordImp
         this.priceDeltaCents = priceDeltaCents
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
-        this.pricePerUnitCents = pricePerUnitCents
         resetChangedOnNotNull()
     }
 }

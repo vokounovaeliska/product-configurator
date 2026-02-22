@@ -1,6 +1,8 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { type Locale } from "next-intl"
 import { getTranslations } from "next-intl/server"
+import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
 import type { ProductModelDto } from "@/api/productModelTypes"
@@ -8,7 +10,7 @@ import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 import { env } from "@/config/env"
 import { api } from "@/lib/api/restClient"
 
-import { ComponentsList } from "@/features/components/components/ComponentsList"
+import { ModelSetupUnified } from "@/features/setup/components/ModelSetupUnified"
 
 type Props = {
   params: Promise<{ locale: Locale; productModelId: string }>
@@ -59,7 +61,7 @@ const ComponentsPage = async (props: Props) => {
         productModelId={productModelId}
         productModelName={productModelName}
       />
-      <div className="mb-8">
+      <div className="mb-6">
         <Typography
           as="h1"
           variant="display-3xl"
@@ -76,7 +78,16 @@ const ComponentsPage = async (props: Props) => {
           {t("description")}
         </Typography>
       </div>
-      <ComponentsList productModelId={productModelId} />
+      <Suspense
+        fallback={
+          <div className="space-y-4">
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </div>
+        }
+      >
+        <ModelSetupUnified productModelId={productModelId} />
+      </Suspense>
     </div>
   )
 }

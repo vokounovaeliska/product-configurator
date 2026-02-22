@@ -23,7 +23,7 @@ class FileUploadController(
 ) {
     companion object {
         private val log = LoggerFactory.getLogger(FileUploadController::class.java)
-        private val ALLOWED_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "webp", "svg")
+        private val ALLOWED_EXTENSIONS = setOf("jpg", "jpeg", "png", "gif", "webp", "svg", "glb")
         private const val MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
     }
 

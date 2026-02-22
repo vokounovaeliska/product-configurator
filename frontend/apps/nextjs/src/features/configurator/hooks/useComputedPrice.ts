@@ -38,7 +38,18 @@ export function useComputedPrice(
   const attributesByComponent = Object.fromEntries(
     components.map((c, i) => {
       const items = attributeQueries[i]?.data?.items ?? []
-      return [c.id, items.map((a) => ({ code: a.code, type: a.type, id: a.id }))] as const
+      return [
+        c.id,
+        items.map((a) => ({
+          code: a.code,
+          type: a.type,
+          id: a.id,
+          defaultInt: a.defaultInt,
+          defaultDecimal: a.defaultDecimal,
+          minInt: a.minInt,
+          minDecimal: a.minDecimal,
+        })),
+      ] as const
     }),
   )
 

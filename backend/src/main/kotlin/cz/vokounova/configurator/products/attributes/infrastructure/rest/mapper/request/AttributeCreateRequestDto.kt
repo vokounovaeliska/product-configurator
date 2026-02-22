@@ -12,6 +12,8 @@ data class AttributeCreateRequestDto(
     val maxInt: Int? = null,
     val minDecimal: BigDecimal? = null,
     val maxDecimal: BigDecimal? = null,
+    val defaultInt: Int? = null,
+    val defaultDecimal: BigDecimal? = null,
     val unit: String? = null,
     val sortOrder: Int? = null,
 )

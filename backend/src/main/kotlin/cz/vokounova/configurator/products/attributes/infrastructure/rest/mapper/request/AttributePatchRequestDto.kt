@@ -12,6 +12,8 @@ enum class AttributePatchRequestDtoPath(val pathValue: String) {
     SlashMaxInt("/maxInt"),
     SlashMinDecimal("/minDecimal"),
     SlashMaxDecimal("/maxDecimal"),
+    SlashDefaultInt("/defaultInt"),
+    SlashDefaultDecimal("/defaultDecimal"),
     SlashUnit("/unit"),
     SlashSortOrder("/sortOrder"),
     ;

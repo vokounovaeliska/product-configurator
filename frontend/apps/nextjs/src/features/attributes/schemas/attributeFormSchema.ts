@@ -17,6 +17,8 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
       maxInt: z.number().int().optional().nullable(),
       minDecimal: z.number().optional().nullable(),
       maxDecimal: z.number().optional().nullable(),
+      defaultInt: z.number().int().optional().nullable(),
+      defaultDecimal: z.number().optional().nullable(),
       unit: z.string().optional().nullable(),
       sortOrder: z.number().int().min(0).optional().nullable(),
     })
@@ -48,20 +50,22 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // ENUM/BOOLEAN: should not have numeric fields or unit
+        // ENUM/BOOLEAN: should not have numeric fields, defaults, or unit
         if (data.type === "ENUM" || data.type === "BOOLEAN") {
           return (
             data.minInt == null &&
             data.maxInt == null &&
             data.minDecimal == null &&
             data.maxDecimal == null &&
+            data.defaultInt == null &&
+            data.defaultDecimal == null &&
             (data.unit == null || data.unit === "")
           )
         }
         return true
       },
       {
-        message: t("form.errorMessages.integerCannotHaveDecimal"),
+        message: t("form.errorMessages.enumCannotHaveNumericOrUnit"),
         path: ["minInt"],
       },
     )
@@ -76,6 +80,34 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
       {
         message: t("form.errorMessages.integerRangeInvalid"),
         path: ["minInt"],
+      },
+    )
+    .refine(
+      (data) => {
+        // INTEGER: defaultInt within min..max when set
+        if (data.type === "INTEGER" && data.defaultInt != null) {
+          if (data.minInt != null && data.defaultInt < data.minInt) return false
+          if (data.maxInt != null && data.defaultInt > data.maxInt) return false
+        }
+        return true
+      },
+      {
+        message: t("form.errorMessages.defaultOutOfRange"),
+        path: ["defaultInt"],
+      },
+    )
+    .refine(
+      (data) => {
+        // DECIMAL: defaultDecimal within min..max when set
+        if (data.type === "DECIMAL" && data.defaultDecimal != null) {
+          if (data.minDecimal != null && data.defaultDecimal < data.minDecimal) return false
+          if (data.maxDecimal != null && data.defaultDecimal > data.maxDecimal) return false
+        }
+        return true
+      },
+      {
+        message: t("form.errorMessages.defaultOutOfRange"),
+        path: ["defaultDecimal"],
       },
     )
     .refine(

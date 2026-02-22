@@ -79,6 +79,14 @@ open class AttributeDefinitionRecord private constructor() : UpdatableRecordImpl
         set(value): Unit = set(13, value)
         get(): String? = get(13) as String?
 
+    open var defaultInt: Int?
+        set(value): Unit = set(14, value)
+        get(): Int? = get(14) as Int?
+
+    open var defaultDecimal: BigDecimal?
+        set(value): Unit = set(15, value)
+        get(): BigDecimal? = get(15) as BigDecimal?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -88,7 +96,7 @@ open class AttributeDefinitionRecord private constructor() : UpdatableRecordImpl
     /**
      * Create a detached, initialised AttributeDefinitionRecord
      */
-    constructor(id: UUID, componentId: UUID, code: String, label: String, type: AttributeType, isRequired: Boolean? = null, minInt: Int? = null, maxInt: Int? = null, minDecimal: BigDecimal? = null, maxDecimal: BigDecimal? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, unit: String? = null): this() {
+    constructor(id: UUID, componentId: UUID, code: String, label: String, type: AttributeType, isRequired: Boolean? = null, minInt: Int? = null, maxInt: Int? = null, minDecimal: BigDecimal? = null, maxDecimal: BigDecimal? = null, sortOrder: Int? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, unit: String? = null, defaultInt: Int? = null, defaultDecimal: BigDecimal? = null): this() {
         this.id = id
         this.componentId = componentId
         this.code = code
@@ -103,6 +111,8 @@ open class AttributeDefinitionRecord private constructor() : UpdatableRecordImpl
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
         this.unit = unit
+        this.defaultInt = defaultInt
+        this.defaultDecimal = defaultDecimal
         resetChangedOnNotNull()
     }
 }

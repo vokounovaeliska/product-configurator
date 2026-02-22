@@ -69,6 +69,8 @@ export const CreateAttributeDialog = ({
         maxInt: values.type === "INTEGER" ? values.maxInt : null,
         minDecimal: values.type === "DECIMAL" ? values.minDecimal : null,
         maxDecimal: values.type === "DECIMAL" ? values.maxDecimal : null,
+        defaultInt: values.type === "INTEGER" ? values.defaultInt : null,
+        defaultDecimal: values.type === "DECIMAL" ? values.defaultDecimal : null,
         unit:
           values.type === "INTEGER" || values.type === "DECIMAL"
             ? (values.unit?.trim() ?? null)
@@ -151,12 +153,16 @@ export const CreateAttributeDialog = ({
                         form.setValue("maxInt", null)
                         form.setValue("minDecimal", null)
                         form.setValue("maxDecimal", null)
+                        form.setValue("defaultInt", null)
+                        form.setValue("defaultDecimal", null)
                       } else if (value === "INTEGER") {
                         form.setValue("minDecimal", null)
                         form.setValue("maxDecimal", null)
+                        form.setValue("defaultDecimal", null)
                       } else if (value === "DECIMAL") {
                         form.setValue("minInt", null)
                         form.setValue("maxInt", null)
+                        form.setValue("defaultInt", null)
                       }
                     }}
                   >
@@ -191,7 +197,7 @@ export const CreateAttributeDialog = ({
                   <FormControl>
                     <Checkbox
                       checked={field.value ?? true}
-                      onCheckedChange={field.onChange}
+                      onCheckedChange={(c) => field.onChange(c === true)}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
@@ -226,6 +232,34 @@ export const CreateAttributeDialog = ({
                     </p>
                   )}
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="defaultInt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("create.defaultInt")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder={t("create.defaultIntPlaceholder")}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const v = e.target.value
+                            if (v === "") {
+                              field.onChange(null)
+                            } else {
+                              const n = Number.parseInt(v, 10)
+                              field.onChange(Number.isNaN(n) ? null : n)
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -275,6 +309,35 @@ export const CreateAttributeDialog = ({
                     </p>
                   )}
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="defaultDecimal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("create.defaultDecimal")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="any"
+                          placeholder={t("create.defaultDecimalPlaceholder")}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const v = e.target.value
+                            if (v === "") {
+                              field.onChange(null)
+                            } else {
+                              const n = Number.parseFloat(v)
+                              field.onChange(Number.isNaN(n) ? null : n)
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

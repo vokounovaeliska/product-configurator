@@ -16,6 +16,7 @@ enum class AttributeOptionJsonPatchParamsPath(
     VALUE("/value"),
     LABEL("/label"),
     IMAGE_URL("/imageUrl"),
+    COLOR_HEX("/colorHex"),
     SORT_ORDER("/sortOrder"),
     ;
 

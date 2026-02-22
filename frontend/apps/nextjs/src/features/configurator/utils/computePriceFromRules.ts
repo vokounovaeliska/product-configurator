@@ -2,7 +2,16 @@ import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
-type AttributesByComponent = Record<string, { code: string; type: string; id: string }[]>
+type AttributeForPrice = {
+  code: string
+  type: string
+  id: string
+  defaultInt?: number | null
+  defaultDecimal?: number | null
+  minInt?: number | null
+  minDecimal?: number | null
+}
+type AttributesByComponent = Record<string, AttributeForPrice[]>
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
 type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
 
@@ -85,15 +94,16 @@ export function computeModifiersCents(
         }
       } else if (attr.type === "INTEGER" || attr.type === "DECIMAL") {
         const raw = otherByAttr[attr.id]
+        const fallback =
+          attr.type === "INTEGER"
+            ? (attr.defaultInt ?? attr.minInt ?? 0)
+            : (attr.defaultDecimal ?? attr.minDecimal ?? 0)
         const value = typeof raw === "number" ? raw : Number.parseFloat(String(raw))
-        if (typeof value === "number" && !Number.isNaN(value)) {
-          const rule = getRuleForNumericValue(pricingRules, component.id, attr.code, value)
+        const effective = typeof value === "number" && !Number.isNaN(value) ? value : fallback
+        if (typeof effective === "number" && !Number.isNaN(effective)) {
+          const rule = getRuleForNumericValue(pricingRules, component.id, attr.code, effective)
           if (rule) {
-            if (rule.pricePerUnitCents != null) {
-              totalCents += Math.round(value * rule.pricePerUnitCents)
-            } else {
-              totalCents += rule.priceDeltaCents
-            }
+            totalCents += rule.priceDeltaCents
           }
         }
       } else if (attr.type === "BOOLEAN") {
