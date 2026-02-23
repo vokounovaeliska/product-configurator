@@ -290,13 +290,13 @@ export const ModelViewer3D = ({ modelUrl, className, config }: Props) => {
         camera={{ position: [2, 2, 2], fov: 45 }}
         gl={{ antialias: true }}
       >
-        {/* eslint-disable-next-line react/no-unknown-property -- R3F/Three.js light props */}
+        {/* eslint-disable react/no-unknown-property -- R3F/Three.js uses object, intensity, position etc. */}
         <ambientLight intensity={0.8} />
-        {/* eslint-disable-next-line react/no-unknown-property -- R3F/Three.js light props */}
         <directionalLight
           position={[5, 5, 5]}
           intensity={1}
         />
+        {/* eslint-enable react/no-unknown-property */}
         <Suspense fallback={null}>
           <Model
             url={modelUrl}
