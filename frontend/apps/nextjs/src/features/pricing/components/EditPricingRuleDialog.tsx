@@ -18,7 +18,6 @@ import {
 import { Input } from "@workspace/ui/components/input"
 import { Select } from "@workspace/ui/components/select"
 import { Typography } from "@workspace/ui/components/typography"
-import { cn } from "@workspace/ui/lib/utils"
 
 import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributeDto, AttributeType } from "@/api/attributeTypes"
@@ -163,8 +162,8 @@ export const EditPricingRuleDialog = ({
   /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- boolean OR intent */
   const isNumericMode = Boolean(
     (attributeContext && isNumericType(attributeContext.attributeType)) ||
-      (selectedAttribute && isNumericType(selectedAttribute.type)) ||
-      numericRange != null,
+    (selectedAttribute && isNumericType(selectedAttribute.type)) ||
+    numericRange != null,
   )
   /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
   const rangeStep = isDecimal
@@ -182,7 +181,6 @@ export const EditPricingRuleDialog = ({
       value: rule.value,
       toValue: rule.toValue ?? null,
       priceDeltaCents: rule.priceDeltaCents,
-      pricePerUnitCents: rule.pricePerUnitCents ?? null,
     },
     resolver: zodResolver(pricingRuleFormSchema),
   })
@@ -196,7 +194,6 @@ export const EditPricingRuleDialog = ({
         value: rule.value,
         toValue: rule.toValue ?? null,
         priceDeltaCents: rule.priceDeltaCents,
-        pricePerUnitCents: rule.pricePerUnitCents ?? null,
       })
     }
   }, [isOpen, rule, form])
@@ -212,7 +209,6 @@ export const EditPricingRuleDialog = ({
       value: values.value,
       toValue: values.toValue ?? undefined,
       priceDeltaCents: values.priceDeltaCents,
-      pricePerUnitCents: values.pricePerUnitCents ?? undefined,
     })
   }
 
@@ -475,153 +471,37 @@ export const EditPricingRuleDialog = ({
             >
               {t("create.priceSection")}
             </Typography>
-            <Typography
-              as="p"
-              variant="body-sm"
-              className="text-muted-foreground"
-            >
-              {t("create.priceTypeOneOnly")}
-            </Typography>
-            <div
-              role="tablist"
-              aria-label={t("create.priceSection")}
-              className="flex border-b border-border"
-            >
-              <button
-                type="button"
-                role="tab"
-                aria-selected={form.watch("pricePerUnitCents") == null}
-                className={cn(
-                  "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
-                  form.watch("pricePerUnitCents") == null
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                )}
-                onClick={() => {
-                  form.setValue("pricePerUnitCents", null)
-                }}
-              >
-                {t("create.priceTypeFixed")}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={form.watch("pricePerUnitCents") != null}
-                className={cn(
-                  "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
-                  form.watch("pricePerUnitCents") != null
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                )}
-                onClick={() => {
-                  form.setValue("pricePerUnitCents", form.getValues("pricePerUnitCents") ?? 0)
-                  form.setValue("priceDeltaCents", 0)
-                }}
-              >
-                {t("create.priceTypePerUnit")}
-              </button>
-            </div>
             <FormField
               control={form.control}
               name="priceDeltaCents"
-              render={({ field }) => {
-                const isPerUnit = form.watch("pricePerUnitCents") != null
-                if (isPerUnit) {
-                  return (
-                    <FormItem className="hidden">
-                      <FormControl>
-                        <input
-                          type="hidden"
-                          {...field}
-                          value={String(field.value ?? 0)}
-                          onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )
-                }
-                return (
-                  <FormItem className="pt-3">
-                    <FormLabel>{t("create.price")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0"
-                        value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
-                        }}
-                      />
-                    </FormControl>
-                    <Typography
-                      as="p"
-                      variant="body-sm"
-                      className="text-muted-foreground"
-                    >
-                      {currency
-                        ? t("create.priceHintInCurrency", { currency })
-                        : t("create.priceHint")}
-                    </Typography>
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="pricePerUnitCents"
-              render={({ field }) => {
-                const isPerUnit = field.value != null
-                if (!isPerUnit) {
-                  return (
-                    <FormItem className="hidden">
-                      <FormControl>
-                        <input
-                          type="hidden"
-                          {...field}
-                          value={field.value != null ? String(field.value) : ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === "" ? null : Number(e.target.value) || 0,
-                            )
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )
-                }
-                return (
-                  <FormItem className="pt-3">
-                    <FormLabel>{t("create.pricePerUnit")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="e.g. 0.50"
-                        value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          field.onChange(v === "" ? null : Math.round(Number(v) * 100))
-                        }}
-                      />
-                    </FormControl>
-                    <Typography
-                      as="p"
-                      variant="body-sm"
-                      className="text-muted-foreground"
-                    >
-                      {currency
-                        ? t("create.pricePerUnitHintInCurrency", { currency })
-                        : t("create.pricePerUnitHint")}
-                    </Typography>
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
+              render={({ field }) => (
+                <FormItem className="pt-3">
+                  <FormLabel>{t("create.price")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0"
+                      value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
+                      }}
+                    />
+                  </FormControl>
+                  <Typography
+                    as="p"
+                    variant="body-sm"
+                    className="text-muted-foreground"
+                  >
+                    {currency
+                      ? t("create.priceHintInCurrency", { currency })
+                      : t("create.priceHint")}
+                  </Typography>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
             <div className="flex justify-end gap-2 pt-2">

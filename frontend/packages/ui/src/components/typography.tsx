@@ -1,3 +1,11 @@
+import {
+  createElement,
+  type ElementType,
+  type FC,
+  type HTMLAttributes,
+  type HTMLProps,
+  type ReactNode,
+} from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@workspace/ui/lib/utils"
@@ -38,15 +46,20 @@ const typographyVariants = cva("", {
   },
 })
 
-export type TypographyProps = React.HTMLProps<HTMLElement> &
+export type TypographyProps = HTMLProps<HTMLElement> &
   VariantProps<typeof typographyVariants> & {
     asChild?: boolean
-    as?: React.ElementType
-    children?: React.ReactNode
+    as?: ElementType
+    children?: ReactNode
     className?: string
   }
 
-const Typography: React.FC<TypographyProps> = ({
+const typographyClass = (
+  weight?: TypographyProps["weight"],
+  variant?: TypographyProps["variant"],
+) => cn(typographyVariants({ weight, variant }))
+
+const Typography: FC<TypographyProps> = ({
   asChild,
   as,
   weight,
@@ -55,16 +68,24 @@ const Typography: React.FC<TypographyProps> = ({
   className,
   ...props
 }) => {
-  const Component = asChild ? Slot : (as ?? "p")
+  const computedClassName = cn(typographyClass(weight, variant), className)
 
-  return (
-    <Component
-      {...props}
-      className={cn(typographyVariants({ weight, variant }), className)}
-    >
-      {children}
-    </Component>
-  )
+  if (asChild) {
+    return (
+      <Slot
+        {...props}
+        className={computedClassName}
+      >
+        {children}
+      </Slot>
+    )
+  }
+
+  const rest = { ...props, className: computedClassName }
+  if (as) {
+    return createElement(as, rest, children)
+  }
+  return <p {...(rest as HTMLAttributes<HTMLParagraphElement>)}>{children}</p>
 }
 
 const variantOptions = Object.keys(typographyVariantsConfig.variant)

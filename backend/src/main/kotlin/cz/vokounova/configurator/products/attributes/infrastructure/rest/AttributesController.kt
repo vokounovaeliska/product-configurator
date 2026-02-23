@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.products.attributes.infrastructure.rest
 
+import cz.vokounova.configurator.generated.jooq.enums.AttributeType
 import cz.vokounova.configurator.products.attributes.domain.AttributeId
 import cz.vokounova.configurator.products.attributes.domain.AttributeSortableField
 import cz.vokounova.configurator.products.attributes.domain.AttributeSortingConfig
@@ -17,6 +18,7 @@ import cz.vokounova.configurator.products.attributes.infrastructure.rest.validat
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.components.domain.ComponentId
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
+import cz.vokounova.configurator.products.pricing.DefaultPricingRulesService
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.pagination.PaginationUtils
@@ -43,6 +45,7 @@ class AttributesController(
     private val queryParamsValidator: AttributeListQueryParamsValidator,
     private val createParamsValidator: AttributeCreateParamsValidator,
     private val jsonPatchValidator: AttributeJsonPatchParamsValidator,
+    private val defaultPricingRulesService: DefaultPricingRulesService,
 ) {
     @PostMapping
     fun attributesCreate(
@@ -53,6 +56,29 @@ class AttributesController(
         val params = attributeCreateRequestDto.toParams(ComponentId(componentId))
         createParamsValidator.validate(params).throwIfNotEmpty()
         val attribute = attributeAPI.create(params)
+
+        when {
+            attribute.minInt != null &&
+                attribute.maxInt != null &&
+                attribute.type == AttributeType.INTEGER ->
+                defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
+                    productModelId,
+                    componentId,
+                    attribute.code,
+                    attribute.minInt.toString(),
+                    attribute.maxInt.toString(),
+                )
+            attribute.minDecimal != null &&
+                attribute.maxDecimal != null &&
+                attribute.type == AttributeType.DECIMAL ->
+                defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
+                    productModelId,
+                    componentId,
+                    attribute.code,
+                    attribute.minDecimal.toString(),
+                    attribute.maxDecimal.toString(),
+                )
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(attribute.toDto())
     }
@@ -109,7 +135,7 @@ class AttributesController(
         @RequestParam(required = false) before: String?,
         @RequestParam(required = false) orderBy: List<String>?,
         @RequestParam(required = false) ids: List<UUID>?,
-        @RequestParam(required = false) types: List<cz.vokounova.configurator.generated.jooq.enums.AttributeType>?,
+        @RequestParam(required = false) types: List<AttributeType>?,
     ): ResponseEntity<AttributePaginatedResponseDto> {
         val queryParamsDto =
             AttributeListQueryParams(

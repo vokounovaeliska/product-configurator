@@ -1,6 +1,7 @@
 package cz.vokounova.configurator.products.pricing.infrastructure.rest
 
 import cz.vokounova.configurator.products.models.domain.ProductModelId
+import cz.vokounova.configurator.products.pricing.application.validation.PricingRuleValidator
 import cz.vokounova.configurator.products.pricing.domain.AttributePricingRule
 import cz.vokounova.configurator.products.pricing.domain.AttributePricingRuleId
 import cz.vokounova.configurator.products.pricing.infrastructure.rest.mapper.request.AttributePricingRuleCreateRequestDto
@@ -25,6 +26,7 @@ import java.util.UUID
 @RequestMapping("/products/api/v1/product-models/{productModelId}/pricing-rules")
 class PricingRulesController(
     private val attributePricingRuleRepository: AttributePricingRuleRepository,
+    private val pricingRuleValidator: PricingRuleValidator,
 ) {
     @GetMapping
     fun list(
@@ -46,6 +48,15 @@ class PricingRulesController(
         @PathVariable productModelId: UUID,
         @RequestBody body: AttributePricingRuleCreateRequestDto,
     ): ResponseEntity<AttributePricingRuleDto> {
+        val operator = body.operator ?: "EQ"
+        if (operator == "EQ") {
+            pricingRuleValidator.validateNoDuplicateOptionRule(
+                productModelId = productModelId,
+                componentId = body.componentId,
+                attributeCode = body.attributeCode,
+                value = body.value,
+            )
+        }
         val now = OffsetDateTime.now()
         val rule =
             AttributePricingRule(
@@ -53,11 +64,10 @@ class PricingRulesController(
                 productModelId = ProductModelId(productModelId),
                 componentId = body.componentId,
                 attributeCode = body.attributeCode,
-                operator = body.operator ?: "EQ",
+                operator = operator,
                 value = body.value,
                 toValue = body.toValue,
                 priceDeltaCents = body.priceDeltaCents ?: 0,
-                pricePerUnitCents = body.pricePerUnitCents,
                 createdAt = now,
                 modifiedAt = now,
             )
@@ -87,7 +97,6 @@ class PricingRulesController(
                 value = body.value,
                 toValue = body.toValue,
                 priceDeltaCents = body.priceDeltaCents ?: 0,
-                pricePerUnitCents = body.pricePerUnitCents,
             )
         val saved =
             attributePricingRuleRepository.update(updated)

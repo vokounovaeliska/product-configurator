@@ -8,6 +8,7 @@ import cz.vokounova.configurator.shared.exceptions.AuthException
 import cz.vokounova.configurator.shared.exceptions.CannotBeDeactivatedException
 import cz.vokounova.configurator.shared.exceptions.CannotBeDeletedException
 import cz.vokounova.configurator.shared.exceptions.CommonErrorCode
+import cz.vokounova.configurator.shared.exceptions.DuplicateResourceException
 import cz.vokounova.configurator.shared.exceptions.InvalidJsonPatchException
 import cz.vokounova.configurator.shared.exceptions.LanguageNotSupportedException
 import cz.vokounova.configurator.shared.exceptions.PaginationException
@@ -39,16 +40,14 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @ControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
-class RestExceptionHandler(
-    private val psqlExceptionConverter: cz.vokounova.configurator.shared.rest.exception.PsqlExceptionConverter,
-) {
+class RestExceptionHandler {
     companion object {
         val LOGGER by logger()
     }
 
     @ExceptionHandler(AuthException::class)
     fun handleAuthException(ex: AuthException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Authentication exception occurred", ex)
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
@@ -57,7 +56,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(AuthorizationDeniedException::class)
     fun handleAuthorizationDeniedException(ex: AuthorizationDeniedException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Authorization denied exception occurred",
             ex,
         )
@@ -68,7 +67,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFoundException(ex: NoResourceFoundException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Resource not found exception occurred",
             ex,
         )
@@ -79,7 +78,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handleResourceNotFoundException(ex: ResourceNotFoundException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Resource not found exception occurred",
             ex,
         )
@@ -90,7 +89,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(JsonMappingException::class)
     fun handleJsonMappingException(ex: JsonMappingException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Json mapping exception", ex)
 
         val errors =
@@ -110,7 +109,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleHttpMessageNotReadableException(ex: HttpMessageNotReadableException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "HTTP message not readable exception occurred",
             ex,
         )
@@ -129,7 +128,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(MismatchedInputException::class)
     fun handleMismatchedInputException(ex: MismatchedInputException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Mismatched input exception occurred",
             ex,
         )
@@ -150,7 +149,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(ValidationException::class)
     fun handleValidationException(ex: ValidationException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Validation exception occurred", ex)
         val errors =
             ex.errors
@@ -172,7 +171,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleMethodArgumentNotValidException(ex: MethodArgumentNotValidException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Method argument not valid exception occurred",
             ex,
         )
@@ -194,7 +193,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(CannotBeDeletedException::class)
     fun handleCannotBeDeletedException(ex: CannotBeDeletedException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Resource cannot be deleted exception occurred",
             ex,
         )
@@ -205,7 +204,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(CannotBeDeactivatedException::class)
     fun handleCannotBeDeactivatedException(ex: CannotBeDeactivatedException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Resource cannot be deactivated exception occurred",
             ex,
         )
@@ -214,9 +213,18 @@ class RestExceptionHandler(
             .body(ApplicationErrorResponse(CommonErrorCode.RESOURCE_CANNOT_BE_DEACTIVATED, ex.message))
     }
 
+    @ExceptionHandler(DuplicateResourceException::class)
+    fun handleDuplicateResourceException(ex: DuplicateResourceException): ResponseEntity<ApplicationErrorResponse> {
+        LOGGER
+            .warn("Duplicate resource: {}", ex.message)
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ApplicationErrorResponse(CommonErrorCode.DUPLICATE_OPTION_RULE, ex.message))
+    }
+
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Illegal argument exception occurred",
             ex,
         )
@@ -227,7 +235,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(InvalidJsonPatchException::class)
     fun handleInvalidJsonPatchException(ex: InvalidJsonPatchException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Invalid JSON Patch exception occurred",
             ex,
         )
@@ -240,7 +248,7 @@ class RestExceptionHandler(
     fun handleMissingServletRequestParameterException(
         ex: MissingServletRequestParameterException,
     ): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Missing request parameter", ex)
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
@@ -249,7 +257,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(IllegalStateException::class)
     fun handleIllegalStateException(ex: IllegalStateException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Illegal state exception occurred", ex)
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
@@ -258,7 +266,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(LanguageNotSupportedException::class)
     fun handleLanguageNotSupportedException(ex: LanguageNotSupportedException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Language not supported exception occurred",
             ex,
         )
@@ -269,7 +277,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(JsonParseException::class)
     fun handleJsonParseException(ex: JsonParseException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Json parse exception occurred", ex)
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
@@ -278,7 +286,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     fun handleMethodArgumentTypeMismatchException(ex: MethodArgumentTypeMismatchException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Method argument type mismatch exception occurred",
             ex,
         )
@@ -295,7 +303,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityViolationException(ex: DataIntegrityViolationException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Data integrity violation exception occurred",
             ex,
         )
@@ -318,7 +326,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(PaginationException::class)
     fun handlePaginationException(ex: PaginationException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Pagination exception occurred", ex)
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
@@ -327,7 +335,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(MissingServletRequestPartException::class)
     fun handleMissingServletRequestPartException(ex: MissingServletRequestPartException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Missing servlet request part exception occurred",
             ex,
         )
@@ -338,7 +346,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
     fun handleHttpMediaTypeNotSupportedException(ex: HttpMediaTypeNotSupportedException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "HTTP media type not supported exception occurred",
             ex,
         )
@@ -349,7 +357,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException::class)
     fun handleHttpMediaTypeNotAcceptableException(ex: HttpMediaTypeNotAcceptableException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "HTTP media type not acceptable exception occurred",
             ex,
         )
@@ -360,7 +368,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleConstraintViolationExceptions(ex: ConstraintViolationException): ResponseEntity<ValidationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER.error(
+        LOGGER.error(
             "Constraint violation exception occurred",
             ex,
         )
@@ -390,7 +398,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(ApplicationException::class)
     fun handleApplicationException(ex: ApplicationException): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Application exception occurred", ex)
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -399,7 +407,7 @@ class RestExceptionHandler(
 
     @ExceptionHandler(Throwable::class)
     fun handleException(ex: Throwable): ResponseEntity<ApplicationErrorResponse> {
-        cz.vokounova.configurator.shared.rest.exception.RestExceptionHandler.Companion.LOGGER
+        LOGGER
             .error("Unexpected exception occurred", ex)
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)

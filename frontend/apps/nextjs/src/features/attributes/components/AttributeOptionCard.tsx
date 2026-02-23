@@ -9,7 +9,7 @@ import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
-import { getImageUrl } from "@/utils/imageUrl"
+import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 import { EditAttributeOptionDialog } from "./EditAttributeOptionDialog"
 
@@ -33,7 +33,7 @@ export const AttributeOptionCard = ({
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isImageEditorOpen, setIsImageEditorOpen] = useState(false)
 
-  const imageUrl = option.imageUrl ? getImageUrl(option.imageUrl) : null
+  const imageUrl = option.imageUrl ? getImageUrlForDisplay(option.imageUrl) : null
 
   return (
     <>
@@ -59,7 +59,8 @@ export const AttributeOptionCard = ({
               as="h3"
               variant="body-md"
               weight="semibold"
-              className="line-clamp-1"
+              className="line-clamp-2"
+              title={option.label}
             >
               {option.label}
             </Typography>

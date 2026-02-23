@@ -14,6 +14,7 @@ data class AttributeOption(
     val value: String,
     val label: String,
     val imageUrl: String?,
+    val colorHex: String?,
     val sortOrder: Int,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
@@ -27,6 +28,7 @@ data class AttributeOption(
                 value = params.value,
                 label = params.label,
                 imageUrl = params.imageUrl,
+                colorHex = params.colorHex,
                 sortOrder = params.sortOrder ?: 0,
                 createdAt = timestamp,
                 modifiedAt = timestamp,
@@ -40,5 +42,6 @@ data class AttributeOptionCreateParams(
     val value: String,
     val label: String,
     val imageUrl: String? = null,
+    val colorHex: String? = null,
     val sortOrder: Int? = null,
 )

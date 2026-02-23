@@ -54,6 +54,8 @@ export const EditAttributeDialog = ({
       maxInt: attribute.maxInt,
       minDecimal: attribute.minDecimal,
       maxDecimal: attribute.maxDecimal,
+      defaultInt: attribute.defaultInt ?? null,
+      defaultDecimal: attribute.defaultDecimal ?? null,
       unit: attribute.unit ?? null,
       sortOrder: attribute.sortOrder,
     },
@@ -64,6 +66,7 @@ export const EditAttributeDialog = ({
 
   useEffect(() => {
     if (isOpen) {
+      const isEnumOrBoolean = attribute.type === "ENUM" || attribute.type === "BOOLEAN"
       form.reset({
         code: attribute.code,
         label: attribute.label,
@@ -73,7 +76,9 @@ export const EditAttributeDialog = ({
         maxInt: attribute.maxInt,
         minDecimal: attribute.minDecimal,
         maxDecimal: attribute.maxDecimal,
-        unit: attribute.unit ?? null,
+        defaultInt: isEnumOrBoolean ? null : (attribute.defaultInt ?? null),
+        defaultDecimal: isEnumOrBoolean ? null : (attribute.defaultDecimal ?? null),
+        unit: isEnumOrBoolean ? null : (attribute.unit ?? null),
         sortOrder: attribute.sortOrder,
       })
     }
@@ -115,6 +120,10 @@ export const EditAttributeDialog = ({
         if (values.maxInt !== attribute.maxInt) {
           patches.push({ path: "/maxInt", op: "Replace" as const, value: values.maxInt })
         }
+        const newDefaultInt = values.defaultInt ?? null
+        if (newDefaultInt !== (attribute.defaultInt ?? null)) {
+          patches.push({ path: "/defaultInt", op: "Replace" as const, value: newDefaultInt })
+        }
       }
 
       // DECIMAL fields
@@ -131,6 +140,14 @@ export const EditAttributeDialog = ({
             path: "/maxDecimal",
             op: "Replace" as const,
             value: values.maxDecimal,
+          })
+        }
+        const newDefaultDecimal = values.defaultDecimal ?? null
+        if (newDefaultDecimal !== (attribute.defaultDecimal ?? null)) {
+          patches.push({
+            path: "/defaultDecimal",
+            op: "Replace" as const,
+            value: newDefaultDecimal,
           })
         }
       }
@@ -228,6 +245,9 @@ export const EditAttributeDialog = ({
                         form.setValue("maxInt", null)
                         form.setValue("minDecimal", null)
                         form.setValue("maxDecimal", null)
+                        form.setValue("defaultInt", null)
+                        form.setValue("defaultDecimal", null)
+                        form.setValue("unit", null)
                       } else if (value === "INTEGER") {
                         form.setValue("minDecimal", null)
                         form.setValue("maxDecimal", null)
@@ -268,7 +288,7 @@ export const EditAttributeDialog = ({
                   <FormControl>
                     <Checkbox
                       checked={field.value ?? true}
-                      onCheckedChange={field.onChange}
+                      onCheckedChange={(c) => field.onChange(c === true)}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
@@ -303,6 +323,29 @@ export const EditAttributeDialog = ({
                     </p>
                   )}
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="defaultInt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("edit.defaultInt")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder={t("edit.minIntPlaceholder")}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const v = e.target.value
+                            field.onChange(v === "" ? null : Number.parseInt(v, 10) || null)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -355,6 +398,30 @@ export const EditAttributeDialog = ({
 
                 <FormField
                   control={form.control}
+                  name="defaultDecimal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("edit.defaultDecimal")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="any"
+                          placeholder="e.g., 10.5"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const v = e.target.value
+                            field.onChange(v === "" ? null : Number.parseFloat(v) || null)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="unit"
                   render={({ field }) => (
                     <FormItem>
@@ -395,6 +462,20 @@ export const EditAttributeDialog = ({
                 </FormItem>
               )}
             />
+
+            {Object.keys(form.formState.errors).length > 0 && (
+              <div className="rounded-lg bg-destructive/10 p-4 text-destructive">
+                {(() => {
+                  const err = Object.values(form.formState.errors)[0]
+                  return err &&
+                    typeof err === "object" &&
+                    "message" in err &&
+                    typeof err.message === "string"
+                    ? err.message
+                    : t("edit.errorMessages.generalError")
+                })()}
+              </div>
+            )}
 
             {updateAttribute.isError && (
               <div className="rounded-lg bg-destructive/10 p-4 text-destructive">

@@ -22,6 +22,10 @@ data class Attribute(
     val maxInt: Int?,
     val minDecimal: BigDecimal?,
     val maxDecimal: BigDecimal?,
+    /** Default value for INTEGER attributes (within min..max when set). */
+    val defaultInt: Int?,
+    /** Default value for DECIMAL attributes (within min..max when set). */
+    val defaultDecimal: BigDecimal?,
     /** Optional unit for numeric attributes (e.g. "mm" for millimeters). */
     val unit: String?,
     val sortOrder: Int,
@@ -42,6 +46,8 @@ data class Attribute(
                 maxInt = params.maxInt,
                 minDecimal = params.minDecimal,
                 maxDecimal = params.maxDecimal,
+                defaultInt = params.defaultInt,
+                defaultDecimal = params.defaultDecimal,
                 unit = params.unit,
                 sortOrder = params.sortOrder ?: 0,
                 createdAt = timestamp,

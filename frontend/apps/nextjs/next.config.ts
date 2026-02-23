@@ -2,9 +2,29 @@
 import type {NextConfig} from "next"
 import createNextIntlPlugin from "next-intl/plugin"
 
+const restApiUrl = process.env.NEXT_PUBLIC_REST_API_URL
+const restHost = restApiUrl ? new URL(restApiUrl).hostname : null
+const restPatterns =
+  restHost && !["localhost", "127.0.0.1"].includes(restHost)
+    ? [
+        { protocol: "http" as const, hostname: restHost },
+        { protocol: "https" as const, hostname: restHost },
+      ]
+    : []
+
 const nextConfig = {
     transpilePackages: ["@workspace/ui"],
-    images: {remotePatterns: [{protocol: "http", hostname: "minio"}]},
+    images: {
+      remotePatterns: [
+        { protocol: "http", hostname: "minio" },
+        { protocol: "https", hostname: "minio" },
+        { protocol: "http", hostname: "localhost" },
+        { protocol: "https", hostname: "localhost" },
+        { protocol: "http", hostname: "127.0.0.1" },
+        { protocol: "https", hostname: "127.0.0.1" },
+        ...restPatterns,
+      ],
+    },
     webpack(config) {
         // Grab the existing rule that handles SVG imports
         // @ts-expect-error

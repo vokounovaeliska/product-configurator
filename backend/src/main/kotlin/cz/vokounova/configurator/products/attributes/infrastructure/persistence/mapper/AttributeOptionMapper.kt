@@ -15,6 +15,7 @@ fun AttributeOption.toPersistence(): AttributeOptionRecord =
         sortOrder = sortOrder,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
+        colorHex = colorHex,
     )
 
 fun AttributeOptionRecord.toDomain(): AttributeOption =
@@ -24,6 +25,7 @@ fun AttributeOptionRecord.toDomain(): AttributeOption =
         value = value,
         label = label,
         imageUrl = imageUrl,
+        colorHex = colorHex,
         sortOrder = sortOrder ?: 0,
         createdAt = createdAt,
         modifiedAt = modifiedAt,

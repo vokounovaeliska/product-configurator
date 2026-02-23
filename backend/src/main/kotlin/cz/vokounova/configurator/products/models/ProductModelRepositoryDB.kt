@@ -24,6 +24,8 @@ import cz.vokounova.configurator.shared.pagination.jooq.PreviousPageRequest
 import cz.vokounova.configurator.shared.pagination.jooq.useSeekPagination
 import org.jooq.Condition
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import org.jooq.impl.SQLDataType
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
@@ -35,13 +37,25 @@ class ProductModelRepositoryDB(
     override fun findById(
         id: ProductModelId,
         lock: Boolean,
-    ): ProductModel? =
-        dslContext
-            .selectFrom(PRODUCT_MODEL)
-            .where(PRODUCT_MODEL.ID.eq(id.value))
-            .run { if (lock) this.forUpdate() else this }
-            .fetchOne()
-            ?.toDomain()
+    ): ProductModel? {
+        val record =
+            dslContext
+                .selectFrom(PRODUCT_MODEL)
+                .where(PRODUCT_MODEL.ID.eq(id.value))
+                .run { if (lock) this.forUpdate() else this }
+                .fetchOne()
+                ?: return null
+        val model3dUrl =
+            try {
+                dslContext
+                    .fetch("SELECT model_3d_url FROM product_model WHERE id = ?", id.value)
+                    .firstOrNull()
+                    ?.get("model_3d_url") as? String
+            } catch (_: Exception) {
+                null
+            }
+        return record.toDomain(model3dUrlOverride = model3dUrl)
+    }
 
     override fun findByFilter(filter: ProductModelFilter?): List<ProductModel> =
         dslContext
@@ -56,12 +70,19 @@ class ProductModelRepositoryDB(
     override fun create(productModel: ProductModel): ProductModel? {
         val record = productModel.toPersistence()
 
-        return dslContext
-            .insertInto(PRODUCT_MODEL)
-            .set(record)
+        val insert =
+            dslContext
+                .insertInto(PRODUCT_MODEL)
+                .set(record)
+        val insertWithModel3d =
+            productModel.model3dUrl?.let { url ->
+                insert.set(DSL.field(DSL.name("model_3d_url"), SQLDataType.VARCHAR), url)
+            } ?: insert
+
+        return insertWithModel3d
             .returning()
             .fetchOne()
-            ?.toDomain()
+            ?.toDomain(model3dUrlOverride = productModel.model3dUrl)
     }
 
     override fun update(productModel: ProductModel): ProductModel? {
@@ -74,7 +95,7 @@ class ProductModelRepositoryDB(
             .where(PRODUCT_MODEL.ID.eq(record.id))
             .returning()
             .fetchOne()
-            ?.toDomain()
+            ?.toDomain(model3dUrlOverride = productModel.model3dUrl)
     }
 
     override fun delete(id: ProductModelId): Int =

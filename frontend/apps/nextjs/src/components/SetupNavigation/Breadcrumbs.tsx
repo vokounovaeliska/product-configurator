@@ -170,6 +170,14 @@ export const Breadcrumbs = ({
     href: ROUTES.setup,
   })
 
+  // Add Import from SketchUp if we're on that page
+  if (segments.includes("import") && segments.includes("sketchup")) {
+    breadcrumbs.push({
+      label: tSetup("navigation.importSketchup"),
+      href: ROUTES.setupImportSketchup,
+    })
+  }
+
   // Add Product Models if we're in that section
   if (segments.includes("product-models")) {
     breadcrumbs.push({

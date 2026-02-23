@@ -79,9 +79,13 @@ backend/.env.*
 *.log
 logs/
 
+### Thesis / internal docs (not for commit) ###
+docs/
+
 ### Temporary files ###
 tmp/
 temp/
+.tmp/*
 data/
 lib/
 !frontend/**/lib/

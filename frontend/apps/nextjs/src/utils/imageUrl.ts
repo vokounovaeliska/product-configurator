@@ -14,6 +14,21 @@ export function getImageUrl(url: string | null | undefined): string {
 }
 
 /**
+ * Returns a same-origin URL for Next.js Image (avoids remotePatterns restrictions).
+ * Uses the /api/files proxy when the path matches backend file storage.
+ */
+export function getImageUrlForDisplay(url: string | null | undefined): string {
+  if (!url) return ""
+  const trimmed = url.trim()
+  if (!trimmed) return ""
+  const match = /\/api\/v1\/files\/(.+)$/i.exec(trimmed)
+  if (match?.[1]) {
+    return `/api/files/${match[1]}`
+  }
+  return getImageUrl(trimmed)
+}
+
+/**
  * Returns a same-origin URL for loading an image in the option image editor (canvas).
  * Proxies through Next.js /api/files/* so the image loads same-origin and avoids
  * CORS / tainted canvas when reading pixel data.

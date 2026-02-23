@@ -10,6 +10,7 @@ import type { ProductModelDto } from "@/api/productModelTypes"
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 
 import { useComputedPrice } from "@/features/configurator/hooks/useComputedPrice"
+import { useConfiguratorAttributes } from "@/features/configurator/hooks/useConfiguratorAttributes"
 
 import { ComponentSelector } from "./ComponentSelector"
 import { PriceDisplay } from "./PriceDisplay"
@@ -61,6 +62,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
 
   const { data: pricingRules = [] } = usePricingRulesList({ productModelId })
+  const { attributesByComponent } = useConfiguratorAttributes(productModelId, components)
   const { data: computedPrice, isLoading: isPriceLoading } = useComputedPrice(
     productModelId,
     productModel.price,
@@ -106,6 +108,25 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
     [components, selectedOptionsByComponent],
   )
 
+  const model3dConfig = useMemo(
+    () =>
+      productModel.model3dUrl
+        ? {
+            components,
+            attributesByComponent,
+            selectedOptionsByComponent,
+            selectedOtherValuesByComponent,
+          }
+        : null,
+    [
+      productModel.model3dUrl,
+      components,
+      attributesByComponent,
+      selectedOptionsByComponent,
+      selectedOtherValuesByComponent,
+    ],
+  )
+
   return (
     <div className="flex flex-1 flex-col gap-6 bg-muted/30 p-6 md:p-10">
       <Breadcrumbs
@@ -138,6 +159,8 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             productModelId={productModelId}
             selectedComponentId={activeComponentId}
             selectedOptionLayers={previewLayers}
+            model3dUrl={productModel.model3dUrl}
+            model3dConfig={model3dConfig}
           />
         </div>
 

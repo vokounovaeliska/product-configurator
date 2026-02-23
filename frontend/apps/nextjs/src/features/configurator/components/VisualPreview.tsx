@@ -6,6 +6,10 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import { SmartImageComposer } from "@/components/SmartImageComposer"
 
+import type { Model3dConfig } from "@/features/configurator/types/model3dConfig"
+
+import { ModelViewer3D } from "./ModelViewer3DWrapper"
+
 export type PreviewLayer = {
   id: string
   imageUrl: string
@@ -17,16 +21,37 @@ type Props = {
   selectedComponentId: string | null
   /** Layers from selected attribute options (configurator) */
   selectedOptionLayers?: PreviewLayer[]
+  /** URL to 3D model (GLB) – when set, shows 3D viewer instead of image layers */
+  model3dUrl?: string | null
+  /** Config to apply to 3D model (materials, scale) when options change */
+  model3dConfig?: Model3dConfig | null
 }
 
 export const VisualPreview = ({
   productModelId: _productModelId,
   selectedComponentId,
   selectedOptionLayers = [],
+  model3dUrl,
+  model3dConfig,
 }: Props) => {
   const t = useTranslations("Configurator")
 
   const layerItems = selectedOptionLayers
+  const has3dModel = Boolean(model3dUrl?.trim())
+
+  if (has3dModel) {
+    return (
+      <Card className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 md:p-6">
+        <div className="flex min-h-[40vh] flex-1 items-center justify-center rounded-lg border bg-muted/30">
+          <ModelViewer3D
+            modelUrl={model3dUrl!}
+            className="rounded-lg"
+            config={model3dConfig}
+          />
+        </div>
+      </Card>
+    )
+  }
 
   if (!selectedComponentId && layerItems.length === 0) {
     return (

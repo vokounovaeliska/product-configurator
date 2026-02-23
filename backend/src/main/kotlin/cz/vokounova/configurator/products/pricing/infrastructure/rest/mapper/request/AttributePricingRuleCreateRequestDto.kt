@@ -9,5 +9,4 @@ data class AttributePricingRuleCreateRequestDto(
     val value: String,
     val toValue: String? = null,
     val priceDeltaCents: Int? = 0,
-    val pricePerUnitCents: Int? = null,
 )

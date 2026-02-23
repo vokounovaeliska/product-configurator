@@ -38,6 +38,19 @@ class AttributeOptionJsonPatchParamsValidator : AppValidator<AttributeOptionJson
                         }
                     }
                 }
+                AttributeOptionJsonPatchParamsPath.COLOR_HEX -> {
+                    (value.value as? String)?.let {
+                        if (!it.matches(Regex("^#[0-9a-fA-F]{6}$"))) {
+                            addError(
+                                ValidationExceptionError(
+                                    field = path.value,
+                                    code = BaseValidationCode.VALUE_IS_INVALID.name,
+                                    message = "Color hex must be in #RRGGBB format",
+                                ),
+                            )
+                        }
+                    }
+                }
                 AttributeOptionJsonPatchParamsPath.SORT_ORDER -> {
                     field(path.value, value.value as? Number) {
                         notNull()

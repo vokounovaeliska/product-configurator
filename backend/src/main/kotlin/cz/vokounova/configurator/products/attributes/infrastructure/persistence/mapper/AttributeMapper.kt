@@ -17,10 +17,12 @@ fun Attribute.toPersistence(): AttributeDefinitionRecord =
         maxInt = maxInt,
         minDecimal = minDecimal,
         maxDecimal = maxDecimal,
-        unit = unit,
         sortOrder = sortOrder,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
+        unit = unit,
+        defaultInt = defaultInt,
+        defaultDecimal = defaultDecimal,
     )
 
 fun AttributeDefinitionRecord.toDomain(): Attribute =
@@ -35,6 +37,8 @@ fun AttributeDefinitionRecord.toDomain(): Attribute =
         maxInt = maxInt,
         minDecimal = minDecimal,
         maxDecimal = maxDecimal,
+        defaultInt = defaultInt,
+        defaultDecimal = defaultDecimal,
         unit = unit,
         sortOrder = sortOrder ?: 0,
         createdAt = createdAt,

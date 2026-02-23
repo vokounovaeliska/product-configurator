@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.products.attributes.application.usecase
 
+import cz.vokounova.configurator.generated.jooq.enums.AttributeType
 import cz.vokounova.configurator.products.attributes.application.exception.AttributeErrorCode
 import cz.vokounova.configurator.products.attributes.application.exception.AttributeException
 import cz.vokounova.configurator.products.attributes.application.validation.AttributeDomainValidator
@@ -59,12 +60,32 @@ class AttributeAPIManager(
     ): Attribute {
         val existingAttribute = findAttribute(id, lock = true)
         val patched = jsonPatchUtils.applyAndMapJsonPatch(jsonPatchParams, existingAttribute)
+        val normalized = normalizeForType(patched)
 
-        // Validate type configuration after patch
-        attributeDomainValidator.validate(patched)
+        attributeDomainValidator.validate(normalized)
 
-        return attributeRepository.update(patched)
+        return attributeRepository.update(normalized)
             ?: throw AttributeException(AttributeErrorCode.UPDATE_ATTRIBUTE_FAILED)
+    }
+
+    /** Clears type-incompatible fields when type changes (e.g. DECIMAL→INTEGER clears minDecimal/maxDecimal). */
+    private fun normalizeForType(attribute: Attribute): Attribute {
+        return when (attribute.type) {
+            AttributeType.ENUM, AttributeType.BOOLEAN ->
+                attribute.copy(
+                    minInt = null,
+                    maxInt = null,
+                    minDecimal = null,
+                    maxDecimal = null,
+                    defaultInt = null,
+                    defaultDecimal = null,
+                    unit = null,
+                )
+            AttributeType.INTEGER ->
+                attribute.copy(minDecimal = null, maxDecimal = null)
+            AttributeType.DECIMAL ->
+                attribute.copy(minInt = null, maxInt = null)
+        }
     }
 
     override fun getByFilterPaginated(

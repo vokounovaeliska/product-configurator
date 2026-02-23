@@ -58,6 +58,10 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         set(value): Unit = set(8, value)
         get(): OffsetDateTime = get(8) as OffsetDateTime
 
+    open var model_3dUrl: String?
+        set(value): Unit = set(9, value)
+        get(): String? = get(9) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -67,7 +71,7 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
     /**
      * Create a detached, initialised ProductModelRecord
      */
-    constructor(id: UUID, userId: UUID, name: String, description: String? = null, price: BigDecimal? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, userId: UUID, name: String, description: String? = null, price: BigDecimal? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, model_3dUrl: String? = null): this() {
         this.id = id
         this.userId = userId
         this.name = name
@@ -77,6 +81,7 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         this.isActive = isActive
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
+        this.model_3dUrl = model_3dUrl
         resetChangedOnNotNull()
     }
 }

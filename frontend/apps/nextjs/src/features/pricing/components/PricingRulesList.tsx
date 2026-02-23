@@ -42,7 +42,6 @@ type Props = {
 }
 
 const FILTER_OPERATOR_ALL = "all"
-const FILTER_PRICE_TYPE_ALL = "all"
 
 export const PricingRulesList = ({
   productModelId,
@@ -55,7 +54,6 @@ export const PricingRulesList = ({
   const [editingRule, setEditingRule] = useState<AttributePricingRuleDto | null>(null)
   const [filterAttributeCode, setFilterAttributeCode] = useState(presetAttributeCode ?? "")
   const [filterOperator, setFilterOperator] = useState<string>(FILTER_OPERATOR_ALL)
-  const [filterPriceType, setFilterPriceType] = useState<string>(FILTER_PRICE_TYPE_ALL)
   const isAttributeScoped = Boolean(presetComponentId && presetAttributeCode)
 
   const { data: productModel } = useProductModel(productModelId)
@@ -146,18 +144,12 @@ export const PricingRulesList = ({
       if (filterOperator !== FILTER_OPERATOR_ALL && rule.operator !== filterOperator) {
         return false
       }
-      if (filterPriceType !== FILTER_PRICE_TYPE_ALL) {
-        const isPerUnit = rule.pricePerUnitCents != null
-        if (filterPriceType === "perUnit" && !isPerUnit) return false
-        if (filterPriceType === "fixed" && isPerUnit) return false
-      }
       return true
     })
   }, [
     rules,
     filterAttributeCode,
     filterOperator,
-    filterPriceType,
     isAttributeScoped,
     presetComponentId,
     presetAttributeCode,
@@ -253,20 +245,10 @@ export const PricingRulesList = ({
               <option value="EQ">{t("list.operatorEq")}</option>
               <option value="BETWEEN">{t("list.operatorBetween")}</option>
             </select>
-            <select
-              value={filterPriceType}
-              onChange={(e) => setFilterPriceType(e.target.value)}
-              className="h-9 w-[180px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label={t("list.filterPriceType")}
-            >
-              <option value={FILTER_PRICE_TYPE_ALL}>{t("list.filterPriceTypeAll")}</option>
-              <option value="fixed">{t("list.priceFixed")}</option>
-              <option value="perUnit">{t("list.pricePerUnit")}</option>
-            </select>
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-border">
-            <table className="w-full text-sm">
+          <div className="max-h-[50vh] overflow-auto rounded-lg border border-border">
+            <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   <th className="px-4 py-3 text-left font-medium text-foreground">
@@ -277,9 +259,6 @@ export const PricingRulesList = ({
                   </th>
                   <th className="px-4 py-3 text-left font-medium text-foreground">
                     {t("list.columnCondition")}
-                  </th>
-                  <th className="px-4 py-3 text-left font-medium text-foreground">
-                    {t("list.columnPriceType")}
                   </th>
                   <th className="px-4 py-3 text-right font-medium text-foreground">
                     {t("list.columnPrice")}
@@ -293,7 +272,7 @@ export const PricingRulesList = ({
                 {filteredRules.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={5}
                       className="px-4 py-8 text-center text-muted-foreground"
                     >
                       {t("list.filterNoResults")}
@@ -305,26 +284,21 @@ export const PricingRulesList = ({
                       key={rule.id}
                       className="border-b border-border last:border-b-0 hover:bg-muted/30"
                     >
-                      <td className="px-4 py-3 font-medium">{rule.attributeCode}</td>
-                      <td className="px-4 py-3 text-muted-foreground">
+                      <td className="max-w-[180px] px-4 py-3 font-medium break-words">
+                        {rule.attributeCode}
+                      </td>
+                      <td className="max-w-[180px] px-4 py-3 break-words text-muted-foreground">
                         {rule.componentId
                           ? (componentById[rule.componentId]?.label ?? rule.componentId)
                           : "—"}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">
+                      <td className="max-w-[200px] px-4 py-3 break-words text-muted-foreground">
                         {rule.operator === "EQ"
                           ? `${t("list.operatorEq")} "${rule.value}"`
                           : `${t("list.operatorBetween")} ${rule.value}–${rule.toValue ?? ""}`}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {rule.pricePerUnitCents != null
-                          ? t("list.pricePerUnit")
-                          : t("list.priceFixed")}
-                      </td>
                       <td className="px-4 py-3 text-right tabular-nums">
-                        {rule.pricePerUnitCents != null
-                          ? `${formatPrice(rule.pricePerUnitCents / 100)} / —`
-                          : formatPrice(rule.priceDeltaCents / 100)}
+                        {formatPrice(rule.priceDeltaCents / 100)}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">
@@ -368,6 +342,7 @@ export const PricingRulesList = ({
         presetAttributeCode={isAttributeScoped ? presetAttributeCode : undefined}
         presetNumericUnit={isAttributeScoped ? presetAttributeContext?.unit : undefined}
         presetNumericRange={isAttributeScoped ? presetAttributeContext?.numericRange : undefined}
+        existingRules={rules}
       />
 
       {editingRule && (

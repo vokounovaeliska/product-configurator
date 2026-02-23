@@ -24,7 +24,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import { useAttributesList } from "@/api/attributeQueries"
-import type { AttributePricingRuleCreateDto } from "@/api/pricingTypes"
+import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
 import { DualRangeSlider } from "@/components/DualRangeSlider"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing dialog needs components list */
@@ -49,6 +49,8 @@ type Props = {
   /** When set (e.g. from attribute pricing page), unit/range/type shown before attribute loads. */
   presetNumericUnit?: string | null
   presetNumericRange?: { min: number; max: number }
+  /** Existing rules to prevent duplicate rules per ENUM option. */
+  existingRules?: AttributePricingRuleDto[]
 }
 
 export const CreatePricingRuleDialog = ({
@@ -62,6 +64,7 @@ export const CreatePricingRuleDialog = ({
   presetAttributeCode,
   presetNumericUnit,
   presetNumericRange,
+  existingRules = [],
 }: Props) => {
   const t = useTranslations("Pricing")
   const hasPreset = Boolean(presetComponentId && presetAttributeCode)
@@ -77,7 +80,6 @@ export const CreatePricingRuleDialog = ({
       value: "",
       toValue: null,
       priceDeltaCents: 0,
-      pricePerUnitCents: null,
     },
     resolver: zodResolver(pricingRuleFormSchema),
   })
@@ -132,7 +134,6 @@ export const CreatePricingRuleDialog = ({
         value: "",
         toValue: null,
         priceDeltaCents: 0,
-        pricePerUnitCents: null,
       })
     }
   }, [isOpen, hasPreset, presetComponentId, presetAttributeCode, form])
@@ -145,6 +146,21 @@ export const CreatePricingRuleDialog = ({
   )
   const enumOptions = [...(optionsData ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
 
+  const effectiveComponentId =
+    hasPreset && presetComponentId ? presetComponentId : selectedComponentId
+  const effectiveAttributeCode =
+    hasPreset && presetAttributeCode ? presetAttributeCode : selectedAttributeCode
+  const optionValuesWithExistingRules = (
+    effectiveComponentId && effectiveAttributeCode
+      ? existingRules.filter(
+          (r) =>
+            r.operator === "EQ" &&
+            r.attributeCode === effectiveAttributeCode &&
+            (r.componentId ?? null) === (effectiveComponentId ?? null),
+        )
+      : []
+  ).map((r) => r.value)
+
   const handleSubmit: SubmitHandler<PricingRuleFormSchema> = async (values) => {
     const componentId =
       values.componentId === NO_COMPONENT_VALUE || values.componentId == null
@@ -155,7 +171,6 @@ export const CreatePricingRuleDialog = ({
       attributeCode: values.attributeCode,
       operator: values.operator,
       priceDeltaCents: values.priceDeltaCents,
-      pricePerUnitCents: values.pricePerUnitCents ?? undefined,
     }
     const valuesForSubmit =
       isEnumAttribute && values.operator === "EQ" && values.value.includes(",")
@@ -164,7 +179,11 @@ export const CreatePricingRuleDialog = ({
             .map((v) => v.trim())
             .filter(Boolean)
         : [values.value]
-    for (const value of valuesForSubmit) {
+    const valuesToCreate = valuesForSubmit.filter((v) => !optionValuesWithExistingRules.includes(v))
+    if (valuesToCreate.length === 0) {
+      return
+    }
+    for (const value of valuesToCreate) {
       await onSubmit({
         ...baseBody,
         value,
@@ -458,18 +477,25 @@ export const CreatePricingRuleDialog = ({
                                               className="inline-flex items-center gap-1 rounded border border-border bg-muted/50 px-2 py-0.5 text-sm text-foreground"
                                             >
                                               {label}
-                                              <button
-                                                type="button"
+                                              <span
+                                                role="button"
+                                                tabIndex={0}
                                                 onClick={(e) => {
                                                   e.preventDefault()
                                                   e.stopPropagation()
                                                   toggleOption(val)
                                                 }}
-                                                className="rounded p-0.5 hover:bg-muted"
+                                                onKeyDown={(e) => {
+                                                  if (e.key === "Enter" || e.key === " ") {
+                                                    e.preventDefault()
+                                                    toggleOption(val)
+                                                  }
+                                                }}
+                                                className="cursor-pointer rounded p-0.5 hover:bg-muted"
                                                 aria-label={t("create.enumClear")}
                                               >
                                                 <XIcon className="size-3.5 text-muted-foreground" />
-                                              </button>
+                                              </span>
                                             </span>
                                           )
                                         })
@@ -481,19 +507,30 @@ export const CreatePricingRuleDialog = ({
                               </FormControl>
                               <Popover.Content
                                 align="start"
-                                className="max-h-60 w-[var(--radix-popover-trigger-width)] overflow-y-auto rounded-md border bg-popover p-1 shadow-md"
+                                className="max-h-80 w-[var(--radix-popover-trigger-width)] min-w-[280px] overflow-y-auto rounded-md border bg-popover p-1 shadow-md"
                               >
                                 {enumOptions.map((opt) => {
                                   const isSelected = selectedSet.has(opt.value)
+                                  const hasExistingRule = optionValuesWithExistingRules.includes(
+                                    opt.value,
+                                  )
                                   return (
                                     <button
                                       key={opt.id}
                                       type="button"
-                                      onClick={() => toggleOption(opt.value)}
+                                      onClick={() => !hasExistingRule && toggleOption(opt.value)}
+                                      disabled={hasExistingRule}
+                                      title={
+                                        hasExistingRule
+                                          ? t("create.optionAlreadyHasRule")
+                                          : undefined
+                                      }
                                       className={cn(
-                                        "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm",
+                                        "flex w-full min-w-0 items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm",
                                         "hover:bg-muted/80",
                                         isSelected && "bg-muted/60",
+                                        hasExistingRule &&
+                                          "cursor-not-allowed opacity-60 hover:bg-transparent",
                                       )}
                                     >
                                       {isSelected ? (
@@ -504,9 +541,20 @@ export const CreatePricingRuleDialog = ({
                                           aria-hidden
                                         />
                                       )}
-                                      <span className={isSelected ? "font-medium" : ""}>
+                                      <span
+                                        className={cn(
+                                          "min-w-0 flex-1 truncate",
+                                          isSelected && "font-medium",
+                                        )}
+                                        title={opt.label || opt.value}
+                                      >
                                         {opt.label || opt.value}
                                       </span>
+                                      {hasExistingRule && (
+                                        <span className="shrink-0 text-xs text-muted-foreground">
+                                          {t("create.optionHasRule")}
+                                        </span>
+                                      )}
                                     </button>
                                   )
                                 })}
@@ -602,151 +650,37 @@ export const CreatePricingRuleDialog = ({
             >
               {t("create.priceSection")}
             </Typography>
-            <Typography
-              as="p"
-              variant="body-sm"
-              className="text-muted-foreground"
-            >
-              {t("create.priceTypeOneOnly")}
-            </Typography>
-            <div
-              role="tablist"
-              aria-label={t("create.priceSection")}
-              className="flex border-b border-border"
-            >
-              <button
-                type="button"
-                role="tab"
-                aria-selected={form.watch("pricePerUnitCents") == null}
-                className={cn(
-                  "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
-                  form.watch("pricePerUnitCents") == null
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                )}
-                onClick={() => form.setValue("pricePerUnitCents", null)}
-              >
-                {t("create.priceTypeFixed")}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={form.watch("pricePerUnitCents") != null}
-                className={cn(
-                  "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
-                  form.watch("pricePerUnitCents") != null
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground",
-                )}
-                onClick={() => {
-                  form.setValue("pricePerUnitCents", form.getValues("pricePerUnitCents") ?? 0)
-                  form.setValue("priceDeltaCents", 0)
-                }}
-              >
-                {t("create.priceTypePerUnit")}
-              </button>
-            </div>
             <FormField
               control={form.control}
               name="priceDeltaCents"
-              render={({ field }) => {
-                const isPerUnit = form.watch("pricePerUnitCents") != null
-                if (isPerUnit) {
-                  return (
-                    <FormItem className="hidden">
-                      <FormControl>
-                        <input
-                          type="hidden"
-                          {...field}
-                          value={String(field.value ?? 0)}
-                          onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )
-                }
-                return (
-                  <FormItem className="pt-3">
-                    <FormLabel>{t("create.price")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0"
-                        value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
-                        }}
-                      />
-                    </FormControl>
-                    <Typography
-                      as="p"
-                      variant="body-sm"
-                      className="text-muted-foreground"
-                    >
-                      {currency
-                        ? t("create.priceHintInCurrency", { currency })
-                        : t("create.priceHint")}
-                    </Typography>
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="pricePerUnitCents"
-              render={({ field }) => {
-                const isPerUnit = field.value != null
-                if (!isPerUnit) {
-                  return (
-                    <FormItem className="hidden">
-                      <FormControl>
-                        <input
-                          type="hidden"
-                          {...field}
-                          value={field.value != null ? String(field.value) : ""}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === "" ? null : Number(e.target.value) || 0,
-                            )
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )
-                }
-                return (
-                  <FormItem className="pt-3">
-                    <FormLabel>{t("create.pricePerUnit")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0"
-                        value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          field.onChange(v === "" ? null : Math.round(Number(v) * 100))
-                        }}
-                      />
-                    </FormControl>
-                    <Typography
-                      as="p"
-                      variant="body-sm"
-                      className="text-muted-foreground"
-                    >
-                      {currency
-                        ? t("create.pricePerUnitHintInCurrency", { currency })
-                        : t("create.pricePerUnitHint")}
-                    </Typography>
-                    <FormMessage />
-                  </FormItem>
-                )
-              }}
+              render={({ field }) => (
+                <FormItem className="pt-3">
+                  <FormLabel>{t("create.price")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="0"
+                      value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
+                      }}
+                    />
+                  </FormControl>
+                  <Typography
+                    as="p"
+                    variant="body-sm"
+                    className="text-muted-foreground"
+                  >
+                    {currency
+                      ? t("create.priceHintInCurrency", { currency })
+                      : t("create.priceHint")}
+                  </Typography>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             <div className="flex justify-end gap-2 pt-2">
               <Button

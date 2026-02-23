@@ -11,6 +11,7 @@ data class ProductModelDto(
     val price: Double,
     val currency: String,
     val isActive: Boolean,
+    val model3dUrl: String? = null,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
 )

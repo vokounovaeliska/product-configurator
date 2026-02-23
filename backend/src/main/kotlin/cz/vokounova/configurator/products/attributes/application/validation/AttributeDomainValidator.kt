@@ -12,7 +12,9 @@ class AttributeDomainValidator {
         when (attribute.type) {
             AttributeType.ENUM -> {
                 // ENUM attributes should not have numeric fields
-                if (attribute.minInt != null || attribute.maxInt != null || attribute.minDecimal != null || attribute.maxDecimal != null) {
+                if (attribute.minInt != null || attribute.maxInt != null || attribute.minDecimal != null || attribute.maxDecimal != null ||
+                    attribute.defaultInt != null || attribute.defaultDecimal != null
+                ) {
                     throw AttributeException(AttributeErrorCode.INVALID_ATTRIBUTE_TYPE_CONFIGURATION)
                 }
             }
@@ -28,17 +30,28 @@ class AttributeDomainValidator {
             }
             AttributeType.DECIMAL -> {
                 // DECIMAL attributes should have min/max decimal, not int
-                if (attribute.minInt != null || attribute.maxInt != null) {
+                if (attribute.minInt != null || attribute.maxInt != null || attribute.defaultInt != null) {
                     throw AttributeException(AttributeErrorCode.INVALID_ATTRIBUTE_TYPE_CONFIGURATION)
                 }
                 // Validate range
                 if (attribute.minDecimal != null && attribute.maxDecimal != null && attribute.minDecimal > attribute.maxDecimal) {
                     throw AttributeException(AttributeErrorCode.DECIMAL_RANGE_INVALID)
                 }
+                // Default must be within min..max
+                attribute.defaultDecimal?.let { d ->
+                    if (attribute.minDecimal != null && d < attribute.minDecimal) {
+                        throw AttributeException(AttributeErrorCode.INVALID_ATTRIBUTE_TYPE_CONFIGURATION)
+                    }
+                    if (attribute.maxDecimal != null && d > attribute.maxDecimal) {
+                        throw AttributeException(AttributeErrorCode.INVALID_ATTRIBUTE_TYPE_CONFIGURATION)
+                    }
+                }
             }
             AttributeType.BOOLEAN -> {
                 // BOOLEAN attributes should not have numeric constraints
-                if (attribute.minInt != null || attribute.maxInt != null || attribute.minDecimal != null || attribute.maxDecimal != null) {
+                if (attribute.minInt != null || attribute.maxInt != null || attribute.minDecimal != null || attribute.maxDecimal != null ||
+                    attribute.defaultInt != null || attribute.defaultDecimal != null
+                ) {
                     throw AttributeException(AttributeErrorCode.INVALID_ATTRIBUTE_TYPE_CONFIGURATION)
                 }
             }

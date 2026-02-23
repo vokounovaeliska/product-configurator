@@ -14,7 +14,7 @@ import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
-import { getImageUrl } from "@/utils/imageUrl"
+import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 type Props = {
   componentId: string
@@ -169,7 +169,8 @@ const AttributeField = ({
   }
 
   if (attribute.type === "INTEGER") {
-    const value = typeof otherValue === "number" ? otherValue : (attribute.minInt ?? 0)
+    const value =
+      typeof otherValue === "number" ? otherValue : (attribute.defaultInt ?? attribute.minInt ?? 0)
     const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
     const formatPrice = (cents: number) =>
       new Intl.NumberFormat(undefined, {
@@ -208,9 +209,7 @@ const AttributeField = ({
             variant="body-sm"
             className="text-muted-foreground"
           >
-            {rule.pricePerUnitCents != null
-              ? t("attributes.pricePerUnit", { amount: formatPrice(rule.pricePerUnitCents) })
-              : t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+            {t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
           </Typography>
         )}
       </div>
@@ -218,7 +217,10 @@ const AttributeField = ({
   }
 
   if (attribute.type === "DECIMAL") {
-    const value = typeof otherValue === "number" ? otherValue : (attribute.minDecimal ?? 0)
+    const value =
+      typeof otherValue === "number"
+        ? otherValue
+        : (attribute.defaultDecimal ?? attribute.minDecimal ?? 0)
     const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
     const formatPrice = (cents: number) =>
       new Intl.NumberFormat(undefined, {
@@ -258,9 +260,7 @@ const AttributeField = ({
             variant="body-sm"
             className="text-muted-foreground"
           >
-            {rule.pricePerUnitCents != null
-              ? t("attributes.pricePerUnit", { amount: formatPrice(rule.pricePerUnitCents) })
-              : t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+            {t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
           </Typography>
         )}
       </div>
@@ -437,7 +437,7 @@ const AttributeSelect = ({
                 <>
                   <div className="relative aspect-square w-full bg-muted">
                     <Image
-                      src={getImageUrl(opt.imageUrl)}
+                      src={getImageUrlForDisplay(opt.imageUrl)}
                       alt=""
                       fill
                       className="object-contain"
@@ -449,7 +449,15 @@ const AttributeSelect = ({
                   </span>
                 </>
               ) : (
-                <span className="truncate text-sm font-medium">{opt.label}</span>
+                <span className="flex items-center gap-1.5 truncate text-sm font-medium">
+                  {opt.colorHex && (
+                    <span
+                      className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-border"
+                      style={{ backgroundColor: opt.colorHex }}
+                    />
+                  )}
+                  {opt.label}
+                </span>
               )}
             </button>
           )

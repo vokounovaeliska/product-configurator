@@ -1,62 +1,29 @@
 "use client"
 
 import {
-  BanknoteIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  FileUpIcon,
   LayoutDashboardIcon,
-  ListIcon,
   PackageIcon,
   SettingsIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
-import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
-import type { ComponentDto } from "@/api/componentTypes"
 import { Link, usePathname } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 import { useSidebar } from "./useSidebar"
 
-type Props = {
-  components?: ComponentDto[]
-  isLoadingComponents?: boolean
-  productModelName?: string | null
-}
+type Props = Record<string, never>
 
-export const SetupSidebar = ({
-  components = [],
-  isLoadingComponents = false,
-  productModelName = null,
-}: Props) => {
+export const SetupSidebar = (_props: Props) => {
   const t = useTranslations("Setup")
   const pathname = usePathname()
   const { isOpen, toggle } = useSidebar()
-
-  const pathSegments = pathname.split("/").filter(Boolean)
-  const productModelIndex = pathSegments.indexOf("product-models")
-  const productModelId =
-    productModelIndex !== -1 && pathSegments[productModelIndex + 1]
-      ? pathSegments[productModelIndex + 1]
-      : null
-  const componentsIndex = pathSegments.indexOf("components")
-  const componentIdFromPath =
-    componentsIndex !== -1 && pathSegments[componentsIndex + 1]
-      ? pathSegments[componentsIndex + 1]
-      : null
-
-  const sortedComponents = [...components].sort((a, b) => a.sortOrder - b.sortOrder)
-  const currentComponent = componentIdFromPath
-    ? sortedComponents.find((c) => c.id === componentIdFromPath)
-    : null
-
-  const isOnAttributes = (componentId: string) =>
-    productModelId &&
-    (pathname === ROUTES.setupAttributes(productModelId, componentId) ||
-      pathname.startsWith(ROUTES.setupAttributes(productModelId, componentId) + "/"))
 
   const navItems = [
     {
@@ -70,6 +37,12 @@ export const SetupSidebar = ({
       label: t("navigation.productModels"),
       icon: PackageIcon,
       exact: false,
+    },
+    {
+      href: ROUTES.setupImportSketchup,
+      label: t("navigation.importSketchup"),
+      icon: FileUpIcon,
+      exact: true,
     },
   ]
 
@@ -124,118 +97,23 @@ export const SetupSidebar = ({
             {navItems.map((item) => {
               const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
               const Icon = item.icon
-              const isProductModels = item.href === ROUTES.setupProductModels
-              const showComponents = isProductModels && productModelId && isOpen
 
               return (
-                <div
+                <Link
                   key={item.href}
-                  className="space-y-1"
-                >
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center rounded-lg text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      isOpen ? "gap-3 px-3 py-2" : "justify-center p-2",
-                    )}
-                    title={!isOpen ? item.label : undefined}
-                  >
-                    <Icon className={cn("shrink-0", isOpen ? "size-4" : "size-5")} />
-                    {isOpen && <span className="truncate">{item.label}</span>}
-                  </Link>
-
-                  {showComponents && (
-                    <div className="ml-3 space-y-0.5 border-l border-border pl-3">
-                      {productModelName && (
-                        <div className="mt-1 mb-2 px-2">
-                          <Typography
-                            as="p"
-                            variant="body-sm"
-                            weight="semibold"
-                            className="truncate text-muted-foreground"
-                          >
-                            {productModelName}
-                          </Typography>
-                          {currentComponent && (
-                            <Typography
-                              as="p"
-                              variant="body-sm"
-                              className="truncate text-muted-foreground/80"
-                            >
-                              {currentComponent.label}
-                            </Typography>
-                          )}
-                        </div>
-                      )}
-                      {isLoadingComponents ? (
-                        <div className="space-y-2 py-1">
-                          {Array.from({ length: 3 }).map((_, i) => (
-                            <Skeleton
-                              key={i}
-                              className="h-7 w-full"
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <>
-                          <Link
-                            href={ROUTES.setupComponents(productModelId)}
-                            className={cn(
-                              "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-                              pathname === ROUTES.setupComponents(productModelId)
-                                ? "bg-primary/10 text-primary"
-                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                            )}
-                          >
-                            <ListIcon className="size-3.5 shrink-0" />
-                            <span className="truncate">{t("navigation.allComponents")}</span>
-                          </Link>
-                          <Link
-                            href={ROUTES.setupPricingRules(productModelId)}
-                            className={cn(
-                              "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-                              pathname === ROUTES.setupPricingRules(productModelId)
-                                ? "bg-primary/10 text-primary"
-                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                            )}
-                          >
-                            <BanknoteIcon className="size-3.5 shrink-0" />
-                            <span className="truncate">{t("navigation.pricingRules")}</span>
-                          </Link>
-                          {sortedComponents.length > 0
-                            ? sortedComponents.map((component) => {
-                                const attributesHref = ROUTES.setupAttributes(
-                                  productModelId,
-                                  component.id,
-                                )
-                                const isAttributesActive = isOnAttributes(component.id)
-
-                                return (
-                                  <Link
-                                    key={component.id}
-                                    href={attributesHref}
-                                    className={cn(
-                                      "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
-                                      isAttributesActive
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                                    )}
-                                    title={component.description ?? undefined}
-                                  >
-                                    <PackageIcon className="size-3.5 shrink-0" />
-                                    <span className="truncate">{component.label}</span>
-                                  </Link>
-                                )
-                              })
-                            : null}
-                        </>
-                      )}
-                    </div>
+                  href={item.href}
+                  className={cn(
+                    "flex items-center rounded-lg text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                    isOpen ? "gap-3 px-3 py-2" : "justify-center p-2",
                   )}
-                </div>
+                  title={!isOpen ? item.label : undefined}
+                >
+                  <Icon className={cn("shrink-0", isOpen ? "size-4" : "size-5")} />
+                  {isOpen && <span className="truncate">{item.label}</span>}
+                </Link>
               )
             })}
           </nav>

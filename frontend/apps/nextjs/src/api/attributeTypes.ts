@@ -18,6 +18,10 @@ export type AttributeDto = {
   maxInt: number | null
   minDecimal: number | null
   maxDecimal: number | null
+  /** Default value for INTEGER (within min..max when set). Optional for backward compat. */
+  defaultInt?: number | null
+  /** Default value for DECIMAL (within min..max when set). Optional for backward compat. */
+  defaultDecimal?: number | null
   /** Optional unit for numeric attributes (e.g. "mm") */
   unit: string | null
   /** Format: int32 */
@@ -47,6 +51,8 @@ export type AttributeCreateRequestDto = {
   maxInt?: number | null
   minDecimal?: number | null
   maxDecimal?: number | null
+  defaultInt?: number | null
+  defaultDecimal?: number | null
   unit?: string | null
   sortOrder?: number | null
 }
@@ -61,6 +67,8 @@ export type AttributePatchPath =
   | "/maxInt"
   | "/minDecimal"
   | "/maxDecimal"
+  | "/defaultInt"
+  | "/defaultDecimal"
   | "/unit"
   | "/sortOrder"
 
@@ -89,6 +97,8 @@ export type AttributeOptionDto = {
   value: string
   label: string
   imageUrl: string | null
+  /** Hex color for 3D material (e.g. "#C49A6C"). Null when not set. */
+  colorHex: string | null
   /** Format: int32 */
   sortOrder: number
   /** Format: date-time */
@@ -101,11 +111,12 @@ export type AttributeOptionCreateRequestDto = {
   value: string
   label: string
   imageUrl?: string | null
+  colorHex?: string | null
   sortOrder?: number | null
 }
 
 export type AttributeOptionPatchRequestDto = {
-  path: "SlashValue" | "SlashLabel" | "SlashImageUrl" | "SlashSortOrder"
+  path: "SlashValue" | "SlashLabel" | "SlashImageUrl" | "SlashColorHex" | "SlashSortOrder"
   value: unknown
   op: "Replace"
 }

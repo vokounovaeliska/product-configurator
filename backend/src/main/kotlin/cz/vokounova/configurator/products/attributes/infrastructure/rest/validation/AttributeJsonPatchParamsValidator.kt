@@ -72,6 +72,34 @@ class AttributeJsonPatchParamsValidator : AppValidator<AttributeJsonPatchParams>
                     }
                 }
 
+                AttributeJsonPatchParamsPath.DEFAULT_INT -> {
+                    value.value?.let {
+                        if (it !is Number) {
+                            addError(
+                                ValidationExceptionError(
+                                    field = path.value,
+                                    code = BaseValidationCode.VALUE_IS_INVALID.name,
+                                    message = "Value must be a number",
+                                ),
+                            )
+                        }
+                    }
+                }
+
+                AttributeJsonPatchParamsPath.DEFAULT_DECIMAL -> {
+                    value.value?.let {
+                        if (it !is Number) {
+                            addError(
+                                ValidationExceptionError(
+                                    field = path.value,
+                                    code = BaseValidationCode.VALUE_IS_INVALID.name,
+                                    message = "Value must be a number",
+                                ),
+                            )
+                        }
+                    }
+                }
+
                 AttributeJsonPatchParamsPath.UNIT -> {
                     // Unit can be null or non-empty string
                     (value.value as? String)?.let { unitStr ->
