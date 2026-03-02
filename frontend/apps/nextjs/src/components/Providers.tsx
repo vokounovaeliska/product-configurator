@@ -1,7 +1,7 @@
 "use client"
 
+import { useMemo } from "react"
 import { QueryClientProvider } from "@tanstack/react-query"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 
 import { getQueryClient } from "@/lib/react-query/queryClient"
@@ -11,7 +11,7 @@ type Props = {
 }
 
 export const Providers = ({ children }: Props) => {
-  const queryClient = getQueryClient()
+  const queryClient = useMemo(() => getQueryClient(), [])
 
   return (
     <NextThemesProvider
@@ -21,10 +21,7 @@ export const Providers = ({ children }: Props) => {
       disableTransitionOnChange
       enableColorScheme
     >
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools />
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </NextThemesProvider>
   )
 }

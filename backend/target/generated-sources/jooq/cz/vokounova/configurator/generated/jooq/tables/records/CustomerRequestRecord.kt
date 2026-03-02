@@ -81,6 +81,10 @@ open class CustomerRequestRecord private constructor() : UpdatableRecordImpl<Cus
         set(value): Unit = set(14, value)
         get(): OffsetDateTime = get(14) as OffsetDateTime
 
+    open var snapshotImageBase64: String?
+        set(value): Unit = set(15, value)
+        get(): String? = get(15) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -90,7 +94,7 @@ open class CustomerRequestRecord private constructor() : UpdatableRecordImpl<Cus
     /**
      * Create a detached, initialised CustomerRequestRecord
      */
-    constructor(id: UUID, status: RequestStatus? = null, customerName: String? = null, customerEmail: String, customerPhone: String? = null, customerNote: String? = null, productModelId: UUID? = null, productModelName: String, productModelDescription: String? = null, currency: String, totalPriceCents: Int, configurationJson: JSONB, pricingBreakdownJson: JSONB? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, status: RequestStatus? = null, customerName: String? = null, customerEmail: String, customerPhone: String? = null, customerNote: String? = null, productModelId: UUID? = null, productModelName: String, productModelDescription: String? = null, currency: String, totalPriceCents: Int, configurationJson: JSONB, pricingBreakdownJson: JSONB? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, snapshotImageBase64: String? = null): this() {
         this.id = id
         this.status = status
         this.customerName = customerName
@@ -106,6 +110,7 @@ open class CustomerRequestRecord private constructor() : UpdatableRecordImpl<Cus
         this.pricingBreakdownJson = pricingBreakdownJson
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
+        this.snapshotImageBase64 = snapshotImageBase64
         resetChangedOnNotNull()
     }
 }

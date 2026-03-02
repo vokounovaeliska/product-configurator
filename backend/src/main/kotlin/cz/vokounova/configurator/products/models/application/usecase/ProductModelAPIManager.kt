@@ -38,6 +38,8 @@ class ProductModelAPIManager(
 
     override fun getOne(id: ProductModelId): ProductModel = findProductModel(id)
 
+    override fun getPublishedByUrl(url: String): ProductModel? = productModelRepository.findPublishedByUrl(url)
+
     override fun getList(): List<ProductModel> = productModelRepository.findByFilter()
 
     @Transactional

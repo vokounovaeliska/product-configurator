@@ -1,8 +1,8 @@
 "use client"
 
-import { Suspense, useEffect, useMemo, useRef } from "react"
-import { OrbitControls, useGLTF } from "@react-three/drei"
-import { Canvas, useThree } from "@react-three/fiber"
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from "react"
+import { Center, OrbitControls, useGLTF } from "@react-three/drei"
+import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 
 import { env } from "@/config/env"
@@ -11,11 +11,20 @@ import { getImageUrl } from "@/utils/imageUrl"
 import type { Model3dConfig } from "../types/model3dConfig"
 import { getColorForOption } from "../utils/optionColors"
 
+/** Camera position for snapshot capture – front-right-top product shot angle. */
+const SNAPSHOT_CAMERA_POSITION = new THREE.Vector3(2.5, 2, 2.5)
+
 type Props = {
   modelUrl: string
   className?: string
   config?: Model3dConfig | null
+  /** When true, enables preserveDrawingBuffer so the canvas can be captured (e.g. for embed snapshot). */
+  canCapture?: boolean
+  /** Called when capture at fixed angle is available (embed only). */
+  onCaptureReady?: (capture: () => Promise<string | null>) => void
 }
+
+type OrbitControlsRef = React.ComponentRef<typeof OrbitControls>
 
 /** Base model size in cm (SketchUp convention: 100 cm diameter for round tables). */
 const BASE_PRUMER_CM = 100
@@ -283,12 +292,145 @@ function Model({ url, config }: { url: string; config?: Model3dConfig | null }) 
   )
 }
 
-export const ModelViewer3D = ({ modelUrl, className, config }: Props) => {
+/** Cache key for Center recalculation when config changes (scale, materials). */
+function getCenterCacheKey(config: Model3dConfig | null | undefined): string {
+  if (!config) return "default"
+  return JSON.stringify({
+    o: config.selectedOptionsByComponent,
+    v: config.selectedOtherValuesByComponent,
+  })
+}
+
+/** Fixed distance for snapshot so framing is independent of user zoom (smaller = more zoomed in). */
+const SNAPSHOT_CAMERA_DISTANCE = 2.5
+
+function SnapshotCaptureController({
+  controlsRef,
+  onCaptureReady,
+  canCapture,
+}: {
+  controlsRef: React.RefObject<OrbitControlsRef | null>
+  onCaptureReady?: (capture: () => Promise<string | null>) => void
+  canCapture: boolean
+}) {
+  const { camera, gl, invalidate } = useThree()
+  const pendingResolveRef = useRef<((data: string | null) => void) | null>(null)
+  const framesUntilCaptureRef = useRef(0)
+
+  useLayoutEffect(() => {
+    if (!onCaptureReady || !canCapture) return
+
+    const capture = (): Promise<string | null> =>
+      new Promise((resolve) => {
+        const controls = controlsRef.current
+        const savedPosition = camera.position.clone()
+        const savedTarget = new THREE.Vector3(0, 0, 0)
+        if (controls) savedTarget.copy(controls.target)
+        const savedZoom = camera.zoom
+
+        const dir = SNAPSHOT_CAMERA_POSITION.clone().normalize()
+        camera.position.copy(dir.multiplyScalar(SNAPSHOT_CAMERA_DISTANCE))
+        camera.zoom = 1
+        camera.lookAt(0, 0, 0)
+        camera.updateProjectionMatrix()
+        if (controls) {
+          controls.target.set(0, 0, 0)
+          controls.update()
+        }
+        invalidate()
+
+        pendingResolveRef.current = (data: string | null) => {
+          camera.position.copy(savedPosition)
+          camera.zoom = savedZoom
+          camera.updateProjectionMatrix()
+          if (controls) {
+            controls.target.copy(savedTarget)
+            controls.update()
+          }
+          invalidate()
+          resolve(data)
+        }
+        framesUntilCaptureRef.current = 2
+      })
+
+    onCaptureReady(capture)
+  }, [camera, controlsRef, invalidate, onCaptureReady, canCapture])
+
+  useFrame(() => {
+    if (framesUntilCaptureRef.current > 0) {
+      framesUntilCaptureRef.current -= 1
+      return
+    }
+    const resolve = pendingResolveRef.current
+    if (!resolve) return
+    pendingResolveRef.current = null
+    try {
+      const data = gl.domElement.toDataURL("image/png")
+      resolve(data)
+    } catch {
+      resolve(null)
+    }
+  })
+
+  return null
+}
+
+function SceneWithCapture({
+  modelUrl,
+  config,
+  canCapture,
+  onCaptureReady,
+}: {
+  modelUrl: string
+  config?: Model3dConfig | null
+  canCapture: boolean
+  onCaptureReady?: (capture: () => Promise<string | null>) => void
+}) {
+  const controlsRef = useRef<OrbitControlsRef>(null)
+
+  return (
+    <>
+      <Center
+        cacheKey={getCenterCacheKey(config)}
+        precise
+      >
+        <Model
+          url={modelUrl}
+          config={config}
+        />
+      </Center>
+      <OrbitControls
+        ref={controlsRef}
+        enablePan
+        enableZoom
+        enableRotate
+        minDistance={0.5}
+        maxDistance={50}
+        target={[0, 0, 0]}
+      />
+      {canCapture && onCaptureReady && (
+        <SnapshotCaptureController
+          controlsRef={controlsRef}
+          onCaptureReady={onCaptureReady}
+          canCapture={canCapture}
+        />
+      )}
+    </>
+  )
+}
+
+export const ModelViewer3D = ({
+  modelUrl,
+  className,
+  config,
+  canCapture,
+  onCaptureReady,
+}: Props) => {
   return (
     <div className={`relative h-full min-h-[40vh] w-full ${className ?? ""}`}>
       <Canvas
-        camera={{ position: [2, 2, 2], fov: 45 }}
-        gl={{ antialias: true }}
+        camera={{ position: [3, 3, 3], fov: 45 }}
+        gl={{ antialias: true, preserveDrawingBuffer: canCapture ?? false }}
       >
         {/* eslint-disable react/no-unknown-property -- R3F/Three.js uses object, intensity, position etc. */}
         <ambientLight intensity={0.8} />
@@ -298,14 +440,11 @@ export const ModelViewer3D = ({ modelUrl, className, config }: Props) => {
         />
         {/* eslint-enable react/no-unknown-property */}
         <Suspense fallback={null}>
-          <Model
-            url={modelUrl}
+          <SceneWithCapture
+            modelUrl={modelUrl}
             config={config}
-          />
-          <OrbitControls
-            enablePan
-            enableZoom
-            enableRotate
+            canCapture={canCapture ?? false}
+            onCaptureReady={onCaptureReady}
           />
         </Suspense>
       </Canvas>

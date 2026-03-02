@@ -4,30 +4,25 @@ import cz.vokounova.configurator.generated.jooq.tables.records.ProductModelRecor
 import cz.vokounova.configurator.products.models.domain.ProductModel
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.users.api.dto.UserIdDto
-import org.jooq.impl.DSL
-import org.jooq.impl.SQLDataType
 import java.math.BigDecimal
 
-private val MODEL_3D_URL_FIELD = DSL.field(DSL.name("model_3d_url"), SQLDataType.VARCHAR)
+fun ProductModel.toPersistence(): ProductModelRecord =
+    ProductModelRecord(
+        id = id.value,
+        userId = userId.value,
+        name = name,
+        description = description,
+        price = BigDecimal.valueOf(price),
+        currency = currency,
+        isActive = isActive,
+        createdAt = createdAt,
+        modifiedAt = modifiedAt,
+        model_3dUrl = model3dUrl,
+        url = url,
+        isPublished = isPublished,
+    )
 
-fun ProductModel.toPersistence(): ProductModelRecord {
-    val record =
-        ProductModelRecord(
-            id = id.value,
-            userId = userId.value,
-            name = name,
-            description = description,
-            price = BigDecimal.valueOf(price),
-            currency = currency,
-            isActive = isActive,
-            createdAt = createdAt,
-            modifiedAt = modifiedAt,
-        )
-    model3dUrl?.let { record.set(MODEL_3D_URL_FIELD, it) }
-    return record
-}
-
-fun ProductModelRecord.toDomain(model3dUrlOverride: String? = null): ProductModel =
+fun ProductModelRecord.toDomain(): ProductModel =
     ProductModel(
         id = ProductModelId(id),
         userId = UserIdDto(userId),
@@ -36,7 +31,9 @@ fun ProductModelRecord.toDomain(model3dUrlOverride: String? = null): ProductMode
         price = price?.toDouble() ?: 0.0,
         currency = currency ?: "CZK",
         isActive = isActive ?: true,
-        model3dUrl = model3dUrlOverride ?: this[MODEL_3D_URL_FIELD],
+        model3dUrl = model_3dUrl,
+        url = url,
+        isPublished = isPublished ?: false,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

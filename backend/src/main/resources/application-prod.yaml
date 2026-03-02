@@ -1,6 +1,10 @@
 app:
   files:
     upload-dir: ${UPLOAD_DIR:/data/uploads/images}
+  # Sender identity (your domain). Base values in application.yaml; override in prod:
+  # mail:
+  #   from-address: ${MAIL_FROM}   # e.g. noreply@yourdomain.com
+  #   from-name: ${MAIL_FROM_NAME} # e.g. "Your Company Configurator"
 
 jwt:
   users:
@@ -12,9 +16,21 @@ cors:
   allowed-origins: >
     ${CORS_ALLOWED_ORIGINS}
 
+# To send real emails, set Spring Mail (SMTP) and app.mail in env or here, e.g.:
+# spring:
+#   mail:
+#     host: ${SPRING_MAIL_HOST}       # e.g. smtp.yourdomain.com or smtp.sendgrid.net
+#     port: ${SPRING_MAIL_PORT:587}
+#     username: ${SPRING_MAIL_USERNAME}
+#     password: ${SPRING_MAIL_PASSWORD}
+#     properties:
+#       mail.smtp.auth: true
+#       mail.smtp.starttls.enable: true
+# app.mail.from-address and app.mail.from-name are in application.yaml (MAIL_FROM, MAIL_FROM_NAME)
+
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
     org.springframework.security: ${LOG_LEVEL_SECURITY:WARN}
     # Application code: use LOG_LEVEL_APP=DEBUG in Railway to see request/response and business logs
-    cz.vokounova.configurator: ${LOG_LEVEL_APP:DEBUG}
+    cz.vokounova.configurator: ${LOG_LEVEL_APP:INFO}

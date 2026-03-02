@@ -18,6 +18,8 @@ data class ProductModel(
     val currency: String,
     val isActive: Boolean,
     val model3dUrl: String? = null,
+    val url: String? = null,
+    val isPublished: Boolean = false,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
 ) {
@@ -35,6 +37,8 @@ data class ProductModel(
                 currency = params.currency ?: "CZK",
                 isActive = params.isActive ?: true,
                 model3dUrl = params.model3dUrl,
+                url = params.url,
+                isPublished = params.isPublished ?: false,
                 createdAt = timestamp,
                 modifiedAt = timestamp,
             )

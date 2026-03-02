@@ -1,7 +1,7 @@
 import { hasLocale, NextIntlClientProvider, type Locale } from "next-intl"
 import { cn } from "@workspace/ui/lib/utils"
 
-import { Header } from "@/components/Header/Header"
+import { HeaderOrNull } from "@/components/Header/HeaderOrNull"
 import { Providers } from "@/components/Providers"
 import { fontDisplay, fontSans } from "@/styles/fonts"
 
@@ -59,7 +59,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body className={cn(fontSans.variable, fontDisplay.variable, "font-sans antialiased")}>
         <NextIntlClientProvider>
           <Providers>
-            <Header />
+            <HeaderOrNull />
             <main className={cn("flex min-h-svh flex-col p-6 pt-16", "lg:p-12 lg:pt-30")}>
               {children}
             </main>

@@ -34,7 +34,12 @@ export default async function Page({ params }: Props) {
 
       <div className="flex gap-4">
         <Button asChild>
-          <Link href={ROUTES.login}>{t("HomePage.loginButton")}</Link>
+          <Link
+            href={ROUTES.login}
+            prefetch={false}
+          >
+            {t("HomePage.loginButton")}
+          </Link>
         </Button>
       </div>
     </div>

@@ -19,6 +19,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import type { AttributeDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import { env } from "@/config/env"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
@@ -35,6 +36,7 @@ import { EditComponentDialog } from "@/features/components/components/EditCompon
 import { PricingRulesList } from "@/features/pricing/components/PricingRulesList"
 import { useProductModel } from "@/features/productModels/api/productModelQueries"
 import { EditProductModelDialog } from "@/features/productModels/components/EditProductModelDialog"
+import { PublishProductModelCard } from "@/features/productModels/components/PublishProductModelCard"
 
 /* eslint-enable import/no-restricted-paths */
 
@@ -202,9 +204,27 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
                 </Link>
               </Button>
             )}
+            {productModel?.isPublished && productModel?.url && (
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <a
+                  href={`${env.NEXT_PUBLIC_SITE_URL}${ROUTES.embed(productModel.url)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {tProductModels("Publish.previewEmbed")}
+                </a>
+              </Button>
+            )}
           </div>
         </div>
       </Card>
+
+      {/* Publish & Embed */}
+      {productModel && <PublishProductModelCard productModel={productModel} />}
 
       {/* Components */}
       <div className="space-y-3">

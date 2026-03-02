@@ -159,6 +159,11 @@ open class CustomerRequest(
      */
     val MODIFIED_AT: TableField<CustomerRequestRecord, OffsetDateTime?> = createField(DSL.name("modified_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "")
 
+    /**
+     * The column <code>public.customer_request.snapshot_image_base64</code>.
+     */
+    val SNAPSHOT_IMAGE_BASE64: TableField<CustomerRequestRecord, String?> = createField(DSL.name("snapshot_image_base64"), SQLDataType.CLOB, this, "")
+
     private constructor(alias: Name, aliased: Table<CustomerRequestRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<CustomerRequestRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<CustomerRequestRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

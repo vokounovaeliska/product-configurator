@@ -45,6 +45,17 @@ class ProductModelJsonPatchParamsValidator : AppValidator<ProductModelJsonPatchP
                         notEmpty()
                     }
                 }
+                ProductModelJsonPatchParamsPath.URL -> {
+                    field(path.value, value.value as? String) {
+                        // URL: lowercase alphanumeric and hyphens; null allowed to unpublish
+                        matchPattern("^[a-z0-9]+(?:-[a-z0-9]+)*$")
+                    }
+                }
+                ProductModelJsonPatchParamsPath.IS_PUBLISHED -> {
+                    anyField(path.value, value.value) {
+                        notNull()
+                    }
+                }
             }
         }
 }

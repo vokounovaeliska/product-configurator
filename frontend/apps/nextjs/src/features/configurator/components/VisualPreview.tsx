@@ -25,6 +25,10 @@ type Props = {
   model3dUrl?: string | null
   /** Config to apply to 3D model (materials, scale) when options change */
   model3dConfig?: Model3dConfig | null
+  /** When true, enables canvas capture for embed snapshot (preserveDrawingBuffer). */
+  canCapture?: boolean
+  /** Called when 3D capture at fixed angle is ready (embed only). */
+  onCaptureReady?: (capture: () => Promise<string | null>) => void
 }
 
 export const VisualPreview = ({
@@ -33,6 +37,8 @@ export const VisualPreview = ({
   selectedOptionLayers = [],
   model3dUrl,
   model3dConfig,
+  canCapture,
+  onCaptureReady,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -41,12 +47,17 @@ export const VisualPreview = ({
 
   if (has3dModel) {
     return (
-      <Card className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 md:p-6">
+      <Card
+        className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 md:p-6"
+        data-embed-preview
+      >
         <div className="flex min-h-[40vh] flex-1 items-center justify-center rounded-lg border bg-muted/30">
           <ModelViewer3D
             modelUrl={model3dUrl!}
             className="rounded-lg"
             config={model3dConfig}
+            canCapture={canCapture}
+            onCaptureReady={onCaptureReady}
           />
         </div>
       </Card>

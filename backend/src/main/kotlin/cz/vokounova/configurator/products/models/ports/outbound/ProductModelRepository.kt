@@ -8,6 +8,9 @@ import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest
 
 interface ProductModelRepository {
+    /** Find published product model by URL (for embed). Globally unique when published. */
+    fun findPublishedByUrl(url: String): ProductModel?
+
     fun findById(
         id: ProductModelId,
         lock: Boolean,

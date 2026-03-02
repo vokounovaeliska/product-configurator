@@ -110,6 +110,7 @@
       "allComponents": "All Components",
       "attributes": "Attributes",
       "components": "Components",
+      "customerRequests": "Customer Requests",
       "dashboard": "Dashboard",
       "options": "Options",
       "pricing": "Pricing",
@@ -123,11 +124,52 @@
       "description": "Create and manage product models that customers can configure",
       "title": "Product Models"
     },
+    "customerRequests": {
+      "title": "Customer Requests",
+      "description": "View and manage quote requests from your embed configurator",
+      "emptyState": "No customer requests yet. Requests from your embed configurator will appear here.",
+      "errorLoading": "Failed to load customer requests. Please try again.",
+      "table": {
+        "product": "Product",
+        "customer": "Customer",
+        "email": "Email",
+        "price": "Price",
+        "date": "Date",
+        "status": "Status"
+      },
+      "detail": {
+        "title": "Request details",
+        "snapshot": "Configuration snapshot",
+        "configuration": "Configuration",
+        "configurationEmpty": "No options selected",
+        "rawJson": "Raw JSON",
+        "message": "Customer message"
+      }
+    },
     "title": "Setup",
     "unified": {
       "setupDescription": "Configure components, attributes, options, and pricing in one place. Expand sections to edit."
     },
-    "welcome": "Welcome, {name}!"
+    "welcome": "Welcome, {name}!",
+    "guide": {
+      "howItWorks": "How it works",
+      "howItWorksDescription": "Get your product configurator up and running in four steps.",
+      "step1Title": "Create or import a product",
+      "step1Description": "Import from SketchUp (.skp + .glb) for automatic setup, or create a product model manually.",
+      "step2Title": "Configure attributes & options",
+      "step2Description": "Define what customers can choose: colors, sizes, materials. Set up components and their attributes.",
+      "step3Title": "Set pricing rules",
+      "step3Description": "Define how each option affects the price — fixed amounts or per-unit increments.",
+      "step4Title": "Publish & embed",
+      "step4Description": "Set the embed URL, publish, and copy the iframe code to place the configurator on your website.",
+      "quickActions": "Quick actions",
+      "importAction": "Import from SketchUp",
+      "importDescription": "Upload .skp and .glb files to auto-create a product with components and attributes.",
+      "requestsAction": "Customer Requests",
+      "requestsDescription": "View quote requests submitted through your embedded configurator.",
+      "tipTitle": "Tip: 3D model preparation",
+      "tipBody": "Export your SketchUp model as .glb (File > Export > glTF). Use Dynamic Components for configurable parameters (colors, dimensions). The app extracts parameters automatically from the .skp file during import."
+    }
   },
   "SketchUpImport": {
     "title": "Import from SketchUp",
@@ -198,6 +240,25 @@
       "warningMessage": "You are about to delete \"{name}\". This action is permanent and cannot be undone.",
       "warningTitle": "Warning: This action cannot be undone"
     },
+    "Publish": {
+      "title": "Publish & Embed",
+      "description": "Make this configurator available for embedding on your website. Set the embed URL and copy the iframe code.",
+      "status": {
+        "published": "Published",
+        "draft": "Draft"
+      },
+      "publishToggle": "Published",
+      "urlLabel": "Embed URL",
+      "urlPlaceholder": "e.g. my-round-table",
+      "urlHint": "Lowercase letters, numbers and hyphens only. Globally unique. Embed URL: /e/your-url",
+      "urlError": "Use only lowercase letters, numbers and hyphens (e.g. my-product)",
+      "suggestUrl": "Generate URL from product name",
+      "saveUrl": "Save URL",
+      "embedCodeTitle": "Embed code",
+      "copyEmbed": "Copy iframe",
+      "copied": "Copied!",
+      "previewEmbed": "Preview embed"
+    },
     "list": {
       "createButton": "Create Model",
       "emptyState": {
@@ -208,6 +269,37 @@
       "title": "Product Models"
     },
     "title": "Product Models"
+  },
+  "Embed": {
+    "title": "Product Configurator",
+    "requestQuote": "Request quote",
+    "priceBreakdown": "Base {base} + options {modifier}",
+    "resetConfiguration": "Reset configuration",
+    "requestQuoteDialog": {
+      "title": "Request a quote",
+      "description": "Fill in your details and we'll get back to you with a personalized offer.",
+      "fields": {
+        "name": "Name",
+        "namePlaceholder": "Your name",
+        "email": "Email",
+        "emailPlaceholder": "your@email.com",
+        "phone": "Phone",
+        "phonePlaceholder": "+420 123 456 789",
+        "message": "Message",
+        "messagePlaceholder": "Tell us about your requirements or questions…"
+      },
+      "submit": "Send request",
+      "submitting": "Sending…",
+      "cancel": "Cancel",
+      "success": {
+        "title": "Request sent",
+        "description": "Thank you! We've received your request and will get back to you soon.",
+        "close": "Close"
+      },
+      "errorMessages": {
+        "generalError": "Something went wrong. Please try again."
+      }
+    }
   },
   "Configurator": {
     "breadcrumbs": {
@@ -220,7 +312,8 @@
     },
     "components": {
       "title": "Components",
-      "emptyState": "No components available for this product model."
+      "emptyState": "No components available for this product model.",
+      "progress": "{{current}} of {{total}} configured"
     },
     "attributes": {
       "title": "Configuration",

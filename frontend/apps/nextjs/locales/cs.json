@@ -109,6 +109,7 @@
       "allComponents": "Všechny komponenty",
       "attributes": "Atributy",
       "components": "Komponenty",
+      "customerRequests": "Žádosti zákazníků",
       "dashboard": "Nástěnka",
       "options": "Možnosti",
       "pricing": "Cenění",
@@ -122,11 +123,52 @@
       "description": "Vytvářejte a spravujte modely produktů, které mohou zákazníci konfigurovat",
       "title": "Modely produktů"
     },
+    "customerRequests": {
+      "title": "Žádosti zákazníků",
+      "description": "Prohlížejte a spravujte cenové nabídky z vašeho vloženého konfigurátoru",
+      "emptyState": "Zatím žádné žádosti zákazníků. Žádosti z vašeho vloženého konfigurátoru se zde zobrazí.",
+      "errorLoading": "Nepodařilo se načíst žádosti zákazníků. Zkuste to prosím znovu.",
+      "table": {
+        "product": "Produkt",
+        "customer": "Zákazník",
+        "email": "E-mail",
+        "price": "Cena",
+        "date": "Datum",
+        "status": "Stav"
+      },
+      "detail": {
+        "title": "Detail žádosti",
+        "snapshot": "Snímek konfigurace",
+        "configuration": "Konfigurace",
+        "configurationEmpty": "Nevybrány žádné možnosti",
+        "rawJson": "Surový JSON",
+        "message": "Zpráva zákazníka"
+      }
+    },
     "title": "Nastavení",
     "unified": {
       "setupDescription": "Konfigurujte komponenty, atributy, možnosti a ceny na jednom místě. Rozbalte sekce pro úpravy."
     },
-    "welcome": "Vítejte, {name}!"
+    "welcome": "Vítejte, {name}!",
+    "guide": {
+      "howItWorks": "Jak to funguje",
+      "howItWorksDescription": "Spusťte svůj konfigurátor produktů ve čtyřech krocích.",
+      "step1Title": "Vytvořte nebo importujte produkt",
+      "step1Description": "Importujte ze SketchUp (.skp + .glb) pro automatické nastavení, nebo vytvořte model produktu ručně.",
+      "step2Title": "Nastavte atributy a možnosti",
+      "step2Description": "Definujte, co si zákazníci mohou vybrat: barvy, rozměry, materiály. Nastavte komponenty a jejich atributy.",
+      "step3Title": "Nastavte cenová pravidla",
+      "step3Description": "Definujte, jak každá volba ovlivní cenu — pevná částka nebo přírůstek za jednotku.",
+      "step4Title": "Publikujte a vložte",
+      "step4Description": "Nastavte embed URL, publikujte a zkopírujte iframe kód pro umístění konfigurátoru na váš web.",
+      "quickActions": "Rychlé akce",
+      "importAction": "Import ze SketchUp",
+      "importDescription": "Nahrajte .skp a .glb soubory pro automatické vytvoření produktu s komponentami a atributy.",
+      "requestsAction": "Žádosti zákazníků",
+      "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
+      "tipTitle": "Tip: Příprava 3D modelu",
+      "tipBody": "Exportujte svůj SketchUp model jako .glb (Soubor > Exportovat > glTF). Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry). Aplikace automaticky extrahuje parametry ze souboru .skp při importu."
+    }
   },
   "SketchUpImport": {
     "title": "Import ze SketchUp",
@@ -197,6 +239,25 @@
       "warningMessage": "Chystáte se smazat \"{name}\". Tato akce je trvalá a nelze ji vrátit zpět.",
       "warningTitle": "Varování: Tuto akci nelze vrátit zpět"
     },
+    "Publish": {
+      "title": "Publikovat a vložit",
+      "description": "Zveřejněte tento konfigurátor pro vložení na váš web. Nastavte embed URL a zkopírujte iframe kód.",
+      "status": {
+        "published": "Publikováno",
+        "draft": "Koncept"
+      },
+      "publishToggle": "Publikováno",
+      "urlLabel": "Embed URL",
+      "urlPlaceholder": "např. kulaty-stul",
+      "urlHint": "Pouze malá písmena, číslice a pomlčky. Globálně unikátní. Embed URL: /e/vase-url",
+      "urlError": "Použijte pouze malá písmena, číslice a pomlčky (např. muj-produkt)",
+      "suggestUrl": "Vygenerovat URL z názvu produktu",
+      "saveUrl": "Uložit URL",
+      "embedCodeTitle": "Kód pro vložení",
+      "copyEmbed": "Kopírovat iframe",
+      "copied": "Zkopírováno!",
+      "previewEmbed": "Náhled vložení"
+    },
     "list": {
       "createButton": "Vytvořit model",
       "emptyState": {
@@ -207,6 +268,37 @@
       "title": "Modely produktů"
     },
     "title": "Modely produktů"
+  },
+  "Embed": {
+    "title": "Konfigurátor produktů",
+    "requestQuote": "Požádat o cenovou nabídku",
+    "priceBreakdown": "Základ {base} + doplňky {modifier}",
+    "resetConfiguration": "Obnovit konfiguraci",
+    "requestQuoteDialog": {
+      "title": "Požádat o cenovou nabídku",
+      "description": "Vyplňte své údaje a my se vám ozveme s personalizovanou nabídkou.",
+      "fields": {
+        "name": "Jméno",
+        "namePlaceholder": "Vaše jméno",
+        "email": "E-mail",
+        "emailPlaceholder": "vas@email.cz",
+        "phone": "Telefon",
+        "phonePlaceholder": "+420 123 456 789",
+        "message": "Zpráva",
+        "messagePlaceholder": "Popište své požadavky nebo dotazy…"
+      },
+      "submit": "Odeslat žádost",
+      "submitting": "Odesílám…",
+      "cancel": "Zrušit",
+      "success": {
+        "title": "Žádost odeslána",
+        "description": "Děkujeme! Vaše žádost byla přijata a brzy se vám ozveme.",
+        "close": "Zavřít"
+      },
+      "errorMessages": {
+        "generalError": "Něco se pokazilo. Zkuste to prosím znovu."
+      }
+    }
   },
   "Configurator": {
     "breadcrumbs": {
@@ -219,7 +311,8 @@
     },
     "components": {
       "title": "Komponenty",
-      "emptyState": "Pro tento model produktu nejsou k dispozici žádné komponenty."
+      "emptyState": "Pro tento model produktu nejsou k dispozici žádné komponenty.",
+      "progress": "{{current}} z {{total}} nakonfigurováno"
     },
     "attributes": {
       "title": "Konfigurace",

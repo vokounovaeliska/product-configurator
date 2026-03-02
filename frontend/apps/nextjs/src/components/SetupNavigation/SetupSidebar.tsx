@@ -4,6 +4,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   FileUpIcon,
+  InboxIcon,
   LayoutDashboardIcon,
   PackageIcon,
   SettingsIcon,
@@ -42,6 +43,12 @@ export const SetupSidebar = (_props: Props) => {
       href: ROUTES.setupImportSketchup,
       label: t("navigation.importSketchup"),
       icon: FileUpIcon,
+      exact: true,
+    },
+    {
+      href: ROUTES.setupCustomerRequests,
+      label: t("navigation.customerRequests"),
+      icon: InboxIcon,
       exact: true,
     },
   ]

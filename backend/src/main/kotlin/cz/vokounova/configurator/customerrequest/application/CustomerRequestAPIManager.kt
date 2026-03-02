@@ -1,0 +1,64 @@
+package cz.vokounova.configurator.customerrequest.application
+
+import cz.vokounova.configurator.customerrequest.domain.CustomerRequest
+import cz.vokounova.configurator.customerrequest.domain.CustomerRequestCreateParams
+import cz.vokounova.configurator.customerrequest.domain.CustomerRequestId
+import cz.vokounova.configurator.customerrequest.ports.inbound.CustomerRequestAPI
+import cz.vokounova.configurator.customerrequest.ports.outbound.CustomerRequestRepository
+import cz.vokounova.configurator.generated.jooq.enums.RequestStatus
+import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
+import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
+import cz.vokounova.configurator.users.api.dto.UserIdDto
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import java.time.OffsetDateTime
+import java.util.UUID
+
+@Component
+class CustomerRequestAPIManager(
+    private val customerRequestRepository: CustomerRequestRepository,
+    private val productConfigQueryFacade: ProductConfigQueryFacade,
+    private val emailNotificationService: CustomerRequestEmailNotificationService,
+) : CustomerRequestAPI {
+    @Transactional
+    override fun create(params: CustomerRequestCreateParams): CustomerRequest {
+        if (!productConfigQueryFacade.isProductPublished(params.productModelId)) {
+            throw IllegalArgumentException("Product is not published for embed")
+        }
+        val now = OffsetDateTime.now()
+        val request =
+            CustomerRequest(
+                id = CustomerRequestId(UUID.randomUUID()),
+                status = RequestStatus.NEW,
+                customerName = params.customerName,
+                customerEmail = params.customerEmail,
+                customerPhone = params.customerPhone,
+                customerNote = params.customerNote,
+                productModelId = params.productModelId,
+                productModelName = params.productModelName,
+                productModelDescription = params.productModelDescription,
+                currency = params.currency,
+                totalPriceCents = params.totalPriceCents,
+                configurationJson = params.configurationJson,
+                pricingBreakdownJson = params.pricingBreakdownJson,
+                snapshotImageBase64 = params.snapshotImageBase64,
+                createdAt = now,
+                modifiedAt = now,
+            )
+        val created =
+            customerRequestRepository.create(request)
+                ?: throw IllegalStateException("Failed to create customer request")
+        emailNotificationService.sendConfirmationEmail(created)
+        return created
+    }
+
+    override fun getById(id: CustomerRequestId): CustomerRequest =
+        customerRequestRepository.findById(id)
+            ?: throw ResourceNotFoundException("Customer request not found")
+
+    override fun listByProductModelOwner(
+        userId: UserIdDto,
+        limit: Int,
+        after: String?,
+    ): List<CustomerRequest> = customerRequestRepository.findByProductModelOwnerId(userId, limit, after)
+}

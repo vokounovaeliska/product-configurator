@@ -15,4 +15,7 @@ export const ROUTES = {
   setupPricingRules: (productModelId: string) =>
     `/setup/product-models/${productModelId}/pricing-rules`,
   configurator: (productModelId: string) => `/configurator/${productModelId}`,
+  /** Embed URL: /e/{url} – globally unique when published */
+  embed: (url: string) => `/e/${url}`,
+  setupCustomerRequests: "/setup/customer-requests",
 } as const

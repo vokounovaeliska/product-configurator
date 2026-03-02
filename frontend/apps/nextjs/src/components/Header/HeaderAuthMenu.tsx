@@ -30,12 +30,14 @@ export const HeaderAuthMenu = ({ user }: Props) => {
         <Link
           href={ROUTES.login}
           className={cn(buttonVariants())}
+          prefetch={false}
         >
           {t("signIn")}
         </Link>
         <Link
           href={ROUTES.registration}
           className={cn(buttonVariants({ variant: "secondary" }))}
+          prefetch={false}
         >
           {t("signUp")}
         </Link>

@@ -62,6 +62,16 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         set(value): Unit = set(9, value)
         get(): String? = get(9) as String?
 
+    open var url: String?
+        set(value): Unit = set(10, value)
+        get(): String? = get(10) as String?
+
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @set:JvmName("setIsPublished")
+    open var isPublished: Boolean?
+        set(value): Unit = set(11, value)
+        get(): Boolean? = get(11) as Boolean?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -71,7 +81,7 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
     /**
      * Create a detached, initialised ProductModelRecord
      */
-    constructor(id: UUID, userId: UUID, name: String, description: String? = null, price: BigDecimal? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, model_3dUrl: String? = null): this() {
+    constructor(id: UUID, userId: UUID, name: String, description: String? = null, price: BigDecimal? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, model_3dUrl: String? = null, url: String? = null, isPublished: Boolean? = null): this() {
         this.id = id
         this.userId = userId
         this.name = name
@@ -82,6 +92,8 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
         this.model_3dUrl = model_3dUrl
+        this.url = url
+        this.isPublished = isPublished
         resetChangedOnNotNull()
     }
 }

@@ -31,6 +31,8 @@ fun ProductModelPatchRequestDto.toParams(): ProductModelJsonPatchParams =
                 ProductModelPatchRequestDto.Path.SlashCurrency -> ProductModelJsonPatchParamsPath.CURRENCY
                 ProductModelPatchRequestDto.Path.SlashIsActive -> ProductModelJsonPatchParamsPath.IS_ACTIVE
                 ProductModelPatchRequestDto.Path.SlashModel3dUrl -> ProductModelJsonPatchParamsPath.MODEL_3D_URL
+                ProductModelPatchRequestDto.Path.SlashUrl -> ProductModelJsonPatchParamsPath.URL
+                ProductModelPatchRequestDto.Path.SlashIsPublished -> ProductModelJsonPatchParamsPath.IS_PUBLISHED
             },
         value = value,
         op =
