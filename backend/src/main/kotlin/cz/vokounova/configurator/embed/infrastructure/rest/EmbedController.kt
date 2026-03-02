@@ -2,7 +2,10 @@ package cz.vokounova.configurator.embed.infrastructure.rest
 
 import cz.vokounova.configurator.embed.application.EmbedService
 import cz.vokounova.configurator.embed.infrastructure.rest.mapper.toEmbedDto
+import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.toDto
+import cz.vokounova.configurator.products.components.infrastructure.rest.mapper.toDto
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
+import cz.vokounova.configurator.products.pricing.infrastructure.rest.mapper.toDto
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -35,6 +38,20 @@ class EmbedController(
         @PathVariable url: String,
     ): ResponseEntity<ProductEmbedFullDto> {
         val config = embedService.getPublishedProductConfigByUrl(url)
-        return ResponseEntity.ok(config)
+        val dto =
+            ProductEmbedFullDto(
+                product = config.product.toEmbedDto(),
+                components = config.components.map { it.toDto() },
+                attributesByComponent =
+                    config.attributesByComponent.mapValues { (_, attrs) ->
+                        attrs.map { it.toDto() }
+                    },
+                optionsByAttribute =
+                    config.optionsByAttribute.mapValues { (_, opts) ->
+                        opts.map { it.toDto() }
+                    },
+                pricingRules = config.pricingRules.map { it.toDto() },
+            )
+        return ResponseEntity.ok(dto)
     }
 }
