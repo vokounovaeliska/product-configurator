@@ -13,6 +13,8 @@ data class ProductModelCreateParams(
     val currency: String? = null,
     val isActive: Boolean? = null,
     val model3dUrl: String? = null,
+    val url: String? = null,
+    val isPublished: Boolean? = null,
 )
 
 data class ProductModelJsonPatchParams(
@@ -30,6 +32,8 @@ enum class ProductModelJsonPatchParamsPath(
     CURRENCY("/currency"),
     IS_ACTIVE("/isActive"),
     MODEL_3D_URL("/model3dUrl"),
+    URL("/url"),
+    IS_PUBLISHED("/isPublished"),
     ;
 
     @JsonValue

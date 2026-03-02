@@ -16,6 +16,9 @@ interface ProductModelAPI {
 
     fun getOne(id: ProductModelId): ProductModel
 
+    /** Get published product model by URL (for embed, no auth). Globally unique when published. */
+    fun getPublishedByUrl(url: String): ProductModel?
+
     fun getList(): List<ProductModel>
 
     fun patch(

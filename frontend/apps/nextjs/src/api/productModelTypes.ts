@@ -15,6 +15,10 @@ export type ProductModelDto = {
   isActive: boolean
   /** URL to 3D model (GLB) for configurator preview */
   model3dUrl?: string | null
+  /** Embed URL path (e.g. my-product). Globally unique when published. */
+  url?: string | null
+  /** When true, product is available at /e/{url} for embedding. */
+  isPublished?: boolean
   /** Format: date-time */
   createdAt: string
   /** Format: date-time */
@@ -41,7 +45,14 @@ export type ProductModelCreateRequestDto = {
 
 export type ProductModelPatchRequestDto = {
   /** @enum {string} */
-  path: "SlashName" | "SlashDescription" | "SlashPrice" | "SlashCurrency" | "SlashIsActive"
+  path:
+    | "SlashName"
+    | "SlashDescription"
+    | "SlashPrice"
+    | "SlashCurrency"
+    | "SlashIsActive"
+    | "SlashUrl"
+    | "SlashIsPublished"
   value?: unknown
   /** @enum {string} */
   op: "Replace"

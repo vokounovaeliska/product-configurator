@@ -1,17 +1,18 @@
-import { getLocale, getTranslations } from "next-intl/server"
+"use client"
 
-import { locales } from "@/lib/i18n/config"
+import { useLocale, useTranslations } from "next-intl"
+
+import { locales, type Locale } from "@/lib/i18n/config"
 
 import { LanguageSwitcherMenu } from "./LanguageSwitcherMenu"
 
-const createLanguageSwitcherOptions = async () => {
-  const t = await getTranslations("Common.BaseLayout.Header.LanguageSwitcher.values")
-  return locales.map((lang) => ({ label: t(lang), value: lang }))
-}
-
-export const LanguageSwitcher = async () => {
-  const locale = await getLocale()
-  const options = await createLanguageSwitcherOptions()
+export const LanguageSwitcher = () => {
+  const locale = useLocale()
+  const t = useTranslations("Common.BaseLayout.Header.LanguageSwitcher.values")
+  const options: { label: string; value: Locale }[] = locales.map((lang) => ({
+    label: t(lang),
+    value: lang,
+  }))
 
   return (
     <LanguageSwitcherMenu

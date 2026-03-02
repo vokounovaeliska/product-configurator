@@ -13,5 +13,5 @@ cors:
 
 logging:
   level:
-    root: DEBUG
-    org.springframework.security: DEBUG
+    root: INFO
+    org.springframework.security: WARN

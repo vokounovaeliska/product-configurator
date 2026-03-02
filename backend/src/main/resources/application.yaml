@@ -1,6 +1,9 @@
 app:
   files:
     upload-dir: ${UPLOAD_DIR:uploads/images}
+  mail:
+    from-address: ${MAIL_FROM:noreply@configurator.local}
+    from-name: ${MAIL_FROM_NAME:Product Configurator}
 
 spring:
   application:
@@ -42,8 +45,8 @@ springdoc:
 
 logging:
   level:
-    root: DEBUG
-    org.springframework.security: DEBUG
+    root: INFO
+    org.springframework.security: WARN
 
 jwt:
   users:

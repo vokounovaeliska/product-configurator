@@ -130,7 +130,6 @@ export function useConfigurationPrice(
     queryFn: () => fetchConfigurationPreview(productModelId, { selections: debouncedSelections }),
     enabled: Boolean(productModelId && hasAllAttributesLoaded && components.length > 0),
     placeholderData: keepPreviousData,
-    staleTime: 15_000,
   })
 
   return previewQuery

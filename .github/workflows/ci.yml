@@ -121,7 +121,7 @@ jobs:
 
       - name: Run integration tests
         working-directory: ./backend
-        run: ./mvnw --no-transfer-progress --batch-mode verify -Dskip.flyway.migration=true -Dskip.jooq.generation=true -DskipUTs
+        run: ./mvnw --no-transfer-progress --batch-mode --quiet verify -Dskip.flyway.migration=true -Dskip.jooq.generation=true -DskipUTs
 
       - name: Upload test logs
         if: always()

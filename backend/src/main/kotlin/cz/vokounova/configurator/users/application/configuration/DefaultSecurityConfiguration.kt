@@ -41,6 +41,10 @@ class DefaultSecurityConfiguration {
             it.requestMatchers(HttpMethod.GET, "/api/v1/files/**").permitAll()
             // Configuration preview (price calculation) is public for customer configurator
             it.requestMatchers(HttpMethod.POST, "/products/api/v1/product-models/*/configuration-preview").permitAll()
+            // Embed API – public (product by url, full config, customer request create)
+            it.requestMatchers(HttpMethod.GET, "/embed/api/v1/products/**").permitAll()
+            // Customer request – public create (rate limit recommended in production)
+            it.requestMatchers(HttpMethod.POST, "/embed/api/v1/customer-requests").permitAll()
             it.anyRequest().authenticated()
         }
         http.authenticationManager(authenticationManager)

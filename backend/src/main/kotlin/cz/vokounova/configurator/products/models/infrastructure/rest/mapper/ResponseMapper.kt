@@ -16,6 +16,8 @@ fun ProductModel.toDto(): ProductModelDto =
         currency = currency,
         isActive = isActive,
         model3dUrl = model3dUrl,
+        url = url,
+        isPublished = isPublished,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )
