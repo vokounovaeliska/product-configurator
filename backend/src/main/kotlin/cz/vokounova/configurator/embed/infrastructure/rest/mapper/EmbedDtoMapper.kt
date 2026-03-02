@@ -1,11 +1,11 @@
 package cz.vokounova.configurator.embed.infrastructure.rest.mapper
 
 import cz.vokounova.configurator.embed.infrastructure.rest.ProductModelEmbedDto
-import cz.vokounova.configurator.products.models.domain.ProductModel
+import cz.vokounova.configurator.products.api.dto.ProductModelExternalDto
 
-fun ProductModel.toEmbedDto(): ProductModelEmbedDto =
+fun ProductModelExternalDto.toEmbedDto(): ProductModelEmbedDto =
     ProductModelEmbedDto(
-        id = id.value,
+        id = id,
         name = name,
         description = description,
         price = price,

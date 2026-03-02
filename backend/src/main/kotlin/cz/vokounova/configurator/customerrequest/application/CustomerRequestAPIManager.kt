@@ -6,8 +6,7 @@ import cz.vokounova.configurator.customerrequest.domain.CustomerRequestId
 import cz.vokounova.configurator.customerrequest.ports.inbound.CustomerRequestAPI
 import cz.vokounova.configurator.customerrequest.ports.outbound.CustomerRequestRepository
 import cz.vokounova.configurator.generated.jooq.enums.RequestStatus
-import cz.vokounova.configurator.products.models.domain.ProductModelId
-import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
+import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.springframework.stereotype.Component
@@ -18,14 +17,12 @@ import java.util.UUID
 @Component
 class CustomerRequestAPIManager(
     private val customerRequestRepository: CustomerRequestRepository,
-    private val productModelAPI: ProductModelAPI,
+    private val productConfigQueryFacade: ProductConfigQueryFacade,
     private val emailNotificationService: CustomerRequestEmailNotificationService,
 ) : CustomerRequestAPI {
     @Transactional
     override fun create(params: CustomerRequestCreateParams): CustomerRequest {
-        val productModel =
-            productModelAPI.getOne(ProductModelId(params.productModelId))
-        if (!productModel.isPublished) {
+        if (!productConfigQueryFacade.isProductPublished(params.productModelId)) {
             throw IllegalArgumentException("Product is not published for embed")
         }
         val now = OffsetDateTime.now()
