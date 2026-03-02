@@ -82,7 +82,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   }
 
   const handleSaveUrl = async () => {
-    if (!urlValid || url.trim() === "") return
+    if (!isUrlValid || url.trim() === "") return
     const trimmedUrl = url.trim()
     if (trimmedUrl === productModel.url) return
     const patches: {

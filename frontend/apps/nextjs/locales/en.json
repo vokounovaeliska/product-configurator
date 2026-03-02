@@ -150,7 +150,26 @@
     "unified": {
       "setupDescription": "Configure components, attributes, options, and pricing in one place. Expand sections to edit."
     },
-    "welcome": "Welcome, {name}!"
+    "welcome": "Welcome, {name}!",
+    "guide": {
+      "howItWorks": "How it works",
+      "howItWorksDescription": "Get your product configurator up and running in four steps.",
+      "step1Title": "Create or import a product",
+      "step1Description": "Import from SketchUp (.skp + .glb) for automatic setup, or create a product model manually.",
+      "step2Title": "Configure attributes & options",
+      "step2Description": "Define what customers can choose: colors, sizes, materials. Set up components and their attributes.",
+      "step3Title": "Set pricing rules",
+      "step3Description": "Define how each option affects the price — fixed amounts or per-unit increments.",
+      "step4Title": "Publish & embed",
+      "step4Description": "Set the embed URL, publish, and copy the iframe code to place the configurator on your website.",
+      "quickActions": "Quick actions",
+      "importAction": "Import from SketchUp",
+      "importDescription": "Upload .skp and .glb files to auto-create a product with components and attributes.",
+      "requestsAction": "Customer Requests",
+      "requestsDescription": "View quote requests submitted through your embedded configurator.",
+      "tipTitle": "Tip: 3D model preparation",
+      "tipBody": "Export your SketchUp model as .glb (File > Export > glTF). Use Dynamic Components for configurable parameters (colors, dimensions). The app extracts parameters automatically from the .skp file during import."
+    }
   },
   "SketchUpImport": {
     "title": "Import from SketchUp",

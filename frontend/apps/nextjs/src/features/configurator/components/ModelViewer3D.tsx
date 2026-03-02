@@ -24,8 +24,7 @@ type Props = {
   onCaptureReady?: (capture: () => Promise<string | null>) => void
 }
 
-/** Ref type for OrbitControls used by snapshot capture (avoids three-stdlib type issues). */
-type OrbitControlsRef = { target: THREE.Vector3; update: () => void } | null
+type OrbitControlsRef = React.ComponentRef<typeof OrbitControls>
 
 /** Base model size in cm (SketchUp convention: 100 cm diameter for round tables). */
 const BASE_PRUMER_CM = 100
@@ -310,7 +309,7 @@ function SnapshotCaptureController({
   onCaptureReady,
   canCapture,
 }: {
-  controlsRef: React.RefObject<OrbitControlsRef>
+  controlsRef: React.RefObject<OrbitControlsRef | null>
   onCaptureReady?: (capture: () => Promise<string | null>) => void
   canCapture: boolean
 }) {
@@ -401,7 +400,7 @@ function SceneWithCapture({
         />
       </Center>
       <OrbitControls
-        ref={controlsRef as React.RefObject<unknown>}
+        ref={controlsRef}
         enablePan
         enableZoom
         enableRotate

@@ -323,7 +323,7 @@ const CustomerRequestDetailDialog = ({
             >
               {t("detail.configuration")}
             </Typography>
-            {configEmpty ? (
+            {isConfigEmptyFlag ? (
               <Typography
                 as="p"
                 variant="body-md"

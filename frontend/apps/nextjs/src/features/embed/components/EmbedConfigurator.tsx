@@ -11,12 +11,11 @@ import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
-import { VisualPreview } from "@/features/configurator/components/VisualPreview"
 /* eslint-disable import/no-restricted-paths -- embed composes configurator preview and pricing utils */
+import { VisualPreview } from "@/features/configurator/components/VisualPreview"
 import { computeModifiersCents } from "@/features/configurator/utils/computePriceFromRules"
-import type { ProductModelEmbedDto } from "@/features/embed/api/embedQueries"
-
 /* eslint-enable import/no-restricted-paths */
+import type { ProductModelEmbedDto } from "@/features/embed/api/embedQueries"
 
 import { EmbedAttributeConfiguration } from "./EmbedAttributeConfiguration"
 import { RequestQuoteDialog } from "./RequestQuoteDialog"

@@ -149,7 +149,26 @@
     "unified": {
       "setupDescription": "Konfigurujte komponenty, atributy, možnosti a ceny na jednom místě. Rozbalte sekce pro úpravy."
     },
-    "welcome": "Vítejte, {name}!"
+    "welcome": "Vítejte, {name}!",
+    "guide": {
+      "howItWorks": "Jak to funguje",
+      "howItWorksDescription": "Spusťte svůj konfigurátor produktů ve čtyřech krocích.",
+      "step1Title": "Vytvořte nebo importujte produkt",
+      "step1Description": "Importujte ze SketchUp (.skp + .glb) pro automatické nastavení, nebo vytvořte model produktu ručně.",
+      "step2Title": "Nastavte atributy a možnosti",
+      "step2Description": "Definujte, co si zákazníci mohou vybrat: barvy, rozměry, materiály. Nastavte komponenty a jejich atributy.",
+      "step3Title": "Nastavte cenová pravidla",
+      "step3Description": "Definujte, jak každá volba ovlivní cenu — pevná částka nebo přírůstek za jednotku.",
+      "step4Title": "Publikujte a vložte",
+      "step4Description": "Nastavte embed URL, publikujte a zkopírujte iframe kód pro umístění konfigurátoru na váš web.",
+      "quickActions": "Rychlé akce",
+      "importAction": "Import ze SketchUp",
+      "importDescription": "Nahrajte .skp a .glb soubory pro automatické vytvoření produktu s komponentami a atributy.",
+      "requestsAction": "Žádosti zákazníků",
+      "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
+      "tipTitle": "Tip: Příprava 3D modelu",
+      "tipBody": "Exportujte svůj SketchUp model jako .glb (Soubor > Exportovat > glTF). Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry). Aplikace automaticky extrahuje parametry ze souboru .skp při importu."
+    }
   },
   "SketchUpImport": {
     "title": "Import ze SketchUp",
