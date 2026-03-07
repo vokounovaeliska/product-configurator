@@ -47,12 +47,13 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const isUrlError = url !== "" && !isUrlValid
   const canPublish = isUrlValid && url.trim().length > 0
   const displayUrl = url.trim() ?? productModel.url ?? toUrlPath(productModel.name)
-  const embedUrl = `${env.NEXT_PUBLIC_SITE_URL}${ROUTES.embed(displayUrl)}`
+  // Always use HTTPS for embed URLs to avoid Mixed Content when embedded on HTTPS sites
+  const embedBaseUrl = env.NEXT_PUBLIC_SITE_URL.replace(/^http:\/\//, "https://")
+  const embedUrl = `${embedBaseUrl}${ROUTES.embed(displayUrl)}`
   const embedCode = `<iframe
   src="${embedUrl}"
   width="100%"
   height="600"
-  frameborder="0"
   allowfullscreen
 ></iframe>`
 
