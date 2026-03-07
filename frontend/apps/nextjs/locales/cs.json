@@ -109,7 +109,7 @@
       "allComponents": "Všechny komponenty",
       "attributes": "Atributy",
       "components": "Komponenty",
-      "customerRequests": "Žádosti zákazníků",
+      "customerRequests": "Poptávky",
       "dashboard": "Nástěnka",
       "options": "Možnosti",
       "pricing": "Cenění",
@@ -124,10 +124,34 @@
       "title": "Modely produktů"
     },
     "customerRequests": {
-      "title": "Žádosti zákazníků",
-      "description": "Prohlížejte a spravujte cenové nabídky z vašeho vloženého konfigurátoru",
-      "emptyState": "Zatím žádné žádosti zákazníků. Žádosti z vašeho vloženého konfigurátoru se zde zobrazí.",
-      "errorLoading": "Nepodařilo se načíst žádosti zákazníků. Zkuste to prosím znovu.",
+      "title": "Poptávky",
+      "description": "Prohlížejte a spravujte cenové poptávky z vašeho vloženého konfigurátoru",
+      "emptyState": "Zatím žádné poptávky. Cenové poptávky z vašeho vloženého konfigurátoru se zde zobrazí.",
+      "noMatchingResults": "Žádné poptávky neodpovídají vašemu hledání nebo filtru.",
+      "statusUpdateError": "Nepodařilo se aktualizovat stav. Zkuste to prosím znovu.",
+      "errorLoading": "Nepodařilo se načíst poptávky. Zkuste to prosím znovu.",
+      "searchPlaceholder": "Hledat podle zákazníka, produktu nebo e-mailu…",
+      "filterStatusAll": "Všechny stavy",
+      "filterProductAll": "Všechny produkty",
+      "filterFromDate": "Od data",
+      "filterToDate": "Do data",
+      "clearFilters": "Vymazat filtry",
+      "listHeaders": {
+        "product": "Produkt",
+        "customer": "Zákazník",
+        "email": "E-mail",
+        "message": "Zpráva",
+        "date": "Datum",
+        "price": "Cena",
+        "status": "Stav"
+      },
+      "noMessage": "—",
+      "status": {
+        "NEW": "Nová",
+        "IN_PROGRESS": "Rozpracováno",
+        "OFFER_SENT": "Nabídka odeslána",
+        "CLOSED": "Uzavřeno"
+      },
       "table": {
         "product": "Produkt",
         "customer": "Zákazník",
@@ -137,12 +161,14 @@
         "status": "Stav"
       },
       "detail": {
-        "title": "Detail žádosti",
+        "title": "Detail poptávky",
         "snapshot": "Snímek konfigurace",
         "configuration": "Konfigurace",
         "configurationEmpty": "Nevybrány žádné možnosti",
         "rawJson": "Surový JSON",
-        "message": "Zpráva zákazníka"
+        "message": "Zpráva zákazníka",
+        "openFullPage": "Detail",
+        "backToList": "Zpět na poptávky"
       }
     },
     "title": "Nastavení",
@@ -164,7 +190,7 @@
       "quickActions": "Rychlé akce",
       "importAction": "Import ze SketchUp",
       "importDescription": "Nahrajte .skp a .glb soubory pro automatické vytvoření produktu s komponentami a atributy.",
-      "requestsAction": "Žádosti zákazníků",
+      "requestsAction": "Poptávky",
       "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
       "tipTitle": "Tip: Příprava 3D modelu",
       "tipBody": "Exportujte svůj SketchUp model jako .glb (Soubor > Exportovat > glTF). Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry). Aplikace automaticky extrahuje parametry ze souboru .skp při importu."

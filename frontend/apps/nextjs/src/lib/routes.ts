@@ -18,4 +18,5 @@ export const ROUTES = {
   /** Embed URL: /e/{url} – globally unique when published */
   embed: (url: string) => `/e/${url}`,
   setupCustomerRequests: "/setup/customer-requests",
+  setupCustomerRequestDetail: (id: string) => `/setup/customer-requests/${id}`,
 } as const

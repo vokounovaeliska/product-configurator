@@ -110,7 +110,7 @@
       "allComponents": "All Components",
       "attributes": "Attributes",
       "components": "Components",
-      "customerRequests": "Customer Requests",
+      "customerRequests": "Inquiries",
       "dashboard": "Dashboard",
       "options": "Options",
       "pricing": "Pricing",
@@ -125,10 +125,34 @@
       "title": "Product Models"
     },
     "customerRequests": {
-      "title": "Customer Requests",
-      "description": "View and manage quote requests from your embed configurator",
-      "emptyState": "No customer requests yet. Requests from your embed configurator will appear here.",
-      "errorLoading": "Failed to load customer requests. Please try again.",
+      "title": "Inquiries",
+      "description": "View and manage quote inquiries from your embedded configurator",
+      "emptyState": "No inquiries yet. Quote requests from your embedded configurator will appear here.",
+      "noMatchingResults": "No inquiries match your search or filter.",
+      "statusUpdateError": "Failed to update status. Please try again.",
+      "errorLoading": "Failed to load inquiries. Please try again.",
+      "searchPlaceholder": "Search by customer, product, or email…",
+      "filterStatusAll": "All statuses",
+      "filterProductAll": "All products",
+      "filterFromDate": "From date",
+      "filterToDate": "To date",
+      "clearFilters": "Clear filters",
+      "listHeaders": {
+        "product": "Product",
+        "customer": "Customer",
+        "email": "Email",
+        "message": "Message",
+        "date": "Date",
+        "price": "Price",
+        "status": "Status"
+      },
+      "noMessage": "—",
+      "status": {
+        "NEW": "New",
+        "IN_PROGRESS": "In progress",
+        "OFFER_SENT": "Offer sent",
+        "CLOSED": "Closed"
+      },
       "table": {
         "product": "Product",
         "customer": "Customer",
@@ -138,12 +162,14 @@
         "status": "Status"
       },
       "detail": {
-        "title": "Request details",
+        "title": "Inquiry details",
         "snapshot": "Configuration snapshot",
         "configuration": "Configuration",
         "configurationEmpty": "No options selected",
         "rawJson": "Raw JSON",
-        "message": "Customer message"
+        "message": "Customer message",
+        "openFullPage": "Detail",
+        "backToList": "Back to inquiries"
       }
     },
     "title": "Setup",
@@ -165,8 +191,8 @@
       "quickActions": "Quick actions",
       "importAction": "Import from SketchUp",
       "importDescription": "Upload .skp and .glb files to auto-create a product with components and attributes.",
-      "requestsAction": "Customer Requests",
-      "requestsDescription": "View quote requests submitted through your embedded configurator.",
+      "requestsAction": "Inquiries",
+      "requestsDescription": "View quote inquiries submitted through your embedded configurator.",
       "tipTitle": "Tip: 3D model preparation",
       "tipBody": "Export your SketchUp model as .glb (File > Export > glTF). Use Dynamic Components for configurable parameters (colors, dimensions). The app extracts parameters automatically from the .skp file during import."
     }

@@ -2,6 +2,7 @@ package cz.vokounova.configurator.customerrequest.application
 
 import cz.vokounova.configurator.customerrequest.domain.CustomerRequest
 import cz.vokounova.configurator.customerrequest.domain.CustomerRequestCreateParams
+import cz.vokounova.configurator.customerrequest.domain.CustomerRequestFilter
 import cz.vokounova.configurator.customerrequest.domain.CustomerRequestId
 import cz.vokounova.configurator.customerrequest.ports.inbound.CustomerRequestAPI
 import cz.vokounova.configurator.customerrequest.ports.outbound.CustomerRequestRepository
@@ -56,9 +57,25 @@ class CustomerRequestAPIManager(
         customerRequestRepository.findById(id)
             ?: throw ResourceNotFoundException("Customer request not found")
 
+    @Transactional
+    override fun updateStatus(
+        userId: UserIdDto,
+        id: CustomerRequestId,
+        status: RequestStatus,
+    ): CustomerRequest {
+        val userRequests =
+            customerRequestRepository.findByProductModelOwnerId(userId, 1000, null, CustomerRequestFilter())
+        if (!userRequests.any { it.id.value == id.value }) {
+            throw ResourceNotFoundException("Customer request not found")
+        }
+        return customerRequestRepository.updateStatus(id, status)
+            ?: throw ResourceNotFoundException("Customer request not found")
+    }
+
     override fun listByProductModelOwner(
         userId: UserIdDto,
         limit: Int,
         after: String?,
-    ): List<CustomerRequest> = customerRequestRepository.findByProductModelOwnerId(userId, limit, after)
+        filter: CustomerRequestFilter,
+    ): List<CustomerRequest> = customerRequestRepository.findByProductModelOwnerId(userId, limit, after, filter)
 }

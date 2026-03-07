@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { Checkbox } from "@workspace/ui/components/checkbox"
@@ -79,6 +80,14 @@ export const EmbedAttributeField = ({
     }).format(cents / 100)
 
   const sortedOptions = [...options].sort((a, b) => a.sortOrder - b.sortOrder)
+  const hasSetDefaultRef = useRef(false)
+
+  useEffect(() => {
+    const first = sortedOptions[0]
+    if (hasSetDefaultRef.current || !first || selectedOption !== null) return
+    hasSetDefaultRef.current = true
+    onSelectOption(first)
+  }, [sortedOptions, selectedOption, onSelectOption])
 
   if (attribute.type === "ENUM") {
     const hasImages = sortedOptions.some((o) => o.imageUrl)
@@ -92,24 +101,9 @@ export const EmbedAttributeField = ({
           aria-label={attribute.label}
           className={cn(
             "flex flex-wrap gap-2",
-            hasImages && "grid grid-cols-4 gap-2 sm:grid-cols-5",
+            hasImages && "grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5",
           )}
         >
-          <button
-            type="button"
-            role="option"
-            aria-selected={selectedOption === null}
-            onClick={() => onSelectOption(null)}
-            className={cn(
-              "flex min-w-0 items-center justify-center rounded-lg border-2 px-3 py-2 text-sm font-medium transition-colors",
-              selectedOption === null
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
-              hasImages ? "col-span-1" : "",
-            )}
-          >
-            {t("attributes.noSelection")}
-          </button>
           {sortedOptions.map((opt) => {
             const isSelected = selectedOption?.id === opt.id
             const priceCents = getPriceForOption(
@@ -127,16 +121,16 @@ export const EmbedAttributeField = ({
                 aria-selected={isSelected}
                 onClick={() => onSelectOption(opt)}
                 className={cn(
-                  "flex min-w-0 flex-col items-center gap-1 rounded-lg border-2 transition-colors",
+                  "flex min-h-[44px] min-w-0 touch-manipulation flex-col items-center justify-center gap-1 rounded-lg border-2 transition-colors",
                   isSelected
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
-                  hasImages ? "overflow-hidden p-0" : "px-3 py-2 text-sm font-medium",
+                  hasImages ? "overflow-hidden p-0" : "px-3 py-2.5 text-sm font-medium",
                 )}
               >
                 {hasImages && opt.imageUrl ? (
                   <>
-                    <div className="relative mx-auto aspect-square w-12 shrink-0 overflow-hidden rounded-sm bg-muted sm:w-14">
+                    <div className="relative mx-auto aspect-square w-14 shrink-0 overflow-hidden rounded-sm bg-muted">
                       <Image
                         src={getImageUrlForDisplay(opt.imageUrl)}
                         alt=""
@@ -219,6 +213,7 @@ export const EmbedAttributeField = ({
               if (!Number.isNaN(v)) onOtherChange(v)
             }}
             placeholder={t("attributes.numberPlaceholder")}
+            className="min-h-[44px] text-base"
           />
           {attribute.unit?.trim() && (
             <span className="shrink-0 text-sm text-muted-foreground">{attribute.unit.trim()}</span>
@@ -260,6 +255,7 @@ export const EmbedAttributeField = ({
               if (!Number.isNaN(v)) onOtherChange(v)
             }}
             placeholder={t("attributes.numberPlaceholder")}
+            className="min-h-[44px] text-base"
           />
           {attribute.unit?.trim() && (
             <span className="shrink-0 text-sm text-muted-foreground">{attribute.unit.trim()}</span>

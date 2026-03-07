@@ -97,7 +97,6 @@ export const EmbedConfigurator = ({
   )
   const basePriceCents = Math.round(product.price * 100)
   const totalPriceCents = basePriceCents + modifiersCents
-  const hasModifiers = modifiersCents !== 0
 
   const handleResetConfiguration = useCallback(() => {
     setSelectedOptionsByComponent({})
@@ -178,28 +177,29 @@ export const EmbedConfigurator = ({
     Object.keys(selectedOtherValuesByComponent).length > 0
 
   return (
-    <div className="flex flex-1 flex-col gap-6 bg-muted/30 p-6 md:p-10">
-      <div className="space-y-2">
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6">
+      <div className="shrink-0 space-y-0.5 sm:space-y-1">
         <Typography
           as="h1"
-          variant="display-2xl"
+          variant="display-lg"
           weight="bold"
+          className="text-xl sm:text-2xl"
         >
           {product.name}
         </Typography>
         {product.description && (
           <Typography
             as="p"
-            variant="body-lg"
-            className="text-muted-foreground"
+            variant="body-sm"
+            className="line-clamp-2 text-muted-foreground"
           >
             {product.description}
           </Typography>
         )}
       </div>
 
-      <div className="grid flex-1 gap-6 lg:min-h-0 lg:grid-cols-3">
-        <div className="relative z-0 flex min-h-[40vh] flex-col lg:col-span-2 lg:min-h-[50vh]">
+      <div className="grid min-h-0 flex-1 gap-3 sm:gap-4 lg:grid-cols-[1fr_280px]">
+        <div className="relative z-0 flex min-h-[28vh] min-w-0 flex-1 flex-col sm:min-h-[32vh] lg:min-h-0">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
@@ -208,42 +208,28 @@ export const EmbedConfigurator = ({
             model3dConfig={model3dConfig}
             canCapture
             onCaptureReady={product.model3dUrl ? handleCaptureReady : undefined}
+            isCompact
           />
         </div>
 
-        <div className="flex flex-col gap-6">
-          {/* Sticky price bar on mobile, normal on desktop */}
-          <div className="sticky top-4 z-10 flex flex-col gap-4 lg:static">
-            <Card className="p-4 shadow-sm">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-baseline justify-between gap-4">
-                  <Typography
-                    as="span"
-                    variant="display-md"
-                    weight="semibold"
-                  >
-                    {formatPrice(totalPriceCents)}
-                  </Typography>
-                  <Typography
-                    as="span"
-                    variant="body-sm"
-                    className="text-muted-foreground"
-                  >
-                    {product.currency}
-                  </Typography>
-                </div>
-                {hasModifiers && (
-                  <Typography
-                    as="p"
-                    variant="body-sm"
-                    className="text-muted-foreground"
-                  >
-                    {t("priceBreakdown", {
-                      base: formatPrice(basePriceCents),
-                      modifier: formatPrice(modifiersCents),
-                    })}
-                  </Typography>
-                )}
+        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto lg:max-h-full">
+          <div className="flex shrink-0 flex-col gap-2">
+            <Card className="p-3 shadow-sm">
+              <div className="flex items-baseline justify-between gap-2">
+                <Typography
+                  as="span"
+                  variant="display-sm"
+                  weight="semibold"
+                >
+                  {formatPrice(totalPriceCents)}
+                </Typography>
+                <Typography
+                  as="span"
+                  variant="body-sm"
+                  className="text-muted-foreground"
+                >
+                  {product.currency}
+                </Typography>
               </div>
             </Card>
 
@@ -252,11 +238,11 @@ export const EmbedConfigurator = ({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="w-fit text-muted-foreground"
+                className="min-h-[44px] w-fit px-3 py-2.5 text-muted-foreground sm:h-8 sm:min-h-0 sm:px-2 sm:py-0"
                 onClick={handleResetConfiguration}
               >
-                <RotateCcwIcon className="mr-2 size-4" />
-                {t("resetConfiguration")}
+                <RotateCcwIcon className="mr-1.5 size-3.5" />
+                <span className="text-sm">{t("resetConfiguration")}</span>
               </Button>
             )}
           </div>
@@ -276,8 +262,8 @@ export const EmbedConfigurator = ({
           />
 
           <Button
-            size="lg"
-            className="w-full shadow-md"
+            size="default"
+            className="mt-auto min-h-[44px] shrink-0 py-3 shadow-md sm:min-h-0 sm:py-2"
             onClick={() => setIsRequestDialogOpen(true)}
           >
             {t("requestQuote")}

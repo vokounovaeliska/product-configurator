@@ -404,8 +404,8 @@ function SceneWithCapture({
         enablePan
         enableZoom
         enableRotate
-        minDistance={0.5}
-        maxDistance={50}
+        minDistance={1}
+        maxDistance={3}
         target={[0, 0, 0]}
       />
       {canCapture && onCaptureReady && (
@@ -429,7 +429,7 @@ export const ModelViewer3D = ({
   return (
     <div className={`relative h-full min-h-[40vh] w-full ${className ?? ""}`}>
       <Canvas
-        camera={{ position: [3, 3, 3], fov: 45 }}
+        camera={{ position: [1, 1, 1], fov: 45 }}
         gl={{ antialias: true, preserveDrawingBuffer: canCapture ?? false }}
       >
         {/* eslint-disable react/no-unknown-property -- R3F/Three.js uses object, intensity, position etc. */}
