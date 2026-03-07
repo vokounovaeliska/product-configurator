@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
+import { cn } from "@workspace/ui/lib/utils"
 
 import { SmartImageComposer } from "@/components/SmartImageComposer"
 
@@ -29,6 +30,8 @@ type Props = {
   canCapture?: boolean
   /** Called when 3D capture at fixed angle is ready (embed only). */
   onCaptureReady?: (capture: () => Promise<string | null>) => void
+  /** When true, uses compact padding and maximizes 3D area (embed layout). */
+  isCompact?: boolean
 }
 
 export const VisualPreview = ({
@@ -39,6 +42,7 @@ export const VisualPreview = ({
   model3dConfig,
   canCapture,
   onCaptureReady,
+  isCompact = false,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -48,10 +52,18 @@ export const VisualPreview = ({
   if (has3dModel) {
     return (
       <Card
-        className="flex min-h-0 flex-1 flex-col overflow-hidden p-4 md:p-6"
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          isCompact ? "p-2 sm:p-3" : "p-4 md:p-6",
+        )}
         data-embed-preview
       >
-        <div className="flex min-h-[40vh] flex-1 items-center justify-center rounded-lg border bg-muted/30">
+        <div
+          className={cn(
+            "flex flex-1 items-center justify-center rounded-lg border bg-muted/30",
+            isCompact ? "min-h-[25vh] sm:min-h-[35vh] md:min-h-[50vh]" : "min-h-[40vh]",
+          )}
+        >
           <ModelViewer3D
             modelUrl={model3dUrl!}
             className="rounded-lg"

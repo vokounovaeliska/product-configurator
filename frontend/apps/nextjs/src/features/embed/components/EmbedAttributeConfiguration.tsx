@@ -77,11 +77,11 @@ export const EmbedAttributeConfiguration = ({
   const shouldShowProgress = totalComponents > 1 && configuredCount > 0
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <Typography
           as="h2"
-          variant="display-md"
+          variant="display-sm"
           weight="semibold"
         >
           {t("components.title")}
@@ -115,11 +115,11 @@ export const EmbedAttributeConfiguration = ({
               )}
               onClick={() => onSelectComponent(component.id)}
             >
-              <div className="p-4">
-                <div className="mb-3 flex items-start justify-between gap-2">
+              <div className="p-3">
+                <div className="mb-2 flex items-start justify-between gap-2">
                   <Typography
                     as="h3"
-                    variant="display-sm"
+                    variant="body-lg"
                     weight="semibold"
                     className={cn(isSelected && "text-primary")}
                   >
@@ -134,12 +134,12 @@ export const EmbedAttributeConfiguration = ({
                     </span>
                   )}
                 </div>
-                <div className="mb-3">
+                <div className="mb-2">
                   {component.description && (
                     <Typography
                       as="p"
                       variant="body-sm"
-                      className="mt-1 text-muted-foreground"
+                      className="mt-0.5 line-clamp-2 text-muted-foreground"
                     >
                       {component.description}
                     </Typography>
@@ -147,10 +147,10 @@ export const EmbedAttributeConfiguration = ({
                 </div>
 
                 {isSelected && attributes.length > 0 && (
-                  <div className="mt-4 space-y-4 border-t pt-4">
+                  <div className="mt-3 space-y-3 border-t pt-3">
                     <Typography
                       as="h4"
-                      variant="body-lg"
+                      variant="body-sm"
                       weight="semibold"
                     >
                       {t("attributes.title")}

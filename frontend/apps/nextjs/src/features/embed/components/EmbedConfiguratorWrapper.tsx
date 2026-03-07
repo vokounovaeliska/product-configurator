@@ -31,14 +31,14 @@ export const EmbedConfiguratorWrapper = ({ url }: Props) => {
 
   if (isLoading || !config) {
     return (
-      <div className="flex flex-1 flex-col gap-6 p-6 md:p-10">
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-64" />
-          <Skeleton className="h-6 w-96" />
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4 md:p-6">
+        <div className="shrink-0 space-y-1">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-72" />
         </div>
-        <div className="grid flex-1 gap-6 lg:grid-cols-3">
-          <Skeleton className="h-[500px] lg:col-span-2" />
-          <Skeleton className="h-[500px]" />
+        <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[1fr_280px]">
+          <Skeleton className="min-h-[35vh] min-w-0 lg:min-h-0" />
+          <Skeleton className="min-h-0" />
         </div>
       </div>
     )
