@@ -65,7 +65,7 @@ export const ComponentSelector = ({
     <div className="space-y-4">
       <Typography
         as="h2"
-        variant="display-md"
+        variant="display-sm"
         weight="semibold"
       >
         {t("components.title")}
@@ -88,7 +88,7 @@ export const ComponentSelector = ({
                 <div className="mb-3">
                   <Typography
                     as="h3"
-                    variant="display-sm"
+                    variant="body-lg"
                     weight="semibold"
                     className={cn(isSelected && "text-primary")}
                   >

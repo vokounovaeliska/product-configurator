@@ -149,6 +149,7 @@ class ProductModelsController(
                 embedShowProductName = prefs?.embedShowProductName,
                 embedShowDescription = prefs?.embedShowDescription,
                 embedShowComponents = prefs?.embedShowComponents,
+                backgroundPreset = prefs?.backgroundPreset,
             ),
         )
     }
@@ -166,6 +167,7 @@ class ProductModelsController(
                 embedShowProductName = request.embedShowProductName,
                 embedShowDescription = request.embedShowDescription,
                 embedShowComponents = request.embedShowComponents,
+                backgroundPreset = request.backgroundPreset,
             )
         return ResponseEntity.ok(
             ConfiguratorPreferencesDto(
@@ -174,6 +176,7 @@ class ProductModelsController(
                 embedShowProductName = prefs.embedShowProductName,
                 embedShowDescription = prefs.embedShowDescription,
                 embedShowComponents = prefs.embedShowComponents,
+                backgroundPreset = prefs.backgroundPreset,
             ),
         )
     }

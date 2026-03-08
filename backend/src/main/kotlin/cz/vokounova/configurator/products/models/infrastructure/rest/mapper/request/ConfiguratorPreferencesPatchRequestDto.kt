@@ -9,4 +9,5 @@ data class ConfiguratorPreferencesPatchRequestDto(
     val embedShowProductName: Boolean? = null,
     val embedShowDescription: Boolean? = null,
     val embedShowComponents: Boolean? = null,
+    val backgroundPreset: String? = null,
 )

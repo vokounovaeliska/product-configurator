@@ -21,6 +21,8 @@ import {
   useUpdateCustomerRequestStatus,
 } from "../api/customerRequestQueries"
 import type { CustomerRequestDto } from "../api/customerRequestQueries"
+import { useRequestConfigurationData } from "../hooks/useRequestConfigurationData"
+import { RequestConfigurationDisplay } from "./RequestConfigurationDisplay"
 
 const REQUEST_STATUSES = ["NEW", "IN_PROGRESS", "OFFER_SENT", "CLOSED"] as const
 const STATUS_KEYS: Record<
@@ -390,47 +392,6 @@ export const CustomerRequestsList = () => {
   )
 }
 
-function isConfigEmpty(config: Record<string, unknown> | null): boolean {
-  if (!config) return true
-  const opts = config.selectedOptionsByComponent as Record<string, unknown> | undefined
-  const other = config.selectedOtherValuesByComponent as Record<string, unknown> | undefined
-  const isOptsEmpty = !opts || Object.keys(opts).length === 0
-  const isOtherEmpty = !other || Object.keys(other).length === 0
-  return isOptsEmpty && isOtherEmpty
-}
-
-function formatConfigSummary(config: Record<string, unknown>): string[] {
-  const items: string[] = []
-  const opts = config.selectedOptionsByComponent as
-    | Record<string, Record<string, { label?: string; value?: string } | null>>
-    | undefined
-  const other = config.selectedOtherValuesByComponent as
-    | Record<string, Record<string, number | boolean>>
-    | undefined
-
-  if (opts) {
-    for (const compOpts of Object.values(opts)) {
-      if (compOpts && typeof compOpts === "object") {
-        for (const opt of Object.values(compOpts)) {
-          if (opt && typeof opt === "object" && opt.label) {
-            items.push(opt.label)
-          }
-        }
-      }
-    }
-  }
-  if (other) {
-    for (const compOther of Object.values(other)) {
-      if (compOther && typeof compOther === "object") {
-        for (const val of Object.values(compOther)) {
-          items.push(String(val))
-        }
-      }
-    }
-  }
-  return items
-}
-
 type RequestRowProps = {
   request: CustomerRequestDto
   isExpanded: boolean
@@ -450,8 +411,9 @@ const RequestRow = ({
 }: RequestRowProps) => {
   const config = req.configurationJson as Record<string, unknown> | null
   const configStr = config != null ? JSON.stringify(config, null, 2) : "—"
-  const isConfigEmptyFlag = isConfigEmpty(config)
-  const configSummary = config && !isConfigEmptyFlag ? formatConfigSummary(config) : []
+  const configurationData = useRequestConfigurationData(config, req.productModelId, {
+    enabled: isExpanded,
+  })
   const colCount = 7
 
   return (
@@ -701,40 +663,12 @@ const RequestRow = ({
                 >
                   {t("detail.configuration")}
                 </Typography>
-                {isConfigEmptyFlag ? (
-                  <Typography
-                    as="p"
-                    variant="body-md"
-                    className="rounded-lg border border-dashed bg-background p-4 text-muted-foreground"
-                  >
-                    {t("detail.configurationEmpty")}
-                  </Typography>
-                ) : configSummary.length > 0 ? (
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      {configSummary.map((item, i) => (
-                        <span
-                          key={i}
-                          className="rounded-md bg-primary/10 px-2 py-1 text-sm text-foreground"
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                    <details className="group">
-                      <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
-                        {t("detail.rawJson")}
-                      </summary>
-                      <pre className="mt-2 max-h-32 overflow-auto rounded-lg border bg-background p-3 text-xs">
-                        {configStr}
-                      </pre>
-                    </details>
-                  </div>
-                ) : (
-                  <pre className="max-h-48 overflow-auto rounded-lg border bg-background p-3 text-xs">
-                    {configStr}
-                  </pre>
-                )}
+                <RequestConfigurationDisplay
+                  config={config}
+                  configStr={configStr}
+                  configurationData={configurationData}
+                  variant="compact"
+                />
               </div>
             </div>
           </td>

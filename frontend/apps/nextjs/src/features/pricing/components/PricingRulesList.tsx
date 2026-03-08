@@ -1,15 +1,19 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useQueries } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
+import Image from "next/image"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { getAttributeOptionsListQueryOptions } from "@/api/attributeOptionQueries"
 import { useAllAttributesForProductModel } from "@/api/attributeQueries"
 import type { AttributeType } from "@/api/attributeTypes"
 import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
+import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing needs components and product model */
 import { useComponentsList } from "@/features/components/api/componentQueries"
@@ -41,6 +45,7 @@ type Props = {
 }
 
 const FILTER_OPERATOR_ALL = "all"
+const PAGE_SIZE = 15
 
 export const PricingRulesList = ({
   productModelId,
@@ -53,6 +58,7 @@ export const PricingRulesList = ({
   const [editingRule, setEditingRule] = useState<AttributePricingRuleDto | null>(null)
   const [filterAttributeCode, setFilterAttributeCode] = useState(presetAttributeCode ?? "")
   const [filterOperator, setFilterOperator] = useState<string>(FILTER_OPERATOR_ALL)
+  const [currentPage, setCurrentPage] = useState(1)
   const isAttributeScoped = Boolean(presetComponentId && presetAttributeCode)
 
   const { data: productModel } = useProductModel(productModelId)
@@ -119,15 +125,6 @@ export const PricingRulesList = ({
     return attributeUnitByComponentAndCode.byCode.get(code) ?? null
   }
 
-  const getConditionDisplay = (rule: AttributePricingRuleDto): string => {
-    const unit = getUnitForRule(rule)
-    const unitSuffix = unit ? ` ${unit}` : ""
-    if (rule.operator === "EQ") {
-      return `${t("list.operatorEq")} "${rule.value}"${unitSuffix}`
-    }
-    return `${t("list.operatorBetween")} ${rule.value}–${rule.toValue ?? ""}${unitSuffix}`
-  }
-
   const currency = productModel?.currency ?? "CZK"
   const formatPrice = (amountInMainUnit: number) =>
     new Intl.NumberFormat(undefined, {
@@ -145,6 +142,96 @@ export const PricingRulesList = ({
     componentId: presetComponentId,
     attributeCode: presetAttributeCode,
   })
+
+  const enumAttributeIdsFromRules = useMemo(() => {
+    const seen = new Set<string>()
+    const result: { componentId: string; attributeId: string }[] = []
+    for (const rule of rules) {
+      if (!rule.componentId || !rule.attributeCode) continue
+      const attr = allAttributes.find(
+        (a) =>
+          a.componentId === rule.componentId &&
+          a.code?.toLowerCase().trim() === rule.attributeCode?.toLowerCase().trim() &&
+          a.type === "ENUM",
+      )
+      if (attr && !seen.has(attr.id)) {
+        seen.add(attr.id)
+        result.push({ componentId: rule.componentId, attributeId: attr.id })
+      }
+    }
+    return result
+  }, [rules, allAttributes])
+
+  const optionQueriesResults = useQueries({
+    queries: enumAttributeIdsFromRules.map(({ componentId, attributeId }) =>
+      getAttributeOptionsListQueryOptions(productModelId, componentId, attributeId),
+    ),
+  })
+  const optionDataByIndex = optionQueriesResults.map((r) => r.data)
+
+  const { optionValueToLabelByAttribute, optionValueToImageUrlByAttribute } = useMemo(() => {
+    const labelMap = new Map<string, string>()
+    const imageMap = new Map<string, string>()
+    enumAttributeIdsFromRules.forEach(({ componentId, attributeId }, i) => {
+      const opts = optionDataByIndex[i] ?? []
+      const attr = allAttributes.find((a) => a.id === attributeId && a.componentId === componentId)
+      const code = attr?.code?.toLowerCase().trim() ?? ""
+      opts.forEach((opt) => {
+        const key = `${componentId}:${code}:${(opt.value ?? "").toLowerCase()}`
+        const label = (opt.label?.trim() || opt.value) ?? ""
+        labelMap.set(key, label)
+        if (opt.imageUrl?.trim()) {
+          imageMap.set(key, getImageUrlForDisplay(opt.imageUrl))
+        }
+      })
+    })
+    return {
+      optionValueToLabelByAttribute: labelMap,
+      optionValueToImageUrlByAttribute: imageMap,
+    }
+  }, [enumAttributeIdsFromRules, optionDataByIndex, allAttributes])
+
+  const getOptionLabelForRule = (rule: AttributePricingRuleDto, value: string): string => {
+    if (!rule.componentId || !rule.attributeCode || !value) return value
+    const code = rule.attributeCode.toLowerCase().trim()
+    const key = `${rule.componentId}:${code}:${value.toLowerCase()}`
+    return optionValueToLabelByAttribute.get(key) ?? value
+  }
+
+  const getOptionImageUrlForRule = (
+    rule: AttributePricingRuleDto,
+    value: string,
+  ): string | null => {
+    if (!rule.componentId || !rule.attributeCode || !value) return null
+    const code = rule.attributeCode.toLowerCase().trim()
+    const key = `${rule.componentId}:${code}:${value.toLowerCase()}`
+    return optionValueToImageUrlByAttribute.get(key) ?? null
+  }
+
+  const isEnumRule = (rule: AttributePricingRuleDto): boolean =>
+    Boolean(
+      rule.componentId &&
+        rule.attributeCode &&
+        allAttributes.some(
+          (a) =>
+            a.componentId === rule.componentId &&
+            a.code?.toLowerCase().trim() === rule.attributeCode?.toLowerCase().trim() &&
+            a.type === "ENUM",
+        ),
+    )
+
+  const getConditionDisplay = (rule: AttributePricingRuleDto): string => {
+    const unit = getUnitForRule(rule)
+    const unitSuffix = unit ? ` ${unit}` : ""
+    if (rule.operator === "EQ") {
+      const displayValue = getOptionLabelForRule(rule, rule.value)
+      return `${t("list.operatorEq")} "${displayValue}"${unitSuffix}`
+    }
+    const fromLabel = getOptionLabelForRule(rule, rule.value)
+    const toLabel = rule.toValue ? getOptionLabelForRule(rule, rule.toValue) : (rule.toValue ?? "")
+    return `${t("list.operatorBetween")} ${fromLabel}–${toLabel}${unitSuffix}`
+  }
+
   const createMutation = useCreatePricingRule(productModelId)
   const updateMutation = useUpdatePricingRule(productModelId)
   const deleteMutation = useDeletePricingRule(productModelId)
@@ -179,6 +266,16 @@ export const PricingRulesList = ({
     presetComponentId,
     presetAttributeCode,
   ])
+
+  const totalPages = Math.max(1, Math.ceil(filteredRules.length / PAGE_SIZE))
+  const paginatedRules = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+    return filteredRules.slice(start, start + PAGE_SIZE)
+  }, [filteredRules, currentPage])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filterAttributeCode, filterOperator])
 
   const handleDelete = (ruleId: string) => {
     if (window.confirm(t("list.deleteButton") + "?")) {
@@ -272,7 +369,7 @@ export const PricingRulesList = ({
             </select>
           </div>
 
-          <div className="max-h-[50vh] overflow-auto rounded-lg border border-border">
+          <div className="rounded-lg border border-border">
             <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
@@ -304,7 +401,7 @@ export const PricingRulesList = ({
                     </td>
                   </tr>
                 ) : (
-                  filteredRules.map((rule) => (
+                  paginatedRules.map((rule) => (
                     <tr
                       key={rule.id}
                       className="border-b border-border last:border-b-0 hover:bg-muted/30"
@@ -318,7 +415,24 @@ export const PricingRulesList = ({
                           : "—"}
                       </td>
                       <td className="max-w-[200px] px-4 py-3 break-words text-muted-foreground">
-                        {getConditionDisplay(rule)}
+                        <div className="flex items-center gap-2">
+                          {isEnumRule(rule) &&
+                            (() => {
+                              const imgUrl = getOptionImageUrlForRule(rule, rule.value)
+                              return imgUrl ? (
+                                <div className="relative aspect-square size-8 shrink-0 overflow-hidden rounded bg-muted">
+                                  <Image
+                                    src={imgUrl}
+                                    alt=""
+                                    fill
+                                    className="object-cover"
+                                    unoptimized
+                                  />
+                                </div>
+                              ) : null
+                            })()}
+                          <span>{getConditionDisplay(rule)}</span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
                         {formatPrice(rule.priceDeltaCents / 100)}
@@ -348,6 +462,47 @@ export const PricingRulesList = ({
               </tbody>
             </table>
           </div>
+
+          {filteredRules.length > PAGE_SIZE && (
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <Typography
+                as="span"
+                variant="body-sm"
+                className="text-muted-foreground"
+              >
+                {t("list.paginationInfo", {
+                  from: (currentPage - 1) * PAGE_SIZE + 1,
+                  to: Math.min(currentPage * PAGE_SIZE, filteredRules.length),
+                  total: filteredRules.length,
+                })}
+              </Typography>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                >
+                  {t("list.paginationPrev")}
+                </Button>
+                <Typography
+                  as="span"
+                  variant="body-sm"
+                  className="min-w-[4rem] text-center text-muted-foreground"
+                >
+                  {t("list.paginationPage", { current: currentPage, total: totalPages })}
+                </Typography>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                >
+                  {t("list.paginationNext")}
+                </Button>
+              </div>
+            </div>
+          )}
         </>
       )}
 

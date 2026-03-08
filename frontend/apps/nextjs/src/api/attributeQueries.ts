@@ -202,6 +202,10 @@ export const useUpdateAttribute = (productModelId: string, componentId: string) 
       void queryClient.invalidateQueries({
         queryKey: attributeKeys.detail(productModelId, componentId, variables.attributeId),
       })
+      void queryClient.invalidateQueries({
+        queryKey: attributeKeys.allForProductModel(productModelId),
+      })
+      void queryClient.invalidateQueries({ queryKey: ["embed"] })
     },
   })
 }

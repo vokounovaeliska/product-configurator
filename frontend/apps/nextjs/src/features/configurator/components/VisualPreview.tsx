@@ -35,6 +35,8 @@ type Props = {
   } | null
   /** Override camera distance (e.g. from preview settings slider). Syncs 3D view to this value. */
   cameraDistanceOverride?: number | null
+  /** Override background preset (e.g. from preview settings dropdown). Updates 3D view live. */
+  backgroundPresetOverride?: string | null
   /** Called when user zooms in 3D view (live updates for slider sync). */
   onCameraDistanceChange?: (distance: number) => void
   /** When true, enables canvas capture for embed snapshot (preserveDrawingBuffer). */
@@ -54,6 +56,7 @@ export const VisualPreview = ({
   model3dEffects,
   configuratorPreferencesFromServer,
   cameraDistanceOverride,
+  backgroundPresetOverride,
   onCameraDistanceChange,
   canCapture,
   onCaptureReady,
@@ -76,7 +79,9 @@ export const VisualPreview = ({
         <div
           className={cn(
             "flex flex-1 items-center justify-center rounded-lg border bg-muted/30",
-            isCompact ? "min-h-[30vh] sm:min-h-[40vh] md:min-h-[50vh]" : "min-h-[40vh]",
+            isCompact
+              ? "max-h-[55vh] min-h-[30vh] sm:max-h-[60vh] sm:min-h-[40vh] md:min-h-[50vh]"
+              : "max-h-[60vh] min-h-[40vh]",
           )}
         >
           <ModelViewer3D
@@ -84,6 +89,7 @@ export const VisualPreview = ({
             productModelId={productModelId}
             configuratorPreferencesFromServer={configuratorPreferencesFromServer}
             cameraDistanceOverride={cameraDistanceOverride}
+            backgroundPresetOverride={backgroundPresetOverride}
             onCameraDistanceChange={onCameraDistanceChange}
             className="rounded-lg"
             config={model3dConfig}

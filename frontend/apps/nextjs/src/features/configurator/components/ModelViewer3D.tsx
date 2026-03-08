@@ -1,16 +1,18 @@
 "use client"
 
-import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react"
+import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Center, OrbitControls, useGLTF } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { useTranslations } from "next-intl"
 import * as THREE from "three"
+import { Button } from "@workspace/ui/components/button"
 
 import {
   useConfiguratorPreferences,
   usePatchConfiguratorPreferences,
 } from "@/api/configuratorPreferencesQueries"
 import { env } from "@/config/env"
-import { getImageUrl } from "@/utils/imageUrl"
+import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 import type { Model3dConfig } from "../types/model3dConfig"
 import {
@@ -32,6 +34,45 @@ import {
   logParametricState,
 } from "../utils/parametricTransformPipeline"
 import { disposeEdgesFromScene, regenerateEdgesFromScene } from "../utils/regenerateEdges"
+
+const MAX_TEXTURE_SIZE = 1024
+
+function nextPowerOf2(n: number): number {
+  return Math.pow(2, Math.ceil(Math.log2(Math.max(1, n))))
+}
+
+/** Resizes texture to power-of-2 dimensions for better GPU compatibility. Returns original if already Po2. */
+function resizeTextureToPowerOf2(tex: THREE.Texture): THREE.Texture {
+  const img = tex.image as HTMLImageElement | undefined
+  if (!img?.naturalWidth) return tex
+
+  const w = img.naturalWidth
+  const h = img.naturalHeight
+  let pw = nextPowerOf2(w)
+  let ph = nextPowerOf2(h)
+  if (pw > MAX_TEXTURE_SIZE || ph > MAX_TEXTURE_SIZE) {
+    const scale = MAX_TEXTURE_SIZE / Math.max(pw, ph)
+    pw = Math.min(MAX_TEXTURE_SIZE, nextPowerOf2(Math.round(pw * scale)))
+    ph = Math.min(MAX_TEXTURE_SIZE, nextPowerOf2(Math.round(ph * scale)))
+  }
+  if (pw === w && ph === h) return tex
+
+  const canvas = document.createElement("canvas")
+  canvas.width = pw
+  canvas.height = ph
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return tex
+
+  ctx.drawImage(img, 0, 0, w, h, 0, 0, pw, ph)
+
+  const newTex = new THREE.CanvasTexture(canvas)
+  newTex.colorSpace = tex.colorSpace ?? THREE.SRGBColorSpace
+  newTex.wrapS = tex.wrapS
+  newTex.wrapT = tex.wrapT
+  newTex.flipY = tex.flipY
+  tex.dispose()
+  return newTex
+}
 
 /** Camera position for snapshot capture – front-right-top product shot angle (scene units = m). */
 const SNAPSHOT_CAMERA_POSITION = new THREE.Vector3(22, 18, 22)
@@ -76,6 +117,25 @@ export type Model3dEffect = {
 export type { ComponentTransform } from "../utils/parametricTransformPipeline"
 export { getAttributeValueFromConfig } from "../utils/parametricTransformPipeline"
 
+/** Background presets: flat colors. previewColor used for selector swatch. */
+export const BACKGROUND_PRESETS = {
+  lightGray: { type: "color" as const, color: "#e8e8ec", previewColor: "#e8e8ec" },
+  white: { type: "color" as const, color: "#ffffff", previewColor: "#ffffff" },
+  gray: { type: "color" as const, color: "#9ca3af", previewColor: "#9ca3af" },
+  dark: { type: "color" as const, color: "#374151", previewColor: "#374151" },
+  warm: { type: "color" as const, color: "#f5e6d3", previewColor: "#f5e6d3" },
+} as const
+
+export type BackgroundPresetKey = keyof typeof BACKGROUND_PRESETS
+
+const DEFAULT_BACKGROUND: BackgroundPresetKey = "lightGray"
+
+function getBackgroundConfig(preset: string | null | undefined) {
+  if (!preset) return BACKGROUND_PRESETS[DEFAULT_BACKGROUND]
+  const key = preset as BackgroundPresetKey
+  return BACKGROUND_PRESETS[key] ?? BACKGROUND_PRESETS[DEFAULT_BACKGROUND]
+}
+
 type Props = {
   modelUrl: string
   /** For configurator: fetches/saves zoom to backend. For embed: use configuratorPreferencesFromServer. */
@@ -84,9 +144,12 @@ type Props = {
   configuratorPreferencesFromServer?: {
     zoomDistanceDefault?: number | null
     zoomDistanceEmbed?: number | null
+    backgroundPreset?: string | null
   } | null
   /** Override camera distance (e.g. from preview settings slider). When set, syncs 3D view to this value. */
   cameraDistanceOverride?: number | null
+  /** Override background preset (e.g. from preview settings dropdown). When set, updates 3D view live. */
+  backgroundPresetOverride?: string | null
   /** Called when user zooms in 3D view (live updates for slider sync). */
   onCameraDistanceChange?: (distance: number) => void
   className?: string
@@ -211,29 +274,185 @@ function getColorTargetFromCode(code: string): string | null {
   const lower = code.toLowerCase()
   if (lower.startsWith("color_")) return lower.slice(6)
   if (lower.startsWith("barva_")) return lower.slice(6)
+  if (lower.startsWith("material_")) return lower.slice(9) // material_top → top
+  if (lower === "material") return "top" // material (no suffix) → top
   if (lower.endsWith("_color")) return lower.slice(0, -6) // top_color → top
   return null
 }
 
-function applyTextureToNode(node: THREE.Object3D, texture: THREE.Texture): void {
+/** Lookup texture by URL; handles format mismatches (relative vs absolute, /api/v1 vs /api). */
+function getTextureByUrl(
+  map: Map<string, THREE.Texture> | undefined,
+  url: string,
+): THREE.Texture | undefined {
+  if (!map) return undefined
+  const direct = map.get(url)
+  if (direct) return direct
+  const fileIdMatch = /([a-f0-9-]{36}(?:\.[a-z]+)?)/i.exec(url)
+  if (fileIdMatch?.[1]) {
+    for (const [k, v] of map) {
+      if (k.includes(fileIdMatch[1])) return v
+    }
+  }
+  return undefined
+}
+
+const isLegMaterialDebugEnabled =
+  process.env.NODE_ENV === "development" &&
+  typeof window !== "undefined" &&
+  new URLSearchParams(window.location.search).get("debugLegMaterial") === "1"
+
+/**
+ * Generates planar UV coordinates for geometry that lacks them.
+ * Projects vertices onto the plane perpendicular to the axis with smallest extent
+ * (e.g. for vertical legs: project onto XZ plane). Enables texture mapping on
+ * SketchUp exports that omit UVs for some meshes.
+ */
+function computePlanarUvsForGeometry(geometry: THREE.BufferGeometry): void {
+  const posAttr = geometry.attributes.position
+  if (!posAttr || posAttr.count === 0) return
+
+  geometry.computeBoundingBox()
+  const box = geometry.boundingBox
+  if (!box) return
+
+  const min = box.min
+  const max = box.max
+  const dx = max.x - min.x
+  const dy = max.y - min.y
+  const dz = max.z - min.z
+  const eps = 1e-6
+
+  const uvs = new Float32Array(posAttr.count * 2)
+
+  for (let i = 0; i < posAttr.count; i++) {
+    const x = posAttr.getX(i)
+    const y = posAttr.getY(i)
+    const z = posAttr.getZ(i)
+
+    if (dx <= dy && dx <= dz) {
+      uvs[i * 2] = (z - min.z) / (dz > eps ? dz : 1)
+      uvs[i * 2 + 1] = (y - min.y) / (dy > eps ? dy : 1)
+    } else if (dy <= dx && dy <= dz) {
+      uvs[i * 2] = (x - min.x) / (dx > eps ? dx : 1)
+      uvs[i * 2 + 1] = (z - min.z) / (dz > eps ? dz : 1)
+    } else {
+      uvs[i * 2] = (x - min.x) / (dx > eps ? dx : 1)
+      uvs[i * 2 + 1] = (y - min.y) / (dy > eps ? dy : 1)
+    }
+  }
+
+  geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2))
+}
+
+function logLegMaterialDebug(
+  compName: string,
+  nodeName: string,
+  meshCount: number,
+  details: { materialType?: string; hasMap?: boolean; hasUv?: boolean; needsUpdate?: boolean }[],
+): void {
+  if (!isLegMaterialDebugEnabled) return
+  console.warn("[ModelViewer3D] Leg material debug:", {
+    compName,
+    nodeName,
+    meshCount,
+    meshDetails: details,
+  })
+}
+
+function applyTextureToNode(
+  node: THREE.Object3D,
+  texture: THREE.Texture,
+  debugCompName?: string,
+): void {
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.flipY = false
+  texture.needsUpdate = true
+
+  const applyToMaterial = (mat: THREE.Material): THREE.Material => {
+    if ("map" in mat) {
+      const m = mat as THREE.MeshStandardMaterial
+      m.map = texture
+      m.color.set(0xffffff)
+      return mat
+    }
+    return new THREE.MeshStandardMaterial({
+      map: texture,
+      color: 0xffffff,
+      roughness: 0.5,
+      metalness: 0,
+    })
+  }
+
+  const meshDetails: {
+    materialType?: string
+    hasMap?: boolean
+    hasUv?: boolean
+    needsUpdate?: boolean
+  }[] = []
+
   node.traverse((child: THREE.Object3D) => {
     if (!(child instanceof THREE.Mesh) || !child.material) return
-    const rawMat = (
-      Array.isArray(child.material) ? child.material[0] : child.material
-    ) as THREE.Material
-    const mat = rawMat as THREE.MeshStandardMaterial
-    if (!mat || !("map" in mat)) return
+
+    const geom = child.geometry as THREE.BufferGeometry | undefined
+    if (geom && !geom.attributes.uv) {
+      computePlanarUvsForGeometry(geom)
+    }
+    const materials = Array.isArray(child.material) ? child.material : [child.material]
+    const hasUv = Boolean(geom?.attributes?.uv)
+
+    for (const mat of materials) {
+      const stdMat = mat as THREE.MeshStandardMaterial
+      meshDetails.push({
+        materialType: stdMat.type,
+        hasMap: "map" in stdMat && Boolean(stdMat.map),
+        hasUv,
+        needsUpdate: "needsUpdate" in stdMat,
+      })
+    }
 
     const userData = child.userData as Record<string, unknown>
     if (!userData._materialCloned) {
-      child.material = mat.clone()
+      if (Array.isArray(child.material)) {
+        child.material = child.material.map((m) => applyToMaterial((m as THREE.Material).clone()))
+      } else {
+        child.material = applyToMaterial((child.material as THREE.Material).clone())
+      }
       userData._materialCloned = true
+    } else {
+      if (Array.isArray(child.material)) {
+        child.material.forEach((mat) => {
+          if ("map" in mat) {
+            ;(mat as THREE.MeshStandardMaterial).map = texture
+            ;(mat as THREE.MeshStandardMaterial).color.set(0xffffff)
+          }
+        })
+      } else {
+        const m = child.material as THREE.MeshStandardMaterial
+        if ("map" in m) {
+          m.map = texture
+          m.color.set(0xffffff)
+        }
+      }
     }
-    const m = child.material as THREE.MeshStandardMaterial
-    m.map = texture
-    m.color.set(0xffffff)
   })
+
+  if (debugCompName && (debugCompName.toLowerCase().includes("leg") || isLegMaterialDebugEnabled)) {
+    logLegMaterialDebug(debugCompName, node.name, meshDetails.length, meshDetails)
+    if (isLegMaterialDebugEnabled && meshDetails.length === 0) {
+      const hierarchy: { name: string; type: string; isMesh: boolean }[] = []
+      node.traverse((obj: THREE.Object3D) => {
+        const o = obj as THREE.Object3D & { type: string }
+        hierarchy.push({
+          name: obj.name || "(unnamed)",
+          type: o.type ?? "Unknown",
+          isMesh: obj instanceof THREE.Mesh,
+        })
+      })
+      console.warn("[ModelViewer3D] Leg node has no meshes – full hierarchy:", hierarchy)
+    }
+  }
 }
 
 function captureBaselineTransforms(
@@ -378,7 +597,10 @@ function applyComponentTransformsToScene(
     )
     if (!material) continue
 
-    const targetNodes = findNodesByName(scene, compName, compName.toUpperCase())
+    let targetNodes = findNodesByName(scene, compName, compName.toUpperCase())
+    if (targetNodes.length === 0 && node) {
+      targetNodes = [node]
+    }
     const defaultOpt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
     const opt =
       allSelectedOptions.find((o) => o?.label?.toLowerCase() === material.toLowerCase()) ??
@@ -387,10 +609,25 @@ function applyComponentTransformsToScene(
       opt?.imageUrl ??
       materialsFromZip?.[material]?.textureUrl ??
       materialsFromZip?.[material.toLowerCase()]?.textureUrl
-    const texture = textureUrl && texturesByUrl?.get(textureUrl)
+    const texture = textureUrl && getTextureByUrl(texturesByUrl, textureUrl)
+
+    if (
+      isLegMaterialDebugEnabled &&
+      (compName.toLowerCase().includes("leg") || compName === "top")
+    ) {
+      console.warn("[ModelViewer3D] Material application:", {
+        compName,
+        material,
+        textureUrl: textureUrl ?? "(none)",
+        hasTexture: Boolean(texture),
+        targetNodeCount: targetNodes.length,
+        targetNodeNames: targetNodes.map((n) => n.name),
+      })
+    }
+
     for (const n of targetNodes) {
       if (texture) {
-        applyTextureToNode(n, texture)
+        applyTextureToNode(n, texture, compName)
       }
     }
   }
@@ -515,24 +752,60 @@ function applyConfigToScene(
     for (const attr of attrs) {
       const code = attr.code.toLowerCase()
 
-      if (code.startsWith("color") || code.startsWith("barva") || code.endsWith("_color")) {
-        const targetName = getColorTargetFromCode(code)
-        let targetNodes = targetName
-          ? findNodesByName(scene, targetName, targetName.toUpperCase())
-          : ([findNodeByName(scene, comp.label, comp.code)].filter(Boolean) as THREE.Object3D[])
-        if (targetNodes.length === 0 && targetName) {
-          const fallback = findNodeForEffect(scene, targetName)
-          if (fallback) targetNodes = [fallback]
+      if (
+        code.startsWith("color") ||
+        code.startsWith("barva") ||
+        code.startsWith("material") ||
+        code.endsWith("_color")
+      ) {
+        // When componentTransforms handles materials (e.g. Komponenta→color_top, legs→color_legs),
+        // skip this loop to avoid double-application. model3dEffectsMap may map color_top→"table"
+        // which can incorrectly color legs too if "table" is a parent of both.
+        const hasComponentTransformsMaterials =
+          componentTransforms != null &&
+          Object.keys(componentTransforms).length > 0 &&
+          Object.values(componentTransforms).some(
+            (t) => typeof t?.material === "string" && t.material.trim().length > 0,
+          )
+        if (hasComponentTransformsMaterials) continue
+
+        let targetNodes: THREE.Object3D[] = []
+
+        if (model3dEffectsMap) {
+          const codeNorm = attr.code.toUpperCase().replace(/[^A-Z0-9_]/g, "_")
+          const effects =
+            model3dEffectsMap[attr.code] ??
+            model3dEffectsMap[attr.code.toUpperCase()] ??
+            model3dEffectsMap[codeNorm] ??
+            model3dEffectsMap[attr.code.toLowerCase()]
+          const materialEffects = effects?.filter((e) => e.type === "material") ?? []
+          for (const eff of materialEffects) {
+            const node = findNodeForEffect(scene, eff.meshNode)
+            if (node && !targetNodes.includes(node)) targetNodes.push(node)
+          }
         }
+
+        if (targetNodes.length === 0) {
+          const targetName = getColorTargetFromCode(code)
+          targetNodes = targetName
+            ? findNodesByName(scene, targetName, targetName.toUpperCase())
+            : ([findNodeByName(scene, comp.label, comp.code)].filter(Boolean) as THREE.Object3D[])
+          if (targetNodes.length === 0 && targetName) {
+            const fallback = findNodeForEffect(scene, targetName)
+            if (fallback) targetNodes = [fallback]
+          }
+        }
+
         const opts = config?.optionsByAttribute?.[attr.id] ?? []
         const defaultOpt =
           opts.length > 0 ? [...opts].sort((a, b) => a.sortOrder - b.sortOrder)[0] : null
         const opt = selectedOptions[attr.id] ?? defaultOpt
         if (opt && targetNodes.length > 0) {
-          const texture = opt.imageUrl && texturesByUrl?.get(opt.imageUrl)
+          const texture = opt.imageUrl && getTextureByUrl(texturesByUrl, opt.imageUrl)
+          const debugName = getColorTargetFromCode(code) ?? attr.code
           for (const node of targetNodes) {
             if (texture) {
-              applyTextureToNode(node, texture)
+              applyTextureToNode(node, texture, debugName)
             }
           }
         }
@@ -904,10 +1177,13 @@ function Model({
     const loads = textureUrls.map(
       (url) =>
         new Promise<[string, THREE.Texture]>((resolve, reject) => {
-          const fullUrl = getImageUrl(url)
+          const loadUrl = getImageUrlForDisplay(url) || url
           loader.load(
-            fullUrl,
-            (tex) => resolve([url, tex]),
+            loadUrl,
+            (tex) => {
+              const resized = resizeTextureToPowerOf2(tex)
+              resolve([url, resized])
+            },
             undefined,
             () => reject(new Error(`Failed to load texture: ${url}`)),
           )
@@ -991,17 +1267,17 @@ function getSnapshotCameraDistance(
   return 12
 }
 
-function WebGLContextLossHandler() {
+function WebGLContextLossHandler({ onContextLost }: { onContextLost: () => void }) {
   const { gl } = useThree()
   useEffect(() => {
     const canvas = gl.domElement
-    const onContextLost = (e: Event) => {
+    const handler = (e: Event) => {
       e.preventDefault()
-      console.warn("[ModelViewer3D] WebGL context lost. Refresh the page to restore 3D view.")
+      onContextLost()
     }
-    canvas.addEventListener("webglcontextlost", onContextLost)
-    return () => canvas.removeEventListener("webglcontextlost", onContextLost)
-  }, [gl])
+    canvas.addEventListener("webglcontextlost", handler)
+    return () => canvas.removeEventListener("webglcontextlost", handler)
+  }, [gl, onContextLost])
   return null
 }
 
@@ -1129,6 +1405,9 @@ function ZoomPersistence({
   return null
 }
 
+/** Reusable vector for slider→camera sync to avoid per-frame allocations. */
+const _directionForSliderSync = new THREE.Vector3()
+
 /** Syncs cameraDistanceOverride to OrbitControls when slider changes. */
 function CameraDistanceOverrideSync({
   controlsRef,
@@ -1157,14 +1436,14 @@ function CameraDistanceOverrideSync({
     const maxDist = zoomPreset === "embed" ? ZOOM_MAX_EMBED : ZOOM_MAX_DEFAULT
     const clamped = Math.max(minDist, Math.min(maxDist, cameraDistanceOverride))
 
-    const controlsAny = controls as unknown as {
-      spherical?: { radius: number }
-      update?: () => void
-    }
-    if (controlsAny.spherical && typeof controlsAny.update === "function") {
-      controlsAny.spherical.radius = clamped
-      controlsAny.update()
-    }
+    const cam = controls.object
+    const target = controls.target
+    _directionForSliderSync.subVectors(cam.position, target)
+    const len = _directionForSliderSync.length()
+    if (len < 1e-6) _directionForSliderSync.set(0, 0, 1)
+    else _directionForSliderSync.normalize()
+    cam.position.copy(target).addScaledVector(_directionForSliderSync, clamped)
+    if (typeof controls.update === "function") controls.update()
   })
 
   return null
@@ -1288,6 +1567,7 @@ export const ModelViewer3D = ({
   productModelId,
   configuratorPreferencesFromServer,
   cameraDistanceOverride,
+  backgroundPresetOverride,
   onCameraDistanceChange,
   className,
   config,
@@ -1297,6 +1577,10 @@ export const ModelViewer3D = ({
   onCaptureReady,
   renderRawGlb: isRenderRawGlbProp,
 }: Props) => {
+  const t = useTranslations("Configurator.preview")
+  const [isContextLost, setIsContextLost] = useState(false)
+  const handleContextLost = useCallback(() => setIsContextLost(true), [])
+
   const isRenderRawGlb = getRenderRawGlb(isRenderRawGlbProp)
   const { model3dEffectsMap, componentTransforms, parameterDefaults, materialsFromZip } =
     useMemo(() => {
@@ -1363,6 +1647,18 @@ export const ModelViewer3D = ({
   const { data: preferencesFromApi } = useConfiguratorPreferences(productModelId ?? "")
   const patchPreferences = usePatchConfiguratorPreferences(productModelId ?? "")
 
+  const backgroundConfig = useMemo(() => {
+    const preset =
+      backgroundPresetOverride ??
+      configuratorPreferencesFromServer?.backgroundPreset ??
+      preferencesFromApi?.backgroundPreset
+    return getBackgroundConfig(preset)
+  }, [
+    backgroundPresetOverride,
+    configuratorPreferencesFromServer?.backgroundPreset,
+    preferencesFromApi?.backgroundPreset,
+  ])
+
   const savedZoomDistance = useMemo(() => {
     if (zoomPreset === "thumbnail") return null
     const d =
@@ -1400,6 +1696,24 @@ export const ModelViewer3D = ({
     return dir.multiplyScalar(distance).toArray() as [number, number, number]
   }, [zoomPreset, savedZoomDistance])
 
+  if (isContextLost) {
+    return (
+      <div
+        className={`relative flex min-h-[40vh] w-full flex-col items-center justify-center gap-4 rounded-lg border bg-muted/30 ${className ?? ""}`}
+        style={{ touchAction: "none" }}
+      >
+        <p className="text-sm text-muted-foreground">{t("contextLost")}</p>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setIsContextLost(false)}
+        >
+          {t("retry")}
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div
       className={`relative h-full min-h-[40vh] w-full ${className ?? ""}`}
@@ -1409,13 +1723,21 @@ export const ModelViewer3D = ({
         camera={{ position: cameraPosition, fov: 45 }}
         gl={{ antialias: true, preserveDrawingBuffer: canCapture ?? false }}
       >
+        {/* eslint-disable react/no-unknown-property -- R3F/Three.js: attach, args, intensity, position */}
+        <color
+          attach="background"
+          args={[backgroundConfig.color]}
+        />
         <CameraPositionSync position={cameraPosition} />
-        <WebGLContextLossHandler />
-        {/* eslint-disable react/no-unknown-property -- R3F/Three.js uses object, intensity, position etc. */}
-        <ambientLight intensity={0.8} />
+        <WebGLContextLossHandler onContextLost={handleContextLost} />
+        <ambientLight intensity={1.2} />
         <directionalLight
-          position={[5, 5, 5]}
-          intensity={1}
+          position={[5, 8, 5]}
+          intensity={1.5}
+        />
+        <directionalLight
+          position={[-4, 4, -4]}
+          intensity={0.6}
         />
         {/* eslint-enable react/no-unknown-property */}
         <Suspense fallback={null}>

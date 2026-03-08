@@ -2,8 +2,9 @@
 
 import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CheckIcon, ChevronDownIcon, XIcon } from "lucide-react"
+import { CheckIcon, ChevronDownIcon, ImageIcon, XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
+import Image from "next/image"
 import type { SubmitHandler } from "react-hook-form"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
@@ -26,6 +27,7 @@ import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
 import { DualRangeSlider } from "@/components/DualRangeSlider"
+import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing dialog needs components list */
 import { useComponentsList } from "@/features/components/api/componentQueries"
@@ -541,6 +543,21 @@ export const CreatePricingRuleDialog = ({
                                           aria-hidden
                                         />
                                       )}
+                                      <div className="relative size-8 shrink-0 overflow-hidden rounded bg-muted">
+                                        {opt.imageUrl ? (
+                                          <Image
+                                            src={getImageUrlForDisplay(opt.imageUrl)}
+                                            alt=""
+                                            fill
+                                            className="object-contain"
+                                            unoptimized
+                                          />
+                                        ) : (
+                                          <div className="flex h-full w-full items-center justify-center">
+                                            <ImageIcon className="size-3.5 text-muted-foreground" />
+                                          </div>
+                                        )}
+                                      </div>
                                       <span
                                         className={cn(
                                           "min-w-0 flex-1 truncate",

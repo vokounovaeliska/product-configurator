@@ -4,6 +4,7 @@ export type ConfiguratorPreferencesDto = {
   embedShowProductName: boolean | null
   embedShowDescription: boolean | null
   embedShowComponents: boolean | null
+  backgroundPreset: string | null
 }
 
 export type ConfiguratorPreferencesPatchDto = {
@@ -12,4 +13,5 @@ export type ConfiguratorPreferencesPatchDto = {
   embedShowProductName?: boolean | null
   embedShowDescription?: boolean | null
   embedShowComponents?: boolean | null
+  backgroundPreset?: string | null
 }

@@ -6,4 +6,5 @@ data class ConfiguratorPreferencesDto(
     val embedShowProductName: Boolean?,
     val embedShowDescription: Boolean?,
     val embedShowComponents: Boolean?,
+    val backgroundPreset: String?,
 )

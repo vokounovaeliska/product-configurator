@@ -148,6 +148,7 @@ export const useUpdateComponent = (productModelId: string) => {
       void queryClient.invalidateQueries({
         queryKey: componentKeys.detail(productModelId, variables.componentId),
       })
+      void queryClient.invalidateQueries({ queryKey: ["embed"] })
     },
   })
 }

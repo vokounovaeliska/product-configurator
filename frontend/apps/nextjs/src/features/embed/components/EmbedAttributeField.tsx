@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { Checkbox } from "@workspace/ui/components/checkbox"
@@ -72,6 +72,7 @@ export const EmbedAttributeField = ({
   currency,
 }: Props) => {
   const t = useTranslations("Configurator")
+  const [localEditValue, setLocalEditValue] = useState<string | null>(null)
   const formatPrice = (cents: number) =>
     new Intl.NumberFormat(undefined, {
       style: "currency",
@@ -176,7 +177,19 @@ export const EmbedAttributeField = ({
   if (attribute.type === "INTEGER") {
     const value =
       typeof otherValue === "number" ? otherValue : (attribute.defaultInt ?? attribute.minInt ?? 0)
+    const displayValue = localEditValue ?? String(value)
     const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
+    const commitInteger = (raw: string) => {
+      setLocalEditValue(null)
+      const v = Number.parseInt(raw, 10)
+      if (Number.isNaN(v)) {
+        onOtherChange(value)
+        return
+      }
+      const min = attribute.minInt ?? -Number.MAX_SAFE_INTEGER
+      const max = attribute.maxInt ?? Number.MAX_SAFE_INTEGER
+      onOtherChange(Math.max(min, Math.min(max, v)))
+    }
     return (
       <div className="space-y-2">
         <Label htmlFor={`attr-${attribute.id}`}>
@@ -191,11 +204,10 @@ export const EmbedAttributeField = ({
             type="number"
             min={attribute.minInt ?? undefined}
             max={attribute.maxInt ?? undefined}
-            value={value}
-            onChange={(e) => {
-              const v = Number.parseInt(e.target.value, 10)
-              if (!Number.isNaN(v)) onOtherChange(v)
-            }}
+            value={displayValue}
+            onChange={(e) => setLocalEditValue(e.target.value)}
+            onFocus={() => setLocalEditValue(String(value))}
+            onBlur={(e) => commitInteger(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}
             className="min-h-[44px] text-base"
           />
@@ -217,7 +229,19 @@ export const EmbedAttributeField = ({
       typeof otherValue === "number"
         ? otherValue
         : (attribute.defaultDecimal ?? attribute.minDecimal ?? 0)
+    const displayValue = localEditValue ?? String(value)
     const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
+    const commitDecimal = (raw: string) => {
+      setLocalEditValue(null)
+      const v = Number.parseFloat(raw)
+      if (Number.isNaN(v)) {
+        onOtherChange(value)
+        return
+      }
+      const min = attribute.minDecimal ?? -Number.MAX_VALUE
+      const max = attribute.maxDecimal ?? Number.MAX_VALUE
+      onOtherChange(Math.max(min, Math.min(max, v)))
+    }
     return (
       <div className="space-y-2">
         <Label htmlFor={`attr-${attribute.id}`}>
@@ -233,11 +257,10 @@ export const EmbedAttributeField = ({
             step="any"
             min={attribute.minDecimal ?? undefined}
             max={attribute.maxDecimal ?? undefined}
-            value={value}
-            onChange={(e) => {
-              const v = Number.parseFloat(e.target.value)
-              if (!Number.isNaN(v)) onOtherChange(v)
-            }}
+            value={displayValue}
+            onChange={(e) => setLocalEditValue(e.target.value)}
+            onFocus={() => setLocalEditValue(String(value))}
+            onBlur={(e) => commitDecimal(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}
             className="min-h-[44px] text-base"
           />

@@ -4,6 +4,7 @@ import cz.vokounova.configurator.generated.jooq.tables.references.PRODUCT_MODEL_
 import cz.vokounova.configurator.products.models.domain.ProductModelConfiguratorPreferences
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.ports.outbound.ProductModelConfiguratorPreferencesRepository
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
@@ -20,6 +21,7 @@ class ProductModelConfiguratorPreferencesRepositoryDB(
 
     override fun upsert(preferences: ProductModelConfiguratorPreferences): ProductModelConfiguratorPreferences {
         val now = OffsetDateTime.now()
+        val backgroundPresetField = DSL.field(DSL.name("background_preset"), String::class.java)
         dslContext
             .insertInto(PRODUCT_MODEL_CONFIGURATOR_PREFERENCES)
             .columns(
@@ -29,6 +31,7 @@ class ProductModelConfiguratorPreferencesRepositoryDB(
                 PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.EMBED_SHOW_PRODUCT_NAME,
                 PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.EMBED_SHOW_DESCRIPTION,
                 PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.EMBED_SHOW_COMPONENTS,
+                backgroundPresetField,
                 PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.CREATED_AT,
                 PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.MODIFIED_AT,
             )
@@ -39,6 +42,7 @@ class ProductModelConfiguratorPreferencesRepositoryDB(
                 preferences.embedShowProductName,
                 preferences.embedShowDescription,
                 preferences.embedShowComponents,
+                preferences.backgroundPreset,
                 now,
                 now,
             )
@@ -49,6 +53,7 @@ class ProductModelConfiguratorPreferencesRepositoryDB(
             .set(PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.EMBED_SHOW_PRODUCT_NAME, preferences.embedShowProductName)
             .set(PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.EMBED_SHOW_DESCRIPTION, preferences.embedShowDescription)
             .set(PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.EMBED_SHOW_COMPONENTS, preferences.embedShowComponents)
+            .set(backgroundPresetField, preferences.backgroundPreset)
             .set(PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.MODIFIED_AT, now)
             .execute()
 
@@ -58,6 +63,7 @@ class ProductModelConfiguratorPreferencesRepositoryDB(
 
     private fun org.jooq.Record.toDomain(): ProductModelConfiguratorPreferences {
         val r = this as cz.vokounova.configurator.generated.jooq.tables.records.ProductModelConfiguratorPreferencesRecord
+        val backgroundPreset = r.get("background_preset", String::class.java)
         return ProductModelConfiguratorPreferences(
             productModelId = ProductModelId(r.productModelId),
             zoomDistanceDefault = r.zoomDistanceDefault,
@@ -65,6 +71,7 @@ class ProductModelConfiguratorPreferencesRepositoryDB(
             embedShowProductName = r.embedShowProductName,
             embedShowDescription = r.embedShowDescription,
             embedShowComponents = r.embedShowComponents,
+            backgroundPreset = backgroundPreset,
             createdAt = r.createdAt,
             modifiedAt = r.modifiedAt,
         )

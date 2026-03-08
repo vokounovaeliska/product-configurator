@@ -10,6 +10,7 @@ data class ConfiguratorPreferencesExternalDto(
     val embedShowProductName: Boolean?,
     val embedShowDescription: Boolean?,
     val embedShowComponents: Boolean?,
+    val backgroundPreset: String?,
 )
 
 data class FullProductConfigDto(

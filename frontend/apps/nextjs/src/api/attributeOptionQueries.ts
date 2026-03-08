@@ -151,6 +151,7 @@ export const useUpdateAttributeOption = (
       void queryClient.invalidateQueries({
         queryKey: attributeOptionKeys.detail(productModelId, componentId, attributeId, data.id),
       })
+      void queryClient.invalidateQueries({ queryKey: ["embed"] })
     },
   })
 }
