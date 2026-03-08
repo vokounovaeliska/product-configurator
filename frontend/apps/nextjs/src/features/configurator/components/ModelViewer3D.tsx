@@ -270,6 +270,23 @@ function findNodesByName(scene: THREE.Object3D, label: string, code: string): TH
   return found
 }
 
+function normalizeMaterialToken(value: string | null | undefined): string {
+  return (value ?? "").trim().toLowerCase()
+}
+
+function findOptionByMaterialToken<T extends { label?: string; value?: string }>(
+  options: T[],
+  token: string,
+): T | undefined {
+  const normalizedToken = normalizeMaterialToken(token)
+  if (!normalizedToken) return undefined
+  return options.find((option) => {
+    const label = normalizeMaterialToken(option.label)
+    const value = normalizeMaterialToken(option.value)
+    return label === normalizedToken || value === normalizedToken
+  })
+}
+
 function getColorTargetFromCode(code: string): string | null {
   const lower = code.toLowerCase()
   if (lower.startsWith("color_")) return lower.slice(6)
@@ -497,21 +514,43 @@ function resolveMaterialFormula(
   const paramCode = match?.[1]
   if (!match || !paramCode || !config?.components?.length) return null
 
-  const parentComp = config.components.find(
+  const parentCompFromName = config.components.find(
     (c) =>
       c.label?.toLowerCase() === parentName?.toLowerCase() ||
       c.code?.toLowerCase() === parentName?.toLowerCase(),
   )
-  if (!parentComp) return null
+  const attrCodeLower = paramCode.toLowerCase()
+  const attrsFromNamedParent = parentCompFromName
+    ? (config.attributesByComponent[parentCompFromName.id] ?? [])
+    : []
+  const attrFromNamedParent = attrsFromNamedParent.find(
+    (a) => a.code?.toLowerCase() === attrCodeLower,
+  )
+  const fallbackMatch = config.components
+    .map((component) => ({
+      componentId: component.id,
+      attribute: (config.attributesByComponent[component.id] ?? []).find(
+        (attribute) => attribute.code?.toLowerCase() === attrCodeLower,
+      ),
+    }))
+    .find((entry) => entry.attribute != null)
 
-  const attrs = config.attributesByComponent[parentComp.id] ?? []
-  const attr = attrs.find((a) => a.code?.toLowerCase() === paramCode.toLowerCase())
+  const targetComponentId = attrFromNamedParent
+    ? parentCompFromName?.id
+    : fallbackMatch?.attribute
+      ? fallbackMatch.componentId
+      : null
+  const attr = attrFromNamedParent ?? fallbackMatch?.attribute ?? null
   if (!attr) return null
 
-  const selected = config.selectedOptionsByComponent[parentComp.id]?.[attr.id]
+  const selected =
+    targetComponentId != null
+      ? config.selectedOptionsByComponent[targetComponentId]?.[attr.id]
+      : null
   const opts = config.optionsByAttribute?.[attr.id] ?? allOptions
   const opt = selected ?? opts[0]
-  return opt?.label ?? opt?.value ?? null
+  // Prefer stable option value over localized label for material key matching.
+  return opt?.value ?? opt?.label ?? null
 }
 
 function applyComponentTransformsToScene(
@@ -601,10 +640,8 @@ function applyComponentTransformsToScene(
     if (targetNodes.length === 0 && node) {
       targetNodes = [node]
     }
-    const defaultOpt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
-    const opt =
-      allSelectedOptions.find((o) => o?.label?.toLowerCase() === material.toLowerCase()) ??
-      defaultOpt
+    const defaultOpt = findOptionByMaterialToken(allOptions, material)
+    const opt = findOptionByMaterialToken(allSelectedOptions, material) ?? defaultOpt
     const textureUrl =
       opt?.imageUrl ??
       materialsFromZip?.[material]?.textureUrl ??
@@ -1044,7 +1081,7 @@ function collectTextureUrls(
         allSelected,
       )
       if (!material) continue
-      const opt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
+      const opt = findOptionByMaterialToken(allOptions, material)
       if (opt?.imageUrl) urls.add(opt.imageUrl)
     }
   }
