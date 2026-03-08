@@ -20,17 +20,27 @@ export const useSkpImport = () => {
       skpFile,
       glbFile,
       productName,
+      parametersJson,
+      parametersZip,
     }: {
-      skpFile: File
+      skpFile?: File
       glbFile: File
       productName?: string
+      parametersJson?: File | null
+      parametersZip?: File | null
     }): Promise<SkpImportResponse> => {
       try {
         const formData = new FormData()
-        formData.append("skp", skpFile)
+        if (skpFile) formData.append("skp", skpFile)
         formData.append("glb", glbFile)
         if (productName?.trim()) {
           formData.append("name", productName.trim())
+        }
+        if (parametersJson) {
+          formData.append("parametersJson", parametersJson)
+        }
+        if (parametersZip) {
+          formData.append("parametersZip", parametersZip)
         }
 
         const response = await api.post("products/api/v1/import/sketchup", {

@@ -26,6 +26,8 @@ type Props = {
   model3dUrl?: string | null
   /** Config to apply to 3D model (materials, scale) when options change */
   model3dConfig?: Model3dConfig | null
+  /** JSON: attribute code → effects (from parameters.json). When set, used for scale/position. */
+  model3dEffects?: string | null
   /** When true, enables canvas capture for embed snapshot (preserveDrawingBuffer). */
   canCapture?: boolean
   /** Called when 3D capture at fixed angle is ready (embed only). */
@@ -40,6 +42,7 @@ export const VisualPreview = ({
   selectedOptionLayers = [],
   model3dUrl,
   model3dConfig,
+  model3dEffects,
   canCapture,
   onCaptureReady,
   isCompact = false,
@@ -61,13 +64,15 @@ export const VisualPreview = ({
         <div
           className={cn(
             "flex flex-1 items-center justify-center rounded-lg border bg-muted/30",
-            isCompact ? "min-h-[25vh] sm:min-h-[35vh] md:min-h-[50vh]" : "min-h-[40vh]",
+            isCompact ? "min-h-[30vh] sm:min-h-[40vh] md:min-h-[50vh]" : "min-h-[40vh]",
           )}
         >
           <ModelViewer3D
             modelUrl={model3dUrl!}
             className="rounded-lg"
             config={model3dConfig}
+            model3dEffects={model3dEffects}
+            zoomPreset={isCompact ? "embed" : "default"}
             canCapture={canCapture}
             onCaptureReady={onCaptureReady}
           />

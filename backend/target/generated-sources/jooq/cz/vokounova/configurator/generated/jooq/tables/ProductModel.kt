@@ -30,6 +30,7 @@ import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Index
 import org.jooq.InverseForeignKey
+import org.jooq.JSONB
 import org.jooq.Name
 import org.jooq.Path
 import org.jooq.PlainSQL
@@ -145,6 +146,11 @@ open class ProductModel(
      * The column <code>public.product_model.is_published</code>.
      */
     val IS_PUBLISHED: TableField<ProductModelRecord, Boolean?> = createField(DSL.name("is_published"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.field(DSL.raw("false"), SQLDataType.BOOLEAN)), this, "")
+
+    /**
+     * The column <code>public.product_model.model_3d_effects</code>.
+     */
+    val MODEL_3D_EFFECTS: TableField<ProductModelRecord, JSONB?> = createField(DSL.name("model_3d_effects"), SQLDataType.JSONB, this, "")
 
     private constructor(alias: Name, aliased: Table<ProductModelRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<ProductModelRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

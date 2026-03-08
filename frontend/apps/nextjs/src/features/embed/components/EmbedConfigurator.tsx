@@ -146,6 +146,7 @@ export const EmbedConfigurator = ({
             attributesByComponent,
             selectedOptionsByComponent,
             selectedOtherValuesByComponent,
+            optionsByAttribute: _optionsByAttribute,
           }
         : null,
     [
@@ -154,6 +155,7 @@ export const EmbedConfigurator = ({
       attributesByComponent,
       selectedOptionsByComponent,
       selectedOtherValuesByComponent,
+      _optionsByAttribute,
     ],
   )
 
@@ -177,7 +179,12 @@ export const EmbedConfigurator = ({
     Object.keys(selectedOtherValuesByComponent).length > 0
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6">
+    <div
+      className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6"
+      style={{
+        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))",
+      }}
+    >
       <div className="shrink-0 space-y-0.5 sm:space-y-1">
         <Typography
           as="h1"
@@ -199,13 +206,14 @@ export const EmbedConfigurator = ({
       </div>
 
       <div className="grid min-h-0 flex-1 gap-3 sm:gap-4 lg:grid-cols-[1fr_280px]">
-        <div className="relative z-0 flex min-h-[28vh] min-w-0 flex-1 flex-col sm:min-h-[32vh] lg:min-h-0">
+        <div className="relative z-0 flex min-h-[35vh] min-w-0 flex-1 flex-col sm:min-h-[40vh] lg:min-h-0">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
             selectedOptionLayers={previewLayers}
             model3dUrl={product.model3dUrl}
             model3dConfig={model3dConfig}
+            model3dEffects={product.model3dEffects}
             canCapture
             onCaptureReady={product.model3dUrl ? handleCaptureReady : undefined}
             isCompact

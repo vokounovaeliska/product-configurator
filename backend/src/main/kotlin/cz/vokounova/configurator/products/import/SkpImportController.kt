@@ -22,20 +22,48 @@ class SkpImportController(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
     )
     fun importFromSketchUp(
-        @RequestParam("skp") skpFile: MultipartFile,
+        @RequestParam("skp", required = false) skpFile: MultipartFile?,
         @RequestParam("glb") glbFile: MultipartFile,
         @RequestParam("name", required = false) productName: String?,
+        @RequestParam("parametersJson", required = false) parametersJson: MultipartFile?,
+        @RequestParam("parametersZip", required = false) parametersZip: MultipartFile?,
     ): ResponseEntity<SkpImportResponse> {
-        if (skpFile.isEmpty) {
+        val useParametersZip =
+            parametersZip != null &&
+                !parametersZip.isEmpty &&
+                parametersZip.originalFilename?.lowercase()?.endsWith(".zip") == true
+        val useParametersJson =
+            parametersJson != null &&
+                !parametersJson.isEmpty &&
+                parametersJson.originalFilename?.lowercase()?.endsWith(".json") == true
+        val useSkp = skpFile != null && !skpFile.isEmpty
+
+        if (!useSkp && !useParametersZip && !useParametersJson) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(SkpImportResponse(success = false, productModelId = null, error = "SKP file is required"))
+                .body(
+                    SkpImportResponse(
+                        success = false,
+                        productModelId = null,
+                        error = "SKP file, parameters.json, or parameters.zip is required",
+                    ),
+                )
         }
-        val filename = skpFile.originalFilename ?: ""
-        if (!filename.lowercase().endsWith(".skp")) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid SKP file type"))
+        if (useSkp) {
+            val filename = skpFile!!.originalFilename ?: ""
+            if (!filename.lowercase().endsWith(".skp")) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid SKP file type"))
+            }
+        }
+        if (useParametersZip) {
+            val filename = parametersZip!!.originalFilename ?: ""
+            if (!filename.lowercase().endsWith(".zip")) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid parameters.zip file type"))
+            }
         }
         val glbFilename = glbFile.originalFilename ?: ""
         if (glbFile.isEmpty || !glbFilename.lowercase().endsWith(".glb")) {
@@ -45,7 +73,7 @@ class SkpImportController(
         }
 
         val userId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
-        val result = skpImportService.importFromSketchUp(skpFile, glbFile, userId, productName)
+        val result = skpImportService.importFromSketchUp(skpFile, glbFile, userId, productName, parametersJson, parametersZip)
 
         return if (result.success) {
             ResponseEntity

@@ -11,6 +11,7 @@ import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 
 import { useComputedPrice } from "@/features/configurator/hooks/useComputedPrice"
 import { useConfiguratorAttributes } from "@/features/configurator/hooks/useConfiguratorAttributes"
+import { useOptionsByAttributeFor3D } from "@/features/configurator/hooks/useOptionsByAttributeFor3D"
 
 import { ComponentSelector } from "./ComponentSelector"
 import { PriceDisplay } from "./PriceDisplay"
@@ -63,6 +64,12 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
 
   const { data: pricingRules = [] } = usePricingRulesList({ productModelId })
   const { attributesByComponent } = useConfiguratorAttributes(productModelId, components)
+  const optionsByAttribute = useOptionsByAttributeFor3D(
+    productModelId,
+    components,
+    attributesByComponent,
+    Boolean(productModel.model3dUrl),
+  )
   const { data: computedPrice, isLoading: isPriceLoading } = useComputedPrice(
     productModelId,
     productModel.price,
@@ -116,6 +123,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             attributesByComponent,
             selectedOptionsByComponent,
             selectedOtherValuesByComponent,
+            optionsByAttribute,
           }
         : null,
     [
@@ -124,6 +132,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
       attributesByComponent,
       selectedOptionsByComponent,
       selectedOtherValuesByComponent,
+      optionsByAttribute,
     ],
   )
 
@@ -161,6 +170,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             selectedOptionLayers={previewLayers}
             model3dUrl={productModel.model3dUrl}
             model3dConfig={model3dConfig}
+            model3dEffects={productModel.model3dEffects}
           />
         </div>
 

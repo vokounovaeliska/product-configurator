@@ -65,6 +65,7 @@ class ProductConfigQueryService(
             price = price,
             currency = currency,
             model3dUrl = model3dUrl,
+            model3dEffects = model3dEffects,
             url = url,
             isPublished = isPublished,
         )

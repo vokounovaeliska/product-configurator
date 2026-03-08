@@ -15,6 +15,8 @@ export type ProductModelDto = {
   isActive: boolean
   /** URL to 3D model (GLB) for configurator preview */
   model3dUrl?: string | null
+  /** JSON: attribute code → effects (from SketchUp plugin parameters.json). */
+  model3dEffects?: string | null
   /** Embed URL path (e.g. my-product). Globally unique when published. */
   url?: string | null
   /** When true, product is available at /e/{url} for embedding. */

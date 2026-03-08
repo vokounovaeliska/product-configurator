@@ -13,6 +13,7 @@ export type ProductModelEmbedDto = {
   price: number
   currency: string
   model3dUrl: string | null
+  model3dEffects: string | null
   url: string | null
 }
 

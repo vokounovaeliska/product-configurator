@@ -32,6 +32,7 @@ enum class ProductModelJsonPatchParamsPath(
     CURRENCY("/currency"),
     IS_ACTIVE("/isActive"),
     MODEL_3D_URL("/model3dUrl"),
+    MODEL_3D_EFFECTS("/model3dEffects"),
     URL("/url"),
     IS_PUBLISHED("/isPublished"),
     ;

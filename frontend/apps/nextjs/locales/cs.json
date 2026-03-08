@@ -204,7 +204,12 @@
       "productNamePlaceholder": "Volitelné – výchozí je název SKP souboru",
       "productNameHint": "Nechte prázdné pro použití názvu SKP souboru jako názvu produktu.",
       "skpFile": "Soubor SketchUp (.skp)",
+      "skpFileHint": "Volitelné při nahrání parameters.json – stačí GLB + parameters.json z pluginu Configurator.",
       "glbFile": "3D model (.glb)",
+      "parametersJson": "Parametry (parameters.json)",
+      "parametersJsonHint": "Volitelné – z pluginu Configurator pro efekt jeden-na-více (např. šířka ovlivňuje Top, Bottom, Legs2).",
+      "parametersZip": "Parametry zip (parameters.json + materials/)",
+      "parametersZipHint": "Volitelné – zip s parameters.json a materials/*.png pro texturované materiály.",
       "submit": "Importovat",
       "submitting": "Importuji…"
     }

@@ -16,16 +16,20 @@ import cz.vokounova.configurator.products.models.domain.ProductModelJsonPatchPar
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.products.pricing.DefaultPricingRulesService
 import cz.vokounova.configurator.shared.rest.jsonpatch.JsonPatchOperation
+import cz.vokounova.configurator.shared.skp.ParametersJsonParser
 import cz.vokounova.configurator.shared.skp.SkpParameter
+import cz.vokounova.configurator.shared.skp.SkpParameterExtractionResult
 import cz.vokounova.configurator.shared.skp.SkpParameterExtractor
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.io.ByteArrayInputStream
 import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.UUID
+import java.util.zip.ZipInputStream
 
 /**
  * Orchestrates import of a product from SketchUp (.skp) and GLB files.
@@ -42,17 +46,52 @@ class SkpImportService(
     @Value("\${app.files.upload-dir}") private val uploadDir: String,
 ) {
     fun importFromSketchUp(
-        skpFile: MultipartFile,
+        skpFile: MultipartFile?,
         glbFile: MultipartFile,
         userId: UserIdDto,
         productName: String? = null,
+        parametersJson: MultipartFile? = null,
+        parametersZip: MultipartFile? = null,
     ): SkpImportResult {
-        val skpResult = SkpParameterExtractor.extractParametersFromBytes(skpFile.bytes)
+        val useParametersZip =
+            parametersZip != null &&
+                !parametersZip.isEmpty &&
+                parametersZip.originalFilename?.lowercase()?.endsWith(".zip") == true
+        val useParametersJson =
+            parametersJson != null &&
+                !parametersJson.isEmpty &&
+                parametersJson.originalFilename?.lowercase()?.endsWith(".json") == true
+
+        val skpResult: SkpParameterExtractionResult =
+            when {
+                useParametersZip -> {
+                    try {
+                        val extracted = extractParametersFromZip(parametersZip!!.bytes)
+                        ParametersJsonParser.parse(extracted.jsonBytes, extracted.textures)
+                    } catch (e: Exception) {
+                        SkpParameterExtractionResult(error = "Invalid parameters.zip: ${e.message}")
+                    }
+                }
+                useParametersJson -> ParametersJsonParser.parse(parametersJson!!.bytes)
+                skpFile != null && !skpFile.isEmpty ->
+                    SkpParameterExtractor.extractParametersFromBytes(skpFile.bytes)
+                else ->
+                    return SkpImportResult(
+                        success = false,
+                        productModelId = null,
+                        error = "Either SKP file, parameters.json, or parameters.zip is required",
+                    )
+            }
+
         if (!skpResult.isSuccess) {
             return SkpImportResult(success = false, productModelId = null, error = skpResult.error)
         }
 
-        val name = productName ?: skpFile.originalFilename?.removeSuffix(".skp") ?: "Imported Product"
+        val name =
+            productName
+                ?: skpFile?.originalFilename?.removeSuffix(".skp")
+                ?: glbFile.originalFilename?.removeSuffix(".glb")
+                ?: "Imported Product"
         val productModel =
             productModelAPI.create(
                 ProductModelCreateParams(
@@ -71,53 +110,285 @@ class SkpImportService(
         val merchantParams = filterMerchantRelevantParams(skpResult.parameters)
         val attributes = createAttributes(merchantParams, component, productModel.id)
         val materialTextureUrls = storeMaterialTextures(skpResult.materialTextures)
-        createAttributeOptions(
-            attributes,
-            skpResult.materialColors,
-            materialTextureUrls,
-            productModel.id,
-        )
+        createAttributeOptions(attributes, skpResult.materialColors, materialTextureUrls, productModel.id)
 
+        val patches = mutableListOf<ProductModelJsonPatchParams>()
         val model3dUrl = storeGlb(glbFile)
         if (model3dUrl != null) {
-            productModelAPI.patch(
-                productModel.id,
-                listOf(
-                    ProductModelJsonPatchParams(
-                        path = ProductModelJsonPatchParamsPath.MODEL_3D_URL,
-                        value = model3dUrl,
-                        op = JsonPatchOperation.REPLACE,
-                    ),
+            patches.add(
+                ProductModelJsonPatchParams(
+                    path = ProductModelJsonPatchParamsPath.MODEL_3D_URL,
+                    value = model3dUrl,
+                    op = JsonPatchOperation.REPLACE,
                 ),
             )
         }
+        if (skpResult.componentTransforms.isNotEmpty() || skpResult.model3dEffects.isNotEmpty()) {
+            val model3dPayload =
+                when {
+                    skpResult.componentTransforms.isNotEmpty() -> {
+                        val payload =
+                            mutableMapOf<String, Any?>(
+                                "componentTransforms" to skpResult.componentTransforms,
+                            )
+                        if (skpResult.model3dEffects.isNotEmpty()) {
+                            payload["effects"] = skpResult.model3dEffects
+                        }
+                        if (skpResult.parameterDefaults.isNotEmpty()) {
+                            payload["parameterDefaults"] = skpResult.parameterDefaults
+                        }
+                        payload
+                    }
+                    else -> skpResult.model3dEffects
+                }
+            val effectsJson =
+                com.fasterxml.jackson.databind.ObjectMapper()
+                    .writeValueAsString(model3dPayload)
+            patches.add(
+                ProductModelJsonPatchParams(
+                    path = ProductModelJsonPatchParamsPath.MODEL_3D_EFFECTS,
+                    value = effectsJson,
+                    op = JsonPatchOperation.REPLACE,
+                ),
+            )
+        }
+        if (patches.isNotEmpty()) {
+            productModelAPI.patch(productModel.id, patches)
+        }
 
-        return SkpImportResult(
-            success = true,
-            productModelId = productModel.id.value,
-            error = null,
-        )
+        return SkpImportResult(success = true, productModelId = productModel.id.value, error = null)
     }
 
     /**
-     * Keeps only merchant-relevant params for pricing and config.
-     * Convention: color_X, diameter_X, thickness_X, diameter, thickness, leg_count, lenx/y/z.
-     * Skips internal SketchUp DC params.
+     * Keeps merchant-relevant params for pricing and config.
+     * Supports both old SKP DC format (color_X, thickness_X) and plugin parameters.json
+     * (X_color, X_thickness, width, height, lenx/y/z).
      */
     private fun filterMerchantRelevantParams(params: List<SkpParameter>): List<SkpParameter> {
-        val hasDiameter = params.any { it.name == "diameter" } || params.any { it.name.startsWith("diameter_") }
+        val hasDiameter =
+            params.any { it.name == "diameter" } || params.any { it.name.startsWith("diameter_") }
         return params.filter { param ->
             val n = param.name.lowercase()
             if (n in INTERNAL_SKP_PARAMS) return@filter false
             when {
-                n.startsWith("color") -> true
+                n.endsWith("_lenx") || n.endsWith("_leny") || n.endsWith("_lenz") -> false
+                n.startsWith("color") || n.endsWith("_color") -> true
                 n == "diameter" || n.startsWith("diameter_") -> true
-                n == "thickness" || n.startsWith("thickness_") -> true
+                n == "thickness" ||
+                    n.startsWith("thickness_") ||
+                    n.endsWith("_thickness") ->
+                    true
                 n.contains("count") || n.contains("leg") || n.contains("visibility") -> true
                 n in listOf("lenx", "leny", "lenz") -> !hasDiameter
+                n in listOf("width", "depth", "height", "sirka", "hloubka", "vyska") -> true
                 else -> false
             }
         }
+    }
+
+    private fun createSingleComponent(
+        productModelId: ProductModelId,
+        name: String,
+    ): Component {
+        val code =
+            name
+                .uppercase()
+                .replace(Regex("[^A-Z0-9]"), "_")
+                .take(50)
+                .ifEmpty { "DEFAULT" }
+        return componentAPI.create(
+            ComponentCreateParams(
+                productModelId = productModelId,
+                code = code,
+                label = name,
+                description = null,
+                sortOrder = 0,
+            ),
+        )
+    }
+
+    private fun createAttributes(
+        parameters: List<SkpParameter>,
+        component: Component,
+        productModelId: ProductModelId,
+    ): List<Pair<Attribute, SkpParameter>> {
+        val created = mutableListOf<Pair<Attribute, SkpParameter>>()
+        parameters.forEachIndexed { index, param ->
+            val inference = inferAttributeType(param)
+            val defaultDecimal =
+                param.defaultDouble?.let { BigDecimal.valueOf(it) }
+                    ?.takeIf { inference.type == AttributeType.DECIMAL }
+            val defaultInt =
+                param.defaultDouble?.toInt()?.takeIf { inference.type == AttributeType.INTEGER }
+            val attribute =
+                attributeAPI.create(
+                    AttributeCreateParams(
+                        componentId = component.id,
+                        code = param.name.uppercase().replace(Regex("[^A-Z0-9_]"), "_"),
+                        label = param.label.ifEmpty { param.name },
+                        type = inference.type,
+                        isRequired = false,
+                        minInt = inference.minInt,
+                        maxInt = inference.maxInt,
+                        minDecimal = inference.minDecimal,
+                        maxDecimal = inference.maxDecimal,
+                        defaultInt = defaultInt,
+                        defaultDecimal = defaultDecimal,
+                        unit =
+                            param.unit.takeIf { it.isNotBlank() }
+                                ?: "mm".takeIf {
+                                    param.name.contains("diameter") ||
+                                        param.name.contains("thickness") ||
+                                        param.name.contains("len")
+                                },
+                        sortOrder = index,
+                    ),
+                )
+            when {
+                attribute.minInt != null && attribute.maxInt != null &&
+                    inference.type == AttributeType.INTEGER ->
+                    defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
+                        productModelId.value,
+                        component.id.value,
+                        attribute.code,
+                        attribute.minInt.toString(),
+                        attribute.maxInt.toString(),
+                    )
+                attribute.minDecimal != null && attribute.maxDecimal != null &&
+                    inference.type == AttributeType.DECIMAL ->
+                    defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
+                        productModelId.value,
+                        component.id.value,
+                        attribute.code,
+                        attribute.minDecimal.toString(),
+                        attribute.maxDecimal.toString(),
+                    )
+            }
+            created.add(attribute to param)
+        }
+        return created
+    }
+
+    private fun inferAttributeType(param: SkpParameter): AttributeTypeInference {
+        val n = param.name.lowercase()
+        return when {
+            n.startsWith("color") || n.endsWith("_color") ->
+                AttributeTypeInference(AttributeType.ENUM, null, null, null, null)
+            n.contains("count") || (n.contains("leg") && !n.endsWith("_color")) ->
+                AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 10)
+            n.contains("diameter") ||
+                n.contains("thickness") ||
+                n.contains("len") ||
+                n.endsWith("_lenx") ||
+                n.endsWith("_leny") ||
+                n.endsWith("_lenz") ||
+                n in listOf("width", "depth", "height", "sirka", "hloubka", "vyska") ->
+                AttributeTypeInference(AttributeType.DECIMAL, BigDecimal("1"), BigDecimal("5000"), null, null)
+            else ->
+                AttributeTypeInference(
+                    AttributeType.DECIMAL,
+                    BigDecimal("1"),
+                    BigDecimal("5000"),
+                    null,
+                    null,
+                )
+        }
+    }
+
+    private fun createAttributeOptions(
+        attributesWithParams: List<Pair<Attribute, SkpParameter>>,
+        materialColors: Map<String, String>,
+        materialTextureUrls: Map<String, String>,
+        productModelId: ProductModelId,
+    ) {
+        attributesWithParams.forEach { (attribute, param) ->
+            if (attribute.type == AttributeType.ENUM) {
+                val optionNames = param.options.ifEmpty { DEFAULT_COLOR_OPTIONS.map { it.first } }
+                optionNames.forEachIndexed { idx, name ->
+                    val colorHex =
+                        materialColors[name]
+                            ?: materialColors[name.lowercase()]
+                            ?: MATERIAL_NAME_TO_HEX[name]
+                            ?: MATERIAL_NAME_TO_HEX[name.lowercase()]
+                    val textureUrl =
+                        materialTextureUrls[name] ?: materialTextureUrls[name.lowercase()]
+                    val optionValue = name.uppercase().replace(Regex("[^A-Z0-9]"), "_")
+                    attributeOptionAPI.create(
+                        AttributeOptionCreateParams(
+                            attributeId = attribute.id,
+                            value = optionValue,
+                            label = name.replaceFirstChar { it.uppercase() },
+                            imageUrl = textureUrl,
+                            colorHex = colorHex,
+                            sortOrder = idx,
+                        ),
+                    )
+                    defaultPricingRulesService.createDefaultForOptionIfMissing(
+                        productModelId.value,
+                        attribute.componentId.value,
+                        attribute.code,
+                        optionValue,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun extractParametersFromZip(zipBytes: ByteArray): ZipExtractionResult {
+        val textures = mutableMapOf<String, Pair<ByteArray, String>>()
+        var jsonBytes: ByteArray? = null
+        ZipInputStream(ByteArrayInputStream(zipBytes)).use { zis ->
+            var entry = zis.nextEntry
+            while (entry != null) {
+                val entryName = entry.name.replace("\\", "/").trimStart('/')
+                val bytes = zis.readBytes()
+                when {
+                    entryName.equals("parameters.json", ignoreCase = true) ||
+                        entryName.endsWith("/parameters.json", ignoreCase = true) ->
+                        jsonBytes = bytes
+                    entryName.lowercase().endsWith(".png") ||
+                        entryName.lowercase().endsWith(".jpg") ||
+                        entryName.lowercase().endsWith(".jpeg") -> {
+                        val ext = entryName.substringAfterLast('.', "png").lowercase()
+                        textures[entryName] = bytes to ext
+                    }
+                }
+                zis.closeEntry()
+                entry = zis.nextEntry
+            }
+        }
+        return ZipExtractionResult(
+            jsonBytes =
+                jsonBytes
+                    ?: throw IllegalArgumentException("Zip must contain parameters.json"),
+            textures = textures,
+        )
+    }
+
+    private fun storeMaterialTextures(materialTextures: Map<String, Pair<ByteArray, String>>): Map<String, String> {
+        if (materialTextures.isEmpty()) return emptyMap()
+        val uploadPath = Paths.get(uploadDir)
+        Files.createDirectories(uploadPath)
+        return materialTextures.mapValues { (_, pair) ->
+            val bytes = pair.first
+            val ext = pair.second
+            val uniqueFilename = "${UUID.randomUUID()}.$ext"
+            val filePath = uploadPath.resolve(uniqueFilename)
+            Files.write(filePath, bytes)
+            "/api/v1/files/$uniqueFilename"
+        }
+    }
+
+    private fun storeGlb(glbFile: MultipartFile): String? {
+        if (glbFile.isEmpty) return null
+        val originalFilename = glbFile.originalFilename ?: ""
+        if (!originalFilename.lowercase().endsWith(".glb")) return null
+        val uploadPath = Paths.get(uploadDir)
+        Files.createDirectories(uploadPath)
+        val uniqueFilename = "${UUID.randomUUID()}.glb"
+        val filePath = uploadPath.resolve(uniqueFilename)
+        Files.write(filePath, glbFile.bytes)
+        return "/api/v1/files/$uniqueFilename"
     }
 
     companion object {
@@ -158,178 +429,23 @@ class SkpImportService(
                 "ash" to "#DEB887",
             )
 
-        /** Maps material names (from SketchUp options) to hex. Used when options are extracted from SKP. */
         private val MATERIAL_NAME_TO_HEX: Map<String, String> =
             buildMap {
-                DEFAULT_COLOR_OPTIONS.forEach { (name, hex) ->
-                    put(name, hex)
-                    put(name.lowercase(), hex)
-                    put(name.replace(" ", ""), hex)
+                DEFAULT_COLOR_OPTIONS.forEach { (n, hex) ->
+                    put(n, hex)
+                    put(n.lowercase(), hex)
+                    put(n.replace(" ", ""), hex)
                 }
-                listOf("oak2" to "#C49A6C", "black2" to "#1A1A1A").forEach { (name, hex) ->
-                    put(name, hex)
-                    put(name.lowercase(), hex)
-                }
+                put("oak2", "#C49A6C")
+                put("black2", "#1A1A1A")
             }
-    }
-
-    private fun createSingleComponent(
-        productModelId: ProductModelId,
-        name: String,
-    ): Component {
-        val code =
-            name
-                .uppercase()
-                .replace(Regex("[^A-Z0-9]"), "_")
-                .take(50)
-                .ifEmpty { "DEFAULT" }
-        return componentAPI.create(
-            ComponentCreateParams(
-                productModelId = productModelId,
-                code = code,
-                label = name,
-                description = null,
-                sortOrder = 0,
-            ),
-        )
-    }
-
-    private fun createAttributes(
-        parameters: List<SkpParameter>,
-        component: Component,
-        productModelId: ProductModelId,
-    ): List<Pair<Attribute, SkpParameter>> {
-        val created = mutableListOf<Pair<Attribute, SkpParameter>>()
-        parameters.forEachIndexed { index, param ->
-            val (type, minDecimal, maxDecimal, minInt, maxInt) = inferAttributeType(param)
-            val attribute =
-                attributeAPI.create(
-                    AttributeCreateParams(
-                        componentId = component.id,
-                        code = param.name.uppercase().replace(Regex("[^A-Z0-9_]"), "_"),
-                        label = param.label.ifEmpty { param.name },
-                        type = type,
-                        isRequired = false,
-                        minInt = minInt,
-                        maxInt = maxInt,
-                        minDecimal = minDecimal,
-                        maxDecimal = maxDecimal,
-                        unit =
-                            param.unit.takeIf { it.isNotBlank() }
-                                ?: "mm".takeIf {
-                                    param.name.contains("diameter") ||
-                                        param.name.contains("thickness") ||
-                                        param.name.contains("len")
-                                },
-                        sortOrder = index,
-                    ),
-                )
-            when {
-                attribute.minInt != null && attribute.maxInt != null && type == AttributeType.INTEGER ->
-                    defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
-                        productModelId.value,
-                        component.id.value,
-                        attribute.code,
-                        attribute.minInt.toString(),
-                        attribute.maxInt.toString(),
-                    )
-                attribute.minDecimal != null && attribute.maxDecimal != null && type == AttributeType.DECIMAL ->
-                    defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
-                        productModelId.value,
-                        component.id.value,
-                        attribute.code,
-                        attribute.minDecimal.toString(),
-                        attribute.maxDecimal.toString(),
-                    )
-            }
-            created.add(attribute to param)
-        }
-        return created
-    }
-
-    private fun inferAttributeType(param: SkpParameter): AttributeTypeInference =
-        when {
-            param.name.startsWith("color") ->
-                AttributeTypeInference(AttributeType.ENUM, null, null, null, null)
-            param.name.contains("count") || param.name.contains("leg") ->
-                AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 10)
-            param.name.contains("diameter") || param.name.contains("thickness") || param.name.contains("len") ->
-                AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 5000)
-            else ->
-                AttributeTypeInference(
-                    AttributeType.DECIMAL,
-                    BigDecimal("1"),
-                    BigDecimal("5000"),
-                    null,
-                    null,
-                )
-        }
-
-    private fun createAttributeOptions(
-        attributesWithParams: List<Pair<Attribute, SkpParameter>>,
-        materialColors: Map<String, String> = emptyMap(),
-        materialTextureUrls: Map<String, String> = emptyMap(),
-        productModelId: ProductModelId,
-    ) {
-        attributesWithParams.forEach { (attribute, param) ->
-            if (attribute.type == AttributeType.ENUM) {
-                val optionNames =
-                    param.options.ifEmpty { DEFAULT_COLOR_OPTIONS.map { it.first } }
-                optionNames.forEachIndexed { idx, name ->
-                    val colorHex =
-                        materialColors[name]
-                            ?: materialColors[name.lowercase()]
-                            ?: MATERIAL_NAME_TO_HEX[name]
-                            ?: MATERIAL_NAME_TO_HEX[name.lowercase()]
-                    val textureUrl =
-                        materialTextureUrls[name] ?: materialTextureUrls[name.lowercase()]
-                    val optionValue = name.uppercase().replace(Regex("[^A-Z0-9]"), "_")
-                    attributeOptionAPI.create(
-                        AttributeOptionCreateParams(
-                            attributeId = attribute.id,
-                            value = optionValue,
-                            label = name.replaceFirstChar { it.uppercase() },
-                            imageUrl = textureUrl,
-                            colorHex = colorHex,
-                            sortOrder = idx,
-                        ),
-                    )
-                    defaultPricingRulesService.createDefaultForOptionIfMissing(
-                        productModelId.value,
-                        attribute.componentId.value,
-                        attribute.code,
-                        optionValue,
-                    )
-                }
-            }
-        }
-    }
-
-    private fun storeMaterialTextures(materialTextures: Map<String, Pair<ByteArray, String>>): Map<String, String> {
-        if (materialTextures.isEmpty()) return emptyMap()
-        val uploadPath = Paths.get(uploadDir)
-        Files.createDirectories(uploadPath)
-        return materialTextures.mapValues { (_, pair) ->
-            val (bytes, ext) = pair
-            val uniqueFilename = "${UUID.randomUUID()}.$ext"
-            val filePath = uploadPath.resolve(uniqueFilename)
-            Files.write(filePath, bytes)
-            "/api/v1/files/$uniqueFilename"
-        }
-    }
-
-    private fun storeGlb(glbFile: MultipartFile): String? {
-        if (glbFile.isEmpty) return null
-        val originalFilename = glbFile.originalFilename ?: ""
-        if (!originalFilename.lowercase().endsWith(".glb")) return null
-        val uploadPath = Paths.get(uploadDir)
-        Files.createDirectories(uploadPath)
-        val uniqueFilename = "${UUID.randomUUID()}.glb"
-        val filePath = uploadPath.resolve(uniqueFilename)
-        Files.write(filePath, glbFile.bytes)
-        return "/api/v1/files/$uniqueFilename"
     }
 }
+
+private data class ZipExtractionResult(
+    val jsonBytes: ByteArray,
+    val textures: Map<String, Pair<ByteArray, String>>,
+)
 
 private data class AttributeTypeInference(
     val type: AttributeType,

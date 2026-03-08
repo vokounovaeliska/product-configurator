@@ -10,6 +10,7 @@ import java.math.BigDecimal
 import java.time.OffsetDateTime
 import java.util.UUID
 
+import org.jooq.JSONB
 import org.jooq.Record1
 import org.jooq.impl.UpdatableRecordImpl
 
@@ -72,6 +73,10 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         set(value): Unit = set(11, value)
         get(): Boolean? = get(11) as Boolean?
 
+    open var model_3dEffects: JSONB?
+        set(value): Unit = set(12, value)
+        get(): JSONB? = get(12) as JSONB?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -81,7 +86,7 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
     /**
      * Create a detached, initialised ProductModelRecord
      */
-    constructor(id: UUID, userId: UUID, name: String, description: String? = null, price: BigDecimal? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, model_3dUrl: String? = null, url: String? = null, isPublished: Boolean? = null): this() {
+    constructor(id: UUID, userId: UUID, name: String, description: String? = null, price: BigDecimal? = null, currency: String? = null, isActive: Boolean? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, model_3dUrl: String? = null, url: String? = null, isPublished: Boolean? = null, model_3dEffects: JSONB? = null): this() {
         this.id = id
         this.userId = userId
         this.name = name
@@ -94,6 +99,7 @@ open class ProductModelRecord private constructor() : UpdatableRecordImpl<Produc
         this.model_3dUrl = model_3dUrl
         this.url = url
         this.isPublished = isPublished
+        this.model_3dEffects = model_3dEffects
         resetChangedOnNotNull()
     }
 }
