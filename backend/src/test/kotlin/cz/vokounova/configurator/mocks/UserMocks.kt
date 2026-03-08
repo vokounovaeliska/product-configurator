@@ -19,6 +19,7 @@ object UserMocks {
         firstName: String = "John",
         surname: String = "Surname",
         email: String = "johndoe@email.com",
+        supplierNotificationEmail: String? = null,
         password: String = "Password123",
         modifiedAt: OffsetDateTime = OffsetDateTime.now(),
     ) = User(
@@ -26,6 +27,7 @@ object UserMocks {
         firstName = firstName,
         surname = surname,
         email = email,
+        supplierNotificationEmail = supplierNotificationEmail,
         password = password,
         createdAt = OffsetDateTime.now(),
         modifiedAt = modifiedAt,
