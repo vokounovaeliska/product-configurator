@@ -25,6 +25,7 @@ fun UserPatchRequestDto.toParams(): UserJsonPatchParams =
                 UserPatchRequestDto.Path.SlashSurname -> UserJsonPatchParamsPath.SURNAME
                 UserPatchRequestDto.Path.SlashIsActive -> UserJsonPatchParamsPath.IS_ACTIVE
                 UserPatchRequestDto.Path.SlashEmail -> UserJsonPatchParamsPath.EMAIL
+                UserPatchRequestDto.Path.SlashSupplierNotificationEmail -> UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL
             },
         value = value,
         op =

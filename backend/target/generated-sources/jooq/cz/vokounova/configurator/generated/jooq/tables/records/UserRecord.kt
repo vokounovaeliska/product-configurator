@@ -55,6 +55,10 @@ open class UserRecord private constructor() : UpdatableRecordImpl<UserRecord>(Us
         set(value): Unit = set(8, value)
         get(): String? = get(8) as String?
 
+    open var supplierNotificationEmail: String?
+        set(value): Unit = set(9, value)
+        get(): String? = get(9) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -64,7 +68,7 @@ open class UserRecord private constructor() : UpdatableRecordImpl<UserRecord>(Us
     /**
      * Create a detached, initialised UserRecord
      */
-    constructor(id: UUID, email: String, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, firstName: String, surname: String, password: String, checkSum: String, searchVector: String? = null): this() {
+    constructor(id: UUID, email: String, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, firstName: String, surname: String, password: String, checkSum: String, searchVector: String? = null, supplierNotificationEmail: String? = null): this() {
         this.id = id
         this.email = email
         this.createdAt = createdAt
@@ -74,6 +78,7 @@ open class UserRecord private constructor() : UpdatableRecordImpl<UserRecord>(Us
         this.password = password
         this.checkSum = checkSum
         this.searchVector = searchVector
+        this.supplierNotificationEmail = supplierNotificationEmail
         resetChangedOnNotNull()
     }
 }

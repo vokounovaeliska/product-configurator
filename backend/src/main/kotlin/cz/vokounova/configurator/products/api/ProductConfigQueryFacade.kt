@@ -9,5 +9,7 @@ interface ProductConfigQueryFacade {
 
     fun isProductPublished(productModelId: UUID): Boolean
 
+    fun getProductOwnerId(productModelId: UUID): UUID
+
     fun getFullConfigByProductUrl(url: String): FullProductConfigDto
 }

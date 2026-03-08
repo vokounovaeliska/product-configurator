@@ -12,6 +12,23 @@ export type RegistrationResponse =
   operations["userRegistration"]["responses"]["200"]["content"]["*/*"]
 
 // Users
-export type UserDto = operations["usersGet"]["responses"]["200"]["content"]["*/*"]
+type UserDtoFromApi = operations["usersGet"]["responses"]["200"]["content"]["*/*"]
+export type UserDto = UserDtoFromApi & {
+  supplierNotificationEmail?: string | null
+}
 
-export type UserMeDto = operations["usersMe"]["responses"]["200"]["content"]["*/*"]
+type UserMeDtoFromApi = operations["usersMe"]["responses"]["200"]["content"]["*/*"]
+export type UserMeDto = UserMeDtoFromApi & {
+  supplierNotificationEmail?: string | null
+}
+
+type UserPatchRequestDtoFromApi =
+  operations["usersPatch"]["requestBody"]["content"]["application/json"][number]
+
+type SupplierNotificationEmailPatch = {
+  path: "SlashSupplierNotificationEmail"
+  op: "Replace"
+  value: string | null
+}
+
+export type UserPatchRequestDto = UserPatchRequestDtoFromApi | SupplierNotificationEmailPatch

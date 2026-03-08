@@ -19,6 +19,7 @@ data class User(
     val firstName: String,
     val surname: String,
     val email: String,
+    val supplierNotificationEmail: String?,
     val password: String,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
@@ -36,6 +37,7 @@ data class User(
                 firstName = params.firstName,
                 surname = params.surname,
                 email = params.email,
+                supplierNotificationEmail = null,
                 password = params.password,
                 createdAt = timestamp,
                 modifiedAt = timestamp,
@@ -47,4 +49,4 @@ data class User(
     fun fullName(): String = "$firstName $surname"
 }
 
-fun User.getChecksum(): String = "${id.value}$firstName$surname$email$password".getMd5Hash()
+fun User.getChecksum(): String = "${id.value}$firstName$surname$email$supplierNotificationEmail$password".getMd5Hash()

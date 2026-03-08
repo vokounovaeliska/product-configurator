@@ -9,6 +9,7 @@ data class UserPatchRequestDto(
         SlashFirstName,
         SlashSurname,
         SlashEmail,
+        SlashSupplierNotificationEmail,
         SlashIsActive,
     }
 
