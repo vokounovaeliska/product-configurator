@@ -45,6 +45,9 @@ class ProductModelJsonPatchParamsValidator : AppValidator<ProductModelJsonPatchP
                         notEmpty()
                     }
                 }
+                ProductModelJsonPatchParamsPath.MODEL_3D_EFFECTS -> {
+                    // Can be null (remove effects) or JSON string from parameters.json
+                }
                 ProductModelJsonPatchParamsPath.URL -> {
                     field(path.value, value.value as? String) {
                         // URL: lowercase alphanumeric and hyphens; null allowed to unpublish

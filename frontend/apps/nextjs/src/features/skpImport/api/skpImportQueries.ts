@@ -17,18 +17,15 @@ export const useSkpImport = () => {
 
   return useMutation({
     mutationFn: async ({
-      skpFile,
-      glbFile,
+      configuratorZip,
       productName,
     }: {
-      skpFile: File
-      glbFile: File
+      configuratorZip: File
       productName?: string
     }): Promise<SkpImportResponse> => {
       try {
         const formData = new FormData()
-        formData.append("skp", skpFile)
-        formData.append("glb", glbFile)
+        formData.append("configuratorZip", configuratorZip)
         if (productName?.trim()) {
           formData.append("name", productName.trim())
         }

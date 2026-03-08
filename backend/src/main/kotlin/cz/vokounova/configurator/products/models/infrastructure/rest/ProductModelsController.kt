@@ -3,8 +3,10 @@ package cz.vokounova.configurator.products.models.infrastructure.rest
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.domain.ProductModelSortableField
 import cz.vokounova.configurator.products.models.domain.ProductModelSortingConfig
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.request.ConfiguratorPreferencesPatchRequestDto
 import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.request.ProductModelCreateRequestDto
 import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.request.ProductModelPatchRequestDto
+import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.response.ConfiguratorPreferencesDto
 import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.response.ProductModelDto
 import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.response.ProductModelPaginatedResponseDto
 import cz.vokounova.configurator.products.models.infrastructure.rest.mapper.toDto
@@ -15,6 +17,7 @@ import cz.vokounova.configurator.products.models.infrastructure.rest.validation.
 import cz.vokounova.configurator.products.models.infrastructure.rest.validation.ProductModelJsonPatchParamsValidator
 import cz.vokounova.configurator.products.models.infrastructure.rest.validation.ProductModelListQueryParamsValidator
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
+import cz.vokounova.configurator.products.models.ports.inbound.ProductModelConfiguratorPreferencesAPI
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.pagination.PaginationUtils
 import cz.vokounova.configurator.shared.pagination.SortingUtils
@@ -38,6 +41,7 @@ import java.util.UUID
 @RequestMapping("/products/api/v1/product-models")
 class ProductModelsController(
     private val productModelAPI: ProductModelAPI,
+    private val configuratorPreferencesAPI: ProductModelConfiguratorPreferencesAPI,
     private val queryParamsValidator: ProductModelListQueryParamsValidator,
     private val createParamsValidator: ProductModelCreateParamsValidator,
     private val jsonPatchValidator: ProductModelJsonPatchParamsValidator,
@@ -131,5 +135,46 @@ class ProductModelsController(
         val productModel = productModelAPI.patch(ProductModelId(productModelId), params)
 
         return ResponseEntity.status(HttpStatus.OK).body(productModel.toDto())
+    }
+
+    @GetMapping("/{productModelId}/configurator-preferences")
+    fun getConfiguratorPreferences(
+        @PathVariable productModelId: UUID,
+    ): ResponseEntity<ConfiguratorPreferencesDto> {
+        val prefs = configuratorPreferencesAPI.getByProductModelIdForCurrentUser(ProductModelId(productModelId))
+        return ResponseEntity.ok(
+            ConfiguratorPreferencesDto(
+                zoomDistanceDefault = prefs?.zoomDistanceDefault?.toDouble(),
+                zoomDistanceEmbed = prefs?.zoomDistanceEmbed?.toDouble(),
+                embedShowProductName = prefs?.embedShowProductName,
+                embedShowDescription = prefs?.embedShowDescription,
+                embedShowComponents = prefs?.embedShowComponents,
+            ),
+        )
+    }
+
+    @PatchMapping("/{productModelId}/configurator-preferences")
+    fun patchConfiguratorPreferences(
+        @PathVariable productModelId: UUID,
+        @RequestBody request: ConfiguratorPreferencesPatchRequestDto,
+    ): ResponseEntity<ConfiguratorPreferencesDto> {
+        val prefs =
+            configuratorPreferencesAPI.upsert(
+                ProductModelId(productModelId),
+                zoomDistanceDefault = request.zoomDistanceDefault,
+                zoomDistanceEmbed = request.zoomDistanceEmbed,
+                embedShowProductName = request.embedShowProductName,
+                embedShowDescription = request.embedShowDescription,
+                embedShowComponents = request.embedShowComponents,
+            )
+        return ResponseEntity.ok(
+            ConfiguratorPreferencesDto(
+                zoomDistanceDefault = prefs.zoomDistanceDefault?.toDouble(),
+                zoomDistanceEmbed = prefs.zoomDistanceEmbed?.toDouble(),
+                embedShowProductName = prefs.embedShowProductName,
+                embedShowDescription = prefs.embedShowDescription,
+                embedShowComponents = prefs.embedShowComponents,
+            ),
+        )
     }
 }

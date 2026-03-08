@@ -88,7 +88,6 @@ object AttributeMocks {
         value: String = "SMALL",
         label: String = "Small",
         imageUrl: String? = null,
-        colorHex: String? = null,
         sortOrder: Int = 1,
         createdAt: OffsetDateTime = OffsetDateTime.now(),
         modifiedAt: OffsetDateTime = OffsetDateTime.now(),
@@ -98,7 +97,6 @@ object AttributeMocks {
         value = value,
         label = label,
         imageUrl = imageUrl,
-        colorHex = colorHex,
         sortOrder = sortOrder,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
@@ -109,14 +107,12 @@ object AttributeMocks {
         value: String = "SMALL",
         label: String = "Small",
         imageUrl: String? = null,
-        colorHex: String? = null,
         sortOrder: Int? = 1,
     ) = AttributeOptionCreateParams(
         attributeId = attributeId,
         value = value,
         label = label,
         imageUrl = imageUrl,
-        colorHex = colorHex,
         sortOrder = sortOrder,
     )
 }

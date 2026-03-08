@@ -12,6 +12,7 @@ data class ProductModelDto(
     val currency: String,
     val isActive: Boolean,
     val model3dUrl: String? = null,
+    val model3dEffects: String? = null,
     val url: String? = null,
     val isPublished: Boolean = false,
     val createdAt: OffsetDateTime,

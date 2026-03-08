@@ -50,6 +50,16 @@ class EmbedController(
                         opts.map { it.toDto() }
                     },
                 pricingRules = config.pricingRules.map { it.toDto() },
+                configuratorPreferences =
+                    config.configuratorPreferences?.let {
+                        ConfiguratorPreferencesEmbedDto(
+                            zoomDistanceDefault = it.zoomDistanceDefault,
+                            zoomDistanceEmbed = it.zoomDistanceEmbed,
+                            embedShowProductName = it.embedShowProductName,
+                            embedShowDescription = it.embedShowDescription,
+                            embedShowComponents = it.embedShowComponents,
+                        )
+                    },
             )
         return ResponseEntity.ok(dto)
     }

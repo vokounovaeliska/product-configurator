@@ -13,7 +13,16 @@ export type ProductModelEmbedDto = {
   price: number
   currency: string
   model3dUrl: string | null
+  model3dEffects: string | null
   url: string | null
+}
+
+export type ConfiguratorPreferencesEmbedDto = {
+  zoomDistanceDefault: number | null
+  zoomDistanceEmbed: number | null
+  embedShowProductName: boolean | null
+  embedShowDescription: boolean | null
+  embedShowComponents: boolean | null
 }
 
 export type ProductEmbedFullDto = {
@@ -22,6 +31,7 @@ export type ProductEmbedFullDto = {
   attributesByComponent: Record<string, AttributeDto[]>
   optionsByAttribute: Record<string, AttributeOptionDto[]>
   pricingRules: AttributePricingRuleDto[]
+  configuratorPreferences?: ConfiguratorPreferencesEmbedDto | null
 }
 
 export type CustomerRequestCreateDto = {

@@ -199,13 +199,13 @@
   },
   "SketchUpImport": {
     "title": "Import from SketchUp",
-    "description": "Upload a SketchUp (.skp) and GLB file to create a product model. Only merchant-relevant params (colors, size, thickness, leg count) are imported. After import, set prices and preview in the configurator.",
+    "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Configurator → Export). The zip contains the 3D model, parameters, and materials. After import, set prices and preview in the configurator.",
     "form": {
       "productName": "Product name",
-      "productNamePlaceholder": "Optional – defaults to SKP filename",
-      "productNameHint": "Leave empty to use the SKP filename as the product name.",
-      "skpFile": "SketchUp file (.skp)",
-      "glbFile": "3D model file (.glb)",
+      "productNamePlaceholder": "Optional – defaults to zip filename",
+      "productNameHint": "Leave empty to use the zip filename as the product name.",
+      "configuratorZip": "Configurator zip",
+      "configuratorZipHint": "Zip from SketchUp plugin: model.glb + parameters.json + materials/. Export via Plugins → Configurator → Export for Configurator (single zip).",
       "submit": "Import",
       "submitting": "Importing…"
     }
@@ -214,6 +214,7 @@
     "card": {
       "active": "Active",
       "configureButton": "Configure",
+      "noPreview": "No 3D model",
       "deleteButton": "Delete",
       "editButton": "Edit",
       "inactive": "Inactive",
@@ -283,7 +284,16 @@
       "embedCodeTitle": "Embed code",
       "copyEmbed": "Copy iframe",
       "copied": "Copied!",
-      "previewEmbed": "Preview embed"
+      "previewEmbed": "Preview embed",
+      "embedDisplay": {
+        "title": "Embed display options",
+        "description": "Choose what to show in the embedded configurator.",
+        "showProductName": "Product name",
+        "showDescription": "Description",
+        "showComponents": "Component selector",
+        "save": "Save",
+        "saving": "Saving…"
+      }
     },
     "list": {
       "createButton": "Create Model",
@@ -360,6 +370,14 @@
       "selectOptions": "Select options below to see the preview.",
       "loadError": "Failed to load preview.",
       "loading3d": "Loading 3D model…"
+    },
+    "previewSettings": {
+      "title": "Preview settings",
+      "description": "Configure the default zoom level for the 3D preview. This applies to both the configurator and the embed iframe.",
+      "zoomLabel": "Zoom level",
+      "save": "Save",
+      "saving": "Saving…",
+      "loadError": "Log in to load and save preview settings."
     },
     "price": {
       "title": "Total Price",
@@ -569,6 +587,7 @@
     "create": {
       "cancelButton": "Cancel",
       "code": "Code",
+      "codeDescription": "Technical identifier for SketchUp and integrations.",
       "codePlaceholder": "e.g., COLOR, WIDTH, HEIGHT",
       "defaultDecimal": "Default",
       "defaultDecimalPlaceholder": "Optional – within min..max",
@@ -621,6 +640,7 @@
     "edit": {
       "cancelButton": "Cancel",
       "code": "Code",
+      "codeDescription": "Technical identifier for SketchUp and integrations. Only change if needed.",
       "codePlaceholder": "e.g., COLOR, WIDTH, HEIGHT",
       "description": "Update the attribute details",
       "errorMessages": {

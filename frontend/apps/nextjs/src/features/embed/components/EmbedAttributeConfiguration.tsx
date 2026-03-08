@@ -31,6 +31,8 @@ type Props = {
   onOtherValueChange: (componentId: string, attributeId: string, value: number | boolean) => void
   pricingRules: AttributePricingRuleDto[]
   currency: string
+  /** When false, show attributes in a flat list without component selector. Default true. */
+  shouldShowComponents?: boolean
 }
 
 export const EmbedAttributeConfiguration = ({
@@ -45,6 +47,7 @@ export const EmbedAttributeConfiguration = ({
   onOtherValueChange,
   pricingRules,
   currency,
+  shouldShowComponents = true,
 }: Props) => {
   const t = useTranslations("Configurator")
   const sortedComponents = [...components].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -74,7 +77,45 @@ export const EmbedAttributeConfiguration = ({
     )
   }).length
   const totalComponents = sortedComponents.length
-  const shouldShowProgress = totalComponents > 1 && configuredCount > 0
+  const shouldShowProgress = shouldShowComponents && totalComponents > 1 && configuredCount > 0
+
+  if (!shouldShowComponents) {
+    const flatAttributes = sortedComponents.flatMap((c) => {
+      const attrs = attributesByComponent[c.id] ?? []
+      return attrs.map((a) => ({ component: c, attribute: a }))
+    })
+    return (
+      <div className="space-y-3">
+        <Typography
+          as="h2"
+          variant="display-sm"
+          weight="semibold"
+        >
+          {t("attributes.title")}
+        </Typography>
+        <div className="space-y-3">
+          {flatAttributes.map(({ component, attribute }) => (
+            <Card
+              key={`${component.id}-${attribute.id}`}
+              className="p-3"
+            >
+              <EmbedAttributeField
+                attribute={attribute}
+                options={optionsByAttribute[attribute.id] ?? []}
+                selectedOption={selectedOptionsByComponent[component.id]?.[attribute.id] ?? null}
+                onSelectOption={(option) => onSelectOption(component.id, attribute.id, option)}
+                otherValue={selectedOtherValuesByComponent[component.id]?.[attribute.id]}
+                onOtherChange={(value) => onOtherValueChange(component.id, attribute.id, value)}
+                componentId={component.id}
+                pricingRules={pricingRules}
+                currency={currency}
+              />
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3">

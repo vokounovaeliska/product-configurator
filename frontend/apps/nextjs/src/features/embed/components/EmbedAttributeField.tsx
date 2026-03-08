@@ -100,8 +100,8 @@ export const EmbedAttributeField = ({
           aria-labelledby={`attr-${attribute.id}-label`}
           aria-label={attribute.label}
           className={cn(
-            "flex flex-wrap gap-2",
-            hasImages && "grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5",
+            "flex flex-wrap gap-1.5",
+            hasImages && "grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6",
           )}
         >
           {sortedOptions.map((opt) => {
@@ -121,59 +121,43 @@ export const EmbedAttributeField = ({
                 aria-selected={isSelected}
                 onClick={() => onSelectOption(opt)}
                 className={cn(
-                  "flex min-h-[44px] min-w-0 touch-manipulation flex-col items-center justify-center gap-1 rounded-lg border-2 transition-colors",
+                  "flex min-h-[36px] min-w-0 touch-manipulation flex-col items-center justify-center gap-0.5 rounded border-2 transition-colors",
                   isSelected
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
-                  hasImages ? "overflow-hidden p-0" : "px-3 py-2.5 text-sm font-medium",
+                  hasImages ? "overflow-hidden p-0" : "px-2 py-1 text-xs font-medium",
                 )}
               >
                 {hasImages && opt.imageUrl ? (
                   <>
-                    <div className="relative mx-auto aspect-square w-14 shrink-0 overflow-hidden rounded-sm bg-muted">
+                    <div className="relative mx-auto aspect-square w-10 shrink-0 overflow-hidden rounded-sm bg-muted">
                       <Image
                         src={getImageUrlForDisplay(opt.imageUrl)}
-                        alt=""
+                        alt={opt.label}
                         fill
                         className="object-cover"
                         unoptimized
-                        sizes="56px"
+                        sizes="40px"
                       />
                     </div>
-                    <div className="flex min-w-0 flex-col items-center gap-0.5 px-1 pb-1.5">
-                      <span
-                        className="w-full truncate text-center text-xs font-medium"
-                        title={opt.label}
-                      >
-                        {opt.label}
+                    {hasPrice && (
+                      <span className="shrink-0 px-1 pb-1 text-[9px] text-muted-foreground">
+                        {t("attributes.optionPrice", {
+                          amount: formatPrice(priceCents),
+                        })}
                       </span>
-                      {hasPrice && (
-                        <span className="shrink-0 text-[10px] text-muted-foreground">
-                          {t("attributes.optionPrice", {
-                            amount: formatPrice(priceCents),
-                          })}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </>
                 ) : (
-                  <div className="flex min-w-0 flex-col items-center gap-0.5 px-2 py-1.5">
-                    <span className="flex items-center gap-1.5">
-                      {opt.colorHex && (
-                        <span
-                          className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-border"
-                          style={{ backgroundColor: opt.colorHex }}
-                        />
-                      )}
-                      <span
-                        className="truncate text-sm font-medium"
-                        title={opt.label}
-                      >
-                        {opt.label}
-                      </span>
+                  <div className="flex min-w-0 flex-col items-center gap-0 px-1.5 py-0.5">
+                    <span
+                      className="truncate text-xs font-medium"
+                      title={opt.label}
+                    >
+                      {opt.label}
                     </span>
                     {hasPrice && (
-                      <span className="shrink-0 text-xs text-muted-foreground">
+                      <span className="shrink-0 text-[10px] text-muted-foreground">
                         {t("attributes.optionPrice", {
                           amount: formatPrice(priceCents),
                         })}

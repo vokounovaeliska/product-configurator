@@ -137,7 +137,7 @@ export const RequestQuoteDialog = ({
         open={isOpen}
         onOpenChange={handleOpenChange}
       >
-        <Dialog.Content className="sm:max-w-md">
+        <Dialog.Content className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
           <Dialog.Content.Header>
             <div className="flex items-center gap-3">
               <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">

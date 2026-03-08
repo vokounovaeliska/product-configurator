@@ -158,12 +158,9 @@ const AttributeField = ({
         productModelId={productModelId}
         componentId={componentId}
         attributeId={attribute.id}
-        attributeCode={attribute.code}
         attributeLabel={attribute.label}
         selectedOption={selectedOption}
         onSelectOption={onSelectOption}
-        pricingRules={pricingRules}
-        currency={currency}
       />
     )
   }
@@ -293,28 +290,9 @@ type AttributeSelectProps = {
   productModelId: string
   componentId: string
   attributeId: string
-  attributeCode: string
   attributeLabel: string
   selectedOption: AttributeOptionDto | null
   onSelectOption: (option: AttributeOptionDto | null) => void
-  pricingRules?: AttributePricingRuleDto[]
-  currency?: string
-}
-
-function getPriceForOption(
-  rules: AttributePricingRuleDto[],
-  componentId: string,
-  attributeCode: string,
-  optionValue: string,
-): number | null {
-  const rule = rules.find(
-    (r) =>
-      (r.componentId === componentId || r.componentId == null) &&
-      r.attributeCode === attributeCode &&
-      r.operator === "EQ" &&
-      r.value === optionValue,
-  )
-  return rule ? rule.priceDeltaCents : null
 }
 
 /** Find the pricing rule that applies to the current numeric value (EQ or BETWEEN). */
@@ -342,20 +320,11 @@ const AttributeSelect = ({
   productModelId,
   componentId,
   attributeId,
-  attributeCode,
   attributeLabel,
   selectedOption,
   onSelectOption,
-  pricingRules = [],
-  currency = "CZK",
 }: AttributeSelectProps) => {
   const t = useTranslations("Configurator")
-  const formatPrice = (cents: number) =>
-    new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 2,
-    }).format(cents / 100)
 
   const { data: options, isLoading } = useAttributeOptionsList(
     productModelId,
@@ -385,12 +354,6 @@ const AttributeSelect = ({
   }
 
   const hasImages = sortedOptions.some((o) => o.imageUrl)
-  const optionsWithPrices = sortedOptions
-    .map((opt) => {
-      const priceCents = getPriceForOption(pricingRules, componentId, attributeCode, opt.value)
-      return priceCents != null ? { opt, priceCents } : null
-    })
-    .filter((x): x is { opt: (typeof sortedOptions)[number]; priceCents: number } => x != null)
 
   return (
     <div className="space-y-2">
@@ -399,7 +362,10 @@ const AttributeSelect = ({
         role="listbox"
         aria-labelledby={`attr-${attributeId}-label`}
         aria-label={attributeLabel}
-        className={cn("flex flex-wrap gap-2", hasImages && "grid grid-cols-3 gap-3 sm:grid-cols-4")}
+        className={cn(
+          "flex flex-wrap gap-1.5",
+          hasImages && "grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6",
+        )}
       >
         <button
           type="button"
@@ -407,7 +373,7 @@ const AttributeSelect = ({
           aria-selected={selectedOption === null}
           onClick={() => onSelectOption(null)}
           className={cn(
-            "flex min-w-0 items-center justify-center rounded-lg border-2 px-3 py-2 text-sm font-medium transition-colors",
+            "flex min-w-0 items-center justify-center rounded border-2 px-2 py-1 text-xs font-medium transition-colors",
             selectedOption === null
               ? "border-primary bg-primary/10 text-primary"
               : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
@@ -426,72 +392,36 @@ const AttributeSelect = ({
               aria-selected={isSelected}
               onClick={() => onSelectOption(opt)}
               className={cn(
-                "flex min-w-0 flex-col items-center gap-1 rounded-lg border-2 transition-colors",
+                "flex min-w-0 flex-col items-center gap-0.5 rounded border-2 transition-colors",
                 isSelected
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
-                hasImages ? "overflow-hidden p-0" : "px-3 py-2 text-sm font-medium",
+                hasImages ? "overflow-hidden p-0" : "px-2 py-1 text-xs font-medium",
               )}
             >
               {hasImages && opt.imageUrl ? (
                 <>
-                  <div className="relative aspect-square w-full bg-muted">
+                  <div className="relative mx-auto aspect-square w-10 shrink-0 overflow-hidden bg-muted">
                     <Image
                       src={getImageUrlForDisplay(opt.imageUrl)}
                       alt=""
                       fill
                       className="object-contain"
                       unoptimized
+                      sizes="40px"
                     />
                   </div>
-                  <span className="w-full truncate px-2 pb-2 text-center text-xs font-medium">
+                  <span className="w-full truncate px-1 pb-1 text-center text-[10px] font-medium">
                     {opt.label}
                   </span>
                 </>
               ) : (
-                <span className="flex items-center gap-1.5 truncate text-sm font-medium">
-                  {opt.colorHex && (
-                    <span
-                      className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-border"
-                      style={{ backgroundColor: opt.colorHex }}
-                    />
-                  )}
-                  {opt.label}
-                </span>
+                <span className="truncate text-xs font-medium">{opt.label}</span>
               )}
             </button>
           )
         })}
       </div>
-      {optionsWithPrices.length > 0 && (
-        <div className="overflow-hidden rounded-md border border-border">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/50">
-                <th className="px-3 py-2 text-left font-medium text-foreground">
-                  {t("attributes.priceTableOption" as "attributes.title")}
-                </th>
-                <th className="px-3 py-2 text-right font-medium text-foreground">
-                  {t("attributes.priceTablePrice" as "attributes.title")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {optionsWithPrices.map(({ opt, priceCents }) => (
-                <tr
-                  key={opt.id}
-                  className="border-b border-border last:border-b-0"
-                >
-                  <td className="px-3 py-2 text-muted-foreground">{opt.label}</td>
-                  <td className="px-3 py-2 text-right font-medium tabular-nums">
-                    {t("attributes.optionPrice", { amount: formatPrice(priceCents) })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   )
 }

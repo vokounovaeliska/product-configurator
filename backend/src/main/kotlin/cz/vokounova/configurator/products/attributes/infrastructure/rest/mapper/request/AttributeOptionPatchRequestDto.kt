@@ -4,7 +4,6 @@ enum class AttributeOptionPatchRequestDtoPath {
     SlashValue,
     SlashLabel,
     SlashImageUrl,
-    SlashColorHex,
     SlashSortOrder,
 }
 

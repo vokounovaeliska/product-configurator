@@ -13,6 +13,7 @@ import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
+import cz.vokounova.configurator.generated.jooq.tables.ProductModelConfiguratorPreferences
 import cz.vokounova.configurator.generated.jooq.tables.User
 import cz.vokounova.configurator.generated.jooq.tables.UserRefreshToken
 import cz.vokounova.configurator.generated.jooq.tables.records.PgpArmorHeadersRecord
@@ -114,6 +115,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val PRODUCT_MODEL: ProductModel get() = ProductModel.PRODUCT_MODEL
 
     /**
+     * The table <code>public.product_model_configurator_preferences</code>.
+     */
+    val PRODUCT_MODEL_CONFIGURATOR_PREFERENCES: ProductModelConfiguratorPreferences get() = ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES
+
+    /**
      * The table <code>public.user</code>.
      */
     val USER: User get() = User.USER
@@ -135,6 +141,7 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
         CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT,
         PgpArmorHeaders.PGP_ARMOR_HEADERS,
         ProductModel.PRODUCT_MODEL,
+        ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES,
         User.USER,
         UserRefreshToken.USER_REFRESH_TOKEN
     )

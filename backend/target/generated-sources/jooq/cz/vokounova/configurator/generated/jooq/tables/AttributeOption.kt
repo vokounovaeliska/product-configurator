@@ -122,11 +122,6 @@ open class AttributeOption(
      */
     val MODIFIED_AT: TableField<AttributeOptionRecord, OffsetDateTime?> = createField(DSL.name("modified_at"), SQLDataType.TIMESTAMPWITHTIMEZONE(6).nullable(false), this, "")
 
-    /**
-     * The column <code>public.attribute_option.color_hex</code>.
-     */
-    val COLOR_HEX: TableField<AttributeOptionRecord, String?> = createField(DSL.name("color_hex"), SQLDataType.CLOB, this, "")
-
     private constructor(alias: Name, aliased: Table<AttributeOptionRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<AttributeOptionRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<AttributeOptionRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

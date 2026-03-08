@@ -32,7 +32,6 @@ fun AttributeOption.toDto(): AttributeOptionDto =
         value = value,
         label = label,
         imageUrl = imageUrl,
-        colorHex = colorHex,
         sortOrder = sortOrder,
         createdAt = createdAt,
         modifiedAt = modifiedAt,

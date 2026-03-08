@@ -12,6 +12,7 @@ import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
+import cz.vokounova.configurator.generated.jooq.tables.ProductModelConfiguratorPreferences
 import cz.vokounova.configurator.generated.jooq.tables.User
 import cz.vokounova.configurator.generated.jooq.tables.UserRefreshToken
 import cz.vokounova.configurator.generated.jooq.tables.records.AttributeDefinitionRecord
@@ -21,6 +22,7 @@ import cz.vokounova.configurator.generated.jooq.tables.records.AttributePricingR
 import cz.vokounova.configurator.generated.jooq.tables.records.ComponentDefinitionRecord
 import cz.vokounova.configurator.generated.jooq.tables.records.CustomerRequestComponentRecord
 import cz.vokounova.configurator.generated.jooq.tables.records.CustomerRequestRecord
+import cz.vokounova.configurator.generated.jooq.tables.records.ProductModelConfiguratorPreferencesRecord
 import cz.vokounova.configurator.generated.jooq.tables.records.ProductModelRecord
 import cz.vokounova.configurator.generated.jooq.tables.records.UserRecord
 import cz.vokounova.configurator.generated.jooq.tables.records.UserRefreshTokenRecord
@@ -48,6 +50,7 @@ val COMPONENT_DEFINITION_PRODUCT_MODEL_ID_CODE_KEY: UniqueKey<ComponentDefinitio
 val CUSTOMER_REQUEST_PKEY: UniqueKey<CustomerRequestRecord> = Internal.createUniqueKey(CustomerRequest.CUSTOMER_REQUEST, DSL.name("customer_request_pkey"), arrayOf(CustomerRequest.CUSTOMER_REQUEST.ID), true)
 val CUSTOMER_REQUEST_COMPONENT_PKEY: UniqueKey<CustomerRequestComponentRecord> = Internal.createUniqueKey(CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT, DSL.name("customer_request_component_pkey"), arrayOf(CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT.ID), true)
 val PRODUCT_MODEL_PKEY: UniqueKey<ProductModelRecord> = Internal.createUniqueKey(ProductModel.PRODUCT_MODEL, DSL.name("product_model_pkey"), arrayOf(ProductModel.PRODUCT_MODEL.ID), true)
+val PRODUCT_MODEL_CONFIGURATOR_PREFERENCES_PKEY: UniqueKey<ProductModelConfiguratorPreferencesRecord> = Internal.createUniqueKey(ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES, DSL.name("product_model_configurator_preferences_pkey"), arrayOf(ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.PRODUCT_MODEL_ID), true)
 val USER_EMAIL_KEY: UniqueKey<UserRecord> = Internal.createUniqueKey(User.USER, DSL.name("user_email_key"), arrayOf(User.USER.EMAIL), true)
 val USER_PKEY: UniqueKey<UserRecord> = Internal.createUniqueKey(User.USER, DSL.name("user_pkey"), arrayOf(User.USER.ID), true)
 val USER_REFRESH_TOKEN_PKEY: UniqueKey<UserRefreshTokenRecord> = Internal.createUniqueKey(UserRefreshToken.USER_REFRESH_TOKEN, DSL.name("user_refresh_token_pkey"), arrayOf(UserRefreshToken.USER_REFRESH_TOKEN.JWT_ID), true)
@@ -69,3 +72,4 @@ val COMPONENT_DEFINITION__COMPONENT_DEFINITION_PRODUCT_MODEL_ID_FKEY: ForeignKey
 val CUSTOMER_REQUEST__CUSTOMER_REQUEST_PRODUCT_MODEL_ID_FKEY: ForeignKey<CustomerRequestRecord, ProductModelRecord> = Internal.createForeignKey(CustomerRequest.CUSTOMER_REQUEST, DSL.name("customer_request_product_model_id_fkey"), arrayOf(CustomerRequest.CUSTOMER_REQUEST.PRODUCT_MODEL_ID), cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL_PKEY, arrayOf(ProductModel.PRODUCT_MODEL.ID), true)
 val CUSTOMER_REQUEST_COMPONENT__CUSTOMER_REQUEST_COMPONENT_REQUEST_ID_FKEY: ForeignKey<CustomerRequestComponentRecord, CustomerRequestRecord> = Internal.createForeignKey(CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT, DSL.name("customer_request_component_request_id_fkey"), arrayOf(CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT.REQUEST_ID), cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST_PKEY, arrayOf(CustomerRequest.CUSTOMER_REQUEST.ID), true)
 val PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY: ForeignKey<ProductModelRecord, UserRecord> = Internal.createForeignKey(ProductModel.PRODUCT_MODEL, DSL.name("product_model_user_id_fkey"), arrayOf(ProductModel.PRODUCT_MODEL.USER_ID), cz.vokounova.configurator.generated.jooq.keys.USER_PKEY, arrayOf(User.USER.ID), true)
+val PRODUCT_MODEL_CONFIGURATOR_PREFERENCES__PRODUCT_MODEL_CONFIGURATOR_PREFERENCES_PRODUCT_MODEL_ID_FKEY: ForeignKey<ProductModelConfiguratorPreferencesRecord, ProductModelRecord> = Internal.createForeignKey(ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES, DSL.name("product_model_configurator_preferences_product_model_id_fkey"), arrayOf(ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES.PRODUCT_MODEL_ID), cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL_PKEY, arrayOf(ProductModel.PRODUCT_MODEL.ID), true)

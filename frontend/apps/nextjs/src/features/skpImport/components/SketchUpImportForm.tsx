@@ -15,32 +15,30 @@ import { useSkpImport } from "../api/skpImportQueries"
 export const SketchUpImportForm = () => {
   const t = useTranslations("SketchUpImport")
   const router = useRouter()
-  const [skpFile, setSkpFile] = useState<File | null>(null)
-  const [glbFile, setGlbFile] = useState<File | null>(null)
+  const [configuratorZip, setConfiguratorZip] = useState<File | null>(null)
   const [productName, setProductName] = useState("")
 
   const importMutation = useSkpImport()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!skpFile || !glbFile) return
+    if (!configuratorZip) return
 
     try {
       const result = await importMutation.mutateAsync({
-        skpFile,
-        glbFile,
-        productName: productName.trim() || undefined,
+        configuratorZip,
+        productName: productName.trim() ? productName.trim() : undefined,
       })
 
       if (result.success && result.productModelId) {
-        router.push(ROUTES.setupPricingRules(result.productModelId))
+        router.push(ROUTES.configurator(result.productModelId))
       }
     } catch {
       // Error is handled by mutation
     }
   }
 
-  const isDisabled = !skpFile || !glbFile || importMutation.isPending
+  const isDisabled = !configuratorZip || importMutation.isPending
 
   return (
     <form
@@ -66,23 +64,20 @@ export const SketchUpImportForm = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="skpFile">{t("form.skpFile")}</Label>
+        <Label htmlFor="configuratorZip">{t("form.configuratorZip")}</Label>
         <Input
-          id="skpFile"
+          id="configuratorZip"
           type="file"
-          accept=".skp"
-          onChange={(e) => setSkpFile(e.target.files?.[0] ?? null)}
+          accept=".zip"
+          onChange={(e) => setConfiguratorZip(e.target.files?.[0] ?? null)}
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="glbFile">{t("form.glbFile")}</Label>
-        <Input
-          id="glbFile"
-          type="file"
-          accept=".glb"
-          onChange={(e) => setGlbFile(e.target.files?.[0] ?? null)}
-        />
+        <Typography
+          as="p"
+          variant="body-sm"
+          className="text-muted-foreground"
+        >
+          {t("form.configuratorZipHint")}
+        </Typography>
       </div>
 
       {importMutation.isError && (

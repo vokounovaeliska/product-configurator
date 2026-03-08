@@ -97,8 +97,6 @@ export type AttributeOptionDto = {
   value: string
   label: string
   imageUrl: string | null
-  /** Hex color for 3D material (e.g. "#C49A6C"). Null when not set. */
-  colorHex: string | null
   /** Format: int32 */
   sortOrder: number
   /** Format: date-time */
@@ -111,12 +109,11 @@ export type AttributeOptionCreateRequestDto = {
   value: string
   label: string
   imageUrl?: string | null
-  colorHex?: string | null
   sortOrder?: number | null
 }
 
 export type AttributeOptionPatchRequestDto = {
-  path: "SlashValue" | "SlashLabel" | "SlashImageUrl" | "SlashColorHex" | "SlashSortOrder"
+  path: "SlashValue" | "SlashLabel" | "SlashImageUrl" | "SlashSortOrder"
   value: unknown
   op: "Replace"
 }

@@ -237,7 +237,8 @@ object SkpParameterExtractor {
                     val label = sanitizeLabel(rawLabel, name)
                     val options =
                         when {
-                            name.startsWith("color") && paramOptions[name].isNullOrEmpty() -> materials
+                            (name.startsWith("color") || name.endsWith("_color")) &&
+                                paramOptions[name].isNullOrEmpty() -> materials
                             else -> paramOptions[name] ?: parseOptionsFromMeta(meta["options"])
                         }
                     SkpParameter(
@@ -317,7 +318,12 @@ object SkpParameterExtractor {
                 else -> trimmed
             }
         }
-        if (paramName.contains("diameter") || paramName.contains("thickness") || paramName.contains("len")) {
+        if (
+            paramName.contains("diameter") ||
+            paramName.contains("thickness") ||
+            paramName.contains("len") ||
+            paramName in setOf("width", "depth", "height", "sirka", "hloubka", "vyska")
+        ) {
             return "mm"
         }
         return ""
@@ -339,16 +345,26 @@ object SkpParameterExtractor {
 
     private fun extractParamNames(text: String): List<String> {
         val found = mutableSetOf<String>()
+        // Universal dimension params: diameter/thickness, X_thickness, width, depth, height, etc.
         val dimensionParams =
             Pattern.compile(
-                "(?<![a-zA-Z0-9_])(diameter_top|diameter|thickness_top|thickness|lenx|leny|lenz|prumer)(?![a-zA-Z0-9_])",
+                "(?<![a-zA-Z0-9_])" +
+                    "(diameter_[a-z0-9_]+|diameter|thickness_[a-z0-9_]+|[a-z0-9_]+_thickness|thickness|" +
+                    "width|depth|height|sirka|hloubka|vyska|lenx|leny|lenz|prumer|tloustka)" +
+                    "(?![a-zA-Z0-9_])",
             )
         val matcher = dimensionParams.matcher(text)
         while (matcher.find()) {
             found.add(matcher.group(1)!!.lowercase())
         }
+        // color_X, X_color, barva_X, and any param with _label, _units, etc.
         val underscorePattern =
             Pattern.compile("_([a-z][a-z0-9_]+?)_(?:label|units|formulaunits|formlabel|options)")
+        val colorSuffixPattern = Pattern.compile("(?<![a-zA-Z0-9_])([a-z0-9_]+_color)(?![a-zA-Z0-9_])")
+        val colorMatcher = colorSuffixPattern.matcher(text)
+        while (colorMatcher.find()) {
+            found.add(colorMatcher.group(1)!!.lowercase())
+        }
         val matcher2 = underscorePattern.matcher(text)
         while (matcher2.find()) {
             val name = matcher2.group(1)
@@ -362,6 +378,18 @@ object SkpParameterExtractor {
     private fun decodeWithReplacements(bytes: ByteArray): String = String(bytes, Charset.forName("ISO-8859-1"))
 }
 
+/** Effect of a parameter on a mesh node (from SketchUp plugin parameters.json). */
+data class SkpParameterEffect(
+    val meshNode: String,
+    val type: String,
+    val axis: String? = null,
+    val multiplier: Double? = null,
+    /** Param to subtract from value (e.g. LenY in (parent!height-LenY)/2). */
+    val subtractParam: String? = null,
+    /** Constant offset in cm (e.g. -1 inch → -2.54 in parent!width-LenX-1). */
+    val offsetCm: Double? = null,
+)
+
 data class SkpParameter(
     val name: String,
     val label: String,
@@ -372,6 +400,12 @@ data class SkpParameter(
     val effect: String? = null,
     /** Option values for ENUM params (e.g. color_TOP → ["oak","black","white"]). From _options metadata. */
     val options: List<String> = emptyList(),
+    /** Effects from parameters.json: one param can affect multiple mesh nodes. */
+    val effects: List<SkpParameterEffect> = emptyList(),
+    /** Default from SketchUp (parameters.json). Used for 3D preview initial state. */
+    val defaultDouble: Double? = null,
+    val minDouble: Double? = null,
+    val maxDouble: Double? = null,
 )
 
 data class SkpParameterExtractionResult(
@@ -386,6 +420,18 @@ data class SkpParameterExtractionResult(
     val materialColors: Map<String, String> = emptyMap(),
     /** Material name → (texture bytes, extension) for PNG/JPG textures. */
     val materialTextures: Map<String, Pair<ByteArray, String>> = emptyMap(),
+    /** Attribute code → effects (from parameters.json). Used by ModelViewer3D for one-to-many mapping. */
+    val model3dEffects: Map<String, List<SkpParameterEffect>> = emptyMap(),
+    /**
+     * Per-component transforms: meshName → { x, y, z, lenx, leny, lenz, material, ... }.
+     * Each value is either a number (cm) or a formula string like "=(parent!height-LenY)/2".
+     */
+    val componentTransforms: Map<String, Map<String, Any?>> = emptyMap(),
+    /**
+     * Attribute code → default value for formula resolution when config is not yet loaded.
+     * Keys match attribute codes (e.g. WIDTH, HEIGHT).
+     */
+    val parameterDefaults: Map<String, Double> = emptyMap(),
     val error: String? = null,
 ) {
     val isSuccess: Boolean get() = error == null

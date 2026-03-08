@@ -275,7 +275,7 @@ export const CreatePricingRuleDialog = ({
                               key={a.id}
                               value={a.code}
                             >
-                              {a.label ?? a.code} ({a.code})
+                              {a.label ?? a.code}
                             </Select.Content.Item>
                           ))}
                         </Select.Content>

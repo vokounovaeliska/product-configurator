@@ -9,6 +9,7 @@ data class ProductModelExternalDto(
     val price: Double,
     val currency: String,
     val model3dUrl: String?,
+    val model3dEffects: String? = null,
     val url: String?,
     val isPublished: Boolean,
 )

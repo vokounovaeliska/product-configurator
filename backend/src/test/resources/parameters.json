@@ -1,0 +1,510 @@
+{
+  "parameters": [
+    {
+      "name": "bottom_lenx",
+      "label": "bottom LenX",
+      "unit": "cm",
+      "default": 117.90000000000002,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "bottom",
+          "type": "scale",
+          "axis": "x"
+        }
+      ]
+    },
+    {
+      "name": "bottom_leny",
+      "label": "bottom LenY",
+      "unit": "cm",
+      "default": 77.9,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "bottom",
+          "type": "scale",
+          "axis": "y"
+        }
+      ]
+    },
+    {
+      "name": "bottom_lenz",
+      "label": "bottom LenZ",
+      "unit": "cm",
+      "default": 1.9999999999999998,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "bottom",
+          "type": "scale",
+          "axis": "z"
+        }
+      ]
+    },
+    {
+      "name": "material",
+      "label": "Material",
+      "unit": "",
+      "default": null,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "bottom",
+          "type": "material"
+        },
+        {
+          "meshNode": "top",
+          "type": "material"
+        },
+        {
+          "meshNode": "leg1",
+          "type": "material"
+        },
+        {
+          "meshNode": "leg2",
+          "type": "material"
+        }
+      ]
+    },
+    {
+      "name": "top_lenx",
+      "label": "top LenX",
+      "unit": "cm",
+      "default": 120.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "top",
+          "type": "scale",
+          "axis": "x"
+        }
+      ]
+    },
+    {
+      "name": "top_leny",
+      "label": "top LenY",
+      "unit": "cm",
+      "default": 80.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "top",
+          "type": "scale",
+          "axis": "y"
+        }
+      ]
+    },
+    {
+      "name": "top_lenz",
+      "label": "top LenZ",
+      "unit": "cm",
+      "default": 3.9999999999999996,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "top",
+          "type": "scale",
+          "axis": "z"
+        }
+      ]
+    },
+    {
+      "name": "leg1_lenx",
+      "label": "leg1 LenX",
+      "unit": "cm",
+      "default": 6.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "leg1",
+          "type": "scale",
+          "axis": "x"
+        }
+      ]
+    },
+    {
+      "name": "leg1_leny",
+      "label": "leg1 LenY",
+      "unit": "cm",
+      "default": 78.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "leg1",
+          "type": "scale",
+          "axis": "y"
+        }
+      ]
+    },
+    {
+      "name": "leg1_lenz",
+      "label": "leg1 LenZ",
+      "unit": "cm",
+      "default": 55.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "leg1",
+          "type": "scale",
+          "axis": "z"
+        }
+      ]
+    },
+    {
+      "name": "leg2_lenx",
+      "label": "leg2 LenX",
+      "unit": "cm",
+      "default": 6.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "leg2",
+          "type": "scale",
+          "axis": "x"
+        }
+      ]
+    },
+    {
+      "name": "leg2_leny",
+      "label": "leg2 LenY",
+      "unit": "cm",
+      "default": 78.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "leg2",
+          "type": "scale",
+          "axis": "y"
+        }
+      ]
+    },
+    {
+      "name": "leg2_lenz",
+      "label": "leg2 LenZ",
+      "unit": "cm",
+      "default": 55.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "leg2",
+          "type": "scale",
+          "axis": "z"
+        }
+      ]
+    },
+    {
+      "name": "bottom_color",
+      "label": "bottom_color",
+      "unit": "STRING",
+      "default": null,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "bottom",
+          "type": "material"
+        }
+      ]
+    },
+    {
+      "name": "bottom_thickness",
+      "label": "bottom_thickness",
+      "unit": "cm",
+      "default": 1.9999999999999998,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+
+      ]
+    },
+    {
+      "name": "depth",
+      "label": "depth",
+      "unit": "cm",
+      "default": 80.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "top",
+          "type": "scale",
+          "axis": "z"
+        },
+        {
+          "meshNode": "bottom",
+          "type": "scale",
+          "axis": "z"
+        },
+        {
+          "meshNode": "leg2",
+          "type": "position",
+          "axis": "z",
+          "multiplier": 1.0,
+          "offsetCm": -5.08
+        },
+        {
+          "meshNode": "bottom",
+          "type": "position",
+          "axis": "z",
+          "multiplier": 1.0,
+          "offsetCm": -5.3340000000000005
+        },
+        {
+          "meshNode": "leg1",
+          "type": "position",
+          "axis": "z",
+          "multiplier": 1.0,
+          "offsetCm": -5.08
+        }
+      ]
+    },
+    {
+      "name": "height",
+      "label": "height",
+      "unit": "cm",
+      "default": 55.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "Skupina",
+          "type": "scale",
+          "axis": "y"
+        },
+        {
+          "meshNode": "leg2",
+          "type": "scale",
+          "axis": "y"
+        },
+        {
+          "meshNode": "leg1",
+          "type": "scale",
+          "axis": "y"
+        }
+      ]
+    },
+    {
+      "name": "legs_color",
+      "label": "legs_color",
+      "unit": "STRING",
+      "default": null,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "leg2",
+          "type": "material"
+        },
+        {
+          "meshNode": "leg1",
+          "type": "material"
+        }
+      ]
+    },
+    {
+      "name": "top_color",
+      "label": "top_color",
+      "unit": "STRING",
+      "default": null,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "top",
+          "type": "material"
+        }
+      ]
+    },
+    {
+      "name": "top_thickness",
+      "label": "top_thickness",
+      "unit": "cm",
+      "default": 3.9999999999999996,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+
+      ]
+    },
+    {
+      "name": "width",
+      "label": "width",
+      "unit": "cm",
+      "default": 120.0,
+      "min": null,
+      "max": null,
+      "options": [
+
+      ],
+      "effects": [
+        {
+          "meshNode": "top",
+          "type": "scale",
+          "axis": "x"
+        },
+        {
+          "meshNode": "bottom",
+          "type": "scale",
+          "axis": "x"
+        },
+        {
+          "meshNode": "bottom",
+          "type": "position",
+          "axis": "x",
+          "multiplier": 1.0,
+          "offsetCm": -5.3340000000000005
+        }
+      ]
+    }
+  ],
+  "components": [
+    "Skupina#1",
+    "bottom",
+    "leg1",
+    "leg2",
+    "top"
+  ],
+  "componentTransforms": {
+    "Skupina": {
+      "width": "=width",
+      "height": "=height",
+      "depth": "=depth"
+    },
+    "leg2": {
+      "x": "=parent!width-LenX-1",
+      "y": 0.9999999999999999,
+      "z": "=0",
+      "lenx": 6.0,
+      "leny": 78.0,
+      "lenz": 55.0,
+      "material": "MS_SL_black_rough9005",
+      "_parent": "Skupina"
+    },
+    "top": {
+      "x": "=0",
+      "y": 0.0,
+      "z": "=parent!height",
+      "lenx": 120.0,
+      "leny": 80.0,
+      "lenz": 3.9999999999999996,
+      "material": "oak",
+      "_parent": "Skupina"
+    },
+    "bottom": {
+      "x": "=1.05",
+      "y": "=1.05",
+      "z": "=parent!height/2-2",
+      "lenx": 117.90000000000002,
+      "leny": 77.9,
+      "lenz": 1.9999999999999998,
+      "material": "oak",
+      "_parent": "Skupina"
+    },
+    "leg1": {
+      "x": "=1",
+      "y": "=(parent! depth-LenY)/2",
+      "z": "=0",
+      "lenx": 6.0,
+      "leny": 78.0,
+      "lenz": 55.0,
+      "material": "MS_SL_black_rough9005",
+      "_parent": "Skupina"
+    }
+  },
+  "materialColors": {
+  },
+  "materials": {
+    "MS_SL_black_rough9005": {
+      "texturePath": "materials/MS_SL_black_rough9005.png"
+    },
+    "oak": {
+      "texturePath": "materials/oak.png"
+    },
+    "oak2": {
+      "texturePath": "materials/oak2.png"
+    },
+    "MS_SL_oak_graphite": {
+      "texturePath": "materials/MS_SL_oak_graphite.png"
+    },
+    "MS_SL_oak_natur3041": {
+      "texturePath": "materials/MS_SL_oak_natur3041.png"
+    },
+    "white": {
+      "texturePath": "materials/white.png"
+    }
+  }
+}
