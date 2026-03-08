@@ -1,12 +1,16 @@
+import { DownloadIcon } from "lucide-react"
 import type { Metadata } from "next"
 import { type Locale } from "next-intl"
 import { getTranslations } from "next-intl/server"
+import { Button } from "@workspace/ui/components/button"
 import { Typography } from "@workspace/ui/components/typography"
 
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 import { env } from "@/config/env"
 
 import { SketchUpImportForm } from "@/features/skpImport/components/SketchUpImportForm"
+
+const PLUGIN_DOWNLOAD_URL = "/downloads/configurator_dc_export.rbz"
 
 type Props = {
   params: Promise<{ locale: Locale }>
@@ -54,10 +58,32 @@ const SketchUpImportPage = async (props: Props) => {
         <Typography
           as="p"
           variant="body-lg"
-          className="text-muted-foreground"
+          className="mb-4 text-muted-foreground"
         >
           {t("description")}
         </Typography>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+          >
+            <a
+              href={PLUGIN_DOWNLOAD_URL}
+              download="configurator_dc_export.rbz"
+            >
+              <DownloadIcon className="mr-2 size-4" />
+              {t("downloadPlugin")}
+            </a>
+          </Button>
+          <Typography
+            as="span"
+            variant="body-sm"
+            className="text-muted-foreground"
+          >
+            {t("downloadPluginHint")}
+          </Typography>
+        </div>
       </div>
       <SketchUpImportForm />
     </div>

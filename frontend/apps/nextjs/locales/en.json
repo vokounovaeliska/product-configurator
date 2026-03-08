@@ -169,7 +169,10 @@
         "rawJson": "Raw JSON",
         "message": "Customer message",
         "openFullPage": "Detail",
-        "backToList": "Back to inquiries"
+        "backToList": "Back to inquiries",
+        "userChoices": "User choices",
+        "dimensions": "Component dimensions",
+        "dimensionsComponent": "Component"
       }
     },
     "title": "Setup",
@@ -181,25 +184,28 @@
       "howItWorks": "How it works",
       "howItWorksDescription": "Get your product configurator up and running in four steps.",
       "step1Title": "Create or import a product",
-      "step1Description": "Import from SketchUp (.skp + .glb) for automatic setup, or create a product model manually.",
+      "step1Description": "Upload the configurator zip from the SketchUp plugin (Plugins → Configurator → Export) to auto-create a product with components and attributes, or create a model manually.",
       "step2Title": "Configure attributes & options",
       "step2Description": "Define what customers can choose: colors, sizes, materials. Set up components and their attributes.",
       "step3Title": "Set pricing rules",
       "step3Description": "Define how each option affects the price — fixed amounts or per-unit increments.",
       "step4Title": "Publish & embed",
-      "step4Description": "Set the embed URL, publish, and copy the iframe code to place the configurator on your website.",
+      "step4Description": "Set the embed URL, publish the product, and copy the iframe code to embed the configurator on your website.",
       "quickActions": "Quick actions",
       "importAction": "Import from SketchUp",
       "importDescription": "Upload .skp and .glb files to auto-create a product with components and attributes.",
       "requestsAction": "Inquiries",
       "requestsDescription": "View quote inquiries submitted through your embedded configurator.",
       "tipTitle": "Tip: 3D model preparation",
-      "tipBody": "Export your SketchUp model as .glb (File > Export > glTF). Use Dynamic Components for configurable parameters (colors, dimensions). The app extracts parameters automatically from the .skp file during import."
+      "tipBody": "Use the SketchUp plugin (Plugins → Configurator → Export for Configurator). The plugin exports model.glb, parameters.json, and materials into a single zip file. Use Dynamic Components for configurable parameters (colors, dimensions).",
+      "downloadPlugin": "Download SketchUp plugin"
     }
   },
   "SketchUpImport": {
     "title": "Import from SketchUp",
     "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Configurator → Export). The zip contains the 3D model, parameters, and materials. After import, set prices and preview in the configurator.",
+    "downloadPlugin": "Download SketchUp plugin",
+    "downloadPluginHint": "Don't have the plugin yet? Download the .rbz file and install it in SketchUp via Extensions → Extension Manager → Install Extension.",
     "form": {
       "productName": "Product name",
       "productNamePlaceholder": "Optional – defaults to zip filename",
@@ -369,12 +375,23 @@
       "selectComponent": "Select a component to see its preview.",
       "selectOptions": "Select options below to see the preview.",
       "loadError": "Failed to load preview.",
-      "loading3d": "Loading 3D model…"
+      "loading3d": "Loading 3D model…",
+      "contextLost": "3D view unavailable. WebGL context was lost.",
+      "retry": "Retry"
     },
     "previewSettings": {
       "title": "Preview settings",
-      "description": "Configure the default zoom level for the 3D preview. This applies to both the configurator and the embed iframe.",
+      "description": "Configure the default zoom level and background for the 3D preview. This applies to both the configurator and the embed iframe.",
       "zoomLabel": "Zoom level",
+      "backgroundLabel": "Background",
+      "backgroundPresets": {
+        "lightGray": "Light gray",
+        "white": "White",
+        "gray": "Gray",
+        "dark": "Dark",
+        "warm": "Warm",
+        "floorWall": "Floor & wall photo"
+      },
       "save": "Save",
       "saving": "Saving…",
       "loadError": "Log in to load and save preview settings."
@@ -393,6 +410,8 @@
       "editButton": "Edit",
       "imageZIndex": "Image z-index",
       "manageOptionsButton": "Manage options",
+      "moveDown": "Move down",
+      "moveUp": "Move up",
       "sortOrder": "Sort Order"
     },
     "create": {
@@ -494,7 +513,11 @@
       "operatorEq": "Equals",
       "operatorBetween": "Range",
       "deleteButton": "Delete",
-      "editButton": "Edit"
+      "editButton": "Edit",
+      "paginationInfo": "{{from}}–{{to}} of {{total}}",
+      "paginationPrev": "Previous",
+      "paginationNext": "Next",
+      "paginationPage": "{{current}} / {{total}}"
     },
     "create": {
       "title": "Add pricing rule",
@@ -579,6 +602,8 @@
       "deleteButton": "Delete",
       "editButton": "Edit",
       "manageOptionsButton": "Manage options",
+      "moveDown": "Move down",
+      "moveUp": "Move up",
       "pricingButton": "Pricing",
       "required": "Required",
       "range": "Range",
@@ -713,7 +738,9 @@
       "sortOrder": "Order",
       "deleteButton": "Delete",
       "editButton": "Edit",
-      "editImageButton": "Edit image"
+      "editImageButton": "Edit image",
+      "moveDown": "Move down",
+      "moveUp": "Move up"
     },
     "create": {
       "title": "Add Option",

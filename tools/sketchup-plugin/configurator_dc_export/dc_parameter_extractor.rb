@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Copyright (c) Vokounova Eliska
+# SPDX-License-Identifier: MIT
+
 require "json"
 require "fileutils"
 

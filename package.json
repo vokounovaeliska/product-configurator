@@ -17,7 +17,8 @@
     "backend:migrate": "cd backend && export $(cat .env 2>/dev/null | grep -v '^#' | xargs) && ./mvnw flyway:migrate -Dflyway.url=\"${DB_URL}\" -Dflyway.user=\"${DB_USERNAME}\" -Dflyway.password=\"${DB_PASSWORD}\" && ./mvnw jooq-codegen:generate -Djooq.url=\"${DB_URL}\" -Djooq.user=\"${DB_USERNAME}\" -Djooq.password=\"${DB_PASSWORD}\"",
     "backend:dev": "cd backend && export $(cat .env 2>/dev/null | grep -v '^#' | xargs) && ./mvnw spring-boot:run -Dskip.flyway.migration=true -Dskip.jooq.generation=true",
     "frontend:dev": "cd frontend/apps/nextjs && pnpm dev",
-    "api:generate": "cd frontend/apps/nextjs && pnpm generate:api"
+    "api:generate": "cd frontend/apps/nextjs && pnpm generate:api",
+    "plugin:package": "cd tools/sketchup-plugin && bash package.sh && mkdir -p ../../frontend/apps/nextjs/public/downloads && cp configurator_dc_export.rbz ../../frontend/apps/nextjs/public/downloads/"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
