@@ -7,9 +7,9 @@ import { getAllAttributesForProductModelQueryOptions } from "@/api/attributeQuer
 import type { AttributeDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 
+/* eslint-disable import/no-restricted-paths -- request config needs components, configurator types and parametric pipeline */
 import { useComponentsList } from "@/features/components/api/componentQueries"
 import type { Model3dConfig } from "@/features/configurator/types/model3dConfig"
-/* eslint-disable import/no-restricted-paths -- request config needs parametric pipeline and product model data */
 import type { ComponentTransform } from "@/features/configurator/utils/parametricTransformPipeline"
 import {
   computeResolvedDimensions,

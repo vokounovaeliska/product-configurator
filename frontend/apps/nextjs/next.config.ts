@@ -1,7 +1,10 @@
 /* eslint-disable */
-import type {NextConfig} from "next"
+import path from "path"
+import { fileURLToPath } from "url"
+import type { NextConfig } from "next"
 import createNextIntlPlugin from "next-intl/plugin"
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const restApiUrl = process.env.NEXT_PUBLIC_REST_API_URL
 const restHost = restApiUrl ? new URL(restApiUrl).hostname : null
 const restPatterns =
@@ -13,6 +16,7 @@ const restPatterns =
     : []
 
 const nextConfig = {
+    outputFileTracingRoot: path.resolve(__dirname, "../../.."),
     transpilePackages: ["@workspace/ui"],
     images: {
       remotePatterns: [
