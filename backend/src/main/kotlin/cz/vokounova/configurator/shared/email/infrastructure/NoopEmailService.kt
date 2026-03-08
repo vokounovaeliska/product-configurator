@@ -16,11 +16,13 @@ class NoopEmailService : EmailService {
         subject: String,
         bodyHtml: String,
         bodyText: String?,
+        replyTo: String?,
     ) {
         log.info(
-            "Email (noop): to={}, subject={}, bodyLength={}. Configure spring.mail to send real emails.",
+            "Email (noop): to={}, subject={}, replyTo={}, bodyLength={}. Configure spring.mail to send real emails.",
             to,
             subject,
+            replyTo,
             bodyHtml.length,
         )
     }

@@ -14,12 +14,29 @@ class CustomerRequestEmailNotificationService(
     private val emailService: EmailService,
 ) {
     @Async
-    fun sendConfirmationEmail(request: CustomerRequest) {
+    fun sendConfirmationEmail(
+        request: CustomerRequest,
+        replyTo: String?,
+    ) {
         emailService.send(
             to = request.customerEmail,
             subject = CustomerRequestConfirmationEmail.subject(request),
             bodyHtml = CustomerRequestConfirmationEmail.bodyHtml(request),
             bodyText = CustomerRequestConfirmationEmail.bodyText(request),
+            replyTo = replyTo,
+        )
+    }
+
+    @Async
+    fun sendSupplierNotification(
+        request: CustomerRequest,
+        supplierEmail: String,
+    ) {
+        emailService.send(
+            to = supplierEmail,
+            subject = SupplierRequestNotificationEmail.subject(request),
+            bodyHtml = SupplierRequestNotificationEmail.bodyHtml(request),
+            bodyText = SupplierRequestNotificationEmail.bodyText(request),
         )
     }
 }

@@ -35,6 +35,11 @@ class ProductConfigQueryService(
         return model.isPublished
     }
 
+    override fun getProductOwnerId(productModelId: UUID): UUID {
+        val model = productModelAPI.getOne(ProductModelId(productModelId))
+        return model.userId.value
+    }
+
     override fun getFullConfigByProductUrl(url: String): FullProductConfigDto {
         val product =
             productModelAPI.getPublishedByUrl(url)

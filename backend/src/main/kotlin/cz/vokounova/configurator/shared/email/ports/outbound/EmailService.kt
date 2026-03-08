@@ -13,5 +13,6 @@ interface EmailService {
         subject: String,
         bodyHtml: String,
         bodyText: String?,
+        replyTo: String? = null,
     )
 }

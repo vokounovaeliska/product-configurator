@@ -287,6 +287,14 @@
       "urlError": "Use only lowercase letters, numbers and hyphens (e.g. my-product)",
       "suggestUrl": "Generate URL from product name",
       "saveUrl": "Save URL",
+      "ordersEmail": {
+        "label": "Email for notifications",
+        "placeholder": "supplier@company.com",
+        "hint": "Customer request confirmations will use this as Reply-To, and new requests will be sent to this address. Leave empty to use your account email.",
+        "invalid": "Enter a valid email address",
+        "save": "Save notification email",
+        "saving": "Saving…"
+      },
       "embedCodeTitle": "Embed code",
       "copyEmbed": "Copy iframe",
       "copied": "Copied!",

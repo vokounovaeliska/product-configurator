@@ -9,6 +9,7 @@ import cz.vokounova.configurator.customerrequest.ports.outbound.CustomerRequestR
 import cz.vokounova.configurator.generated.jooq.enums.RequestStatus
 import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
+import cz.vokounova.configurator.users.api.UserFacade
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -20,6 +21,7 @@ class CustomerRequestAPIManager(
     private val customerRequestRepository: CustomerRequestRepository,
     private val productConfigQueryFacade: ProductConfigQueryFacade,
     private val emailNotificationService: CustomerRequestEmailNotificationService,
+    private val userFacade: UserFacade,
 ) : CustomerRequestAPI {
     @Transactional
     override fun create(params: CustomerRequestCreateParams): CustomerRequest {
@@ -49,7 +51,12 @@ class CustomerRequestAPIManager(
         val created =
             customerRequestRepository.create(request)
                 ?: throw IllegalStateException("Failed to create customer request")
-        emailNotificationService.sendConfirmationEmail(created)
+        val ownerId = productConfigQueryFacade.getProductOwnerId(params.productModelId)
+        val owner = userFacade.getUser(UserIdDto(ownerId), lock = false)
+        val supplierEmail = owner.supplierNotificationEmail ?: owner.email
+
+        emailNotificationService.sendConfirmationEmail(created, replyTo = supplierEmail)
+        emailNotificationService.sendSupplierNotification(created, supplierEmail = supplierEmail)
         return created
     }
 

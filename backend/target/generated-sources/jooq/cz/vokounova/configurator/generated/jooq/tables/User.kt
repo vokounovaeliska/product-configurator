@@ -124,6 +124,11 @@ open class User(
      */
     val SEARCH_VECTOR: TableField<UserRecord, String?> = createField(DSL.name("search_vector"), SQLDataType.CLOB, this, "")
 
+    /**
+     * The column <code>public.user.supplier_notification_email</code>.
+     */
+    val SUPPLIER_NOTIFICATION_EMAIL: TableField<UserRecord, String?> = createField(DSL.name("supplier_notification_email"), SQLDataType.CLOB, this, "")
+
     private constructor(alias: Name, aliased: Table<UserRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<UserRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<UserRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

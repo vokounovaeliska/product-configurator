@@ -16,6 +16,8 @@ import {
   usePatchConfiguratorPreferences,
 } from "@/api/configuratorPreferencesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
+import { useCurrentUser, usePatchCurrentUser } from "@/api/userQueries"
+import type { UserPatchRequestDto } from "@/api/userTypes"
 import { env } from "@/config/env"
 import { ROUTES } from "@/lib/routes"
 import { extractErrorMessage } from "@/lib/utils"
@@ -25,6 +27,7 @@ import { useUpdateProductModel } from "../api/productModelQueries"
 const isEmbedDisplayDefault = true
 
 const URL_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const EMAIL_PATTERN = /^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$/
 
 const toUrlPath = (name: string): string =>
   name
@@ -44,10 +47,14 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const [url, setUrl] = useState(productModel.url ?? toUrlPath(productModel.name))
   const [isCopied, setIsCopied] = useState(false)
   const [embedDisplaySaveError, setEmbedDisplaySaveError] = useState<string | null>(null)
+  const [ordersEmailSaveError, setOrdersEmailSaveError] = useState<string | null>(null)
+  const [ordersRecipientEmail, setOrdersRecipientEmail] = useState("")
 
   const updateProductModel = useUpdateProductModel()
   const { data: preferences } = useConfiguratorPreferences(productModel.id)
   const patchPreferences = usePatchConfiguratorPreferences(productModel.id)
+  const { data: currentUser } = useCurrentUser()
+  const patchCurrentUser = usePatchCurrentUser()
 
   const isEmbedProductNameShownFromServer =
     preferences?.embedShowProductName ?? isEmbedDisplayDefault
@@ -78,6 +85,10 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     preferences?.embedShowDescription,
     preferences?.embedShowComponents,
   ])
+
+  useEffect(() => {
+    setOrdersRecipientEmail(currentUser?.supplierNotificationEmail ?? "")
+  }, [currentUser?.supplierNotificationEmail])
 
   const isUrlValid = url === "" || URL_PATTERN.test(url)
   const isUrlError = url !== "" && !isUrlValid
@@ -149,6 +160,11 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     shouldShowProductNameInEmbed !== isEmbedProductNameShownFromServer ||
     shouldShowDescriptionInEmbed !== isEmbedDescriptionShownFromServer ||
     shouldShowComponentsInEmbed !== isEmbedComponentsShownFromServer
+  const ordersEmailFromServer = currentUser?.supplierNotificationEmail ?? ""
+  const trimmedOrdersRecipientEmail = ordersRecipientEmail.trim()
+  const isOrdersEmailValid =
+    trimmedOrdersRecipientEmail.length === 0 || EMAIL_PATTERN.test(trimmedOrdersRecipientEmail)
+  const hasOrdersEmailChanged = trimmedOrdersRecipientEmail !== ordersEmailFromServer
 
   const handleSaveEmbedDisplay = useCallback(() => {
     if (!hasEmbedDisplayChanged) return
@@ -172,6 +188,39 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     shouldShowDescriptionInEmbed,
     shouldShowComponentsInEmbed,
     patchPreferences,
+  ])
+
+  const handleSaveOrdersEmail = useCallback(() => {
+    if (!currentUser?.id || !isOrdersEmailValid || !hasOrdersEmailChanged) return
+
+    const patchValue = trimmedOrdersRecipientEmail.length > 0 ? trimmedOrdersRecipientEmail : null
+    const patches: UserPatchRequestDto[] = [
+      {
+        path: "SlashSupplierNotificationEmail",
+        op: "Replace",
+        value: patchValue,
+      },
+    ]
+
+    setOrdersEmailSaveError(null)
+    patchCurrentUser.mutate(
+      {
+        userId: currentUser.id,
+        patches,
+      },
+      {
+        onSuccess: () => setOrdersEmailSaveError(null),
+        onError: (error) => {
+          void extractErrorMessage(error).then(setOrdersEmailSaveError)
+        },
+      },
+    )
+  }, [
+    currentUser?.id,
+    hasOrdersEmailChanged,
+    isOrdersEmailValid,
+    patchCurrentUser,
+    trimmedOrdersRecipientEmail,
   ])
 
   return (
@@ -273,6 +322,52 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
             >
               {t("urlHint")}
             </Typography>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="orders-email-input">{t("ordersEmail.label")}</Label>
+            <Input
+              id="orders-email-input"
+              value={ordersRecipientEmail}
+              onChange={(e) => setOrdersRecipientEmail(e.target.value)}
+              placeholder={t("ordersEmail.placeholder")}
+              className={cn(!isOrdersEmailValid && "border-destructive")}
+              disabled={patchCurrentUser.isPending || !currentUser?.id}
+            />
+            {!isOrdersEmailValid && (
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="text-destructive"
+              >
+                {t("ordersEmail.invalid")}
+              </Typography>
+            )}
+            <Typography
+              as="p"
+              variant="body-sm"
+              className="text-muted-foreground"
+            >
+              {t("ordersEmail.hint")}
+            </Typography>
+            {ordersEmailSaveError && (
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="text-destructive"
+              >
+                {ordersEmailSaveError}
+              </Typography>
+            )}
+            {hasOrdersEmailChanged && (
+              <Button
+                size="sm"
+                onClick={handleSaveOrdersEmail}
+                disabled={patchCurrentUser.isPending || !isOrdersEmailValid || !currentUser?.id}
+              >
+                {patchCurrentUser.isPending ? t("ordersEmail.saving") : t("ordersEmail.save")}
+              </Button>
+            )}
           </div>
 
           {productModel.isPublished && productModel.url && (

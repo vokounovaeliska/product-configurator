@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserJsonPatchParamsValidator : AppValidator<UserJsonPatchParams> {
+    companion object {
+        private const val EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
+    }
+
     override fun validate(value: UserJsonPatchParams): List<ValidationExceptionError> =
         validation {
             when (val path = value.path) {
@@ -19,6 +23,18 @@ class UserJsonPatchParamsValidator : AppValidator<UserJsonPatchParams> {
                         notNull()
                         notEmpty()
                     }
+
+                UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL -> {
+                    if (value.value == null) {
+                        return@validation
+                    }
+
+                    field(path.value, value.value as? String) {
+                        notNull()
+                        notEmpty()
+                        matchPattern(EMAIL_PATTERN)
+                    }
+                }
 
                 else ->
                     anyField(path.value, value.value) {

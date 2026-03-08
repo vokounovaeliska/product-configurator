@@ -27,12 +27,14 @@ class SmtpEmailService(
         subject: String,
         bodyHtml: String,
         bodyText: String?,
+        replyTo: String?,
     ) {
         try {
             val message: MimeMessage = mailSender.createMimeMessage()
             val helper = MimeMessageHelper(message, true, "UTF-8")
             helper.setFrom(InternetAddress(mailConfig.fromAddress, mailConfig.fromName, "UTF-8"))
             helper.setTo(to)
+            replyTo?.let { helper.setReplyTo(it) }
             helper.setSubject(subject)
             helper.setText(bodyText ?: bodyHtml.replace(Regex("<[^>]+>"), ""), bodyHtml)
             mailSender.send(message)
