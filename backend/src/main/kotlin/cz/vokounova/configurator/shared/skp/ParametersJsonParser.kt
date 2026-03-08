@@ -129,42 +129,32 @@ object ParametersJsonParser {
     }
 
     /**
-     * Parses materials from parameters.json.
-     * materials: { "oak": { "texturePath": "materials/oak.png" }, "black": { "colorHex": "#1A1A1A" } }
-     * materialTexturesFromZip: when materials zip is extracted, path -> (bytes, ext) for texture files.
+     * Parses materials from parameters.json. Only textures are supported (no colorHex).
+     * materials: { "oak": { "texturePath": "materials/oak.png" }, ... }
      */
     fun parseMaterials(
         root: JsonNode,
         materialTexturesFromZip: Map<String, Pair<ByteArray, String>>,
     ): Pair<Map<String, String>, Map<String, Pair<ByteArray, String>>> {
-        val colors = mutableMapOf<String, String>()
         val textures = mutableMapOf<String, Pair<ByteArray, String>>()
 
         val materialsNode = root["materials"]
         if (materialsNode != null && materialsNode.isObject) {
             materialsNode.fields().forEach { (matName, matNode) ->
                 if (!matNode.isObject) return@forEach
-                val colorHex = matNode["colorHex"]?.asText()?.trim()?.takeIf { it.isNotEmpty() }
-                if (colorHex != null) colors[matName] = colorHex
                 val texturePath = matNode["texturePath"]?.asText()?.trim()?.takeIf { it.isNotEmpty() }
                 if (texturePath != null) {
-                    val pair = materialTexturesFromZip[texturePath]
+                    val pair =
+                        materialTexturesFromZip[texturePath]
+                            ?: materialTexturesFromZip.entries
+                                .find { (k, _) -> k.equals(texturePath, ignoreCase = true) }
+                                ?.value
                     if (pair != null) textures[matName] = pair
                 }
             }
         }
 
-        val legacyColors = root["materialColors"]
-        if (legacyColors != null && legacyColors.isObject) {
-            legacyColors.fields().forEach { (k, v) ->
-                if (v.isTextual) {
-                    val hex = v.asText().trim()
-                    if (hex.isNotEmpty() && k !in colors) colors[k] = hex
-                }
-            }
-        }
-
-        return colors to textures
+        return emptyMap<String, String>() to textures
     }
 
     private fun buildEffectsMap(parameters: List<SkpParameter>): Map<String, List<SkpParameterEffect>> =

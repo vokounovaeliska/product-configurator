@@ -6,18 +6,20 @@
 
 import type { Model3dConfig } from "../types/model3dConfig"
 
-/** GLB/glTF uses meters; SketchUp parameters use cm. 1 cm = 0.01 m. */
-const CM_TO_M = 0.01
-const M_TO_CM = 100
+/**
+ * SketchUp exports GLB with inch values (1 unit = 1 inch); parameters.json uses cm.
+ * 1 inch = 2.54 cm.
+ */
+const CM_PER_INCH = 2.54
 
-/** Convert cm to GLB scene units (meters). */
+/** Convert cm (parameters.json) to GLB scene units (inches). */
 export function cmToGlbUnits(cm: number): number {
-  return cm * CM_TO_M
+  return cm / CM_PER_INCH
 }
 
-/** Convert GLB scene units (meters) to cm. */
+/** Convert GLB scene units (inches) to cm. */
 export function glbUnitsToCm(glbUnits: number): number {
-  return glbUnits * M_TO_CM
+  return glbUnits * CM_PER_INCH
 }
 
 /** Component transform from parameters.json: x, y, z, lenx, leny, lenz, width, height, depth, material, _parent. */
@@ -434,23 +436,36 @@ export function areParamsAtDefaults(
   return true
 }
 
-/** Computes target transforms (position, scale) per component in GLB units. */
+/**
+ * Computes target transforms (position in GLB units, scale as ratio for delta).
+ * Scale in result is targetLen/baseLen per axis (used only when defaultResolved missing).
+ */
 export function computeTargetTransforms(
   transforms: Record<string, ComponentTransform>,
   resolved: ResolvedDimensions,
+  parameterDefaults?: Record<string, number> | null,
 ): Record<string, NodeTargetTransform> {
+  const defaultResolved =
+    parameterDefaults != null
+      ? computeResolvedDimensions(transforms, null, parameterDefaults)
+      : null
   const result: Record<string, NodeTargetTransform> = {}
   for (const [compName, t] of Object.entries(transforms)) {
     if (isGroupContainer(t)) continue
     const r = resolved[compName]
     if (!r) continue
+    const def = defaultResolved?.[compName]
+    const scaleRatio: [number, number, number] =
+      def && def.lenx > 0 && def.leny > 0 && def.lenz > 0
+        ? [
+            r.lenx > 0 ? r.lenx / def.lenx : 1,
+            r.leny > 0 ? r.leny / def.leny : 1,
+            r.lenz > 0 ? r.lenz / def.lenz : 1,
+          ]
+        : [1, 1, 1]
     result[compName] = {
       position: mapJsonPositionToGlbUnits(r.x, r.y, r.z),
-      scale: [
-        cmToGlbUnits(r.lenx > 0 ? r.lenx : 1),
-        cmToGlbUnits(r.leny > 0 ? r.leny : 1),
-        cmToGlbUnits(r.lenz > 0 ? r.lenz : 1),
-      ],
+      scale: scaleRatio,
     }
   }
   return result
@@ -464,41 +479,18 @@ export function computeDeltaTransforms(
   baselineTransforms: Record<string, BaselineTransformFromGlb>,
   _config: Model3dConfig | null,
 ): Record<string, DeltaTransformFromUserParams> {
+  const targets = computeTargetTransforms(transforms, resolved, parameterDefaults)
   const result: Record<string, DeltaTransformFromUserParams> = {}
-  const defaultResolved =
-    parameterDefaults != null
-      ? computeResolvedDimensions(transforms, null, parameterDefaults)
-      : null
-  const targets = computeTargetTransforms(transforms, resolved)
   for (const [compName, baseline] of Object.entries(baselineTransforms)) {
     const target = targets[compName]
     if (!target) continue
-    const baseScale = baseline.scale
-    let scaleRatio: [number, number, number] = [1, 1, 1]
-    if (defaultResolved?.[compName]) {
-      const def = defaultResolved[compName]
-      const cur = resolved[compName]
-      if (cur) {
-        scaleRatio = [
-          def.lenx > 0 ? cur.lenx / def.lenx : 1,
-          def.leny > 0 ? cur.leny / def.leny : 1,
-          def.lenz > 0 ? cur.lenz / def.lenz : 1,
-        ]
-      }
-    } else {
-      scaleRatio = [
-        baseScale[0] !== 0 ? target.scale[0] / baseScale[0] : 1,
-        baseScale[1] !== 0 ? target.scale[1] / baseScale[1] : 1,
-        baseScale[2] !== 0 ? target.scale[2] / baseScale[2] : 1,
-      ]
-    }
     result[compName] = {
       position: [
         target.position[0] - baseline.position[0],
         target.position[1] - baseline.position[1],
         target.position[2] - baseline.position[2],
       ],
-      scale: scaleRatio,
+      scale: target.scale,
     }
   }
   return result

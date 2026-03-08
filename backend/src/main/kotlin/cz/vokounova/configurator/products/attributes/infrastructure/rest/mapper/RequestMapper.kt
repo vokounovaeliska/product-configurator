@@ -65,7 +65,6 @@ fun AttributeOptionCreateRequestDto.toParams(attributeId: AttributeId): Attribut
         value = value,
         label = label,
         imageUrl = imageUrl,
-        colorHex = colorHex,
         sortOrder = sortOrder,
     )
 
@@ -76,7 +75,6 @@ fun AttributeOptionPatchRequestDto.toParams(): AttributeOptionJsonPatchParams =
                 AttributeOptionPatchRequestDtoPath.SlashValue -> AttributeOptionJsonPatchParamsPath.VALUE
                 AttributeOptionPatchRequestDtoPath.SlashLabel -> AttributeOptionJsonPatchParamsPath.LABEL
                 AttributeOptionPatchRequestDtoPath.SlashImageUrl -> AttributeOptionJsonPatchParamsPath.IMAGE_URL
-                AttributeOptionPatchRequestDtoPath.SlashColorHex -> AttributeOptionJsonPatchParamsPath.COLOR_HEX
                 AttributeOptionPatchRequestDtoPath.SlashSortOrder -> AttributeOptionJsonPatchParamsPath.SORT_ORDER
             },
         value = value,

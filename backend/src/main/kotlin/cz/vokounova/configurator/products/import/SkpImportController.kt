@@ -23,11 +23,16 @@ class SkpImportController(
     )
     fun importFromSketchUp(
         @RequestParam("skp", required = false) skpFile: MultipartFile?,
-        @RequestParam("glb") glbFile: MultipartFile,
+        @RequestParam("glb", required = false) glbFile: MultipartFile?,
         @RequestParam("name", required = false) productName: String?,
         @RequestParam("parametersJson", required = false) parametersJson: MultipartFile?,
         @RequestParam("parametersZip", required = false) parametersZip: MultipartFile?,
+        @RequestParam("configuratorZip", required = false) configuratorZip: MultipartFile?,
     ): ResponseEntity<SkpImportResponse> {
+        val useConfiguratorZip =
+            configuratorZip != null &&
+                !configuratorZip.isEmpty &&
+                configuratorZip.originalFilename?.lowercase()?.endsWith(".zip") == true
         val useParametersZip =
             parametersZip != null &&
                 !parametersZip.isEmpty &&
@@ -38,14 +43,14 @@ class SkpImportController(
                 parametersJson.originalFilename?.lowercase()?.endsWith(".json") == true
         val useSkp = skpFile != null && !skpFile.isEmpty
 
-        if (!useSkp && !useParametersZip && !useParametersJson) {
+        if (!useSkp && !useParametersZip && !useParametersJson && !useConfiguratorZip) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(
                     SkpImportResponse(
                         success = false,
                         productModelId = null,
-                        error = "SKP file, parameters.json, or parameters.zip is required",
+                        error = "SKP file, parameters.json, parameters.zip, or configurator.zip is required",
                     ),
                 )
         }
@@ -65,15 +70,38 @@ class SkpImportController(
                     .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid parameters.zip file type"))
             }
         }
-        val glbFilename = glbFile.originalFilename ?: ""
-        if (glbFile.isEmpty || !glbFilename.lowercase().endsWith(".glb")) {
+        if (useConfiguratorZip) {
+            val filename = configuratorZip!!.originalFilename ?: ""
+            if (!filename.lowercase().endsWith(".zip")) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid configurator.zip file type"))
+            }
+        }
+        val glbProvided = glbFile != null && !glbFile.isEmpty && (glbFile.originalFilename?.lowercase()?.endsWith(".glb") == true)
+        if (!useConfiguratorZip && !glbProvided) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(SkpImportResponse(success = false, productModelId = null, error = "Valid GLB file is required"))
+                .body(
+                    SkpImportResponse(
+                        success = false,
+                        productModelId = null,
+                        error = "Valid GLB file is required (or use configurator.zip with GLB inside)",
+                    ),
+                )
         }
 
         val userId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
-        val result = skpImportService.importFromSketchUp(skpFile, glbFile, userId, productName, parametersJson, parametersZip)
+        val result =
+            skpImportService.importFromSketchUp(
+                skpFile,
+                glbFile,
+                userId,
+                productName,
+                parametersJson,
+                parametersZip,
+                configuratorZip,
+            )
 
         return if (result.success) {
             ResponseEntity

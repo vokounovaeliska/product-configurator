@@ -47,12 +47,17 @@ class SkpImportService(
 ) {
     fun importFromSketchUp(
         skpFile: MultipartFile?,
-        glbFile: MultipartFile,
+        glbFile: MultipartFile?,
         userId: UserIdDto,
         productName: String? = null,
         parametersJson: MultipartFile? = null,
         parametersZip: MultipartFile? = null,
+        configuratorZip: MultipartFile? = null,
     ): SkpImportResult {
+        val useConfiguratorZip =
+            configuratorZip != null &&
+                !configuratorZip.isEmpty &&
+                configuratorZip.originalFilename?.lowercase()?.endsWith(".zip") == true
         val useParametersZip =
             parametersZip != null &&
                 !parametersZip.isEmpty &&
@@ -62,24 +67,41 @@ class SkpImportService(
                 !parametersJson.isEmpty &&
                 parametersJson.originalFilename?.lowercase()?.endsWith(".json") == true
 
-        val skpResult: SkpParameterExtractionResult =
+        val (skpResult: SkpParameterExtractionResult, glbBytesForStore: ByteArray?) =
             when {
+                useConfiguratorZip -> {
+                    try {
+                        val extracted = extractConfiguratorZip(configuratorZip!!.bytes)
+                        val result = ParametersJsonParser.parse(extracted.jsonBytes, extracted.textures)
+                        result to extracted.glbBytes
+                    } catch (e: Exception) {
+                        return SkpImportResult(
+                            success = false,
+                            productModelId = null,
+                            error = "Invalid configurator.zip: ${e.message}",
+                        )
+                    }
+                }
                 useParametersZip -> {
                     try {
                         val extracted = extractParametersFromZip(parametersZip!!.bytes)
-                        ParametersJsonParser.parse(extracted.jsonBytes, extracted.textures)
+                        ParametersJsonParser.parse(extracted.jsonBytes, extracted.textures) to null
                     } catch (e: Exception) {
-                        SkpParameterExtractionResult(error = "Invalid parameters.zip: ${e.message}")
+                        return SkpImportResult(
+                            success = false,
+                            productModelId = null,
+                            error = "Invalid parameters.zip: ${e.message}",
+                        )
                     }
                 }
-                useParametersJson -> ParametersJsonParser.parse(parametersJson!!.bytes)
+                useParametersJson -> ParametersJsonParser.parse(parametersJson!!.bytes) to null
                 skpFile != null && !skpFile.isEmpty ->
-                    SkpParameterExtractor.extractParametersFromBytes(skpFile.bytes)
+                    SkpParameterExtractor.extractParametersFromBytes(skpFile.bytes) to null
                 else ->
                     return SkpImportResult(
                         success = false,
                         productModelId = null,
-                        error = "Either SKP file, parameters.json, or parameters.zip is required",
+                        error = "Either SKP file, parameters.json, parameters.zip, or configurator.zip is required",
                     )
             }
 
@@ -87,10 +109,20 @@ class SkpImportService(
             return SkpImportResult(success = false, productModelId = null, error = skpResult.error)
         }
 
+        val glbBytes = glbBytesForStore ?: glbFile?.takeIf { !it.isEmpty }?.bytes
+        if (glbBytes == null || glbBytes.isEmpty()) {
+            return SkpImportResult(
+                success = false,
+                productModelId = null,
+                error = "GLB file or configurator.zip with model.glb inside is required",
+            )
+        }
+
         val name =
             productName
                 ?: skpFile?.originalFilename?.removeSuffix(".skp")
-                ?: glbFile.originalFilename?.removeSuffix(".glb")
+                ?: configuratorZip?.originalFilename?.removeSuffix(".zip")
+                ?: glbFile?.originalFilename?.removeSuffix(".glb")
                 ?: "Imported Product"
         val productModel =
             productModelAPI.create(
@@ -110,10 +142,10 @@ class SkpImportService(
         val merchantParams = filterMerchantRelevantParams(skpResult.parameters)
         val attributes = createAttributes(merchantParams, component, productModel.id)
         val materialTextureUrls = storeMaterialTextures(skpResult.materialTextures)
-        createAttributeOptions(attributes, skpResult.materialColors, materialTextureUrls, productModel.id)
+        createAttributeOptions(attributes, materialTextureUrls, productModel.id)
 
         val patches = mutableListOf<ProductModelJsonPatchParams>()
-        val model3dUrl = storeGlb(glbFile)
+        val model3dUrl = storeGlbFromBytes(glbBytes)
         if (model3dUrl != null) {
             patches.add(
                 ProductModelJsonPatchParams(
@@ -136,6 +168,12 @@ class SkpImportService(
                         }
                         if (skpResult.parameterDefaults.isNotEmpty()) {
                             payload["parameterDefaults"] = skpResult.parameterDefaults
+                        }
+                        if (materialTextureUrls.isNotEmpty()) {
+                            payload["materials"] =
+                                materialTextureUrls.mapValues { (_, url) ->
+                                    mapOf("textureUrl" to url)
+                                }
                         }
                         payload
                     }
@@ -272,7 +310,7 @@ class SkpImportService(
     private fun inferAttributeType(param: SkpParameter): AttributeTypeInference {
         val n = param.name.lowercase()
         return when {
-            n.startsWith("color") || n.endsWith("_color") ->
+            n == "material" || n.startsWith("color") || n.endsWith("_color") ->
                 AttributeTypeInference(AttributeType.ENUM, null, null, null, null)
             n.contains("count") || (n.contains("leg") && !n.endsWith("_color")) ->
                 AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 10)
@@ -297,21 +335,23 @@ class SkpImportService(
 
     private fun createAttributeOptions(
         attributesWithParams: List<Pair<Attribute, SkpParameter>>,
-        materialColors: Map<String, String>,
         materialTextureUrls: Map<String, String>,
         productModelId: ProductModelId,
     ) {
         attributesWithParams.forEach { (attribute, param) ->
             if (attribute.type == AttributeType.ENUM) {
-                val optionNames = param.options.ifEmpty { DEFAULT_COLOR_OPTIONS.map { it.first } }
+                val optionNames =
+                    when {
+                        // Material-type params: use only textured materials from the zip
+                        isMaterialTypeParam(param) && materialTextureUrls.isNotEmpty() ->
+                            materialTextureUrls.keys.sorted()
+                        param.options.isNotEmpty() -> param.options
+                        else -> emptyList()
+                    }
                 optionNames.forEachIndexed { idx, name ->
-                    val colorHex =
-                        materialColors[name]
-                            ?: materialColors[name.lowercase()]
-                            ?: MATERIAL_NAME_TO_HEX[name]
-                            ?: MATERIAL_NAME_TO_HEX[name.lowercase()]
                     val textureUrl =
                         materialTextureUrls[name] ?: materialTextureUrls[name.lowercase()]
+                    if (isMaterialTypeParam(param) && textureUrl == null) return@forEachIndexed
                     val optionValue = name.uppercase().replace(Regex("[^A-Z0-9]"), "_")
                     attributeOptionAPI.create(
                         AttributeOptionCreateParams(
@@ -319,7 +359,6 @@ class SkpImportService(
                             value = optionValue,
                             label = name.replaceFirstChar { it.uppercase() },
                             imageUrl = textureUrl,
-                            colorHex = colorHex,
                             sortOrder = idx,
                         ),
                     )
@@ -334,9 +373,37 @@ class SkpImportService(
         }
     }
 
-    private fun extractParametersFromZip(zipBytes: ByteArray): ZipExtractionResult {
+    private fun isMaterialTypeParam(param: SkpParameter): Boolean {
+        val n = param.name.lowercase()
+        return n == "material" ||
+            n.startsWith("color") ||
+            n.endsWith("_color") ||
+            n.contains("barva") ||
+            param.effects.any { it.type.equals("material", ignoreCase = true) }
+    }
+
+    private fun extractParametersFromZip(zipBytes: ByteArray): ZipExtractionResult = extractFromZip(zipBytes, includeGlb = false)
+
+    /**
+     * Extracts configurator zip (model.glb + parameters.json + materials/).
+     * Returns GLB bytes if present, otherwise null.
+     */
+    private fun extractConfiguratorZip(zipBytes: ByteArray): ConfiguratorZipResult {
+        val extracted = extractFromZip(zipBytes, includeGlb = true)
+        return ConfiguratorZipResult(
+            glbBytes = extracted.glbBytes,
+            jsonBytes = extracted.jsonBytes,
+            textures = extracted.textures,
+        )
+    }
+
+    private fun extractFromZip(
+        zipBytes: ByteArray,
+        includeGlb: Boolean,
+    ): ZipExtractionResult {
         val textures = mutableMapOf<String, Pair<ByteArray, String>>()
         var jsonBytes: ByteArray? = null
+        var glbBytes: ByteArray? = null
         ZipInputStream(ByteArrayInputStream(zipBytes)).use { zis ->
             var entry = zis.nextEntry
             while (entry != null) {
@@ -346,6 +413,15 @@ class SkpImportService(
                     entryName.equals("parameters.json", ignoreCase = true) ||
                         entryName.endsWith("/parameters.json", ignoreCase = true) ->
                         jsonBytes = bytes
+                    includeGlb &&
+                        (
+                            entryName.lowercase().endsWith(".glb") ||
+                                entryName.lowercase().endsWith(".gltf")
+                        ) -> {
+                        if (glbBytes == null || entryName.lowercase().endsWith(".glb")) {
+                            glbBytes = bytes
+                        }
+                    }
                     entryName.lowercase().endsWith(".png") ||
                         entryName.lowercase().endsWith(".jpg") ||
                         entryName.lowercase().endsWith(".jpeg") -> {
@@ -362,7 +438,17 @@ class SkpImportService(
                 jsonBytes
                     ?: throw IllegalArgumentException("Zip must contain parameters.json"),
             textures = textures,
+            glbBytes = glbBytes,
         )
+    }
+
+    private fun storeGlbFromBytes(glbBytes: ByteArray): String {
+        val uploadPath = Paths.get(uploadDir)
+        Files.createDirectories(uploadPath)
+        val uniqueFilename = "${UUID.randomUUID()}.glb"
+        val filePath = uploadPath.resolve(uniqueFilename)
+        Files.write(filePath, glbBytes)
+        return "/api/v1/files/$uniqueFilename"
     }
 
     private fun storeMaterialTextures(materialTextures: Map<String, Pair<ByteArray, String>>): Map<String, String> {
@@ -419,30 +505,17 @@ class SkpImportService(
                 "axislock",
                 "facecamera",
             )
-
-        val DEFAULT_COLOR_OPTIONS: List<Pair<String, String>> =
-            listOf(
-                "oak" to "#C49A6C",
-                "black" to "#1A1A1A",
-                "white" to "#F5F5F5",
-                "walnut" to "#5C4033",
-                "ash" to "#DEB887",
-            )
-
-        private val MATERIAL_NAME_TO_HEX: Map<String, String> =
-            buildMap {
-                DEFAULT_COLOR_OPTIONS.forEach { (n, hex) ->
-                    put(n, hex)
-                    put(n.lowercase(), hex)
-                    put(n.replace(" ", ""), hex)
-                }
-                put("oak2", "#C49A6C")
-                put("black2", "#1A1A1A")
-            }
     }
 }
 
 private data class ZipExtractionResult(
+    val jsonBytes: ByteArray,
+    val textures: Map<String, Pair<ByteArray, String>>,
+    val glbBytes: ByteArray? = null,
+)
+
+private data class ConfiguratorZipResult(
+    val glbBytes: ByteArray?,
     val jsonBytes: ByteArray,
     val textures: Map<String, Pair<ByteArray, String>>,
 )

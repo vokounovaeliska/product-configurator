@@ -17,30 +17,17 @@ export const useSkpImport = () => {
 
   return useMutation({
     mutationFn: async ({
-      skpFile,
-      glbFile,
+      configuratorZip,
       productName,
-      parametersJson,
-      parametersZip,
     }: {
-      skpFile?: File
-      glbFile: File
+      configuratorZip: File
       productName?: string
-      parametersJson?: File | null
-      parametersZip?: File | null
     }): Promise<SkpImportResponse> => {
       try {
         const formData = new FormData()
-        if (skpFile) formData.append("skp", skpFile)
-        formData.append("glb", glbFile)
+        formData.append("configuratorZip", configuratorZip)
         if (productName?.trim()) {
           formData.append("name", productName.trim())
-        }
-        if (parametersJson) {
-          formData.append("parametersJson", parametersJson)
-        }
-        if (parametersZip) {
-          formData.append("parametersZip", parametersZip)
         }
 
         const response = await api.post("products/api/v1/import/sketchup", {

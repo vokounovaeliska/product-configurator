@@ -199,18 +199,13 @@
   },
   "SketchUpImport": {
     "title": "Import from SketchUp",
-    "description": "Upload a SketchUp (.skp) and GLB file to create a product model. Only merchant-relevant params (colors, size, thickness, leg count) are imported. After import, set prices and preview in the configurator.",
+    "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Configurator → Export). The zip contains the 3D model, parameters, and materials. After import, set prices and preview in the configurator.",
     "form": {
       "productName": "Product name",
-      "productNamePlaceholder": "Optional – defaults to SKP filename",
-      "productNameHint": "Leave empty to use the SKP filename as the product name.",
-      "skpFile": "SketchUp file (.skp)",
-      "skpFileHint": "Optional when parameters.json is provided – use GLB + parameters.json from the Configurator plugin.",
-      "glbFile": "3D model file (.glb)",
-      "parametersJson": "Parameters (parameters.json)",
-      "parametersJsonHint": "Optional – from SketchUp Configurator plugin for one-to-many effects (e.g. width affects Top, Bottom, Legs2).",
-      "parametersZip": "Parameters zip (parameters.json + materials/)",
-      "parametersZipHint": "Optional – zip containing parameters.json and materials/*.png for textured materials.",
+      "productNamePlaceholder": "Optional – defaults to zip filename",
+      "productNameHint": "Leave empty to use the zip filename as the product name.",
+      "configuratorZip": "Configurator zip",
+      "configuratorZipHint": "Zip from SketchUp plugin: model.glb + parameters.json + materials/. Export via Plugins → Configurator → Export for Configurator (single zip).",
       "submit": "Import",
       "submitting": "Importing…"
     }

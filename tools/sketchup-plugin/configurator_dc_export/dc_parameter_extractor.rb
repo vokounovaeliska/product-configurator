@@ -30,12 +30,10 @@ module ConfiguratorDcExport
       return UI.messagebox("No Dynamic Component parameters found.\n\nTip: Select the root group/component with your parameters, then try again.", MB_OK) if params.empty?
 
       default_zip = default_configurator_export_path(model)
-      zip_path = UI.savepanel("Export for Configurator (zip + GLB)", File.dirname(default_zip), File.basename(default_zip))
+      zip_path = UI.savepanel("Export for Configurator (single zip)", File.dirname(default_zip), File.basename(default_zip))
       return if zip_path.nil? || zip_path.empty?
 
       zip_path = zip_path + ".zip" unless zip_path.downcase.end_with?(".zip")
-      export_dir = File.dirname(zip_path)
-      base_name = File.basename(zip_path, ".zip")
 
       temp_dir = Dir.mktmpdir("configurator_export_")
       begin
@@ -46,17 +44,19 @@ module ConfiguratorDcExport
         json_path = File.join(temp_dir, "parameters.json")
         File.open(json_path, "w:UTF-8") { |f| f.write(JSON.pretty_generate(result)) }
 
+        glb_path = File.join(temp_dir, "model.glb")
+        glb_ok = model.export(glb_path)
+
         create_zip_archive(temp_dir, zip_path)
       ensure
         FileUtils.rm_rf(temp_dir)
       end
 
-      glb_path = File.join(export_dir, "#{base_name}.glb")
-      glb_ok = model.export(glb_path)
-
       mat_count = materials_data.size
-      lines = ["Exported #{params.length} parameters and #{mat_count} material(s) to zip:", zip_path]
-      lines << "Exported GLB:" << glb_path if glb_ok
+      lines = ["Exported to single zip (GLB + parameters + materials):", zip_path]
+      lines << "  - model.glb" if glb_ok
+      lines << "  - parameters.json"
+      lines << "  - materials/ (#{mat_count} texture(s))" if mat_count > 0
       lines << "(GLB export failed – export manually: File → Export → 3D Model → glTF)" unless glb_ok
       UI.messagebox(lines.join("\n"), MB_OK)
     end
@@ -149,7 +149,6 @@ module ConfiguratorDcExport
         "parameters" => parameters,
         "components" => component_names.uniq.sort,
         "componentTransforms" => component_transforms,
-        "materialColors" => {}, # Filled from model during export
         "materialNames" => material_names,
       }
     end
@@ -546,16 +545,15 @@ module ConfiguratorDcExport
     end
 
     def create_zip_archive(source_dir, zip_path)
+      entries = ["parameters.json"]
+      entries << "materials" if Dir.exist?(File.join(source_dir, "materials"))
+      entries << "model.glb" if File.exist?(File.join(source_dir, "model.glb"))
+
       if RUBY_PLATFORM =~ /mswin|mingw|cygwin/
-        # PowerShell: cd to source, compress so zip has parameters.json and materials/ at root
-        entries = ["parameters.json"]
-        entries << "materials" if Dir.exist?(File.join(source_dir, "materials"))
         cmd = "Push-Location '#{source_dir.gsub("'", "''")}'; Compress-Archive -Path #{entries.map { |e| "'#{e}'" }.join(",")} -DestinationPath '#{zip_path.gsub("'", "''")}' -Force; Pop-Location"
         system("powershell -Command \"#{cmd}\"")
       else
         Dir.chdir(source_dir) do
-          entries = ["parameters.json"]
-          entries << "materials" if Dir.exist?("materials")
           system("zip -r '#{zip_path}' #{entries.map { |e| "'#{e}'" }.join(" ")}")
         end
       end
@@ -731,46 +729,30 @@ module ConfiguratorDcExport
     # SketchUp internal materials to skip when exporting all.
     SKIP_MATERIAL_PATTERNS = [/^Layer_\d+/i, /^Default$/i].freeze
 
-    # Export materials from SketchUp model: save textures as PNG, get colors for solids.
-    # When material_names is empty, exports ALL model materials (except Layer_*, Default).
-    # Returns { "oak" => { "texturePath" => "materials/oak.png" }, "black" => { "colorHex" => "#1A1A1A" } }
+    # Export materials from SketchUp model: only materials with textures (PNG). Color-only materials
+    # are skipped; the configurator supports textures only.
+    # Returns { "oak" => { "texturePath" => "materials/oak.png" }, ... }
     def export_materials_from_model(model, material_names, export_dir)
       materials_dir = File.join(export_dir, "materials")
       FileUtils.mkdir_p(materials_dir)
 
-      # Always export all model materials (except internal).
       names_to_export = model.materials.map { |m| m.name.to_s.strip }.reject(&:empty?)
-
       result = {}
+
       model.materials.each do |mat|
         mat_name = mat.name.to_s.strip
         next if mat_name.empty?
         next if SKIP_MATERIAL_PATTERNS.any? { |pat| pat.match?(mat_name) }
         next unless names_to_export.any? { |n| n.to_s.strip.casecmp(mat_name).zero? }
+        next unless mat.texture
 
         key = names_to_export.find { |n| n.to_s.strip.casecmp(mat_name).zero? }.to_s
-        if mat.texture
-          safe_name = mat_name.gsub(/[^\w\-.]/, "_")
-          png_path = File.join(materials_dir, "#{safe_name}.png")
-          if mat.texture.write(png_path, true)
-            result[key] = { "texturePath" => "materials/#{safe_name}.png" }
-          else
-            result[key] = color_to_hex(mat.color)
-          end
-        else
-          result[key] = color_to_hex(mat.color)
-        end
+        safe_name = mat_name.gsub(/[^\w\-.]/, "_")
+        png_path = File.join(materials_dir, "#{safe_name}.png")
+        result[key] = { "texturePath" => "materials/#{safe_name}.png" } if mat.texture.write(png_path, true)
       end
 
       result
-    end
-
-    def color_to_hex(color)
-      return {} unless color
-      r = (color.red || 0).to_i.clamp(0, 255)
-      g = (color.green || 0).to_i.clamp(0, 255)
-      b = (color.blue || 0).to_i.clamp(0, 255)
-      { "colorHex" => format("#%02X%02X%02X", r, g, b) }
     end
 
     def scale_param?(name)
@@ -886,7 +868,7 @@ end
 
 unless file_loaded?(__FILE__)
   menu = UI.menu("Plugins").add_submenu("Configurator")
-  menu.add_item("Export for Configurator (zip + GLB)") do
+  menu.add_item("Export for Configurator (single zip)") do
     ConfiguratorDcExport.export_parameters
   end
   menu.add_item("Debug: Show what plugin finds") do

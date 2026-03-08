@@ -9,7 +9,6 @@ data class AttributeOptionDto(
     val value: String,
     val label: String,
     val imageUrl: String?,
-    val colorHex: String?,
     val sortOrder: Int,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,

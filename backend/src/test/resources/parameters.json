@@ -451,7 +451,7 @@
       "lenx": 6.0,
       "leny": 78.0,
       "lenz": 55.0,
-      "material": "black",
+      "material": "MS_SL_black_rough9005",
       "_parent": "Skupina"
     },
     "top": {
@@ -481,7 +481,7 @@
       "lenx": 6.0,
       "leny": 78.0,
       "lenz": 55.0,
-      "material": "black",
+      "material": "MS_SL_black_rough9005",
       "_parent": "Skupina"
     }
   },
@@ -505,12 +505,6 @@
     },
     "white": {
       "texturePath": "materials/white.png"
-    },
-    "gray": {
-      "colorHex": "#8E8E8E"
-    },
-    "black": {
-      "colorHex": "#000000"
     }
   }
 }

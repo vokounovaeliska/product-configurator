@@ -15,27 +15,19 @@ import { useSkpImport } from "../api/skpImportQueries"
 export const SketchUpImportForm = () => {
   const t = useTranslations("SketchUpImport")
   const router = useRouter()
-  const [skpFile, setSkpFile] = useState<File | null>(null)
-  const [glbFile, setGlbFile] = useState<File | null>(null)
-  const [parametersJson, setParametersJson] = useState<File | null>(null)
-  const [parametersZip, setParametersZip] = useState<File | null>(null)
+  const [configuratorZip, setConfiguratorZip] = useState<File | null>(null)
   const [productName, setProductName] = useState("")
 
   const importMutation = useSkpImport()
 
-  const hasParameters = Boolean(skpFile ?? parametersJson ?? parametersZip)
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!glbFile || !hasParameters) return
+    if (!configuratorZip) return
 
     try {
       const result = await importMutation.mutateAsync({
-        skpFile: skpFile ?? undefined,
-        glbFile,
+        configuratorZip,
         productName: productName.trim() ? productName.trim() : undefined,
-        parametersJson: parametersJson ?? undefined,
-        parametersZip: parametersZip ?? undefined,
       })
 
       if (result.success && result.productModelId) {
@@ -46,7 +38,7 @@ export const SketchUpImportForm = () => {
     }
   }
 
-  const isDisabled = !glbFile || !hasParameters || importMutation.isPending
+  const isDisabled = !configuratorZip || importMutation.isPending
 
   return (
     <form
@@ -72,69 +64,19 @@ export const SketchUpImportForm = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="skpFile">{t("form.skpFile")}</Label>
+        <Label htmlFor="configuratorZip">{t("form.configuratorZip")}</Label>
         <Input
-          id="skpFile"
-          type="file"
-          accept=".skp"
-          onChange={(e) => setSkpFile(e.target.files?.[0] ?? null)}
-        />
-        <Typography
-          as="p"
-          variant="body-sm"
-          className="text-muted-foreground"
-        >
-          {t("form.skpFileHint")}
-        </Typography>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="glbFile">{t("form.glbFile")}</Label>
-        <Input
-          id="glbFile"
-          type="file"
-          accept=".glb"
-          onChange={(e) => setGlbFile(e.target.files?.[0] ?? null)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="parametersJson">{t("form.parametersJson")}</Label>
-        <Input
-          id="parametersJson"
-          type="file"
-          accept=".json"
-          onChange={(e) => {
-            setParametersJson(e.target.files?.[0] ?? null)
-            if (e.target.files?.[0]) setParametersZip(null)
-          }}
-        />
-        <Typography
-          as="p"
-          variant="body-sm"
-          className="text-muted-foreground"
-        >
-          {t("form.parametersJsonHint")}
-        </Typography>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="parametersZip">{t("form.parametersZip")}</Label>
-        <Input
-          id="parametersZip"
+          id="configuratorZip"
           type="file"
           accept=".zip"
-          onChange={(e) => {
-            setParametersZip(e.target.files?.[0] ?? null)
-            if (e.target.files?.[0]) setParametersJson(null)
-          }}
+          onChange={(e) => setConfiguratorZip(e.target.files?.[0] ?? null)}
         />
         <Typography
           as="p"
           variant="body-sm"
           className="text-muted-foreground"
         >
-          {t("form.parametersZipHint")}
+          {t("form.configuratorZipHint")}
         </Typography>
       </div>
 

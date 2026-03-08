@@ -198,18 +198,13 @@
   },
   "SketchUpImport": {
     "title": "Import ze SketchUp",
-    "description": "Nahrajte soubor SketchUp (.skp) a GLB pro vytvoření modelu produktu. Importují se pouze parametry pro merchant (barvy, rozměr, tloušťka, počet nohou). Po importu nastavte ceny a náhled v konfigurátoru.",
+    "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Configurator → Export). Zip obsahuje 3D model, parametry a materiály. Po importu nastavte ceny a náhled v konfigurátoru.",
     "form": {
       "productName": "Název produktu",
-      "productNamePlaceholder": "Volitelné – výchozí je název SKP souboru",
-      "productNameHint": "Nechte prázdné pro použití názvu SKP souboru jako názvu produktu.",
-      "skpFile": "Soubor SketchUp (.skp)",
-      "skpFileHint": "Volitelné při nahrání parameters.json – stačí GLB + parameters.json z pluginu Configurator.",
-      "glbFile": "3D model (.glb)",
-      "parametersJson": "Parametry (parameters.json)",
-      "parametersJsonHint": "Volitelné – z pluginu Configurator pro efekt jeden-na-více (např. šířka ovlivňuje Top, Bottom, Legs2).",
-      "parametersZip": "Parametry zip (parameters.json + materials/)",
-      "parametersZipHint": "Volitelné – zip s parameters.json a materials/*.png pro texturované materiály.",
+      "productNamePlaceholder": "Volitelné – výchozí je název zip souboru",
+      "productNameHint": "Nechte prázdné pro použití názvu zip souboru jako názvu produktu.",
+      "configuratorZip": "Configurator zip",
+      "configuratorZipHint": "Zip z pluginu SketchUp: model.glb + parameters.json + materials/. Export přes Pluginy → Configurator → Export for Configurator (single zip).",
       "submit": "Importovat",
       "submitting": "Importuji…"
     }

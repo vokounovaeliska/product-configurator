@@ -9,7 +9,6 @@ import { env } from "@/config/env"
 import { getImageUrl } from "@/utils/imageUrl"
 
 import type { Model3dConfig } from "../types/model3dConfig"
-import { getColorForOption } from "../utils/optionColors"
 import {
   addDebugVisualization,
   disposeDebugVisualization,
@@ -173,27 +172,6 @@ function getColorTargetFromCode(code: string): string | null {
   return null
 }
 
-function applyColorToNode(node: THREE.Object3D, hex: string): void {
-  const color = new THREE.Color(hex)
-  node.traverse((child: THREE.Object3D) => {
-    if (!(child instanceof THREE.Mesh) || !child.material) return
-    const rawMat = (
-      Array.isArray(child.material) ? child.material[0] : child.material
-    ) as THREE.Material
-    const mat = rawMat as THREE.MeshStandardMaterial
-    if (!mat || !("color" in mat)) return
-
-    const userData = child.userData as Record<string, unknown>
-    if (!userData._materialCloned) {
-      child.material = mat.clone()
-      userData._materialCloned = true
-    }
-    const m = child.material as THREE.MeshStandardMaterial
-    m.map = null
-    m.color.copy(color)
-  })
-}
-
 function applyTextureToNode(node: THREE.Object3D, texture: THREE.Texture): void {
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping
   node.traverse((child: THREE.Object3D) => {
@@ -245,6 +223,8 @@ function applyComponentTransformsToScene(
   config: Model3dConfig | null,
   parameterDefaults?: Record<string, number> | null,
   baselineTransforms?: Record<string, BaselineTransformFromGlb>,
+  texturesByUrl?: Map<string, THREE.Texture>,
+  materialsFromZip?: Record<string, { textureUrl?: string } | undefined>,
 ): void {
   const resolved = computeResolvedDimensions(transforms, config, parameterDefaults)
   const paramKeys = getParamKeysAffectingTransforms(transforms, parameterDefaults)
@@ -253,11 +233,11 @@ function applyComponentTransformsToScene(
   const { selectedOptionsByComponent = {}, optionsByAttribute = {} } = config ?? {}
   const allSelectedOptions = Object.values(selectedOptionsByComponent).flatMap((m) =>
     Object.values(m).filter(Boolean),
-  ) as { label?: string; colorHex?: string; value?: string }[]
+  ) as { label?: string; value?: string; imageUrl?: string | null }[]
   const allOptions = (Object.values(optionsByAttribute ?? {}).flat() ?? []) as {
     label?: string
-    colorHex?: string
     value?: string
+    imageUrl?: string | null
   }[]
 
   if (process.env.NODE_ENV === "development") {
@@ -315,9 +295,15 @@ function applyComponentTransformsToScene(
       const opt =
         allSelectedOptions.find((o) => o?.label?.toLowerCase() === material.toLowerCase()) ??
         defaultOpt
-      const hex = opt ? getColorForOption(opt.colorHex, opt.value ?? "", opt.label ?? "") : null
+      const textureUrl =
+        opt?.imageUrl ??
+        materialsFromZip?.[material]?.textureUrl ??
+        materialsFromZip?.[material.toLowerCase()]?.textureUrl
+      const texture = textureUrl && texturesByUrl?.get(textureUrl)
       for (const n of targetNodes) {
-        if (hex) applyColorToNode(n, hex)
+        if (texture) {
+          applyTextureToNode(n, texture)
+        }
       }
     }
   }
@@ -381,6 +367,7 @@ function applyConfigToScene(
   componentTransforms?: Record<string, ComponentTransform>,
   parameterDefaults?: Record<string, number> | null,
   baselineTransforms?: Record<string, BaselineTransformFromGlb>,
+  materialsFromZip?: Record<string, { textureUrl?: string } | undefined>,
 ): void {
   const {
     components = [],
@@ -425,6 +412,8 @@ function applyConfigToScene(
       config,
       parameterDefaults,
       baselineTransforms,
+      texturesByUrl,
+      materialsFromZip,
     )
     // Edges regenerated after material loop below so final state is correct
   } else {
@@ -450,12 +439,9 @@ function applyConfigToScene(
         const opt = selectedOptions[attr.id] ?? defaultOpt
         if (opt && targetNodes.length > 0) {
           const texture = opt.imageUrl && texturesByUrl?.get(opt.imageUrl)
-          const hex = getColorForOption(opt.colorHex, opt.value, opt.label)
           for (const node of targetNodes) {
             if (texture) {
               applyTextureToNode(node, texture)
-            } else {
-              applyColorToNode(node, hex)
             }
           }
         }
@@ -662,12 +648,38 @@ function getNumericValueWithUnitFromCodes(
   return null
 }
 
-function collectTextureUrls(config: Model3dConfig): string[] {
+function collectTextureUrls(
+  config: Model3dConfig | null,
+  componentTransforms?: Record<string, ComponentTransform>,
+  materialsFromZip?: Record<string, { textureUrl?: string } | undefined>,
+): string[] {
   const urls = new Set<string>()
-  for (const comp of config.components) {
-    const selectedOptions = config.selectedOptionsByComponent[comp.id] ?? {}
-    for (const opt of Object.values(selectedOptions)) {
-      if (opt?.imageUrl) urls.add(opt.imageUrl)
+  if (config) {
+    for (const comp of config.components) {
+      const selectedOptions = config.selectedOptionsByComponent[comp.id] ?? {}
+      for (const opt of Object.values(selectedOptions)) {
+        if (opt?.imageUrl) urls.add(opt.imageUrl)
+      }
+    }
+  }
+  if (componentTransforms && config?.optionsByAttribute) {
+    const allOptions = Object.values(config.optionsByAttribute).flat()
+    for (const t of Object.values(componentTransforms)) {
+      const material = typeof t.material === "string" ? t.material : null
+      if (material) {
+        const opt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
+        if (opt?.imageUrl) urls.add(opt.imageUrl)
+      }
+    }
+  }
+  if (componentTransforms && materialsFromZip) {
+    for (const t of Object.values(componentTransforms)) {
+      const material = typeof t.material === "string" ? t.material : null
+      if (material) {
+        const mat = materialsFromZip[material] ?? materialsFromZip[material.toLowerCase()]
+        const url = mat?.textureUrl
+        if (url) urls.add(url)
+      }
     }
   }
   return [...urls]
@@ -679,6 +691,7 @@ function Model({
   model3dEffectsMap,
   componentTransforms,
   parameterDefaults,
+  materialsFromZip,
   isRenderRawGlb,
 }: {
   url: string
@@ -686,6 +699,7 @@ function Model({
   model3dEffectsMap?: Record<string, Model3dEffect[]>
   componentTransforms?: Record<string, ComponentTransform>
   parameterDefaults?: Record<string, number> | null
+  materialsFromZip?: Record<string, { textureUrl?: string } | undefined>
   isRenderRawGlb?: boolean
 }) {
   const fullUrl = url.startsWith("http") ? url : `${env.NEXT_PUBLIC_REST_API_URL}${url}`
@@ -732,7 +746,11 @@ function Model({
     }
     if (!hasConfig && !hasTransforms) return
 
-    const textureUrls = hasConfig ? collectTextureUrls(config) : []
+    const textureUrls = collectTextureUrls(
+      config ?? null,
+      componentTransforms ?? undefined,
+      materialsFromZip,
+    )
     if (textureUrls.length === 0) {
       applyConfigToScene(
         clonedScene,
@@ -742,6 +760,7 @@ function Model({
         componentTransforms,
         parameterDefaults,
         baselineTransformsRef.current,
+        materialsFromZip,
       )
       invalidate()
       return
@@ -779,6 +798,7 @@ function Model({
           componentTransforms,
           parameterDefaults,
           baselineTransformsRef.current,
+          materialsFromZip,
         )
         invalidate()
       })
@@ -791,6 +811,7 @@ function Model({
           componentTransforms,
           parameterDefaults,
           baselineTransformsRef.current,
+          materialsFromZip,
         )
         invalidate()
       })
@@ -807,6 +828,7 @@ function Model({
     model3dEffectsMap,
     componentTransforms,
     parameterDefaults,
+    materialsFromZip,
     isRenderRawGlb,
   ])
 
@@ -827,7 +849,7 @@ function getCenterCacheKey(config: Model3dConfig | null | undefined): string {
 }
 
 function getSnapshotCameraDistance(zoomPreset: "default" | "embed"): number {
-  return zoomPreset === "embed" ? 28 : 25
+  return zoomPreset === "embed" ? 14 : 12
 }
 
 function WebGLContextLossHandler() {
@@ -923,6 +945,7 @@ function SceneWithCapture({
   model3dEffectsMap,
   componentTransforms,
   parameterDefaults,
+  materialsFromZip,
   canCapture,
   onCaptureReady,
   zoomPreset,
@@ -933,6 +956,7 @@ function SceneWithCapture({
   model3dEffectsMap?: Record<string, Model3dEffect[]>
   componentTransforms?: Record<string, ComponentTransform>
   parameterDefaults?: Record<string, number> | null
+  materialsFromZip?: Record<string, { textureUrl?: string } | undefined>
   canCapture: boolean
   onCaptureReady?: (capture: () => Promise<string | null>) => void
   zoomPreset: "default" | "embed"
@@ -950,6 +974,7 @@ function SceneWithCapture({
       model3dEffectsMap={model3dEffectsMap}
       componentTransforms={componentTransforms}
       parameterDefaults={parameterDefaults}
+      materialsFromZip={materialsFromZip}
       isRenderRawGlb={isRenderRawGlb}
     />
   )
@@ -1008,60 +1033,68 @@ export const ModelViewer3D = ({
   renderRawGlb: isRenderRawGlbProp,
 }: Props) => {
   const isRenderRawGlb = getRenderRawGlb(isRenderRawGlbProp)
-  const { model3dEffectsMap, componentTransforms, parameterDefaults } = useMemo(() => {
-    if (!model3dEffects?.trim()) {
-      return {
-        model3dEffectsMap: undefined,
-        componentTransforms: undefined,
-        parameterDefaults: undefined,
+  const { model3dEffectsMap, componentTransforms, parameterDefaults, materialsFromZip } =
+    useMemo(() => {
+      if (!model3dEffects?.trim()) {
+        return {
+          model3dEffectsMap: undefined,
+          componentTransforms: undefined,
+          parameterDefaults: undefined,
+          materialsFromZip: undefined,
+        }
       }
-    }
-    try {
-      const parsed = JSON.parse(model3dEffects) as Record<string, unknown>
-      const ct =
-        parsed?.componentTransforms != null &&
-        typeof parsed.componentTransforms === "object" &&
-        !Array.isArray(parsed.componentTransforms)
-          ? (parsed.componentTransforms as Record<string, ComponentTransform>)
-          : undefined
-      const effects =
-        parsed?.effects != null && typeof parsed.effects === "object"
-          ? (parsed.effects as Record<string, Model3dEffect[]>)
-          : Array.isArray(parsed) || parsed?.componentTransforms != null
-            ? undefined
-            : (parsed as Record<string, Model3dEffect[]>)
-      const pd =
-        parsed?.parameterDefaults != null &&
-        typeof parsed.parameterDefaults === "object" &&
-        !Array.isArray(parsed.parameterDefaults)
-          ? (parsed.parameterDefaults as Record<string, number>)
-          : undefined
-      if (process.env.NODE_ENV === "development") {
-        console.warn("[ModelViewer3D] Parsed model_3d_effects:", {
-          hasComponentTransforms: ct != null,
-          componentTransformsKeys: ct ? Object.keys(ct) : [],
-          parameterDefaultsKeys: pd ? Object.keys(pd) : [],
-          parameterDefaultsSample: pd ? Object.fromEntries(Object.entries(pd).slice(0, 8)) : null,
-        })
+      try {
+        const parsed = JSON.parse(model3dEffects) as Record<string, unknown>
+        const ct =
+          parsed?.componentTransforms != null &&
+          typeof parsed.componentTransforms === "object" &&
+          !Array.isArray(parsed.componentTransforms)
+            ? (parsed.componentTransforms as Record<string, ComponentTransform>)
+            : undefined
+        const effects =
+          parsed?.effects != null && typeof parsed.effects === "object"
+            ? (parsed.effects as Record<string, Model3dEffect[]>)
+            : Array.isArray(parsed) || parsed?.componentTransforms != null
+              ? undefined
+              : (parsed as Record<string, Model3dEffect[]>)
+        const pd =
+          parsed?.parameterDefaults != null &&
+          typeof parsed.parameterDefaults === "object" &&
+          !Array.isArray(parsed.parameterDefaults)
+            ? (parsed.parameterDefaults as Record<string, number>)
+            : undefined
+        const mats =
+          parsed?.materials != null && typeof parsed.materials === "object"
+            ? (parsed.materials as Record<string, { textureUrl?: string } | undefined>)
+            : undefined
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[ModelViewer3D] Parsed model_3d_effects:", {
+            hasComponentTransforms: ct != null,
+            componentTransformsKeys: ct ? Object.keys(ct) : [],
+            parameterDefaultsKeys: pd ? Object.keys(pd) : [],
+            parameterDefaultsSample: pd ? Object.fromEntries(Object.entries(pd).slice(0, 8)) : null,
+            materialsFromZipKeys: mats ? Object.keys(mats) : [],
+          })
+        }
+        return {
+          model3dEffectsMap: effects,
+          componentTransforms: ct,
+          parameterDefaults: pd,
+          materialsFromZip: mats,
+        }
+      } catch (e) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[ModelViewer3D] Failed to parse model_3d_effects:", e)
+        }
+        return {
+          model3dEffectsMap: undefined,
+          componentTransforms: undefined,
+          parameterDefaults: undefined,
+          materialsFromZip: undefined,
+        }
       }
-      return {
-        model3dEffectsMap: effects,
-        componentTransforms: ct,
-        parameterDefaults: pd,
-      }
-    } catch (e) {
-      if (process.env.NODE_ENV === "development") {
-        console.warn("[ModelViewer3D] Failed to parse model_3d_effects:", e)
-      }
-      return {
-        model3dEffectsMap: undefined,
-        componentTransforms: undefined,
-        parameterDefaults: undefined,
-      }
-    }
-  }, [model3dEffects])
-  const cameraPosition: [number, number, number] =
-    zoomPreset === "embed" ? [25, 28, 25] : [22, 25, 22]
+    }, [model3dEffects])
+  const cameraPosition: [number, number, number] = zoomPreset === "embed" ? [4, 6, 4] : [3, 6, 3]
 
   return (
     <div
@@ -1087,6 +1120,7 @@ export const ModelViewer3D = ({
             model3dEffectsMap={model3dEffectsMap}
             componentTransforms={componentTransforms}
             parameterDefaults={parameterDefaults}
+            materialsFromZip={materialsFromZip}
             canCapture={canCapture ?? false}
             onCaptureReady={onCaptureReady}
             zoomPreset={zoomPreset}

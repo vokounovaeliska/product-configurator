@@ -28,12 +28,13 @@ If the plugin doesn't export anything:
 ## Usage
 
 1. Open a SketchUp model with Dynamic Components
-2. **Plugins → Configurator → Export for Configurator (zip + GLB)**
+2. **Plugins → Configurator → Export for Configurator (single zip)**
 3. Choose save location (default: `modelname_configurator.zip`)
-4. The plugin creates:
-   - **`modelname_configurator.zip`** – contains `parameters.json` + `materials/` (PNG textures)
-   - **`modelname_configurator.glb`** – 3D model for the configurator
-5. **Upload** to configurator: GLB file + parameters.zip (or parameters.json alone for solid colors only)
+4. The plugin creates a **single zip** containing:
+   - **`model.glb`** – 3D model for the configurator
+   - **`parameters.json`** – parametric formulas and effects
+   - **`materials/`** – PNG textures (when present)
+5. **Upload** to configurator: just the zip file (no separate GLB needed)
 
 ## Output Format
 
@@ -42,13 +43,12 @@ If the plugin doesn't export anything:
   "parameters": [...],
   "components": ["Top", "Bottom", "Legs", "Legs2"],
   "materials": {
-    "oak": { "texturePath": "materials/oak.png" },
-    "black": { "colorHex": "#1A1A1A" }
+    "oak": { "texturePath": "materials/oak.png" }
   }
 }
 ```
 
-Materials are extracted from the SketchUp model: **textured materials → PNG** in `materials/` (preferred), solid colors → `colorHex`. All model materials are exported (except `Layer_*`, `Default`). Dimension params (LenX, LenY, LenZ, width, etc.) are exported in **cm** (SketchUp API returns inches; plugin converts).
+Materials are extracted from the SketchUp model: **only textured materials** are exported as PNG in `materials/`. Color-only materials are skipped; the configurator supports textures only. Dimension params (LenX, LenY, LenZ, width, etc.) are exported in **cm** (SketchUp API returns inches; plugin converts).
 
 ## Effect Types
 
