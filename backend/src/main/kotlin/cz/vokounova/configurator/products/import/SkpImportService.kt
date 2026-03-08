@@ -265,7 +265,7 @@ class SkpImportService(
                         code = param.name.uppercase().replace(Regex("[^A-Z0-9_]"), "_"),
                         label = param.label.ifEmpty { param.name },
                         type = inference.type,
-                        isRequired = false,
+                        isRequired = true,
                         minInt = inference.minInt,
                         maxInt = inference.maxInt,
                         minDecimal = inference.minDecimal,

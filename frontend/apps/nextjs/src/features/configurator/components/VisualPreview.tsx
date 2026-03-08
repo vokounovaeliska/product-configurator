@@ -28,6 +28,15 @@ type Props = {
   model3dConfig?: Model3dConfig | null
   /** JSON: attribute code → effects (from parameters.json). When set, used for scale/position. */
   model3dEffects?: string | null
+  /** Zoom preferences from server (embed). When set, used for initial camera. */
+  configuratorPreferencesFromServer?: {
+    zoomDistanceDefault?: number | null
+    zoomDistanceEmbed?: number | null
+  } | null
+  /** Override camera distance (e.g. from preview settings slider). Syncs 3D view to this value. */
+  cameraDistanceOverride?: number | null
+  /** Called when user zooms in 3D view (live updates for slider sync). */
+  onCameraDistanceChange?: (distance: number) => void
   /** When true, enables canvas capture for embed snapshot (preserveDrawingBuffer). */
   canCapture?: boolean
   /** Called when 3D capture at fixed angle is ready (embed only). */
@@ -37,12 +46,15 @@ type Props = {
 }
 
 export const VisualPreview = ({
-  productModelId: _productModelId,
+  productModelId,
   selectedComponentId,
   selectedOptionLayers = [],
   model3dUrl,
   model3dConfig,
   model3dEffects,
+  configuratorPreferencesFromServer,
+  cameraDistanceOverride,
+  onCameraDistanceChange,
   canCapture,
   onCaptureReady,
   isCompact = false,
@@ -69,6 +81,10 @@ export const VisualPreview = ({
         >
           <ModelViewer3D
             modelUrl={model3dUrl!}
+            productModelId={productModelId}
+            configuratorPreferencesFromServer={configuratorPreferencesFromServer}
+            cameraDistanceOverride={cameraDistanceOverride}
+            onCameraDistanceChange={onCameraDistanceChange}
             className="rounded-lg"
             config={model3dConfig}
             model3dEffects={model3dEffects}

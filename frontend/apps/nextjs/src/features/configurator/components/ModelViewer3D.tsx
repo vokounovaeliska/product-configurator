@@ -1,10 +1,14 @@
 "use client"
 
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from "react"
+import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { Center, OrbitControls, useGLTF } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 
+import {
+  useConfiguratorPreferences,
+  usePatchConfiguratorPreferences,
+} from "@/api/configuratorPreferencesQueries"
 import { env } from "@/config/env"
 import { getImageUrl } from "@/utils/imageUrl"
 
@@ -32,6 +36,32 @@ import { disposeEdgesFromScene, regenerateEdgesFromScene } from "../utils/regene
 /** Camera position for snapshot capture – front-right-top product shot angle (scene units = m). */
 const SNAPSHOT_CAMERA_POSITION = new THREE.Vector3(22, 18, 22)
 
+/** Syncs camera position when it changes (e.g. after zoom preferences are saved). R3F Canvas only uses camera prop on mount. */
+function CameraPositionSync({ position }: { position: [number, number, number] }) {
+  const camera = useThree((s) => s.camera)
+  const prevRef = useRef(position)
+  useEffect(() => {
+    if (
+      prevRef.current[0] !== position[0] ||
+      prevRef.current[1] !== position[1] ||
+      prevRef.current[2] !== position[2]
+    ) {
+      camera.position.set(position[0], position[1], position[2])
+      camera.updateProjectionMatrix()
+      prevRef.current = position
+    }
+  }, [camera, position])
+  return null
+}
+
+const ZOOM_MIN_DEFAULT = 1
+const ZOOM_MAX_DEFAULT = 10
+const ZOOM_DEFAULT_DISTANCE = 2
+const ZOOM_MIN_EMBED = 3
+const ZOOM_MAX_EMBED = 11
+/** Default zoom for embed when no preference saved – more zoomed in than configurator. */
+const ZOOM_DEFAULT_EMBED = 4
+
 export type Model3dEffect = {
   meshNode: string
   type: "scale" | "position" | "material"
@@ -48,12 +78,23 @@ export { getAttributeValueFromConfig } from "../utils/parametricTransformPipelin
 
 type Props = {
   modelUrl: string
+  /** For configurator: fetches/saves zoom to backend. For embed: use configuratorPreferencesFromServer. */
+  productModelId?: string
+  /** Zoom preferences from server (embed). When set, used for initial camera. */
+  configuratorPreferencesFromServer?: {
+    zoomDistanceDefault?: number | null
+    zoomDistanceEmbed?: number | null
+  } | null
+  /** Override camera distance (e.g. from preview settings slider). When set, syncs 3D view to this value. */
+  cameraDistanceOverride?: number | null
+  /** Called when user zooms in 3D view (live updates for slider sync). */
+  onCameraDistanceChange?: (distance: number) => void
   className?: string
   config?: Model3dConfig | null
   /** JSON string: attribute code → Model3dEffect[]. When set, used for scale/position (one-to-many). */
   model3dEffects?: string | null
-  /** Controls initial camera framing (embed should start slightly zoomed out). */
-  zoomPreset?: "default" | "embed"
+  /** Controls initial camera framing. thumbnail = zoomed in for card preview. */
+  zoomPreset?: "default" | "embed" | "thumbnail"
   /** When true, enables preserveDrawingBuffer so the canvas can be captured (e.g. for embed snapshot). */
   canCapture?: boolean
   /** Called when capture at fixed angle is available (embed only). */
@@ -112,12 +153,14 @@ function nodeMatchesPattern(nodeName: string, pattern: MeshMatcher): boolean {
 
 /** Patterns per logical part. RegExp = full regex test. */
 const MESH_PATTERNS: Record<string, MeshMatcher[]> = {
-  top: [/^top$/i, /top/i, /deska/i, /surface/i],
+  top: [/^top$/i, /top/i, /desk/i, /deska/i, /surface/i],
   bottom: [/^bottom$/i, /bottom/i, /podstavec/i, /platform/i, /base/i],
   legs: [/^legs?$/i, /^leg\d+$/i, /noh[ay]/i],
   group: [/^group$/i, /^skupina$/i, /skupina/i, /group/i],
   headboard: [/^headboard$/i, /headboard/i, /opieradlo/i, /zadni/i],
   platform: [/^platform$/i, /platform/i, /plosina/i],
+  uchytky: [/^uchytky$/i, /uchytky/i, /handles/i, /rukojet/i, /uchytka/i],
+  komoda: [/^komoda$/i, /komoda/i],
 }
 
 function getPatternsForPart(label: string, code: string): MeshMatcher[] {
@@ -217,6 +260,41 @@ function restoreNodeFromBaseline(node: THREE.Object3D, baseline: BaselineTransfo
   node.scale.set(baseline.scale[0], baseline.scale[1], baseline.scale[2])
 }
 
+/**
+ * Resolves material formula like "=parent!color_top" to the selected option's value/label.
+ * Used for round tables and other models where material is driven by parent attribute.
+ */
+function resolveMaterialFormula(
+  raw: string,
+  config: Model3dConfig | null,
+  parentName: string | null,
+  allOptions: { label?: string; value?: string }[],
+  _allSelectedOptions: { label?: string; value?: string }[],
+): string | null {
+  const trimmed = raw.trim()
+  if (!trimmed?.startsWith("=")) return trimmed || null
+
+  const match = /^parent!\s*([a-zA-Z_][a-zA-Z0-9_]*)$/i.exec(trimmed.slice(1).trim())
+  const paramCode = match?.[1]
+  if (!match || !paramCode || !config?.components?.length) return null
+
+  const parentComp = config.components.find(
+    (c) =>
+      c.label?.toLowerCase() === parentName?.toLowerCase() ||
+      c.code?.toLowerCase() === parentName?.toLowerCase(),
+  )
+  if (!parentComp) return null
+
+  const attrs = config.attributesByComponent[parentComp.id] ?? []
+  const attr = attrs.find((a) => a.code?.toLowerCase() === paramCode.toLowerCase())
+  if (!attr) return null
+
+  const selected = config.selectedOptionsByComponent[parentComp.id]?.[attr.id]
+  const opts = config.optionsByAttribute?.[attr.id] ?? allOptions
+  const opt = selected ?? opts[0]
+  return opt?.label ?? opt?.value ?? null
+}
+
 function applyComponentTransformsToScene(
   scene: THREE.Object3D,
   transforms: Record<string, ComponentTransform>,
@@ -288,22 +366,31 @@ function applyComponentTransformsToScene(
       }
     }
 
-    const material = t.material
-    if (typeof material === "string" && material) {
-      const targetNodes = findNodesByName(scene, compName, compName.toUpperCase())
-      const defaultOpt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
-      const opt =
-        allSelectedOptions.find((o) => o?.label?.toLowerCase() === material.toLowerCase()) ??
-        defaultOpt
-      const textureUrl =
-        opt?.imageUrl ??
-        materialsFromZip?.[material]?.textureUrl ??
-        materialsFromZip?.[material.toLowerCase()]?.textureUrl
-      const texture = textureUrl && texturesByUrl?.get(textureUrl)
-      for (const n of targetNodes) {
-        if (texture) {
-          applyTextureToNode(n, texture)
-        }
+    const rawMaterial = t.material
+    if (typeof rawMaterial !== "string" || !rawMaterial) continue
+
+    const material = resolveMaterialFormula(
+      rawMaterial,
+      config,
+      (t._parent as string) ?? null,
+      allOptions,
+      allSelectedOptions,
+    )
+    if (!material) continue
+
+    const targetNodes = findNodesByName(scene, compName, compName.toUpperCase())
+    const defaultOpt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
+    const opt =
+      allSelectedOptions.find((o) => o?.label?.toLowerCase() === material.toLowerCase()) ??
+      defaultOpt
+    const textureUrl =
+      opt?.imageUrl ??
+      materialsFromZip?.[material]?.textureUrl ??
+      materialsFromZip?.[material.toLowerCase()]?.textureUrl
+    const texture = textureUrl && texturesByUrl?.get(textureUrl)
+    for (const n of targetNodes) {
+      if (texture) {
+        applyTextureToNode(n, texture)
       }
     }
   }
@@ -430,9 +517,13 @@ function applyConfigToScene(
 
       if (code.startsWith("color") || code.startsWith("barva") || code.endsWith("_color")) {
         const targetName = getColorTargetFromCode(code)
-        const targetNodes = targetName
+        let targetNodes = targetName
           ? findNodesByName(scene, targetName, targetName.toUpperCase())
           : ([findNodeByName(scene, comp.label, comp.code)].filter(Boolean) as THREE.Object3D[])
+        if (targetNodes.length === 0 && targetName) {
+          const fallback = findNodeForEffect(scene, targetName)
+          if (fallback) targetNodes = [fallback]
+        }
         const opts = config?.optionsByAttribute?.[attr.id] ?? []
         const defaultOpt =
           opts.length > 0 ? [...opts].sort((a, b) => a.sortOrder - b.sortOrder)[0] : null
@@ -662,23 +753,65 @@ function collectTextureUrls(
       }
     }
   }
-  if (componentTransforms && config?.optionsByAttribute) {
-    const allOptions = Object.values(config.optionsByAttribute).flat()
+  if (componentTransforms && config) {
+    const allOptions = Object.values(config.optionsByAttribute ?? {})
+      .flat()
+      .filter(Boolean)
+    const allSelected = Object.values(config.selectedOptionsByComponent ?? {})
+      .flatMap((m) => Object.values(m).filter(Boolean))
+      .filter((o): o is NonNullable<typeof o> => o != null)
     for (const t of Object.values(componentTransforms)) {
-      const material = typeof t.material === "string" ? t.material : null
-      if (material) {
-        const opt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
-        if (opt?.imageUrl) urls.add(opt.imageUrl)
-      }
+      const raw = typeof t.material === "string" ? t.material : null
+      if (!raw) continue
+      const material = resolveMaterialFormula(
+        raw,
+        config,
+        (t._parent as string) ?? null,
+        allOptions,
+        allSelected,
+      )
+      if (!material) continue
+      const opt = allOptions.find((o) => o.label?.toLowerCase() === material.toLowerCase())
+      if (opt?.imageUrl) urls.add(opt.imageUrl)
     }
   }
-  if (componentTransforms && materialsFromZip) {
+  if (componentTransforms && materialsFromZip && config) {
+    const allOptions = Object.values(config.optionsByAttribute ?? {})
+      .flat()
+      .filter(Boolean)
+    const allSelected = Object.values(config.selectedOptionsByComponent ?? {})
+      .flatMap((m) => Object.values(m).filter(Boolean))
+      .filter((o): o is NonNullable<typeof o> => o != null)
     for (const t of Object.values(componentTransforms)) {
-      const material = typeof t.material === "string" ? t.material : null
-      if (material) {
-        const mat = materialsFromZip[material] ?? materialsFromZip[material.toLowerCase()]
-        const url = mat?.textureUrl
-        if (url) urls.add(url)
+      const raw = typeof t.material === "string" ? t.material : null
+      if (!raw) continue
+      const material = resolveMaterialFormula(
+        raw,
+        config,
+        (t._parent as string) ?? null,
+        allOptions,
+        allSelected,
+      )
+      if (!material) continue
+      const mat = materialsFromZip[material] ?? materialsFromZip[material.toLowerCase()]
+      const url = mat?.textureUrl
+      if (url) urls.add(url)
+    }
+  } else if (componentTransforms && materialsFromZip) {
+    const hasFormula = Object.values(componentTransforms).some(
+      (t) => typeof t.material === "string" && t.material.startsWith("="),
+    )
+    if (hasFormula) {
+      for (const mat of Object.values(materialsFromZip)) {
+        if (mat?.textureUrl) urls.add(mat.textureUrl)
+      }
+    } else {
+      for (const t of Object.values(componentTransforms)) {
+        const material = typeof t.material === "string" ? t.material : null
+        if (material) {
+          const mat = materialsFromZip[material] ?? materialsFromZip[material.toLowerCase()]
+          if (mat?.textureUrl) urls.add(mat.textureUrl)
+        }
       }
     }
   }
@@ -848,8 +981,14 @@ function getCenterCacheKey(config: Model3dConfig | null | undefined): string {
   })
 }
 
-function getSnapshotCameraDistance(zoomPreset: "default" | "embed"): number {
-  return zoomPreset === "embed" ? 14 : 12
+function getSnapshotCameraDistance(
+  zoomPreset: "default" | "embed" | "thumbnail",
+  savedDistance?: number | null,
+): number {
+  if (zoomPreset === "thumbnail") return 10
+  if (savedDistance != null) return savedDistance
+  if (zoomPreset === "embed") return ZOOM_DEFAULT_EMBED
+  return 12
 }
 
 function WebGLContextLossHandler() {
@@ -871,11 +1010,13 @@ function SnapshotCaptureController({
   onCaptureReady,
   canCapture,
   zoomPreset,
+  savedZoomDistance,
 }: {
   controlsRef: React.RefObject<OrbitControlsRef | null>
   onCaptureReady?: (capture: () => Promise<string | null>) => void
   canCapture: boolean
-  zoomPreset: "default" | "embed"
+  zoomPreset: "default" | "embed" | "thumbnail"
+  savedZoomDistance?: number | null
 }) {
   const { camera, gl, invalidate } = useThree()
   const pendingResolveRef = useRef<((data: string | null) => void) | null>(null)
@@ -893,7 +1034,9 @@ function SnapshotCaptureController({
         const savedZoom = camera.zoom
 
         const dir = SNAPSHOT_CAMERA_POSITION.clone().normalize()
-        camera.position.copy(dir.multiplyScalar(getSnapshotCameraDistance(zoomPreset)))
+        camera.position.copy(
+          dir.multiplyScalar(getSnapshotCameraDistance(zoomPreset, savedZoomDistance)),
+        )
         camera.zoom = 1
         camera.lookAt(0, 0, 0)
         camera.updateProjectionMatrix()
@@ -918,7 +1061,7 @@ function SnapshotCaptureController({
       })
 
     onCaptureReady(capture)
-  }, [camera, controlsRef, invalidate, onCaptureReady, canCapture, zoomPreset])
+  }, [camera, controlsRef, invalidate, onCaptureReady, canCapture, zoomPreset, savedZoomDistance])
 
   useFrame(() => {
     if (framesUntilCaptureRef.current > 0) {
@@ -939,6 +1082,94 @@ function SnapshotCaptureController({
   return null
 }
 
+function ZoomPersistence({
+  controlsRef,
+  zoomPreset,
+  onSaveZoom,
+  onDistanceChange,
+}: {
+  controlsRef: React.RefObject<OrbitControlsRef | null>
+  zoomPreset: "default" | "embed" | "thumbnail"
+  onSaveZoom?: (zoomPreset: "default" | "embed", distance: number) => void
+  onDistanceChange?: (distance: number) => void
+}) {
+  const lastSavedRef = useRef<number | null>(null)
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(
+    () => () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    },
+    [],
+  )
+
+  useFrame(() => {
+    if (zoomPreset === "thumbnail") return
+    const controls = controlsRef.current
+    if (!controls) return
+
+    const distance = controls.getDistance()
+    const minDist = zoomPreset === "embed" ? ZOOM_MIN_EMBED : ZOOM_MIN_DEFAULT
+    const maxDist = zoomPreset === "embed" ? ZOOM_MAX_EMBED : ZOOM_MAX_DEFAULT
+    const clamped = Math.max(minDist, Math.min(maxDist, distance))
+
+    onDistanceChange?.(clamped)
+
+    if (!onSaveZoom) return
+    if (lastSavedRef.current !== null && Math.abs(lastSavedRef.current - clamped) < 0.01) return
+
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    saveTimeoutRef.current = setTimeout(() => {
+      onSaveZoom(zoomPreset, clamped)
+      lastSavedRef.current = clamped
+      saveTimeoutRef.current = null
+    }, 150)
+  })
+
+  return null
+}
+
+/** Syncs cameraDistanceOverride to OrbitControls when slider changes. */
+function CameraDistanceOverrideSync({
+  controlsRef,
+  cameraDistanceOverride,
+  zoomPreset,
+}: {
+  controlsRef: React.RefObject<OrbitControlsRef | null>
+  cameraDistanceOverride: number | null | undefined
+  zoomPreset: "default" | "embed" | "thumbnail"
+}) {
+  const prevOverrideRef = useRef<number | null | undefined>(undefined)
+
+  useFrame(() => {
+    if (zoomPreset === "thumbnail") return
+    if (cameraDistanceOverride == null) {
+      prevOverrideRef.current = undefined
+      return
+    }
+    if (prevOverrideRef.current === cameraDistanceOverride) return
+    prevOverrideRef.current = cameraDistanceOverride
+
+    const controls = controlsRef.current
+    if (!controls) return
+
+    const minDist = zoomPreset === "embed" ? ZOOM_MIN_EMBED : ZOOM_MIN_DEFAULT
+    const maxDist = zoomPreset === "embed" ? ZOOM_MAX_EMBED : ZOOM_MAX_DEFAULT
+    const clamped = Math.max(minDist, Math.min(maxDist, cameraDistanceOverride))
+
+    const controlsAny = controls as unknown as {
+      spherical?: { radius: number }
+      update?: () => void
+    }
+    if (controlsAny.spherical && typeof controlsAny.update === "function") {
+      controlsAny.spherical.radius = clamped
+      controlsAny.update()
+    }
+  })
+
+  return null
+}
+
 function SceneWithCapture({
   modelUrl,
   config,
@@ -950,6 +1181,10 @@ function SceneWithCapture({
   onCaptureReady,
   zoomPreset,
   isRenderRawGlb,
+  onSaveZoom,
+  cameraDistanceOverride,
+  onCameraDistanceChange,
+  savedZoomDistance,
 }: {
   modelUrl: string
   config?: Model3dConfig | null
@@ -959,13 +1194,15 @@ function SceneWithCapture({
   materialsFromZip?: Record<string, { textureUrl?: string } | undefined>
   canCapture: boolean
   onCaptureReady?: (capture: () => Promise<string | null>) => void
-  zoomPreset: "default" | "embed"
+  zoomPreset: "default" | "embed" | "thumbnail"
   isRenderRawGlb?: boolean
+  onSaveZoom?: (zoomPreset: "default" | "embed", distance: number) => void
+  cameraDistanceOverride?: number | null
+  onCameraDistanceChange?: (distance: number) => void
+  savedZoomDistance?: number | null
 }) {
   const controlsRef = useRef<OrbitControlsRef>(null)
-  const shouldUseCenter =
-    !isRenderRawGlb &&
-    !(componentTransforms != null && Object.keys(componentTransforms ?? {}).length > 0)
+  const shouldUseCenter = !isRenderRawGlb
 
   const model = (
     <Model
@@ -993,17 +1230,41 @@ function SceneWithCapture({
       )}
       <OrbitControls
         ref={controlsRef}
-        enablePan
-        enableZoom
-        enableRotate
+        enablePan={zoomPreset !== "thumbnail"}
+        enableZoom={zoomPreset !== "thumbnail"}
+        enableRotate={zoomPreset !== "thumbnail"}
+        {...(zoomPreset === "default" && {
+          minDistance: ZOOM_MIN_DEFAULT,
+          maxDistance: ZOOM_MAX_DEFAULT,
+        })}
+        {...(zoomPreset === "embed" && {
+          minDistance: ZOOM_MIN_EMBED,
+          maxDistance: ZOOM_MAX_EMBED,
+        })}
         target={[0, 0, 0]}
       />
+      {zoomPreset !== "thumbnail" && (
+        <>
+          <CameraDistanceOverrideSync
+            controlsRef={controlsRef}
+            cameraDistanceOverride={cameraDistanceOverride}
+            zoomPreset={zoomPreset}
+          />
+          <ZoomPersistence
+            controlsRef={controlsRef}
+            zoomPreset={zoomPreset}
+            onSaveZoom={onSaveZoom}
+            onDistanceChange={onCameraDistanceChange}
+          />
+        </>
+      )}
       {canCapture && onCaptureReady && (
         <SnapshotCaptureController
           controlsRef={controlsRef}
           onCaptureReady={onCaptureReady}
           canCapture={canCapture}
           zoomPreset={zoomPreset}
+          savedZoomDistance={savedZoomDistance}
         />
       )}
     </>
@@ -1024,6 +1285,10 @@ function getRenderRawGlb(isRenderRawGlbProp?: boolean): boolean {
 
 export const ModelViewer3D = ({
   modelUrl,
+  productModelId,
+  configuratorPreferencesFromServer,
+  cameraDistanceOverride,
+  onCameraDistanceChange,
   className,
   config,
   model3dEffects,
@@ -1094,7 +1359,46 @@ export const ModelViewer3D = ({
         }
       }
     }, [model3dEffects])
-  const cameraPosition: [number, number, number] = zoomPreset === "embed" ? [4, 6, 4] : [3, 6, 3]
+
+  const { data: preferencesFromApi } = useConfiguratorPreferences(productModelId ?? "")
+  const patchPreferences = usePatchConfiguratorPreferences(productModelId ?? "")
+
+  const savedZoomDistance = useMemo(() => {
+    if (zoomPreset === "thumbnail") return null
+    const d =
+      configuratorPreferencesFromServer?.zoomDistanceDefault ??
+      preferencesFromApi?.zoomDistanceDefault
+    if (zoomPreset === "embed") {
+      if (d != null && d >= ZOOM_MIN_EMBED && d <= ZOOM_MAX_EMBED) return d
+      return null
+    }
+    if (d != null && d >= ZOOM_MIN_DEFAULT && d <= ZOOM_MAX_DEFAULT) return d
+    return null
+  }, [
+    zoomPreset,
+    configuratorPreferencesFromServer?.zoomDistanceDefault,
+    preferencesFromApi?.zoomDistanceDefault,
+  ])
+
+  const onSaveZoom = useCallback(
+    (_preset: "default" | "embed", distance: number) => {
+      if (!productModelId) return
+      patchPreferences.mutate({ zoomDistanceDefault: distance })
+    },
+    [productModelId, patchPreferences],
+  )
+
+  const shouldPersistZoom =
+    Boolean(productModelId) && zoomPreset !== "thumbnail" && zoomPreset !== "embed"
+
+  const cameraPosition: [number, number, number] = useMemo(() => {
+    const defaultPos = zoomPreset === "embed" ? [0, 2, 5] : [0, 2, 5]
+    const dir = new THREE.Vector3(defaultPos[0], defaultPos[1], defaultPos[2]).normalize()
+    const defaultDistance = zoomPreset === "embed" ? ZOOM_DEFAULT_EMBED : ZOOM_DEFAULT_DISTANCE
+    const distance =
+      zoomPreset === "thumbnail" ? ZOOM_DEFAULT_DISTANCE : (savedZoomDistance ?? defaultDistance)
+    return dir.multiplyScalar(distance).toArray() as [number, number, number]
+  }, [zoomPreset, savedZoomDistance])
 
   return (
     <div
@@ -1105,6 +1409,7 @@ export const ModelViewer3D = ({
         camera={{ position: cameraPosition, fov: 45 }}
         gl={{ antialias: true, preserveDrawingBuffer: canCapture ?? false }}
       >
+        <CameraPositionSync position={cameraPosition} />
         <WebGLContextLossHandler />
         {/* eslint-disable react/no-unknown-property -- R3F/Three.js uses object, intensity, position etc. */}
         <ambientLight intensity={0.8} />
@@ -1125,6 +1430,10 @@ export const ModelViewer3D = ({
             onCaptureReady={onCaptureReady}
             zoomPreset={zoomPreset}
             isRenderRawGlb={isRenderRawGlb}
+            onSaveZoom={shouldPersistZoom ? onSaveZoom : undefined}
+            cameraDistanceOverride={cameraDistanceOverride}
+            onCameraDistanceChange={onCameraDistanceChange}
+            savedZoomDistance={savedZoomDistance}
           />
         </Suspense>
       </Canvas>

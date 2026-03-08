@@ -91,7 +91,7 @@ export const EditPricingRuleDialog = ({
           .get(
             `products/api/v1/product-models/${rule.productModelId}/components/${comp.id}/attributes`,
             {
-              searchParams: { limit: 500 },
+              searchParams: { limit: 100 },
             },
           )
           .json<{ items?: AttributeDto[] }>()
@@ -114,7 +114,7 @@ export const EditPricingRuleDialog = ({
   const { data: attributesData } = useAttributesList(
     rule.productModelId,
     editComponentId,
-    { limit: 500 },
+    { limit: 100 },
     { enabled: Boolean(rule.productModelId && editComponentId) },
   )
   const editAttributes = attributesData?.items ?? []
@@ -162,8 +162,8 @@ export const EditPricingRuleDialog = ({
   /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- boolean OR intent */
   const isNumericMode = Boolean(
     (attributeContext && isNumericType(attributeContext.attributeType)) ||
-    (selectedAttribute && isNumericType(selectedAttribute.type)) ||
-    numericRange != null,
+      (selectedAttribute && isNumericType(selectedAttribute.type)) ||
+      numericRange != null,
   )
   /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
   const rangeStep = isDecimal
@@ -235,7 +235,7 @@ export const EditPricingRuleDialog = ({
                 className="text-muted-foreground"
               >
                 {selectedAttribute != null
-                  ? `${selectedAttribute.label ?? selectedAttribute.code} (${selectedAttribute.code})`
+                  ? (selectedAttribute.label ?? selectedAttribute.code)
                   : rule.attributeCode}
               </Typography>
             </div>

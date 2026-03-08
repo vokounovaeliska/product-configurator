@@ -13,6 +13,7 @@ import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
+import cz.vokounova.configurator.generated.jooq.tables.ProductModelConfiguratorPreferences
 import cz.vokounova.configurator.generated.jooq.tables.User
 import cz.vokounova.configurator.generated.jooq.tables.UserRefreshToken
 import cz.vokounova.configurator.generated.jooq.tables.records.PgpArmorHeadersRecord
@@ -95,6 +96,11 @@ fun PGP_ARMOR_HEADERS(
  * The table <code>public.product_model</code>.
  */
 val PRODUCT_MODEL: ProductModel = ProductModel.PRODUCT_MODEL
+
+/**
+ * The table <code>public.product_model_configurator_preferences</code>.
+ */
+val PRODUCT_MODEL_CONFIGURATOR_PREFERENCES: ProductModelConfiguratorPreferences = ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES
 
 /**
  * The table <code>public.user</code>.

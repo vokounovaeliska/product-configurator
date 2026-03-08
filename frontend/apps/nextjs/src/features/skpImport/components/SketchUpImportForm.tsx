@@ -31,7 +31,7 @@ export const SketchUpImportForm = () => {
       })
 
       if (result.success && result.productModelId) {
-        router.push(ROUTES.setupPricingRules(result.productModelId))
+        router.push(ROUTES.configurator(result.productModelId))
       }
     } catch {
       // Error is handled by mutation

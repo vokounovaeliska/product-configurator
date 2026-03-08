@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { CheckIcon, CopyIcon, ExternalLinkIcon, SparklesIcon } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { CheckIcon, ChevronDownIcon, CopyIcon, ExternalLinkIcon, SparklesIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
@@ -11,11 +11,18 @@ import { Label } from "@workspace/ui/components/label"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
+import {
+  useConfiguratorPreferences,
+  usePatchConfiguratorPreferences,
+} from "@/api/configuratorPreferencesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { env } from "@/config/env"
 import { ROUTES } from "@/lib/routes"
+import { extractErrorMessage } from "@/lib/utils"
 
 import { useUpdateProductModel } from "../api/productModelQueries"
+
+const isEmbedDisplayDefault = true
 
 const URL_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -36,12 +43,41 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const t = useTranslations("ProductModels.Publish")
   const [url, setUrl] = useState(productModel.url ?? toUrlPath(productModel.name))
   const [isCopied, setIsCopied] = useState(false)
+  const [embedDisplaySaveError, setEmbedDisplaySaveError] = useState<string | null>(null)
 
   const updateProductModel = useUpdateProductModel()
+  const { data: preferences } = useConfiguratorPreferences(productModel.id)
+  const patchPreferences = usePatchConfiguratorPreferences(productModel.id)
+
+  const isEmbedProductNameShownFromServer =
+    preferences?.embedShowProductName ?? isEmbedDisplayDefault
+  const isEmbedDescriptionShownFromServer =
+    preferences?.embedShowDescription ?? isEmbedDisplayDefault
+  const isEmbedComponentsShownFromServer = preferences?.embedShowComponents ?? isEmbedDisplayDefault
+
+  const [shouldShowProductNameInEmbed, setShouldShowProductNameInEmbed] = useState(
+    isEmbedProductNameShownFromServer,
+  )
+  const [shouldShowDescriptionInEmbed, setShouldShowDescriptionInEmbed] = useState(
+    isEmbedDescriptionShownFromServer,
+  )
+  const [shouldShowComponentsInEmbed, setShouldShowComponentsInEmbed] = useState(
+    isEmbedComponentsShownFromServer,
+  )
 
   useEffect(() => {
     setUrl(productModel.url ?? toUrlPath(productModel.name))
   }, [productModel.url, productModel.name])
+
+  useEffect(() => {
+    setShouldShowProductNameInEmbed(preferences?.embedShowProductName ?? isEmbedDisplayDefault)
+    setShouldShowDescriptionInEmbed(preferences?.embedShowDescription ?? isEmbedDisplayDefault)
+    setShouldShowComponentsInEmbed(preferences?.embedShowComponents ?? isEmbedDisplayDefault)
+  }, [
+    preferences?.embedShowProductName,
+    preferences?.embedShowDescription,
+    preferences?.embedShowComponents,
+  ])
 
   const isUrlValid = url === "" || URL_PATTERN.test(url)
   const isUrlError = url !== "" && !isUrlValid
@@ -108,6 +144,35 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     setIsCopied(true)
     setTimeout(() => setIsCopied(false), 2000)
   }
+
+  const hasEmbedDisplayChanged =
+    shouldShowProductNameInEmbed !== isEmbedProductNameShownFromServer ||
+    shouldShowDescriptionInEmbed !== isEmbedDescriptionShownFromServer ||
+    shouldShowComponentsInEmbed !== isEmbedComponentsShownFromServer
+
+  const handleSaveEmbedDisplay = useCallback(() => {
+    if (!hasEmbedDisplayChanged) return
+    setEmbedDisplaySaveError(null)
+    patchPreferences.mutate(
+      {
+        embedShowProductName: shouldShowProductNameInEmbed,
+        embedShowDescription: shouldShowDescriptionInEmbed,
+        embedShowComponents: shouldShowComponentsInEmbed,
+      },
+      {
+        onSuccess: () => setEmbedDisplaySaveError(null),
+        onError: (error) => {
+          void extractErrorMessage(error).then(setEmbedDisplaySaveError)
+        },
+      },
+    )
+  }, [
+    hasEmbedDisplayChanged,
+    shouldShowProductNameInEmbed,
+    shouldShowDescriptionInEmbed,
+    shouldShowComponentsInEmbed,
+    patchPreferences,
+  ])
 
   return (
     <Card className="p-6">
@@ -255,6 +320,83 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
               <pre className="max-h-24 overflow-auto rounded bg-muted p-3 text-xs">
                 <code>{embedCode}</code>
               </pre>
+
+              <details className="group mt-4">
+                <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
+                  <ChevronDownIcon className="size-4 shrink-0 transition-transform group-open:rotate-180" />
+                  {t("embedDisplay.title")}
+                </summary>
+                <div className="mt-3 space-y-3 border-t border-border pt-3">
+                  <Typography
+                    as="p"
+                    variant="body-sm"
+                    className="text-muted-foreground"
+                  >
+                    {t("embedDisplay.description")}
+                  </Typography>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="publish-embed-show-product-name"
+                        checked={shouldShowProductNameInEmbed}
+                        onCheckedChange={(v) => setShouldShowProductNameInEmbed(Boolean(v))}
+                      />
+                      <Label
+                        htmlFor="publish-embed-show-product-name"
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {t("embedDisplay.showProductName")}
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="publish-embed-show-description"
+                        checked={shouldShowDescriptionInEmbed}
+                        onCheckedChange={(v) => setShouldShowDescriptionInEmbed(Boolean(v))}
+                      />
+                      <Label
+                        htmlFor="publish-embed-show-description"
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {t("embedDisplay.showDescription")}
+                      </Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="publish-embed-show-components"
+                        checked={shouldShowComponentsInEmbed}
+                        onCheckedChange={(v) => setShouldShowComponentsInEmbed(Boolean(v))}
+                      />
+                      <Label
+                        htmlFor="publish-embed-show-components"
+                        className="cursor-pointer text-sm font-normal"
+                      >
+                        {t("embedDisplay.showComponents")}
+                      </Label>
+                    </div>
+                  </div>
+                  {embedDisplaySaveError && (
+                    <Typography
+                      as="p"
+                      variant="body-sm"
+                      className="text-destructive"
+                    >
+                      {embedDisplaySaveError}
+                    </Typography>
+                  )}
+                  {hasEmbedDisplayChanged && (
+                    <Button
+                      size="sm"
+                      onClick={handleSaveEmbedDisplay}
+                      disabled={patchPreferences.isPending}
+                    >
+                      {patchPreferences.isPending
+                        ? t("embedDisplay.saving")
+                        : t("embedDisplay.save")}
+                    </Button>
+                  )}
+                </div>
+              </details>
             </div>
           )}
         </div>

@@ -109,13 +109,6 @@ export const AttributeCard = ({ attribute, productModelId, componentId }: Props)
                   </span>
                 )}
               </div>
-              <Typography
-                as="p"
-                variant="body-sm"
-                className="mt-1 text-muted-foreground"
-              >
-                {attribute.code}
-              </Typography>
             </div>
           </div>
 

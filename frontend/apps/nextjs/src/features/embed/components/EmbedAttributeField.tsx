@@ -133,28 +133,20 @@ export const EmbedAttributeField = ({
                     <div className="relative mx-auto aspect-square w-10 shrink-0 overflow-hidden rounded-sm bg-muted">
                       <Image
                         src={getImageUrlForDisplay(opt.imageUrl)}
-                        alt=""
+                        alt={opt.label}
                         fill
                         className="object-cover"
                         unoptimized
                         sizes="40px"
                       />
                     </div>
-                    <div className="flex min-w-0 flex-col items-center gap-0 px-1 pb-1">
-                      <span
-                        className="w-full truncate text-center text-[10px] font-medium"
-                        title={opt.label}
-                      >
-                        {opt.label}
+                    {hasPrice && (
+                      <span className="shrink-0 px-1 pb-1 text-[9px] text-muted-foreground">
+                        {t("attributes.optionPrice", {
+                          amount: formatPrice(priceCents),
+                        })}
                       </span>
-                      {hasPrice && (
-                        <span className="shrink-0 text-[9px] text-muted-foreground">
-                          {t("attributes.optionPrice", {
-                            amount: formatPrice(priceCents),
-                          })}
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </>
                 ) : (
                   <div className="flex min-w-0 flex-col items-center gap-0 px-1.5 py-0.5">

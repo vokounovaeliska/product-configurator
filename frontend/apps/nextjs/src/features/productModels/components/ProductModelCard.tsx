@@ -14,6 +14,7 @@ import { ROUTES } from "@/lib/routes"
 
 import { DeleteProductModelDialog } from "./DeleteProductModelDialog"
 import { EditProductModelDialog } from "./EditProductModelDialog"
+import { ProductModelThumbnail } from "./ProductModelThumbnail"
 
 type Props = {
   productModel: ProductModelDto
@@ -36,6 +37,11 @@ export const ProductModelCard = ({ productModel }: Props) => {
     <>
       <Card className="p-6">
         <div className="space-y-4">
+          <ProductModelThumbnail
+            productModelId={productModel.id}
+            model3dUrl={productModel.model3dUrl}
+            model3dEffects={productModel.model3dEffects}
+          />
           <div className="flex items-start justify-between gap-2">
             <Typography
               as="h3"

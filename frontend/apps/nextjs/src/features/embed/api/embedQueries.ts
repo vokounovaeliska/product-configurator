@@ -17,12 +17,21 @@ export type ProductModelEmbedDto = {
   url: string | null
 }
 
+export type ConfiguratorPreferencesEmbedDto = {
+  zoomDistanceDefault: number | null
+  zoomDistanceEmbed: number | null
+  embedShowProductName: boolean | null
+  embedShowDescription: boolean | null
+  embedShowComponents: boolean | null
+}
+
 export type ProductEmbedFullDto = {
   product: ProductModelEmbedDto
   components: ComponentDto[]
   attributesByComponent: Record<string, AttributeDto[]>
   optionsByAttribute: Record<string, AttributeOptionDto[]>
   pricingRules: AttributePricingRuleDto[]
+  configuratorPreferences?: ConfiguratorPreferencesEmbedDto | null
 }
 
 export type CustomerRequestCreateDto = {

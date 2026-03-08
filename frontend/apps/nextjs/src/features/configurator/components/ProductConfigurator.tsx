@@ -14,6 +14,7 @@ import { useConfiguratorAttributes } from "@/features/configurator/hooks/useConf
 import { useOptionsByAttributeFor3D } from "@/features/configurator/hooks/useOptionsByAttributeFor3D"
 
 import { ComponentSelector } from "./ComponentSelector"
+import { ConfiguratorPreviewSettings } from "./ConfiguratorPreviewSettings"
 import { PriceDisplay } from "./PriceDisplay"
 import { VisualPreview } from "./VisualPreview"
 
@@ -59,6 +60,18 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
     useState<SelectedOptionsByComponent>({})
   const [selectedOtherValuesByComponent, setSelectedOtherValuesByComponent] =
     useState<SelectedOtherValuesByComponent>({})
+
+  const [liveZoomFromViewer, setLiveZoomFromViewer] = useState<number | null>(null)
+  const [sliderOverride, setSliderOverride] = useState<number | null>(null)
+  const onCameraDistanceChange = useCallback((distance: number) => {
+    setLiveZoomFromViewer(distance)
+  }, [])
+  const onSliderChange = useCallback((value: number) => {
+    setSliderOverride(value)
+  }, [])
+  const onSaveSuccess = useCallback(() => {
+    setSliderOverride(null)
+  }, [])
 
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
 
@@ -171,10 +184,20 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             model3dUrl={productModel.model3dUrl}
             model3dConfig={model3dConfig}
             model3dEffects={productModel.model3dEffects}
+            cameraDistanceOverride={sliderOverride}
+            onCameraDistanceChange={onCameraDistanceChange}
           />
         </div>
 
         <div className="space-y-6">
+          {productModel.model3dUrl && (
+            <ConfiguratorPreviewSettings
+              productModelId={productModelId}
+              liveZoomFromViewer={liveZoomFromViewer}
+              onSliderChange={onSliderChange}
+              onSaveSuccess={onSaveSuccess}
+            />
+          )}
           <PriceDisplay
             basePrice={productModel.price}
             totalPrice={computedPrice?.totalPrice}

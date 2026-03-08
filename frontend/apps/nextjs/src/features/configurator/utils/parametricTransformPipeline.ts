@@ -152,6 +152,11 @@ export function evaluateFormula(
       /\bparent!\s*bottom_thickness\b/gi,
       String(params.bottom_thickness ?? params.BOTTOM_THICKNESS ?? parent?.lenz ?? 0),
     ],
+    [/\bparent!\s*diameter_top\b/gi, String(params.diameter_top ?? params.DIAMETER_TOP ?? 0)],
+    [
+      /\bparent!\s*thickness_top\b/gi,
+      String(params.thickness_top ?? params.THICKNESS_TOP ?? parent?.lenz ?? 0),
+    ],
     [/\bLenX\b/g, String(self?.lenx ?? 0)],
     [/\bLenY\b/g, String(self?.leny ?? 0)],
     [/\bLenZ\b/g, String(self?.lenz ?? 0)],
@@ -162,6 +167,16 @@ export function evaluateFormula(
 
   for (const [re, replacement] of replacements) {
     expr = expr.replace(re, replacement)
+  }
+
+  // Generic: parent!paramName → params lookup (for round tables: diameter_top, etc.)
+  const parentParamMatches = expr.matchAll(/\bparent!\s*([a-zA-Z_][a-zA-Z0-9_]*)\b/g)
+  for (const m of parentParamMatches) {
+    const paramName = m[1]
+    if (!paramName) continue
+    const paramKey = paramName.toUpperCase().replace(/[^A-Z0-9_]/g, "_")
+    const val = params[paramName] ?? params[paramKey] ?? params[paramName.toLowerCase()] ?? 0
+    expr = expr.replace(m[0], String(val))
   }
 
   return safeEvalExpression(expr)
@@ -392,7 +407,7 @@ export function getParamKeysAffectingTransforms(
     for (const k of Object.keys(parameterDefaults)) keys.add(k)
   }
   const formulaPattern =
-    /\b(?:parent!\s*)?(?:width|height|depth|top_thickness|bottom_thickness)\b|\bLen[XYZ]\b|[\bwidth\b|\bheight\b|\bdepth\b]/gi
+    /\b(?:parent!\s*)?(?:width|height|depth|top_thickness|bottom_thickness|diameter_top|thickness_top)\b|\bparent!\s*[a-zA-Z_][a-zA-Z0-9_]*\b|\bLen[XYZ]\b|[\bwidth\b|\bheight\b|\bdepth\b]/gi
   for (const t of Object.values(transforms)) {
     for (const v of Object.values(t)) {
       if (typeof v === "string" && v.startsWith("=")) {
@@ -471,6 +486,11 @@ export function computeTargetTransforms(
   return result
 }
 
+/** Returns true if the transform has explicit position (x, y, or z). */
+function hasPositionFormula(t: ComponentTransform): boolean {
+  return "x" in t || "y" in t || "z" in t
+}
+
 /** Computes delta transforms from baseline (position delta, scale ratio). */
 export function computeDeltaTransforms(
   transforms: Record<string, ComponentTransform>,
@@ -484,12 +504,17 @@ export function computeDeltaTransforms(
   for (const [compName, baseline] of Object.entries(baselineTransforms)) {
     const target = targets[compName]
     if (!target) continue
+    const t = transforms[compName]
+    const positionDelta: [number, number, number] =
+      t && hasPositionFormula(t)
+        ? [
+            target.position[0] - baseline.position[0],
+            target.position[1] - baseline.position[1],
+            target.position[2] - baseline.position[2],
+          ]
+        : [0, 0, 0]
     result[compName] = {
-      position: [
-        target.position[0] - baseline.position[0],
-        target.position[1] - baseline.position[1],
-        target.position[2] - baseline.position[2],
-      ],
+      position: positionDelta,
       scale: target.scale,
     }
   }

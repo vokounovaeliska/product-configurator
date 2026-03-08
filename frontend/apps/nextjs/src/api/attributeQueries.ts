@@ -18,10 +18,37 @@ export const attributeKeys = {
   lists: () => [...attributeKeys.all, "list"] as const,
   list: (productModelId: string, componentId: string, params?: AttributeListQueryParams) =>
     [...attributeKeys.lists(), productModelId, componentId, params] as const,
+  allForProductModel: (productModelId: string) =>
+    [...attributeKeys.all, "allForProductModel", productModelId] as const,
   details: () => [...attributeKeys.all, "detail"] as const,
   detail: (productModelId: string, componentId: string, attributeId: string) =>
     [...attributeKeys.details(), productModelId, componentId, attributeId] as const,
 } as const
+
+/**
+ * Query options for fetching all attributes for a product model (all components).
+ * Used when we need attribute labels for display (e.g. pricing rules list).
+ */
+export const getAllAttributesForProductModelQueryOptions = (productModelId: string) =>
+  queryOptions({
+    queryKey: attributeKeys.allForProductModel(productModelId),
+    queryFn: async (): Promise<AttributeDto[]> => {
+      const componentsRes = await api
+        .get(`products/api/v1/product-models/${productModelId}/components?limit=100`)
+        .json<{ items: { id: string }[] }>()
+      const componentIds = componentsRes.items?.map((c) => c.id) ?? []
+      const results = await Promise.all(
+        componentIds.map((componentId) =>
+          api
+            .get(
+              `products/api/v1/product-models/${productModelId}/components/${componentId}/attributes?limit=100`,
+            )
+            .json<AttributePaginatedResponseDto>(),
+        ),
+      )
+      return results.flatMap((r) => r.items ?? [])
+    },
+  })
 
 /**
  * Query options for fetching paginated list of attributes for a component
@@ -102,6 +129,15 @@ export const useAttribute = (productModelId: string, componentId: string, attrib
 }
 
 /**
+ * Hook to fetch all attributes for a product model (for label lookup in pricing etc.)
+ */
+export const useAllAttributesForProductModel = (productModelId: string) =>
+  useQuery({
+    ...getAllAttributesForProductModelQueryOptions(productModelId),
+    enabled: Boolean(productModelId),
+  })
+
+/**
  * Hook to create an attribute
  */
 export const useCreateAttribute = (productModelId: string, componentId: string) => {
@@ -125,6 +161,7 @@ export const useCreateAttribute = (productModelId: string, componentId: string) 
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() })
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.all })
     },
   })
 }

@@ -10,11 +10,13 @@ import cz.vokounova.configurator.generated.jooq.indexes.IDX_PRODUCT_MODEL_USER_I
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_PRICING_RULE__ATTRIBUTE_PRICING_RULE_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION__COMPONENT_DEFINITION_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST__CUSTOMER_REQUEST_PRODUCT_MODEL_ID_FKEY
+import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES__PRODUCT_MODEL_CONFIGURATOR_PREFERENCES_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL_PKEY
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule.AttributePricingRulePath
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition.ComponentDefinitionPath
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest.CustomerRequestPath
+import cz.vokounova.configurator.generated.jooq.tables.ProductModelConfiguratorPreferences.ProductModelConfiguratorPreferencesPath
 import cz.vokounova.configurator.generated.jooq.tables.User.UserPath
 import cz.vokounova.configurator.generated.jooq.tables.records.ProductModelRecord
 
@@ -250,6 +252,22 @@ open class ProductModel(
 
     val customerRequest: CustomerRequestPath
         get(): CustomerRequestPath = customerRequest()
+
+    private lateinit var _productModelConfiguratorPreferences: ProductModelConfiguratorPreferencesPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.product_model_configurator_preferences</code> table
+     */
+    fun productModelConfiguratorPreferences(): ProductModelConfiguratorPreferencesPath {
+        if (!this::_productModelConfiguratorPreferences.isInitialized)
+            _productModelConfiguratorPreferences = ProductModelConfiguratorPreferencesPath(this, null, PRODUCT_MODEL_CONFIGURATOR_PREFERENCES__PRODUCT_MODEL_CONFIGURATOR_PREFERENCES_PRODUCT_MODEL_ID_FKEY.inverseKey)
+
+        return _productModelConfiguratorPreferences;
+    }
+
+    val productModelConfiguratorPreferences: ProductModelConfiguratorPreferencesPath
+        get(): ProductModelConfiguratorPreferencesPath = productModelConfiguratorPreferences()
     override fun `as`(alias: String): ProductModel = ProductModel(DSL.name(alias), this)
     override fun `as`(alias: Name): ProductModel = ProductModel(alias, this)
     override fun `as`(alias: Table<*>): ProductModel = ProductModel(alias.qualifiedName, this)

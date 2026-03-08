@@ -9,6 +9,7 @@ import { Dialog } from "@workspace/ui/components/dialog"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -50,6 +51,8 @@ export const CreateAttributeDialog = ({
       maxInt: null,
       minDecimal: null,
       maxDecimal: null,
+      defaultInt: null,
+      defaultDecimal: null,
       unit: null,
       sortOrder: 0,
     },
@@ -103,23 +106,6 @@ export const CreateAttributeDialog = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("create.code")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t("create.codePlaceholder")}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="label"
@@ -377,6 +363,27 @@ export const CreateAttributeDialog = ({
                       onChange={(e) => field.onChange(Number.parseInt(e.target.value, 10) || 0)}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs font-normal text-muted-foreground">
+                    {t("create.code")}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t("create.codePlaceholder")}
+                      className="font-mono text-sm"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{t("create.codeDescription")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

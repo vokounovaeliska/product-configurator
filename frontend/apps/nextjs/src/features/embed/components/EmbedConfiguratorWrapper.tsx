@@ -51,6 +51,7 @@ export const EmbedConfiguratorWrapper = ({ url }: Props) => {
       attributesByComponent={config.attributesByComponent}
       optionsByAttribute={config.optionsByAttribute}
       pricingRules={config.pricingRules}
+      configuratorPreferences={config.configuratorPreferences}
     />
   )
 }

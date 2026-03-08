@@ -1,14 +1,13 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { useQueries } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
-import { getAttributesListQueryOptions } from "@/api/attributeQueries"
+import { useAllAttributesForProductModel } from "@/api/attributeQueries"
 import type { AttributeType } from "@/api/attributeTypes"
 import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
 
@@ -64,34 +63,48 @@ export const PricingRulesList = ({
     [components],
   )
 
-  const attributeQueries = useQueries({
-    queries: components.map((c) =>
-      getAttributesListQueryOptions(productModelId, c.id, { limit: 500 }),
-    ),
-  })
+  const { data: allAttributes = [] } = useAllAttributesForProductModel(productModelId)
+
   const attributeUnitByComponentAndCode = useMemo(() => {
     const norm = (s: string) => s.toLowerCase().trim()
     const map = new Map<string, string | null>()
-    attributeQueries.forEach((q, idx) => {
-      const componentId = components[idx]?.id
-      if (!componentId) return
-      const items = q.data?.items ?? []
-      items.forEach((a) => {
-        const key = `${componentId}:${norm(a.code)}`
-        if (!map.has(key)) map.set(key, a.unit?.trim() ?? null)
-      })
-    })
     const codeOnlyMap = new Map<string, string | null>()
-    attributeQueries.forEach((q) => {
-      const items = q.data?.items ?? []
-      items.forEach((a) => {
-        const code = norm(a.code)
-        if (!codeOnlyMap.has(code)) codeOnlyMap.set(code, a.unit?.trim() ?? null)
-      })
+    allAttributes.forEach((a) => {
+      const key = `${a.componentId}:${norm(a.code)}`
+      if (!map.has(key)) map.set(key, a.unit?.trim() ?? null)
+      const code = norm(a.code)
+      if (!codeOnlyMap.has(code)) codeOnlyMap.set(code, a.unit?.trim() ?? null)
     })
     return { byKey: map, byCode: codeOnlyMap }
-    // useQueries result is not referentially stable; we need to recompute when any query data changes
-  }, [attributeQueries, components]) // eslint-disable-line @tanstack/query/no-unstable-deps
+  }, [allAttributes])
+
+  const attributeLabelByComponentAndCode = useMemo(() => {
+    const norm = (s: string) => s.toLowerCase().trim()
+    const byKey = new Map<string, string>()
+    const byCode = new Map<string, string>()
+    allAttributes.forEach((a) => {
+      const key = `${a.componentId}:${norm(a.code)}`
+      const label = a.label?.trim() || a.code
+      if (!byKey.has(key)) byKey.set(key, label)
+      const code = norm(a.code)
+      if (!byCode.has(code)) byCode.set(code, label)
+    })
+    return { byKey, byCode }
+  }, [allAttributes])
+
+  const getLabelForRule = (rule: AttributePricingRuleDto): string => {
+    const code = rule.attributeCode?.toLowerCase().trim() ?? ""
+    if (!code) return rule.attributeCode ?? "—"
+    if (rule.componentId) {
+      return (
+        attributeLabelByComponentAndCode.byKey.get(`${rule.componentId}:${code}`) ??
+        attributeLabelByComponentAndCode.byCode.get(code) ??
+        rule.attributeCode ??
+        "—"
+      )
+    }
+    return attributeLabelByComponentAndCode.byCode.get(code) ?? rule.attributeCode ?? "—"
+  }
 
   const getUnitForRule = (rule: AttributePricingRuleDto): string | null => {
     const code = rule.attributeCode?.toLowerCase().trim() ?? ""
@@ -104,6 +117,15 @@ export const PricingRulesList = ({
       )
     }
     return attributeUnitByComponentAndCode.byCode.get(code) ?? null
+  }
+
+  const getConditionDisplay = (rule: AttributePricingRuleDto): string => {
+    const unit = getUnitForRule(rule)
+    const unitSuffix = unit ? ` ${unit}` : ""
+    if (rule.operator === "EQ") {
+      return `${t("list.operatorEq")} "${rule.value}"${unitSuffix}`
+    }
+    return `${t("list.operatorBetween")} ${rule.value}–${rule.toValue ?? ""}${unitSuffix}`
   }
 
   const currency = productModel?.currency ?? "CZK"
@@ -127,10 +149,13 @@ export const PricingRulesList = ({
   const updateMutation = useUpdatePricingRule(productModelId)
   const deleteMutation = useDeletePricingRule(productModelId)
 
-  const attributeCodes = useMemo(
-    () => [...new Set(rules.map((r) => r.attributeCode))].sort(),
-    [rules],
-  )
+  const attributeCodesWithLabels = useMemo(() => {
+    const codes = [...new Set(rules.map((r) => r.attributeCode))].sort()
+    return codes.map((code) => ({
+      code,
+      label: attributeLabelByComponentAndCode.byCode.get(code?.toLowerCase().trim() ?? "") ?? code,
+    }))
+  }, [rules, attributeLabelByComponentAndCode])
 
   const filteredRules = useMemo(() => {
     return rules.filter((rule) => {
@@ -225,12 +250,12 @@ export const PricingRulesList = ({
                 aria-label={t("list.filterAttribute")}
               >
                 <option value="">{t("list.filterAttributeAll")}</option>
-                {attributeCodes.map((code) => (
+                {attributeCodesWithLabels.map(({ code, label }) => (
                   <option
                     key={code}
                     value={code}
                   >
-                    {code}
+                    {label}
                   </option>
                 ))}
               </select>
@@ -285,7 +310,7 @@ export const PricingRulesList = ({
                       className="border-b border-border last:border-b-0 hover:bg-muted/30"
                     >
                       <td className="max-w-[180px] px-4 py-3 font-medium break-words">
-                        {rule.attributeCode}
+                        {getLabelForRule(rule)}
                       </td>
                       <td className="max-w-[180px] px-4 py-3 break-words text-muted-foreground">
                         {rule.componentId
@@ -293,9 +318,7 @@ export const PricingRulesList = ({
                           : "—"}
                       </td>
                       <td className="max-w-[200px] px-4 py-3 break-words text-muted-foreground">
-                        {rule.operator === "EQ"
-                          ? `${t("list.operatorEq")} "${rule.value}"`
-                          : `${t("list.operatorBetween")} ${rule.value}–${rule.toValue ?? ""}`}
+                        {getConditionDisplay(rule)}
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
                         {formatPrice(rule.priceDeltaCents / 100)}

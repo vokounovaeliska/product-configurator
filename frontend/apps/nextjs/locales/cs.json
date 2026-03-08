@@ -213,6 +213,7 @@
     "card": {
       "active": "Aktivní",
       "configureButton": "Konfigurovat",
+      "noPreview": "Bez 3D modelu",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
       "inactive": "Neaktivní",
@@ -282,7 +283,16 @@
       "embedCodeTitle": "Kód pro vložení",
       "copyEmbed": "Kopírovat iframe",
       "copied": "Zkopírováno!",
-      "previewEmbed": "Náhled vložení"
+      "previewEmbed": "Náhled vložení",
+      "embedDisplay": {
+        "title": "Možnosti zobrazení v embedu",
+        "description": "Vyberte, co se zobrazí ve vloženém konfigurátoru.",
+        "showProductName": "Název produktu",
+        "showDescription": "Popis",
+        "showComponents": "Výběr komponent",
+        "save": "Uložit",
+        "saving": "Ukládám…"
+      }
     },
     "list": {
       "createButton": "Vytvořit model",
@@ -359,6 +369,14 @@
       "selectOptions": "Vyberte možnosti níže pro zobrazení náhledu.",
       "loadError": "Nepodařilo se načíst náhled.",
       "loading3d": "Načítání 3D modelu…"
+    },
+    "previewSettings": {
+      "title": "Nastavení náhledu",
+      "description": "Nastavte výchozí úroveň přiblížení pro 3D náhled. Platí pro konfigurátor i vložený iframe.",
+      "zoomLabel": "Úroveň přiblížení",
+      "save": "Uložit",
+      "saving": "Ukládám…",
+      "loadError": "Pro načtení a uložení nastavení náhledu se přihlaste."
     },
     "price": {
       "title": "Celková cena",
@@ -568,6 +586,7 @@
     "create": {
       "cancelButton": "Zrušit",
       "code": "Kód",
+      "codeDescription": "Technický identifikátor pro SketchUp a integrace.",
       "codePlaceholder": "např. COLOR, WIDTH, HEIGHT",
       "defaultDecimal": "Výchozí",
       "defaultDecimalPlaceholder": "Volitelné – v rozsahu min..max",
@@ -620,6 +639,7 @@
     "edit": {
       "cancelButton": "Zrušit",
       "code": "Kód",
+      "codeDescription": "Technický identifikátor pro SketchUp a integrace. Měňte pouze v případě potřeby.",
       "codePlaceholder": "např. COLOR, WIDTH, HEIGHT",
       "description": "Aktualizujte údaje o atributu",
       "errorMessages": {

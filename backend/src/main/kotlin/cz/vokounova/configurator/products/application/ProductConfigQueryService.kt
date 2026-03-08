@@ -2,6 +2,7 @@ package cz.vokounova.configurator.products.application
 
 import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
 import cz.vokounova.configurator.products.api.dto.ComponentExternalDto
+import cz.vokounova.configurator.products.api.dto.ConfiguratorPreferencesExternalDto
 import cz.vokounova.configurator.products.api.dto.FullProductConfigDto
 import cz.vokounova.configurator.products.api.dto.ProductModelExternalDto
 import cz.vokounova.configurator.products.attributes.domain.AttributeFilter
@@ -13,6 +14,7 @@ import cz.vokounova.configurator.products.components.ports.outbound.ComponentRep
 import cz.vokounova.configurator.products.models.domain.ProductModel
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
+import cz.vokounova.configurator.products.models.ports.outbound.ProductModelConfiguratorPreferencesRepository
 import cz.vokounova.configurator.products.pricing.ports.outbound.AttributePricingRuleRepository
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import java.util.UUID
@@ -24,6 +26,7 @@ class ProductConfigQueryService(
     private val attributeRepository: AttributeRepository,
     private val attributeOptionRepository: AttributeOptionRepository,
     private val attributePricingRuleRepository: AttributePricingRuleRepository,
+    private val configuratorPreferencesRepository: ProductModelConfiguratorPreferencesRepository,
 ) : ProductConfigQueryFacade {
     override fun getPublishedProductByUrl(url: String): ProductModelExternalDto? = productModelAPI.getPublishedByUrl(url)?.toExternalDto()
 
@@ -48,12 +51,23 @@ class ProductConfigQueryService(
                 attr.id.value.toString() to attributeOptionRepository.findByAttributeId(attr.id)
             }
         val pricingRules = attributePricingRuleRepository.findByProductModelId(productId)
+        val prefs = configuratorPreferencesRepository.findByProductModelId(productId)
         return FullProductConfigDto(
             product = product.toExternalDto(),
             components = components.map { it.toExternalDto() },
             attributesByComponent = attributesByComponent,
             optionsByAttribute = optionsByAttribute,
             pricingRules = pricingRules,
+            configuratorPreferences =
+                prefs?.let {
+                    ConfiguratorPreferencesExternalDto(
+                        zoomDistanceDefault = it.zoomDistanceDefault?.toDouble(),
+                        zoomDistanceEmbed = it.zoomDistanceEmbed?.toDouble(),
+                        embedShowProductName = it.embedShowProductName,
+                        embedShowDescription = it.embedShowDescription,
+                        embedShowComponents = it.embedShowComponents,
+                    )
+                },
         )
     }
 
