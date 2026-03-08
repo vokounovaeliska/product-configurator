@@ -16,6 +16,8 @@ type Props = {
   isLoading?: boolean
   /** True when refetching in background (show subtle updating state, keep showing current price). */
   isUpdating?: boolean
+  /** Compact variant for sidebar summary – single-line price, less padding. */
+  isCompact?: boolean
 }
 
 export const PriceDisplay = ({
@@ -25,6 +27,7 @@ export const PriceDisplay = ({
   modifiersCents = 0,
   isLoading,
   isUpdating = false,
+  isCompact = false,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -42,17 +45,64 @@ export const PriceDisplay = ({
 
   if (isLoading) {
     return (
-      <Card className="p-6">
-        <div className="space-y-2">
+      <Card className={isCompact ? "p-3" : "p-6"}>
+        <div className={isCompact ? "flex items-center justify-between gap-4" : "space-y-2"}>
+          {!isCompact && (
+            <Typography
+              as="h3"
+              variant="display-sm"
+              weight="semibold"
+            >
+              {t("price.title")}
+            </Typography>
+          )}
+          <Skeleton className={isCompact ? "h-6 w-24" : "h-8 w-32"} />
+        </div>
+      </Card>
+    )
+  }
+
+  if (isCompact) {
+    return (
+      <Card className="shrink-0 border-primary/20 bg-primary/5 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <Typography
-            as="h3"
-            variant="display-sm"
-            weight="semibold"
+            as="span"
+            variant="body-sm"
+            weight="medium"
+            className="text-muted-foreground"
           >
             {t("price.title")}
           </Typography>
-          <Skeleton className="h-8 w-32" />
+          <div className="flex items-center gap-2">
+            <Typography
+              as="span"
+              variant="display-sm"
+              weight="bold"
+              className={`text-primary ${isUpdating ? "opacity-70" : ""}`}
+            >
+              {formatPrice(totalPrice, currency)}
+            </Typography>
+            {isUpdating && (
+              <span
+                className="inline-block size-3 shrink-0 animate-spin rounded-full border-2 border-primary border-t-transparent"
+                aria-hidden
+              />
+            )}
+          </div>
         </div>
+        {hasModifier && (
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="mt-1 text-muted-foreground"
+          >
+            {t("price.basePlusModifier", {
+              base: formatPrice(basePrice, currency),
+              modifier: formatPrice(modifierInMainUnit, currency),
+            })}
+          </Typography>
+        )}
       </Card>
     )
   }

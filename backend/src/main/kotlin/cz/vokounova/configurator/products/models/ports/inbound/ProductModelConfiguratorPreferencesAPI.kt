@@ -17,5 +17,6 @@ interface ProductModelConfiguratorPreferencesAPI {
         embedShowProductName: Boolean?,
         embedShowDescription: Boolean?,
         embedShowComponents: Boolean?,
+        backgroundPreset: String?,
     ): ProductModelConfiguratorPreferences
 }

@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react"
 import {
+  ArrowDownIcon,
+  ArrowUpIcon,
   BanknoteIcon,
   ChevronDownIcon,
   ChevronRightIcon,
@@ -24,16 +26,15 @@ import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 /* eslint-disable import/no-restricted-paths -- setup page composes attributes, components, pricing, productModels */
-import { useAttributesList } from "@/features/attributes/api/attributeQueries"
+import { useAttributesList, useUpdateAttribute } from "@/features/attributes/api/attributeQueries"
 import { AttributeOptionsList } from "@/features/attributes/components/AttributeOptionsList"
 import { CreateAttributeDialog } from "@/features/attributes/components/CreateAttributeDialog"
 import { DeleteAttributeDialog } from "@/features/attributes/components/DeleteAttributeDialog"
 import { EditAttributeDialog } from "@/features/attributes/components/EditAttributeDialog"
-import { useComponentsList } from "@/features/components/api/componentQueries"
+import { useComponentsList, useUpdateComponent } from "@/features/components/api/componentQueries"
 import { CreateComponentDialog } from "@/features/components/components/CreateComponentDialog"
 import { DeleteComponentDialog } from "@/features/components/components/DeleteComponentDialog"
 import { EditComponentDialog } from "@/features/components/components/EditComponentDialog"
-import { PricingRulesList } from "@/features/pricing/components/PricingRulesList"
 import { useProductModel } from "@/features/productModels/api/productModelQueries"
 import { EditProductModelDialog } from "@/features/productModels/components/EditProductModelDialog"
 import { PublishProductModelCard } from "@/features/productModels/components/PublishProductModelCard"
@@ -134,11 +135,42 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
     productModelId,
     { limit: 100 },
   )
+  const updateComponent = useUpdateComponent(productModelId)
   const components = useMemo(() => componentsData?.items ?? [], [componentsData?.items])
   const sortedComponents = useMemo(
     () => [...components].sort((a, b) => a.sortOrder - b.sortOrder),
     [components],
   )
+
+  const handleMoveComponentUp = (component: ComponentDto) => {
+    const idx = sortedComponents.findIndex((c) => c.id === component.id)
+    if (idx <= 0) return
+    const prev = sortedComponents[idx - 1]
+    if (!prev || updateComponent.isPending) return
+    updateComponent.mutate({
+      componentId: component.id,
+      patches: [{ path: "SlashSortOrder", value: prev.sortOrder, op: "Replace" }],
+    })
+    updateComponent.mutate({
+      componentId: prev.id,
+      patches: [{ path: "SlashSortOrder", value: component.sortOrder, op: "Replace" }],
+    })
+  }
+
+  const handleMoveComponentDown = (component: ComponentDto) => {
+    const idx = sortedComponents.findIndex((c) => c.id === component.id)
+    if (idx < 0 || idx >= sortedComponents.length - 1) return
+    const next = sortedComponents[idx + 1]
+    if (!next || updateComponent.isPending) return
+    updateComponent.mutate({
+      componentId: component.id,
+      patches: [{ path: "SlashSortOrder", value: next.sortOrder, op: "Replace" }],
+    })
+    updateComponent.mutate({
+      componentId: next.id,
+      patches: [{ path: "SlashSortOrder", value: component.sortOrder, op: "Replace" }],
+    })
+  }
 
   if (isLoadingComponents) {
     return (
@@ -260,11 +292,13 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
           </Card>
         ) : (
           <div className="space-y-3">
-            {sortedComponents.map((component) => (
+            {sortedComponents.map((component, index) => (
               <ComponentSection
                 key={component.id}
                 productModelId={productModelId}
                 component={component}
+                canMoveUp={index > 0}
+                canMoveDown={index < sortedComponents.length - 1}
                 isExpanded={expandedComponents.has(component.id)}
                 onToggle={() => toggleComponent(component.id)}
                 expandedAttributes={expandedAttributes}
@@ -272,6 +306,8 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
                 onAddAttribute={() => setIsCreateAttributeOpen(component.id)}
                 onEditComponent={() => setEditingComponent(component)}
                 onDeleteComponent={() => setDeletingComponent(component)}
+                onMoveComponentUp={() => handleMoveComponentUp(component)}
+                onMoveComponentDown={() => handleMoveComponentDown(component)}
                 onEditAttribute={setEditingAttribute}
                 onDeleteAttribute={setDeletingAttribute}
               />
@@ -348,6 +384,8 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
 type ComponentSectionProps = {
   productModelId: string
   component: ComponentDto
+  canMoveUp: boolean
+  canMoveDown: boolean
   isExpanded: boolean
   onToggle: () => void
   expandedAttributes: Set<string>
@@ -355,6 +393,8 @@ type ComponentSectionProps = {
   onAddAttribute: () => void
   onEditComponent: () => void
   onDeleteComponent: () => void
+  onMoveComponentUp: () => void
+  onMoveComponentDown: () => void
   onEditAttribute: (attr: AttributeDto) => void
   onDeleteAttribute: (attr: AttributeDto) => void
 }
@@ -362,6 +402,8 @@ type ComponentSectionProps = {
 const ComponentSection = ({
   productModelId,
   component,
+  canMoveUp,
+  canMoveDown,
   isExpanded,
   onToggle,
   expandedAttributes,
@@ -369,6 +411,8 @@ const ComponentSection = ({
   onAddAttribute,
   onEditComponent,
   onDeleteComponent,
+  onMoveComponentUp,
+  onMoveComponentDown,
   onEditAttribute,
   onDeleteAttribute,
 }: ComponentSectionProps) => {
@@ -378,10 +422,41 @@ const ComponentSection = ({
   const { data: attributesData, isLoading } = useAttributesList(productModelId, component.id, {
     limit: 100,
   })
+  const updateAttribute = useUpdateAttribute(productModelId, component.id)
   const sortedAttributes = useMemo(
     () => [...(attributesData?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder),
     [attributesData?.items],
   )
+
+  const handleMoveAttributeUp = (attribute: AttributeDto) => {
+    const idx = sortedAttributes.findIndex((a) => a.id === attribute.id)
+    if (idx <= 0) return
+    const prev = sortedAttributes[idx - 1]
+    if (!prev || updateAttribute.isPending) return
+    updateAttribute.mutate({
+      attributeId: attribute.id,
+      patches: [{ path: "/sortOrder", value: prev.sortOrder, op: "Replace" }],
+    })
+    updateAttribute.mutate({
+      attributeId: prev.id,
+      patches: [{ path: "/sortOrder", value: attribute.sortOrder, op: "Replace" }],
+    })
+  }
+
+  const handleMoveAttributeDown = (attribute: AttributeDto) => {
+    const idx = sortedAttributes.findIndex((a) => a.id === attribute.id)
+    if (idx < 0 || idx >= sortedAttributes.length - 1) return
+    const next = sortedAttributes[idx + 1]
+    if (!next || updateAttribute.isPending) return
+    updateAttribute.mutate({
+      attributeId: attribute.id,
+      patches: [{ path: "/sortOrder", value: next.sortOrder, op: "Replace" }],
+    })
+    updateAttribute.mutate({
+      attributeId: next.id,
+      patches: [{ path: "/sortOrder", value: attribute.sortOrder, op: "Replace" }],
+    })
+  }
 
   return (
     <CollapsibleSection
@@ -395,6 +470,30 @@ const ComponentSection = ({
       }
       actions={
         <>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveComponentUp()
+            }}
+            title={t("card.moveUp")}
+            disabled={!canMoveUp}
+          >
+            <ArrowUpIcon className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveComponentDown()
+            }}
+            title={t("card.moveDown")}
+            disabled={!canMoveDown}
+          >
+            <ArrowDownIcon className="size-4" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -454,16 +553,20 @@ const ComponentSection = ({
         </div>
       ) : (
         <div className="space-y-3">
-          {sortedAttributes.map((attribute) => (
+          {sortedAttributes.map((attribute, attrIndex) => (
             <AttributeSection
               key={attribute.id}
               productModelId={productModelId}
               componentId={component.id}
               attribute={attribute}
+              canMoveUp={attrIndex > 0}
+              canMoveDown={attrIndex < sortedAttributes.length - 1}
               isExpanded={expandedAttributes.has(attribute.id)}
               onToggle={() => onToggleAttribute(attribute.id)}
               onEdit={() => onEditAttribute(attribute)}
               onDelete={() => onDeleteAttribute(attribute)}
+              onMoveUp={() => handleMoveAttributeUp(attribute)}
+              onMoveDown={() => handleMoveAttributeDown(attribute)}
             />
           ))}
         </div>
@@ -476,20 +579,28 @@ type AttributeSectionProps = {
   productModelId: string
   componentId: string
   attribute: AttributeDto
+  canMoveUp: boolean
+  canMoveDown: boolean
   isExpanded: boolean
   onToggle: () => void
   onEdit: () => void
   onDelete: () => void
+  onMoveUp: () => void
+  onMoveDown: () => void
 }
 
 const AttributeSection = ({
   productModelId,
   componentId,
   attribute,
+  canMoveUp,
+  canMoveDown,
   isExpanded,
   onToggle,
   onEdit,
   onDelete,
+  onMoveUp,
+  onMoveDown,
 }: AttributeSectionProps) => {
   const t = useTranslations("Attributes")
 
@@ -530,6 +641,30 @@ const AttributeSection = ({
             size="sm"
             onClick={(e) => {
               e.stopPropagation()
+              onMoveUp()
+            }}
+            title={t("card.moveUp")}
+            disabled={!canMoveUp}
+          >
+            <ArrowUpIcon className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onMoveDown()
+            }}
+            title={t("card.moveDown")}
+            disabled={!canMoveDown}
+          >
+            <ArrowDownIcon className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
               onEdit()
             }}
           >
@@ -561,69 +696,39 @@ const AttributeSection = ({
           </Typography>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {attribute.type === "ENUM" && (
-            <div className="flex min-h-0 flex-col space-y-3">
-              <div className="flex shrink-0 items-center gap-2">
-                <LayersIcon className="size-4 text-muted-foreground" />
-                <Typography
-                  as="h4"
-                  variant="display-sm"
-                  weight="semibold"
-                >
-                  {t("card.manageOptionsButton")}
-                </Typography>
-              </div>
-              <div className="max-h-[400px] min-h-0 overflow-y-auto">
-                <AttributeOptionsList
-                  productModelId={productModelId}
-                  componentId={componentId}
-                  attributeId={attribute.id}
-                />
-              </div>
-            </div>
-          )}
-
-          <div
-            className={cn(
-              "flex min-h-0 flex-col space-y-3",
-              attribute.type !== "ENUM" && "lg:col-span-2",
-            )}
-          >
+        {attribute.type === "ENUM" && (
+          <div className="flex min-h-0 flex-col space-y-3">
             <div className="flex shrink-0 items-center gap-2">
-              <BanknoteIcon className="size-4 text-muted-foreground" />
+              <LayersIcon className="size-4 text-muted-foreground" />
               <Typography
                 as="h4"
                 variant="display-sm"
                 weight="semibold"
               >
-                {t("card.pricingButton")}
+                {t("card.manageOptionsButton")}
               </Typography>
             </div>
-            <div className="max-h-[400px] min-h-0 overflow-x-auto overflow-y-auto">
-              <PricingRulesList
+            <div className="max-h-[400px] min-h-0 overflow-y-auto">
+              <AttributeOptionsList
                 productModelId={productModelId}
-                presetComponentId={componentId}
-                presetAttributeCode={attribute.code}
-                presetAttributeContext={{
-                  unit: attribute.unit ?? null,
-                  attributeType: attribute.type,
-                  numericRange:
-                    attribute.type === "INTEGER"
-                      ? {
-                          min: attribute.minInt ?? 0,
-                          max: attribute.maxInt ?? 100,
-                        }
-                      : attribute.type === "DECIMAL"
-                        ? {
-                            min: attribute.minDecimal ?? 0,
-                            max: attribute.maxDecimal ?? 100,
-                          }
-                        : undefined,
-                }}
+                componentId={componentId}
+                attributeId={attribute.id}
               />
             </div>
           </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <BanknoteIcon className="size-4 text-muted-foreground" />
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+          >
+            <Link href={ROUTES.setupAttributePricing(productModelId, componentId, attribute.id)}>
+              {t("card.pricingButton")}
+            </Link>
+          </Button>
         </div>
       </div>
     </CollapsibleSection>

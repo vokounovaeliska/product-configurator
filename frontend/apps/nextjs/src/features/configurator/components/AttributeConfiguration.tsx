@@ -61,17 +61,17 @@ export const AttributeConfiguration = ({
 
   if (isAttributesLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <Typography
           as="h4"
-          variant="body-lg"
+          variant="body-md"
           weight="semibold"
         >
           {t("attributes.title")}
         </Typography>
-        <div className="space-y-3">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
         </div>
       </div>
     )
@@ -79,10 +79,10 @@ export const AttributeConfiguration = ({
 
   if (attributes.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <Typography
           as="h4"
-          variant="body-lg"
+          variant="body-md"
           weight="semibold"
         >
           {t("attributes.title")}
@@ -99,15 +99,15 @@ export const AttributeConfiguration = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Typography
         as="h4"
-        variant="body-lg"
+        variant="body-md"
         weight="semibold"
       >
         {t("attributes.title")}
       </Typography>
-      <div className="space-y-4">
+      <div className="space-y-3">
         {attributes.map((attr) => (
           <AttributeField
             key={attr.id}
@@ -151,6 +151,7 @@ const AttributeField = ({
   currency = "CZK",
 }: AttributeFieldProps) => {
   const t = useTranslations("Configurator")
+  const [localEditValue, setLocalEditValue] = useState<string | null>(null)
 
   if (attribute.type === "ENUM") {
     return (
@@ -168,6 +169,7 @@ const AttributeField = ({
   if (attribute.type === "INTEGER") {
     const value =
       typeof otherValue === "number" ? otherValue : (attribute.defaultInt ?? attribute.minInt ?? 0)
+    const displayValue = localEditValue ?? String(value)
     const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
     const formatPrice = (cents: number) =>
       new Intl.NumberFormat(undefined, {
@@ -175,9 +177,32 @@ const AttributeField = ({
         currency,
         minimumFractionDigits: 2,
       }).format(cents / 100)
+    const commitInteger = (raw: string) => {
+      setLocalEditValue(null)
+      const v = Number.parseInt(raw, 10)
+      if (Number.isNaN(v)) {
+        onOtherChange(value)
+        return
+      }
+      const min = attribute.minInt ?? -Number.MAX_SAFE_INTEGER
+      const max = attribute.maxInt ?? Number.MAX_SAFE_INTEGER
+      onOtherChange(Math.max(min, Math.min(max, v)))
+    }
+    const handleIntegerChange = (raw: string) => {
+      setLocalEditValue(raw)
+      const v = Number.parseInt(raw, 10)
+      if (!Number.isNaN(v)) {
+        const min = attribute.minInt ?? -Number.MAX_SAFE_INTEGER
+        const max = attribute.maxInt ?? Number.MAX_SAFE_INTEGER
+        onOtherChange(Math.max(min, Math.min(max, v)))
+      }
+    }
     return (
-      <div className="space-y-2">
-        <Label htmlFor={`attr-${attribute.id}`}>
+      <div className="space-y-1.5">
+        <Label
+          htmlFor={`attr-${attribute.id}`}
+          className="text-sm"
+        >
           {attribute.label}
           {attribute.unit?.trim() && (
             <span className="ml-1 font-normal text-muted-foreground">({attribute.unit})</span>
@@ -187,13 +212,13 @@ const AttributeField = ({
           <Input
             id={`attr-${attribute.id}`}
             type="number"
+            className="h-8 text-sm"
             min={attribute.minInt ?? undefined}
             max={attribute.maxInt ?? undefined}
-            value={value}
-            onChange={(e) => {
-              const v = Number.parseInt(e.target.value, 10)
-              if (!Number.isNaN(v)) onOtherChange(v)
-            }}
+            value={displayValue}
+            onChange={(e) => handleIntegerChange(e.target.value)}
+            onFocus={() => setLocalEditValue(String(value))}
+            onBlur={(e) => commitInteger(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}
           />
           {attribute.unit?.trim() && (
@@ -218,6 +243,7 @@ const AttributeField = ({
       typeof otherValue === "number"
         ? otherValue
         : (attribute.defaultDecimal ?? attribute.minDecimal ?? 0)
+    const displayValue = localEditValue ?? String(value)
     const rule = getRuleForNumericValue(pricingRules, componentId, attribute.code, value)
     const formatPrice = (cents: number) =>
       new Intl.NumberFormat(undefined, {
@@ -225,9 +251,32 @@ const AttributeField = ({
         currency,
         minimumFractionDigits: 2,
       }).format(cents / 100)
+    const commitDecimal = (raw: string) => {
+      setLocalEditValue(null)
+      const v = Number.parseFloat(raw)
+      if (Number.isNaN(v)) {
+        onOtherChange(value)
+        return
+      }
+      const min = attribute.minDecimal ?? -Number.MAX_VALUE
+      const max = attribute.maxDecimal ?? Number.MAX_VALUE
+      onOtherChange(Math.max(min, Math.min(max, v)))
+    }
+    const handleDecimalChange = (raw: string) => {
+      setLocalEditValue(raw)
+      const v = Number.parseFloat(raw)
+      if (!Number.isNaN(v)) {
+        const min = attribute.minDecimal ?? -Number.MAX_VALUE
+        const max = attribute.maxDecimal ?? Number.MAX_VALUE
+        onOtherChange(Math.max(min, Math.min(max, v)))
+      }
+    }
     return (
-      <div className="space-y-2">
-        <Label htmlFor={`attr-${attribute.id}`}>
+      <div className="space-y-1.5">
+        <Label
+          htmlFor={`attr-${attribute.id}`}
+          className="text-sm"
+        >
           {attribute.label}
           {attribute.unit?.trim() && (
             <span className="ml-1 font-normal text-muted-foreground">({attribute.unit})</span>
@@ -238,13 +287,13 @@ const AttributeField = ({
             id={`attr-${attribute.id}`}
             type="number"
             step="any"
+            className="h-8 text-sm"
             min={attribute.minDecimal ?? undefined}
             max={attribute.maxDecimal ?? undefined}
-            value={value}
-            onChange={(e) => {
-              const v = Number.parseFloat(e.target.value)
-              if (!Number.isNaN(v)) onOtherChange(v)
-            }}
+            value={displayValue}
+            onChange={(e) => handleDecimalChange(e.target.value)}
+            onFocus={() => setLocalEditValue(String(value))}
+            onBlur={(e) => commitDecimal(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}
           />
           {attribute.unit?.trim() && (
@@ -267,7 +316,7 @@ const AttributeField = ({
   if (attribute.type === "BOOLEAN") {
     const isChecked = typeof otherValue === "boolean" ? otherValue : false
     return (
-      <div className="flex items-center gap-2 space-y-0">
+      <div className="flex items-center gap-2 space-y-0 [&_svg]:size-4">
         <Checkbox
           id={`attr-${attribute.id}`}
           checked={isChecked}
@@ -275,7 +324,7 @@ const AttributeField = ({
         />
         <Label
           htmlFor={`attr-${attribute.id}`}
-          className="cursor-pointer font-normal"
+          className="cursor-pointer text-sm font-normal"
         >
           {attribute.label}
         </Label>
@@ -324,8 +373,6 @@ const AttributeSelect = ({
   selectedOption,
   onSelectOption,
 }: AttributeSelectProps) => {
-  const t = useTranslations("Configurator")
-
   const { data: options, isLoading } = useAttributeOptionsList(
     productModelId,
     componentId,
@@ -346,9 +393,9 @@ const AttributeSelect = ({
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
-        <Label>{attributeLabel}</Label>
-        <Skeleton className="h-10 w-full" />
+      <div className="space-y-1.5">
+        <Label className="text-sm">{attributeLabel}</Label>
+        <Skeleton className="h-8 w-full" />
       </div>
     )
   }
@@ -356,32 +403,22 @@ const AttributeSelect = ({
   const hasImages = sortedOptions.some((o) => o.imageUrl)
 
   return (
-    <div className="space-y-2">
-      <Label id={`attr-${attributeId}-label`}>{attributeLabel}</Label>
+    <div className="space-y-1.5">
+      <Label
+        id={`attr-${attributeId}-label`}
+        className="text-sm"
+      >
+        {attributeLabel}
+      </Label>
       <div
         role="listbox"
         aria-labelledby={`attr-${attributeId}-label`}
         aria-label={attributeLabel}
         className={cn(
           "flex flex-wrap gap-1.5",
-          hasImages && "grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6",
+          hasImages && "grid grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-6",
         )}
       >
-        <button
-          type="button"
-          role="option"
-          aria-selected={selectedOption === null}
-          onClick={() => onSelectOption(null)}
-          className={cn(
-            "flex min-w-0 items-center justify-center rounded border-2 px-2 py-1 text-xs font-medium transition-colors",
-            selectedOption === null
-              ? "border-primary bg-primary/10 text-primary"
-              : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
-            hasImages ? "col-span-1" : "",
-          )}
-        >
-          {t("attributes.noSelection")}
-        </button>
         {sortedOptions.map((opt) => {
           const isSelected = selectedOption?.id === opt.id
           return (
@@ -390,31 +427,27 @@ const AttributeSelect = ({
               type="button"
               role="option"
               aria-selected={isSelected}
+              title={opt.label}
               onClick={() => onSelectOption(opt)}
               className={cn(
-                "flex min-w-0 flex-col items-center gap-0.5 rounded border-2 transition-colors",
+                "flex min-w-0 flex-col items-center gap-0.5 rounded transition-colors",
                 isSelected
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
-                hasImages ? "overflow-hidden p-0" : "px-2 py-1 text-xs font-medium",
+                  ? "bg-primary/10 ring-2 ring-primary ring-offset-2 ring-offset-background"
+                  : "bg-muted/50 hover:bg-muted",
+                hasImages ? "overflow-hidden p-0.5" : "px-2 py-1 text-xs font-medium",
               )}
             >
               {hasImages && opt.imageUrl ? (
-                <>
-                  <div className="relative mx-auto aspect-square w-10 shrink-0 overflow-hidden bg-muted">
-                    <Image
-                      src={getImageUrlForDisplay(opt.imageUrl)}
-                      alt=""
-                      fill
-                      className="object-contain"
-                      unoptimized
-                      sizes="40px"
-                    />
-                  </div>
-                  <span className="w-full truncate px-1 pb-1 text-center text-[10px] font-medium">
-                    {opt.label}
-                  </span>
-                </>
+                <div className="relative aspect-square w-8 shrink-0 overflow-hidden rounded-sm bg-muted">
+                  <Image
+                    src={getImageUrlForDisplay(opt.imageUrl)}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    unoptimized
+                    sizes="32px"
+                  />
+                </div>
               ) : (
                 <span className="truncate text-xs font-medium">{opt.label}</span>
               )}

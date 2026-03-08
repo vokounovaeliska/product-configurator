@@ -92,3 +92,6 @@ lib/
 !backend/**/lib/
 test_outputs/
 
+/.cursorrules
+/.cursor/*
+/.cursor/**

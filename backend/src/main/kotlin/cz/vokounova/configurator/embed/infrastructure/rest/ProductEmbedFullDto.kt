@@ -11,6 +11,7 @@ data class ConfiguratorPreferencesEmbedDto(
     val embedShowProductName: Boolean?,
     val embedShowDescription: Boolean?,
     val embedShowComponents: Boolean?,
+    val backgroundPreset: String?,
 )
 
 data class ProductEmbedFullDto(

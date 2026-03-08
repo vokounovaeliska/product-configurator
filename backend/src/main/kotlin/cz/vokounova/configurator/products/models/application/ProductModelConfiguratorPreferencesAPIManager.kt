@@ -37,6 +37,7 @@ class ProductModelConfiguratorPreferencesAPIManager(
         embedShowProductName: Boolean?,
         embedShowDescription: Boolean?,
         embedShowComponents: Boolean?,
+        backgroundPreset: String?,
     ): ProductModelConfiguratorPreferences {
         val productModel =
             productModelRepository.findById(productModelId, lock = false)
@@ -61,6 +62,7 @@ class ProductModelConfiguratorPreferencesAPIManager(
                 embedShowProductName = embedShowProductName ?: existing?.embedShowProductName,
                 embedShowDescription = embedShowDescription ?: existing?.embedShowDescription,
                 embedShowComponents = embedShowComponents ?: existing?.embedShowComponents,
+                backgroundPreset = backgroundPreset ?: existing?.backgroundPreset,
                 createdAt = existing?.createdAt ?: now,
                 modifiedAt = now,
             )

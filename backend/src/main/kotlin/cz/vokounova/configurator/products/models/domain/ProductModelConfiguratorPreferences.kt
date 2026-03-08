@@ -10,6 +10,7 @@ data class ProductModelConfiguratorPreferences(
     val embedShowProductName: Boolean?,
     val embedShowDescription: Boolean?,
     val embedShowComponents: Boolean?,
+    val backgroundPreset: String?,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
 )

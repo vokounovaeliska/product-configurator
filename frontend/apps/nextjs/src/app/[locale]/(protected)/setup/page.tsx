@@ -1,5 +1,6 @@
 import {
   CalculatorIcon,
+  DownloadIcon,
   FileUpIcon,
   GlobeIcon,
   InboxIcon,
@@ -241,7 +242,7 @@ const SetupPage = async (props: Props) => {
       <section>
         <Card className="flex gap-4 border-primary/20 bg-primary/5 p-5">
           <InfoIcon className="mt-0.5 size-5 shrink-0 text-primary" />
-          <div>
+          <div className="flex-1">
             <Typography
               as="h3"
               variant="body-md"
@@ -253,10 +254,23 @@ const SetupPage = async (props: Props) => {
             <Typography
               as="p"
               variant="body-sm"
-              className="text-muted-foreground"
+              className="mb-3 text-muted-foreground"
             >
               {t("guide.tipBody")}
             </Typography>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+            >
+              <a
+                href="/downloads/configurator_dc_export.rbz"
+                download="configurator_dc_export.rbz"
+              >
+                <DownloadIcon className="mr-2 size-4" />
+                {t("guide.downloadPlugin")}
+              </a>
+            </Button>
           </div>
         </Card>
       </section>

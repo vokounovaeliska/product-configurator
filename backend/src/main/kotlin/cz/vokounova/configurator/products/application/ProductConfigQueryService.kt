@@ -66,6 +66,7 @@ class ProductConfigQueryService(
                         embedShowProductName = it.embedShowProductName,
                         embedShowDescription = it.embedShowDescription,
                         embedShowComponents = it.embedShowComponents,
+                        backgroundPreset = it.backgroundPreset,
                     )
                 },
         )

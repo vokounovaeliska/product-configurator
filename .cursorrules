@@ -1,3 +1,48 @@
+## Quality & Compilability (mandatory)
+
+Before finishing any implementation:
+
+- **Everything must compile** – Backend (Kotlin/Maven) and frontend (TypeScript/Next.js) must build successfully. Never leave code in a broken or non-compiling state.
+- **Backend Kotlin changes** – Run ktlint before considering changes complete. From `backend/`: `./mvnw --batch-mode --quiet ktlint:check`. Fix any ktlint violations. To auto-fix: `./mvnw ktlint:format`.
+- **Backend compile** – From `backend/`: `./mvnw --batch-mode --quiet compile -Dskip.flyway.migration=true -Dskip.jooq.generation=true`
+- **Frontend** – Ensure `pnpm turbo build`, `pnpm turbo type-check`, and `pnpm turbo lint:check` pass for affected apps.
+
+If you introduce compilation errors, ktlint failures, or type errors, fix them before completing the task.
+
+---
+
+## Verification (all changes)
+
+Before considering any implementation complete:
+
+- **Code must compile** – No syntax errors, type errors, or missing imports.
+- **Lint must pass** – Fix linter/formatting issues before finishing (ktlint for backend, ESLint for frontend).
+- **Tests must pass** – Run the relevant test suite; fix failures introduced by changes.
+
+For **backend / Kotlin** work specifically: run `./mvnw ktlint:check` and `./mvnw compile` (with `-Dskip.flyway.migration=true -Dskip.jooq.generation=true` when applicable) before finalizing.
+
+---
+
+## Implementation Documents (follow for product/feature work)
+
+When implementing features, align with these project documents:
+
+- **`docs/PRODUCT-VISION-EMBED-FLOW.md`** – Product vision: embeddable configurator (like YouTube), offer/inquiry flow, merchant vs end-customer journeys. Embed route `/e/[slug]`, offer submission, dashboard.
+- **`docs/3D-VISUALIZATION-SKETCHUP-DESIGN.md`** – 3D vizualization: SketchUp → GLB, product types, convention-based mapping, **SketchUp parameters extraction** (plugin, glTF extras, parameters.json).
+- **`docs/OBSAH-PRACE-VYZADY.md`** – Thesis requirements (if present): configurator goals, pricing, inquiry system, user testing.
+- **`.cursor/architecture-pattern.md`** – Backend architecture (hexagonal, domain, jOOQ).
+
+---
+
+## Backend – jOOQ for persistence
+
+For any **backend / Kotlin / database** work in this repository:
+
+- **Always use jOOQ** for database access. Never use raw SQL strings (e.g. `dslContext.fetch("SELECT ...")`).
+- Use generated table and column references (`PRODUCT_MODEL`, `PRODUCT_MODEL.SLUG`, `ProductModelRecord`, etc.). After migrations, regenerate jOOQ so new columns are available.
+
+---
+
 ## Frontend Style Guide
 
 For any **frontend / React / Next.js / TypeScript** work in this repository, always follow this guide

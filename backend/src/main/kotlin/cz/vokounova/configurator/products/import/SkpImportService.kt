@@ -321,15 +321,9 @@ class SkpImportService(
                 n.endsWith("_leny") ||
                 n.endsWith("_lenz") ||
                 n in listOf("width", "depth", "height", "sirka", "hloubka", "vyska") ->
-                AttributeTypeInference(AttributeType.DECIMAL, BigDecimal("1"), BigDecimal("5000"), null, null)
+                AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 5000)
             else ->
-                AttributeTypeInference(
-                    AttributeType.DECIMAL,
-                    BigDecimal("1"),
-                    BigDecimal("5000"),
-                    null,
-                    null,
-                )
+                AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 5000)
         }
     }
 

@@ -63,14 +63,19 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
 
   const [liveZoomFromViewer, setLiveZoomFromViewer] = useState<number | null>(null)
   const [sliderOverride, setSliderOverride] = useState<number | null>(null)
+  const [backgroundOverride, setBackgroundOverride] = useState<string | null>(null)
   const onCameraDistanceChange = useCallback((distance: number) => {
     setLiveZoomFromViewer(distance)
   }, [])
   const onSliderChange = useCallback((value: number) => {
     setSliderOverride(value)
   }, [])
+  const onBackgroundChange = useCallback((value: string) => {
+    setBackgroundOverride(value)
+  }, [])
   const onSaveSuccess = useCallback(() => {
     setSliderOverride(null)
+    setBackgroundOverride(null)
   }, [])
 
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
@@ -176,7 +181,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
       </div>
 
       <div className="grid flex-1 gap-6 lg:min-h-0 lg:grid-cols-3">
-        <div className="flex min-h-[40vh] flex-col lg:col-span-2 lg:min-h-[50vh]">
+        <div className="flex max-h-[60vh] min-h-[40vh] flex-col lg:col-span-2 lg:max-h-[60vh] lg:min-h-[50vh]">
           <VisualPreview
             productModelId={productModelId}
             selectedComponentId={activeComponentId}
@@ -185,6 +190,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             model3dConfig={model3dConfig}
             model3dEffects={productModel.model3dEffects}
             cameraDistanceOverride={sliderOverride}
+            backgroundPresetOverride={backgroundOverride}
             onCameraDistanceChange={onCameraDistanceChange}
           />
         </div>
@@ -195,6 +201,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
               productModelId={productModelId}
               liveZoomFromViewer={liveZoomFromViewer}
               onSliderChange={onSliderChange}
+              onBackgroundChange={onBackgroundChange}
               onSaveSuccess={onSaveSuccess}
             />
           )}
@@ -204,6 +211,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             modifiersCents={computedPrice?.modifiersCents ?? 0}
             currency={productModel.currency}
             isLoading={shouldShowPriceSkeleton}
+            isCompact
           />
           <ComponentSelector
             components={components}

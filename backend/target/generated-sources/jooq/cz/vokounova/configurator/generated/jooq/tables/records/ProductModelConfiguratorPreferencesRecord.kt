@@ -52,6 +52,10 @@ open class ProductModelConfiguratorPreferencesRecord private constructor() : Upd
         set(value): Unit = set(7, value)
         get(): Boolean? = get(7) as Boolean?
 
+    open var backgroundPreset: String?
+        set(value): Unit = set(8, value)
+        get(): String? = get(8) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -61,7 +65,7 @@ open class ProductModelConfiguratorPreferencesRecord private constructor() : Upd
     /**
      * Create a detached, initialised ProductModelConfiguratorPreferencesRecord
      */
-    constructor(productModelId: UUID, zoomDistanceDefault: BigDecimal? = null, zoomDistanceEmbed: BigDecimal? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, embedShowProductName: Boolean? = null, embedShowDescription: Boolean? = null, embedShowComponents: Boolean? = null): this() {
+    constructor(productModelId: UUID, zoomDistanceDefault: BigDecimal? = null, zoomDistanceEmbed: BigDecimal? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, embedShowProductName: Boolean? = null, embedShowDescription: Boolean? = null, embedShowComponents: Boolean? = null, backgroundPreset: String? = null): this() {
         this.productModelId = productModelId
         this.zoomDistanceDefault = zoomDistanceDefault
         this.zoomDistanceEmbed = zoomDistanceEmbed
@@ -70,6 +74,7 @@ open class ProductModelConfiguratorPreferencesRecord private constructor() : Upd
         this.embedShowProductName = embedShowProductName
         this.embedShowDescription = embedShowDescription
         this.embedShowComponents = embedShowComponents
+        this.backgroundPreset = backgroundPreset
         resetChangedOnNotNull()
     }
 }

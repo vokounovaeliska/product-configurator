@@ -37,15 +37,15 @@ export function useDefaultPreviewLayers(
     })),
   })
 
+  const attributesData = attributesQueries.map((q) => q.data?.items ?? [])
   const attributesByComponent = useMemo(() => {
     const result: Record<string, { id: string; type: string }[]> = {}
     components.forEach((c, i) => {
-      const data = attributesQueries[i]?.data?.items ?? []
+      const data = attributesData[i] ?? []
       result[c.id] = data.map((a) => ({ id: a.id, type: a.type }))
     })
     return result
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- attributesByComponent depends on query results
-  }, [components, ...attributesQueries.map((q) => q.data)])
+  }, [components, attributesData])
 
   const attributeKeys = useMemo(() => {
     const keys: { componentId: string; componentImageZIndex: number; attributeId: string }[] = []

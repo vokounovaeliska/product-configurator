@@ -23,6 +23,7 @@ export type ConfiguratorPreferencesEmbedDto = {
   embedShowProductName: boolean | null
   embedShowDescription: boolean | null
   embedShowComponents: boolean | null
+  backgroundPreset: string | null
 }
 
 export type ProductEmbedFullDto = {

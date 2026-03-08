@@ -82,9 +82,13 @@ class AttributeAPIManager(
                     unit = null,
                 )
             AttributeType.INTEGER ->
-                attribute.copy(minDecimal = null, maxDecimal = null)
+                attribute.copy(
+                    minDecimal = null,
+                    maxDecimal = null,
+                    defaultDecimal = null,
+                )
             AttributeType.DECIMAL ->
-                attribute.copy(minInt = null, maxInt = null)
+                attribute.copy(minInt = null, maxInt = null, defaultInt = null)
         }
     }
 

@@ -9,6 +9,6 @@ export const routing = defineRouting({
   // Used when no locale matches
   defaultLocale: DEFAULT_LOCALE,
 
-  // Don't prefix default locale
-  localePrefix: "as-needed",
+  // Always use locale prefix: /en/..., /cs/... (fixes /en/setup/import/sketchup for English)
+  localePrefix: "always",
 })

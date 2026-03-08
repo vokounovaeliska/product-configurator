@@ -168,7 +168,10 @@
         "rawJson": "Surový JSON",
         "message": "Zpráva zákazníka",
         "openFullPage": "Detail",
-        "backToList": "Zpět na poptávky"
+        "backToList": "Zpět na poptávky",
+        "userChoices": "Výběr zákazníka",
+        "dimensions": "Rozměry komponent",
+        "dimensionsComponent": "Komponenta"
       }
     },
     "title": "Nastavení",
@@ -180,25 +183,28 @@
       "howItWorks": "Jak to funguje",
       "howItWorksDescription": "Spusťte svůj konfigurátor produktů ve čtyřech krocích.",
       "step1Title": "Vytvořte nebo importujte produkt",
-      "step1Description": "Importujte ze SketchUp (.skp + .glb) pro automatické nastavení, nebo vytvořte model produktu ručně.",
+      "step1Description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Configurator → Export) pro automatické vytvoření produktu s komponentami a atributy, nebo vytvořte model ručně.",
       "step2Title": "Nastavte atributy a možnosti",
       "step2Description": "Definujte, co si zákazníci mohou vybrat: barvy, rozměry, materiály. Nastavte komponenty a jejich atributy.",
       "step3Title": "Nastavte cenová pravidla",
       "step3Description": "Definujte, jak každá volba ovlivní cenu — pevná částka nebo přírůstek za jednotku.",
       "step4Title": "Publikujte a vložte",
-      "step4Description": "Nastavte embed URL, publikujte a zkopírujte iframe kód pro umístění konfigurátoru na váš web.",
+      "step4Description": "Nastavte embed URL, publikujte produkt a zkopírujte iframe kód pro vložení konfigurátoru na váš web.",
       "quickActions": "Rychlé akce",
       "importAction": "Import ze SketchUp",
       "importDescription": "Nahrajte .skp a .glb soubory pro automatické vytvoření produktu s komponentami a atributy.",
       "requestsAction": "Poptávky",
       "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
       "tipTitle": "Tip: Příprava 3D modelu",
-      "tipBody": "Exportujte svůj SketchUp model jako .glb (Soubor > Exportovat > glTF). Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry). Aplikace automaticky extrahuje parametry ze souboru .skp při importu."
+      "tipBody": "Použijte plugin SketchUp (Pluginy → Configurator → Export for Configurator). Plugin exportuje model.glb, parameters.json a materiály do jednoho zip souboru. Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry).",
+      "downloadPlugin": "Stáhnout plugin SketchUp"
     }
   },
   "SketchUpImport": {
     "title": "Import ze SketchUp",
     "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Configurator → Export). Zip obsahuje 3D model, parametry a materiály. Po importu nastavte ceny a náhled v konfigurátoru.",
+    "downloadPlugin": "Stáhnout plugin SketchUp",
+    "downloadPluginHint": "Nemáte ještě plugin? Stáhněte si .rbz soubor a nainstalujte ho v SketchUp přes Pluginy → Manager pluginu → Instalace rozšíření.",
     "form": {
       "productName": "Název produktu",
       "productNamePlaceholder": "Volitelné – výchozí je název zip souboru",
@@ -368,11 +374,21 @@
       "selectComponent": "Vyberte komponentu pro zobrazení náhledu.",
       "selectOptions": "Vyberte možnosti níže pro zobrazení náhledu.",
       "loadError": "Nepodařilo se načíst náhled.",
-      "loading3d": "Načítání 3D modelu…"
+      "loading3d": "Načítání 3D modelu…",
+      "contextLost": "3D náhled není k dispozici. WebGL kontext byl ztracen.",
+      "retry": "Zkusit znovu"
     },
     "previewSettings": {
+      "backgroundLabel": "Pozadí",
+      "backgroundPresets": {
+        "lightGray": "Světle šedá",
+        "white": "Bílá",
+        "gray": "Šedá",
+        "dark": "Tmavá",
+        "warm": "Teplá"
+      },
       "title": "Nastavení náhledu",
-      "description": "Nastavte výchozí úroveň přiblížení pro 3D náhled. Platí pro konfigurátor i vložený iframe.",
+      "description": "Nastavte výchozí úroveň přiblížení a pozadí pro 3D náhled. Platí pro konfigurátor i vložený iframe.",
       "zoomLabel": "Úroveň přiblížení",
       "save": "Uložit",
       "saving": "Ukládám…",
@@ -392,6 +408,8 @@
       "editButton": "Upravit",
       "imageZIndex": "Z-index obrázku",
       "manageOptionsButton": "Spravovat možnosti",
+      "moveDown": "Posunout dolů",
+      "moveUp": "Posunout nahoru",
       "sortOrder": "Pořadí"
     },
     "create": {
@@ -493,7 +511,11 @@
       "operatorEq": "Rovná se",
       "operatorBetween": "Rozsah",
       "deleteButton": "Smazat",
-      "editButton": "Upravit"
+      "editButton": "Upravit",
+      "paginationInfo": "{{from}}–{{to}} z {{total}}",
+      "paginationPrev": "Předchozí",
+      "paginationNext": "Další",
+      "paginationPage": "{{current}} / {{total}}"
     },
     "create": {
       "title": "Přidat cenové pravidlo",
@@ -578,6 +600,8 @@
       "deleteButton": "Smazat",
       "editButton": "Upravit",
       "manageOptionsButton": "Spravovat možnosti",
+      "moveDown": "Posunout dolů",
+      "moveUp": "Posunout nahoru",
       "pricingButton": "Cenění",
       "required": "Povinné",
       "range": "Rozsah",
@@ -712,7 +736,9 @@
       "sortOrder": "Pořadí",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
-      "editImageButton": "Upravit obrázek"
+      "editImageButton": "Upravit obrázek",
+      "moveDown": "Posunout dolů",
+      "moveUp": "Posunout nahoru"
     },
     "create": {
       "title": "Přidat možnost",

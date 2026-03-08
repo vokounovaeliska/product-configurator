@@ -58,6 +58,7 @@ class EmbedController(
                             embedShowProductName = it.embedShowProductName,
                             embedShowDescription = it.embedShowDescription,
                             embedShowComponents = it.embedShowComponents,
+                            backgroundPreset = it.backgroundPreset,
                         )
                     },
             )

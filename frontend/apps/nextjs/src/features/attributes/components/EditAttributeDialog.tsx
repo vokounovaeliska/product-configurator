@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
@@ -17,7 +17,6 @@ import {
   FormMessage,
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
-import { Select } from "@workspace/ui/components/select"
 
 import type { AttributeDto, AttributePatchRequestDto } from "@/api/attributeTypes"
 import { DualRangeSlider } from "@/components/DualRangeSlider"
@@ -64,9 +63,11 @@ export const EditAttributeDialog = ({
   })
 
   const selectedType = form.watch("type")
+  const wasOpenRef = useRef(false)
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !wasOpenRef.current) {
+      wasOpenRef.current = true
       const isEnumOrBoolean = attribute.type === "ENUM" || attribute.type === "BOOLEAN"
       form.reset({
         code: attribute.code,
@@ -83,7 +84,8 @@ export const EditAttributeDialog = ({
         sortOrder: attribute.sortOrder,
       })
     }
-  }, [attribute, isOpen, form])
+    if (!isOpen) wasOpenRef.current = false
+  }, [isOpen, attribute, form])
 
   const onSubmit = async (values: AttributeFormSchema) => {
     try {
@@ -97,6 +99,15 @@ export const EditAttributeDialog = ({
       }
       if (values.type !== attribute.type) {
         patches.push({ path: "/type", op: "Replace" as const, value: values.type })
+        if (values.type === "INTEGER") {
+          patches.push({ path: "/minDecimal", op: "Replace" as const, value: null })
+          patches.push({ path: "/maxDecimal", op: "Replace" as const, value: null })
+          patches.push({ path: "/defaultDecimal", op: "Replace" as const, value: null })
+        } else if (values.type === "DECIMAL") {
+          patches.push({ path: "/minInt", op: "Replace" as const, value: null })
+          patches.push({ path: "/maxInt", op: "Replace" as const, value: null })
+          patches.push({ path: "/defaultInt", op: "Replace" as const, value: null })
+        }
       }
       if (values.isRequired !== attribute.isRequired) {
         patches.push({
@@ -216,52 +227,68 @@ export const EditAttributeDialog = ({
             <FormField
               control={form.control}
               name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("edit.type")}</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value)
-                      // Reset numeric fields when type changes
-                      if (value === "ENUM" || value === "BOOLEAN") {
-                        form.setValue("minInt", null)
-                        form.setValue("maxInt", null)
-                        form.setValue("minDecimal", null)
-                        form.setValue("maxDecimal", null)
-                        form.setValue("defaultInt", null)
-                        form.setValue("defaultDecimal", null)
-                        form.setValue("unit", null)
-                      } else if (value === "INTEGER") {
-                        form.setValue("minDecimal", null)
-                        form.setValue("maxDecimal", null)
-                      } else if (value === "DECIMAL") {
-                        form.setValue("minInt", null)
-                        form.setValue("maxInt", null)
+              render={({ field }) => {
+                const handleChange = (value: string) => {
+                  field.onChange(value)
+                  if (value === "ENUM" || value === "BOOLEAN") {
+                    form.setValue("minInt", null)
+                    form.setValue("maxInt", null)
+                    form.setValue("minDecimal", null)
+                    form.setValue("maxDecimal", null)
+                    form.setValue("defaultInt", null)
+                    form.setValue("defaultDecimal", null)
+                    form.setValue("unit", null)
+                  } else if (value === "INTEGER") {
+                    form.setValue("minDecimal", null)
+                    form.setValue("maxDecimal", null)
+                    form.setValue("defaultDecimal", null)
+                    if (attribute.type === "DECIMAL") {
+                      const md = attribute.minDecimal
+                      const xd = attribute.maxDecimal
+                      if (md != null || xd != null) {
+                        form.setValue("minInt", md != null ? Math.round(md) : null)
+                        form.setValue("maxInt", xd != null ? Math.round(xd) : null)
                       }
-                    }}
-                  >
+                    }
+                  } else if (value === "DECIMAL") {
+                    form.setValue("minInt", null)
+                    form.setValue("maxInt", null)
+                    form.setValue("defaultInt", null)
+                    if (attribute.type === "INTEGER") {
+                      const mi = attribute.minInt
+                      const xi = attribute.maxInt
+                      if (mi != null || xi != null) {
+                        form.setValue("minDecimal", mi ?? null)
+                        form.setValue("maxDecimal", xi ?? null)
+                      }
+                    }
+                  }
+                  form.clearErrors("minInt")
+                  form.clearErrors("minDecimal")
+                }
+                return (
+                  <FormItem>
+                    <FormLabel>{t("edit.type")}</FormLabel>
                     <FormControl>
-                      <Select.Trigger>
-                        <Select.Trigger.Value placeholder={t("edit.typePlaceholder")} />
-                      </Select.Trigger>
+                      <select
+                        ref={field.ref}
+                        name={field.name}
+                        value={field.value}
+                        onChange={(e) => handleChange(e.target.value)}
+                        onBlur={field.onBlur}
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        aria-label={t("edit.type")}
+                      >
+                        <option value="ENUM">{t("edit.typeEnum")}</option>
+                        <option value="INTEGER">{t("edit.typeInteger")}</option>
+                        <option value="DECIMAL">{t("edit.typeDecimal")}</option>
+                        <option value="BOOLEAN">{t("edit.typeBoolean")}</option>
+                      </select>
                     </FormControl>
-                    <Select.Content>
-                      <Select.Content.Item value="ENUM">{t("edit.typeEnum")}</Select.Content.Item>
-                      <Select.Content.Item value="INTEGER">
-                        {t("edit.typeInteger")}
-                      </Select.Content.Item>
-                      <Select.Content.Item value="DECIMAL">
-                        {t("edit.typeDecimal")}
-                      </Select.Content.Item>
-                      <Select.Content.Item value="BOOLEAN">
-                        {t("edit.typeBoolean")}
-                      </Select.Content.Item>
-                    </Select.Content>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
 
             <FormField

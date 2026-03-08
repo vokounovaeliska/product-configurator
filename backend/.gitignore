@@ -24,3 +24,6 @@ target/generated-sources/*
 user_stories_asana.json
 
 /uploads/
+
+.cursorrules
+.cursor/*
