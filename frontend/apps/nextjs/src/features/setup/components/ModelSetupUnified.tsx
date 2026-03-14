@@ -42,6 +42,8 @@ import { ProductModelInlineForm } from "@/features/productModels/components/Prod
 
 type Props = {
   productModelId: string
+  /** When true (e.g. in tabbed layout), hides the quick actions bar. */
+  isQuickActionsHidden?: boolean
 }
 
 const CollapsibleSection = ({
@@ -88,7 +90,7 @@ const CollapsibleSection = ({
   </div>
 )
 
-export const ModelSetupUnified = ({ productModelId }: Props) => {
+export const ModelSetupUnified = ({ productModelId, isQuickActionsHidden = false }: Props) => {
   const t = useTranslations("Setup")
   const tComponents = useTranslations("Components")
   const tProductModels = useTranslations("ProductModels")
@@ -198,64 +200,65 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
 
   return (
     <div className="space-y-6">
-      {/* Quick links bar */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-        <Typography
-          as="span"
-          variant="body-sm"
-          weight="medium"
-          className="shrink-0 text-muted-foreground"
-        >
-          {t("quickActions")}
-        </Typography>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
+      {!isQuickActionsHidden && (
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+          <Typography
+            as="span"
+            variant="body-sm"
+            weight="medium"
+            className="shrink-0 text-muted-foreground"
           >
-            <Link href={ROUTES.setupPricingRules(productModelId)}>
-              <BanknoteIcon className="mr-2 size-4" />
-              {t("navigation.pricingRules")}
-            </Link>
-          </Button>
-          {productModel?.isActive && (
+            {t("quickActions")}
+          </Typography>
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
               size="sm"
               asChild
             >
-              <Link href={ROUTES.configurator(productModelId)}>
-                {tProductModels("card.configureButton")}
+              <Link href={ROUTES.setupPricingRules(productModelId)}>
+                <BanknoteIcon className="mr-2 size-4" />
+                {t("navigation.pricingRules")}
               </Link>
             </Button>
-          )}
-          {productModel?.isPublished && productModel?.url && (
+            {productModel?.isActive && (
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <Link href={ROUTES.configurator(productModelId)}>
+                  {tProductModels("card.configureButton")}
+                </Link>
+              </Button>
+            )}
+            {productModel?.isPublished && productModel?.url && (
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <a
+                  href={`${env.NEXT_PUBLIC_SITE_URL}${ROUTES.embed(productModel.url)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {tProductModels("Publish.previewEmbed")}
+                </a>
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
               asChild
             >
-              <a
-                href={`${env.NEXT_PUBLIC_SITE_URL}${ROUTES.embed(productModel.url)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {tProductModels("Publish.previewEmbed")}
-              </a>
+              <Link href={ROUTES.setupProductModelPublish(productModelId)}>
+                {tProductModels("Publish.title")}
+              </Link>
             </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-          >
-            <Link href={ROUTES.setupProductModelPublish(productModelId)}>
-              {tProductModels("Publish.title")}
-            </Link>
-          </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Product model: always visible */}
       {productModel && (

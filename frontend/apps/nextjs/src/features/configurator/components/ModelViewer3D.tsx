@@ -1249,7 +1249,7 @@ function Model({
     )
 
     let isCancelled = false
-    Promise.all(loads)
+    void Promise.all(loads)
       .then((loaded) => {
         if (isCancelled) {
           loaded.forEach(([, tex]) => tex.dispose())

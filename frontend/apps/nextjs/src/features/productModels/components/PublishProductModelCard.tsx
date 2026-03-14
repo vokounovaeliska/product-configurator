@@ -22,7 +22,7 @@ import { extractErrorMessage } from "@/lib/utils"
 
 import { useUpdateProductModel } from "../api/productModelQueries"
 
-const isEmbedDisplayDefault = true
+const isEmbedDisplayDefault = false
 
 const URL_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -317,11 +317,33 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                   </a>
                 </Button>
               </div>
-              <pre className="max-h-24 overflow-auto rounded bg-muted p-3 text-xs">
+              <pre className="max-h-36 overflow-auto rounded bg-muted p-3 text-xs">
                 <code>{embedCode}</code>
               </pre>
 
-              <details className="group mt-4">
+              <div className="mt-4 space-y-2">
+                <Typography
+                  as="h4"
+                  variant="display-sm"
+                  weight="semibold"
+                >
+                  {t("embedPreviewTitle")}
+                </Typography>
+                <div className="overflow-hidden rounded-lg border bg-muted/30">
+                  <iframe
+                    key={`embed-preview-${isEmbedProductNameShownFromServer}-${isEmbedDescriptionShownFromServer}-${isEmbedComponentsShownFromServer}`}
+                    src={embedUrl}
+                    title={t("embedPreviewTitle")}
+                    className="h-[800px] min-h-[500px] w-full border-0"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+
+              <details
+                className="group mt-4"
+                open
+              >
                 <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
                   <ChevronDownIcon className="size-4 shrink-0 transition-transform group-open:rotate-180" />
                   {t("embedDisplay.title")}

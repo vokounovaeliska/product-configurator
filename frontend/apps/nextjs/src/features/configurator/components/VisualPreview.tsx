@@ -88,7 +88,9 @@ export const VisualPreview = ({
             "flex flex-1 items-center justify-center rounded-lg border bg-muted/30",
             isCompactLayout
               ? "max-h-[55vh] min-h-[30vh] sm:max-h-[60vh] sm:min-h-[40vh] md:min-h-[50vh]"
-              : "max-h-[60vh] min-h-[40vh]",
+              : isEmbedPreview
+                ? "max-h-[75vh] min-h-[50vh]"
+                : "max-h-[60vh] min-h-[40vh]",
           )}
         >
           <ModelViewer3D

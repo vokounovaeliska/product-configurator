@@ -481,9 +481,8 @@ export const EditPricingRuleDialog = ({
                     <Input
                       type="number"
                       step="0.01"
-                      min="0"
                       placeholder="0"
-                      value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
+                      value={field.value != null ? field.value / 100 : ""}
                       onChange={(e) => {
                         const v = e.target.value
                         field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
