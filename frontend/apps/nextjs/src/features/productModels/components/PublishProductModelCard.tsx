@@ -19,6 +19,7 @@ import type { ProductModelDto } from "@/api/productModelTypes"
 import { env } from "@/config/env"
 import { ROUTES } from "@/lib/routes"
 import { extractErrorMessage } from "@/lib/utils"
+import { getEmbedBaseUrl } from "@/utils/embedUrl"
 
 import { useUpdateProductModel } from "../api/productModelQueries"
 
@@ -83,13 +84,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const isUrlError = url !== "" && !isUrlValid
   const canPublish = isUrlValid && url.trim().length > 0
   const displayUrl = url.trim() ?? productModel.url ?? toUrlPath(productModel.name)
-  // Use HTTPS for embed URLs in production to avoid Mixed Content; keep HTTP on localhost
-  const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/.test(
-    env.NEXT_PUBLIC_SITE_URL,
-  )
-  const embedBaseUrl = isLocalhost
-    ? env.NEXT_PUBLIC_SITE_URL
-    : env.NEXT_PUBLIC_SITE_URL.replace(/^http:\/\//, "https://")
+  const embedBaseUrl = getEmbedBaseUrl(env.NEXT_PUBLIC_SITE_URL)
   const embedUrl = `${embedBaseUrl}${ROUTES.embed(displayUrl)}`
   const embedCode = `<iframe
   src="${embedUrl}"

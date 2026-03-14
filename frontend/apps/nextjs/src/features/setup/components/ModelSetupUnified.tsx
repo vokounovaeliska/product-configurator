@@ -24,6 +24,7 @@ import type { ComponentDto } from "@/api/componentTypes"
 import { env } from "@/config/env"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
+import { getEmbedBaseUrl } from "@/utils/embedUrl"
 
 /* eslint-disable import/no-restricted-paths -- setup page composes attributes, components, pricing, productModels */
 import { useAttributesList, useUpdateAttribute } from "@/features/attributes/api/attributeQueries"
@@ -239,7 +240,7 @@ export const ModelSetupUnified = ({ productModelId, isQuickActionsHidden = false
                 asChild
               >
                 <a
-                  href={`${env.NEXT_PUBLIC_SITE_URL}${ROUTES.embed(productModel.url)}`}
+                  href={`${getEmbedBaseUrl(env.NEXT_PUBLIC_SITE_URL)}${ROUTES.embed(productModel.url)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
