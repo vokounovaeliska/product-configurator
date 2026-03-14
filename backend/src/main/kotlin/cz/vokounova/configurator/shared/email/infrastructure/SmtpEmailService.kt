@@ -22,7 +22,8 @@ import java.util.Base64
 @Primary
 @ConditionalOnExpression(
     "!T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('spring.mail.host')) && " +
-        "T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('resend.api-key'))",
+        "T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('resend.api-key')) && " +
+        "T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('RESEND_API_KEY'))",
 )
 class SmtpEmailService(
     private val mailSender: JavaMailSender,
