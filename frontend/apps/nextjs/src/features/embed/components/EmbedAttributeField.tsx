@@ -190,6 +190,15 @@ export const EmbedAttributeField = ({
       const max = attribute.maxInt ?? Number.MAX_SAFE_INTEGER
       onOtherChange(Math.max(min, Math.min(max, v)))
     }
+    const handleIntegerChange = (raw: string) => {
+      setLocalEditValue(raw)
+      const v = Number.parseInt(raw, 10)
+      if (!Number.isNaN(v)) {
+        const min = attribute.minInt ?? -Number.MAX_SAFE_INTEGER
+        const max = attribute.maxInt ?? Number.MAX_SAFE_INTEGER
+        onOtherChange(Math.max(min, Math.min(max, v)))
+      }
+    }
     return (
       <div className="space-y-2">
         <Label htmlFor={`attr-${attribute.id}`}>
@@ -205,7 +214,7 @@ export const EmbedAttributeField = ({
             min={attribute.minInt ?? undefined}
             max={attribute.maxInt ?? undefined}
             value={displayValue}
-            onChange={(e) => setLocalEditValue(e.target.value)}
+            onChange={(e) => handleIntegerChange(e.target.value)}
             onFocus={() => setLocalEditValue(String(value))}
             onBlur={(e) => commitInteger(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}
@@ -242,6 +251,15 @@ export const EmbedAttributeField = ({
       const max = attribute.maxDecimal ?? Number.MAX_VALUE
       onOtherChange(Math.max(min, Math.min(max, v)))
     }
+    const handleDecimalChange = (raw: string) => {
+      setLocalEditValue(raw)
+      const v = Number.parseFloat(raw)
+      if (!Number.isNaN(v)) {
+        const min = attribute.minDecimal ?? -Number.MAX_VALUE
+        const max = attribute.maxDecimal ?? Number.MAX_VALUE
+        onOtherChange(Math.max(min, Math.min(max, v)))
+      }
+    }
     return (
       <div className="space-y-2">
         <Label htmlFor={`attr-${attribute.id}`}>
@@ -258,7 +276,7 @@ export const EmbedAttributeField = ({
             min={attribute.minDecimal ?? undefined}
             max={attribute.maxDecimal ?? undefined}
             value={displayValue}
-            onChange={(e) => setLocalEditValue(e.target.value)}
+            onChange={(e) => handleDecimalChange(e.target.value)}
             onFocus={() => setLocalEditValue(String(value))}
             onBlur={(e) => commitDecimal(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}

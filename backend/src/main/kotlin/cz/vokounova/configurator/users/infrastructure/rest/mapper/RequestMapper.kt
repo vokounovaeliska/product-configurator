@@ -26,6 +26,26 @@ fun UserPatchRequestDto.toParams(): UserJsonPatchParams =
                 UserPatchRequestDto.Path.SlashIsActive -> UserJsonPatchParamsPath.IS_ACTIVE
                 UserPatchRequestDto.Path.SlashEmail -> UserJsonPatchParamsPath.EMAIL
                 UserPatchRequestDto.Path.SlashNotificationEmail -> UserJsonPatchParamsPath.NOTIFICATION_EMAIL
+                UserPatchRequestDto.Path.SlashQuoteRequestEmailTemplatePreset ->
+                    UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_TEMPLATE_PRESET
+                UserPatchRequestDto.Path.SlashQuoteRequestEmailSubject ->
+                    UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_SUBJECT
+                UserPatchRequestDto.Path.SlashQuoteRequestEmailBody ->
+                    UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_BODY
+                UserPatchRequestDto.Path.SlashQuoteRequestEmailBodyIsHtml ->
+                    UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_BODY_IS_HTML
+                UserPatchRequestDto.Path.SlashQuoteRequestEmailLabels ->
+                    UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_LABELS
+                UserPatchRequestDto.Path.SlashSupplierNotificationEmailTemplatePreset ->
+                    UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_TEMPLATE_PRESET
+                UserPatchRequestDto.Path.SlashSupplierNotificationEmailSubject ->
+                    UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_SUBJECT
+                UserPatchRequestDto.Path.SlashSupplierNotificationEmailBody ->
+                    UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_BODY
+                UserPatchRequestDto.Path.SlashSupplierNotificationEmailBodyIsHtml ->
+                    UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_BODY_IS_HTML
+                UserPatchRequestDto.Path.SlashSupplierNotificationEmailLabels ->
+                    UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_LABELS
             },
         value = value,
         op =

@@ -89,6 +89,55 @@ class ProductConfigQueryService(
         )
     }
 
+    override fun getFullConfigByProductId(productModelId: UUID): FullProductConfigDto? =
+        try {
+            val product = productModelAPI.getOne(ProductModelId(productModelId))
+            val productId = ProductModelId(productModelId)
+            val components =
+                componentRepository.findByFilter(
+                    ComponentFilter(productModelIds = listOf(productId)),
+                )
+            val attributesByComponent =
+                components.associate { component ->
+                    component.id.value.toString() to
+                        attributeRepository.findByFilter(
+                            AttributeFilter(componentIds = listOf(component.id)),
+                        )
+                }
+            val optionsByAttribute =
+                attributesByComponent.values.flatten().associate { attr ->
+                    attr.id.value.toString() to attributeOptionRepository.findByAttributeId(attr.id)
+                }
+            val pricingRules = attributePricingRuleRepository.findByProductModelId(productId)
+            val prefs = configuratorPreferencesRepository.findByProductModelId(productId)
+            FullProductConfigDto(
+                product = product.toExternalDto(),
+                components = components.map { it.toExternalDto() },
+                attributesByComponent =
+                    attributesByComponent.mapValues { (_, attrs) ->
+                        attrs.map { it.toAttributeExternalDto() }
+                    },
+                optionsByAttribute =
+                    optionsByAttribute.mapValues { (_, opts) ->
+                        opts.map { it.toAttributeOptionExternalDto() }
+                    },
+                pricingRules = pricingRules.map { it.toAttributePricingRuleExternalDto() },
+                configuratorPreferences =
+                    prefs?.let {
+                        ConfiguratorPreferencesExternalDto(
+                            zoomDistanceDefault = it.zoomDistanceDefault?.toDouble(),
+                            zoomDistanceEmbed = it.zoomDistanceEmbed?.toDouble(),
+                            embedShowProductName = it.embedShowProductName,
+                            embedShowDescription = it.embedShowDescription,
+                            embedShowComponents = it.embedShowComponents,
+                            backgroundPreset = it.backgroundPreset,
+                        )
+                    },
+            )
+        } catch (_: Exception) {
+            null
+        }
+
     private fun ProductModel.toExternalDto() =
         ProductModelExternalDto(
             id = id.value,

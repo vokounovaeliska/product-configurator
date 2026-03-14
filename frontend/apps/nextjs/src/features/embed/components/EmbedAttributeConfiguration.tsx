@@ -81,7 +81,9 @@ export const EmbedAttributeConfiguration = ({
 
   if (!shouldShowComponents) {
     const flatAttributes = sortedComponents.flatMap((c) => {
-      const attrs = attributesByComponent[c.id] ?? []
+      const attrs = [...(attributesByComponent[c.id] ?? [])].sort(
+        (a, b) => a.sortOrder - b.sortOrder,
+      )
       return attrs.map((a) => ({ component: c, attribute: a }))
     })
     return (
@@ -137,7 +139,9 @@ export const EmbedAttributeConfiguration = ({
       <div className="space-y-3">
         {sortedComponents.map((component) => {
           const isSelected = component.id === selectedComponentId
-          const attributes = attributesByComponent[component.id] ?? []
+          const attributes = [...(attributesByComponent[component.id] ?? [])].sort(
+            (a, b) => a.sortOrder - b.sortOrder,
+          )
           const opts = selectedOptionsByComponent[component.id] ?? {}
           const other = selectedOtherValuesByComponent[component.id] ?? {}
           const isConfigured = attributes.some(

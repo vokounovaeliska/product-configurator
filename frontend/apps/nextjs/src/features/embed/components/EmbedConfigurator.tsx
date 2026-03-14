@@ -12,6 +12,7 @@ import type { ComponentDto } from "@/api/componentTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
 /* eslint-disable import/no-restricted-paths -- embed composes configurator preview and pricing utils */
+import { ComponentSelector } from "@/features/configurator/components/ComponentSelector"
 import { VisualPreview } from "@/features/configurator/components/VisualPreview"
 import { computeModifiersCents } from "@/features/configurator/utils/computePriceFromRules"
 /* eslint-enable import/no-restricted-paths */
@@ -19,8 +20,8 @@ import type {
   ConfiguratorPreferencesEmbedDto,
   ProductModelEmbedDto,
 } from "@/features/embed/api/embedQueries"
+import { buildFullConfigurationForRequest } from "@/features/embed/utils/buildFullConfiguration"
 
-import { EmbedAttributeConfiguration } from "./EmbedAttributeConfiguration"
 import { RequestQuoteDialog } from "./RequestQuoteDialog"
 
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
@@ -165,11 +166,21 @@ export const EmbedConfigurator = ({
   )
 
   const configurationForRequest = useMemo(
-    () => ({
+    () =>
+      buildFullConfigurationForRequest(
+        components,
+        attributesByComponent,
+        _optionsByAttribute,
+        selectedOptionsByComponent,
+        selectedOtherValuesByComponent,
+      ),
+    [
+      components,
+      attributesByComponent,
+      _optionsByAttribute,
       selectedOptionsByComponent,
       selectedOtherValuesByComponent,
-    }),
-    [selectedOptionsByComponent, selectedOtherValuesByComponent],
+    ],
   )
 
   const formatPrice = (cents: number) =>
@@ -218,8 +229,8 @@ export const EmbedConfigurator = ({
         </div>
       )}
 
-      <div className="grid min-h-0 flex-1 gap-3 sm:gap-4 lg:grid-cols-[1fr_280px]">
-        <div className="relative z-0 flex min-h-[35vh] min-w-0 flex-1 flex-col sm:min-h-[40vh] lg:min-h-0">
+      <div className="grid min-h-0 flex-1 gap-6 lg:min-h-0 lg:grid-cols-3">
+        <div className="relative z-0 flex max-h-[60vh] min-h-[40vh] flex-col lg:col-span-2 lg:max-h-[60vh] lg:min-h-[50vh]">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
@@ -230,11 +241,11 @@ export const EmbedConfigurator = ({
             configuratorPreferencesFromServer={configuratorPreferences}
             canCapture
             onCaptureReady={product.model3dUrl ? handleCaptureReady : undefined}
-            isCompact
+            embedPreview
           />
         </div>
 
-        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto lg:max-h-full">
+        <div className="flex min-h-0 flex-col gap-6 overflow-y-auto lg:max-h-full">
           <div className="flex shrink-0 flex-col gap-2">
             <Card className="p-3 shadow-sm">
               <div className="flex items-baseline justify-between gap-2">
@@ -269,18 +280,19 @@ export const EmbedConfigurator = ({
             )}
           </div>
 
-          <EmbedAttributeConfiguration
+          <ComponentSelector
             components={components}
             selectedComponentId={activeComponentId}
             onSelectComponent={handleSelectComponent}
-            attributesByComponent={attributesByComponent}
-            optionsByAttribute={_optionsByAttribute}
+            productModelId={product.id}
             selectedOptionsByComponent={selectedOptionsByComponent}
             onSelectOption={handleSelectOption}
             selectedOtherValuesByComponent={selectedOtherValuesByComponent}
             onOtherValueChange={handleOtherValueChange}
             pricingRules={pricingRules}
             currency={product.currency}
+            attributesByComponent={attributesByComponent}
+            optionsByAttribute={_optionsByAttribute}
             shouldShowComponents={isComponentsShownInEmbed}
           />
 

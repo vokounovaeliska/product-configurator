@@ -117,7 +117,17 @@
       "pricingRules": "Pricing rules",
       "productModels": "Product Models",
       "importSketchup": "Import from SketchUp",
+      "publish": "Publish & Embed",
       "title": "Setup"
+    },
+    "quickActions": "Quick actions",
+    "Publish": {
+      "title": "Publish & Embed",
+      "description": "Configure email templates and notification settings once. These apply to all your product models.",
+      "emailTemplateTitle": "Quote request email template",
+      "emailTemplateDescription": "Customize the confirmation email sent to customers when they submit a quote request. This template is used for all your published configurators.",
+      "emailTabCustomer": "Email for customers",
+      "emailTabSupplier": "Email for me"
     },
     "productModels": {
       "action": "Manage Models",
@@ -242,10 +252,14 @@
     "description": "Manage your product models. Create and configure models that customers can customize.",
     "edit": {
       "cancelButton": "Cancel",
-      "currency": "Currency",
-      "currencyPlaceholder": "Select currency",
-      "description": "Update the product model details",
-      "descriptionPlaceholder": "Enter a description for your product model",
+      "currency": {
+        "label": "Currency",
+        "placeholder": "Select currency"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Enter a description for your product model"
+      },
       "errorMessages": {
         "currencyRequiredMessage": "Please select a currency",
         "generalError": "Something went wrong",
@@ -255,10 +269,21 @@
       },
       "isActive": "Active",
       "isActiveDescription": "Whether this product model is currently active and available for customers",
-      "name": "Model Name",
-      "namePlaceholder": "e.g., Table Icatu, Wardrobe Oslo",
-      "price": "Base Price",
-      "pricePlaceholder": "0.00",
+      "name": {
+        "label": "Model Name",
+        "placeholder": "e.g., Table Icatu, Wardrobe Oslo"
+      },
+      "price": {
+        "label": "Base Price",
+        "placeholder": "0.00"
+      },
+      "dialogDescription": "Update the product model details",
+      "sectionDescription": {
+        "label": "Basic product model details"
+      },
+      "discardButton": {
+        "label": "Discard changes"
+      },
       "submitButton": "Save Changes",
       "title": "Edit Product Model"
     },
@@ -305,6 +330,72 @@
         "showProductName": "Product name",
         "showDescription": "Description",
         "showComponents": "Component selector",
+        "save": "Save",
+        "saving": "Saving…"
+      },
+      "emailTemplate": {
+        "title": "Quote request confirmation email template",
+        "description": "Choose a default template or set your own text. The customer receives one email; you get a copy.",
+        "presetLabel": "Template",
+        "presetEn": "English",
+        "presetCs": "Czech",
+        "presetCustom": "Custom text",
+        "loadFromEn": "Load English template",
+        "loadFromCs": "Load Czech template",
+        "subjectLabel": "Email subject",
+        "bodyIsHtmlLabel": "Body is HTML (insert HTML directly)",
+        "bodyLabel": "Email body",
+        "placeholdersHint": "Placeholders: '{{customerName}}', '{{productName}}', '{{totalPrice}}', '{{customerNote}}', '{{customerEmail}}', '{{customerPhone}}'",
+        "previewTitle": "Email preview",
+        "previewSubjectLabel": "Subject",
+        "previewProduct": "Product",
+        "previewTotalPrice": "Total price",
+        "previewYourMessage": "Your message",
+        "previewPhone": "Phone",
+        "previewConfigurationPreview": "Configuration preview",
+        "labelsSectionTitle": "Field labels",
+        "labelsSectionHint": "Customize labels for Product, Phone, Total price, etc. Leave empty to use preset defaults.",
+        "labelProduct": "Product",
+        "labelTotalPrice": "Total price",
+        "labelPhone": "Phone",
+        "labelYourMessage": "Your message",
+        "labelDescription": "Description",
+        "labelYourChoices": "Your choices",
+        "labelConfigurationPreview": "Configuration preview",
+        "save": "Save",
+        "saving": "Saving…"
+      },
+      "supplierEmailTemplate": {
+        "title": "Supplier notification email template",
+        "description": "Customize the email sent to you when a customer submits a quote request. Reply to that email to respond directly to the customer.",
+        "presetLabel": "Template",
+        "presetEn": "English",
+        "presetCs": "Czech",
+        "presetCustom": "Custom text",
+        "loadFromEn": "Load English template",
+        "loadFromCs": "Load Czech template",
+        "subjectLabel": "Email subject",
+        "bodyIsHtmlLabel": "Body is HTML (insert HTML directly)",
+        "bodyLabel": "Email body",
+        "placeholdersHint": "Placeholders: '{{customerName}}', '{{productName}}', '{{totalPrice}}', '{{customerNote}}', '{{customerEmail}}', '{{customerPhone}}'",
+        "previewTitle": "Email preview",
+        "previewSubjectLabel": "Subject",
+        "previewProduct": "Product",
+        "previewTotalPrice": "Total price",
+        "previewCustomer": "Customer",
+        "previewPhone": "Phone",
+        "previewCustomerMessage": "Customer message",
+        "previewConfigurationPreview": "Configuration preview",
+        "labelsSectionTitle": "Field labels",
+        "labelsSectionHint": "Customize labels for Customer, Product, etc. Leave empty to use preset defaults.",
+        "labelCustomer": "Customer",
+        "labelProduct": "Product",
+        "labelTotalPrice": "Total price",
+        "labelPhone": "Phone",
+        "labelCustomerMessage": "Customer message",
+        "labelDescription": "Description",
+        "labelCustomerChoices": "Customer choices",
+        "labelConfigurationPreview": "Configuration preview",
         "save": "Save",
         "saving": "Saving…"
       }
@@ -412,6 +503,7 @@
   },
   "Components": {
     "title": "Components",
+    "titleWithProduct": "Components – {name}",
     "description": "Manage components for this product model. Components are the building blocks that customers can configure.",
     "card": {
       "attributesButton": "Manage Attributes",
@@ -623,6 +715,7 @@
       "code": "Code",
       "codeDescription": "Technical identifier for SketchUp and integrations.",
       "codePlaceholder": "e.g., COLOR, WIDTH, HEIGHT",
+      "codeTooltip": "Supported codes for 3D model: Colors/textures (ENUM): color_X, barva_X, material_X (X = mesh node name in GLB, e.g. top, legs). Dimensions (numeric): width/sirka/lenx, height/vyska/leny, depth/hloubka/lenz, diameter/prumer, thickness/tloustka.",
       "defaultDecimal": "Default",
       "defaultDecimalPlaceholder": "Optional – within min..max",
       "defaultInt": "Default",
@@ -725,6 +818,16 @@
     },
     "list": {
       "createButton": "Create Attribute",
+      "columnCode": "Code",
+      "columnLabel": "Label",
+      "columnType": "Type",
+      "columnRange": "Range",
+      "columnDefault": "Default",
+      "columnUnit": "Unit",
+      "columnOptions": "Options",
+      "columnPricing": "Pricing",
+      "columnSortOrder": "Order",
+      "saveButton": "Save",
       "emptyState": {
         "createButton": "Create Your First Attribute",
         "message": "You haven't created any attributes yet. Get started by creating your first attribute."
@@ -744,17 +847,21 @@
         "createButton": "Add First Option"
       },
       "errorMessage": "Failed to load options.",
+      "imagePreview": "Image preview",
+      "saveButton": "Save",
       "sortOrder": "Order",
       "deleteButton": "Delete",
       "editButton": "Edit",
       "editImageButton": "Edit image",
+      "replaceImageButton": "Replace image",
+      "editorButton": "Editor",
       "moveDown": "Move down",
       "moveUp": "Move up"
     },
     "create": {
       "title": "Add Option",
       "description": "Create a new option for this attribute. Each option must have an image (same size for configurator stacking).",
-      "valueLabel": "Value",
+      "valueLabel": "Code",
       "valuePlaceholder": "e.g., red, 1",
       "labelLabel": "Label",
       "labelPlaceholder": "e.g., Red",
@@ -766,7 +873,7 @@
       "submitButton": "Add Option",
       "cancelButton": "Cancel",
       "errorMessages": {
-        "valueRequired": "Value is required.",
+        "valueRequired": "Code is required.",
         "labelRequired": "Label is required.",
         "imageRequired": "Image is required. Upload an image or use the editor to crop from a photo.",
         "generalError": "Something went wrong."
@@ -775,7 +882,7 @@
     "edit": {
       "title": "Edit Option",
       "description": "Update the option details.",
-      "valueLabel": "Value",
+      "valueLabel": "Code",
       "labelLabel": "Label",
       "imageLabel": "Image (optional)",
       "sortOrderLabel": "Order",

@@ -11,6 +11,8 @@ import cz.vokounova.configurator.products.attributes.domain.AttributeOptionJsonP
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeOptionAPI
 import cz.vokounova.configurator.products.attributes.ports.outbound.AttributeOptionRepository
+import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
+import cz.vokounova.configurator.products.pricing.DefaultPricingRulesService
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.shared.files.UploadedFileDeleter
 import cz.vokounova.configurator.shared.jsonpatch.JsonPatchUtils
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Component as ComponentStereotype
 class AttributeOptionAPIManager(
     private val attributeOptionRepository: AttributeOptionRepository,
     private val attributeAPI: AttributeAPI,
+    private val componentAPI: ComponentAPI,
+    private val defaultPricingRulesService: DefaultPricingRulesService,
     private val jsonPatchUtils: JsonPatchUtils,
     private val uploadedFileDeleter: UploadedFileDeleter,
 ) : AttributeOptionAPI {
@@ -36,8 +40,18 @@ class AttributeOptionAPIManager(
         }
 
         val option = AttributeOption.create(params)
-        return attributeOptionRepository.create(option)
-            ?: throw AttributeException(AttributeErrorCode.CREATE_ATTRIBUTE_OPTION_FAILED)
+        val created =
+            attributeOptionRepository.create(option)
+                ?: throw AttributeException(AttributeErrorCode.CREATE_ATTRIBUTE_OPTION_FAILED)
+
+        val component = componentAPI.getOne(attribute.componentId)
+        defaultPricingRulesService.createDefaultForOptionIfMissing(
+            productModelId = component.productModelId.value,
+            componentId = attribute.componentId.value,
+            attributeCode = attribute.code,
+            optionValue = created.value,
+        )
+        return created
     }
 
     @Transactional
@@ -47,6 +61,14 @@ class AttributeOptionAPIManager(
                 ?: throw ResourceNotFoundException(
                     "Attribute option with id ${id.value} not found",
                 )
+        val attribute = attributeAPI.getOne(existing.attributeId)
+        val component = componentAPI.getOne(attribute.componentId)
+        defaultPricingRulesService.deleteForOptionValue(
+            productModelId = component.productModelId.value,
+            componentId = attribute.componentId.value,
+            attributeCode = attribute.code,
+            optionValue = existing.value,
+        )
         uploadedFileDeleter.deleteByUrl(existing.imageUrl)
         val deletedCount = attributeOptionRepository.delete(id)
         if (deletedCount == 0) {

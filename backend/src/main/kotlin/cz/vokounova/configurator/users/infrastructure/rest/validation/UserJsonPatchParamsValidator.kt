@@ -36,6 +36,39 @@ class UserJsonPatchParamsValidator : AppValidator<UserJsonPatchParams> {
                     }
                 }
 
+                UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_TEMPLATE_PRESET,
+                UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_SUBJECT,
+                UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_BODY,
+                ->
+                    if (value.value != null) {
+                        field(path.value, value.value as? String) { notNull() }
+                    }
+
+                UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_BODY_IS_HTML ->
+                    if (value.value != null) {
+                        field(path.value, value.value as? Boolean) { notNull() }
+                    }
+
+                UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_TEMPLATE_PRESET,
+                UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_SUBJECT,
+                UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_BODY,
+                ->
+                    if (value.value != null) {
+                        field(path.value, value.value as? String) { notNull() }
+                    }
+
+                UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_BODY_IS_HTML ->
+                    if (value.value != null) {
+                        field(path.value, value.value as? Boolean) { notNull() }
+                    }
+
+                UserJsonPatchParamsPath.QUOTE_REQUEST_EMAIL_LABELS,
+                UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL_LABELS,
+                ->
+                    if (value.value != null) {
+                        field(path.value, value.value as? Map<*, *>) { notNull() }
+                    }
+
                 else ->
                     anyField(path.value, value.value) {
                         notNull()

@@ -10,6 +10,16 @@ data class UserPatchRequestDto(
         SlashSurname,
         SlashEmail,
         SlashNotificationEmail,
+        SlashQuoteRequestEmailTemplatePreset,
+        SlashQuoteRequestEmailSubject,
+        SlashQuoteRequestEmailBody,
+        SlashQuoteRequestEmailBodyIsHtml,
+        SlashQuoteRequestEmailLabels,
+        SlashSupplierNotificationEmailTemplatePreset,
+        SlashSupplierNotificationEmailSubject,
+        SlashSupplierNotificationEmailBody,
+        SlashSupplierNotificationEmailBodyIsHtml,
+        SlashSupplierNotificationEmailLabels,
         SlashIsActive,
     }
 

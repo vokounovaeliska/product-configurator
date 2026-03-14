@@ -81,15 +81,7 @@ class UsersController(
         return ResponseEntity
             .status(HttpStatus.OK)
             .body(
-                UserDto(
-                    id = currentUser.id.value,
-                    firstName = currentUser.firstName,
-                    surname = currentUser.surname,
-                    email = currentUser.email,
-                    notificationEmail = currentUser.notificationEmail,
-                    createdAt = currentUser.createdAt,
-                    modifiedAt = currentUser.modifiedAt,
-                ),
+                currentUser.toDto(),
             )
     }
 

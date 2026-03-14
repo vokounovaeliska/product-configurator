@@ -5,7 +5,7 @@ import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
-import type { AttributeOptionDto } from "@/api/attributeTypes"
+import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
@@ -29,6 +29,11 @@ type Props = {
   onOtherValueChange?: (componentId: string, attributeId: string, value: number | boolean) => void
   pricingRules?: AttributePricingRuleDto[]
   currency?: string
+  /** When provided (e.g. embed), use pre-fetched data instead of API calls. */
+  attributesByComponent?: Record<string, AttributeDto[]>
+  optionsByAttribute?: Record<string, AttributeOptionDto[]>
+  /** When false, show attributes in flat list without component cards. Default true. */
+  shouldShowComponents?: boolean
 }
 
 export const ComponentSelector = ({
@@ -42,6 +47,9 @@ export const ComponentSelector = ({
   onOtherValueChange,
   pricingRules = [],
   currency,
+  attributesByComponent,
+  optionsByAttribute,
+  shouldShowComponents = true,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -58,6 +66,55 @@ export const ComponentSelector = ({
           {t("components.emptyState")}
         </Typography>
       </Card>
+    )
+  }
+
+  if (!shouldShowComponents && attributesByComponent && optionsByAttribute) {
+    return (
+      <div className="space-y-4">
+        <Typography
+          as="h2"
+          variant="display-sm"
+          weight="semibold"
+        >
+          {t("attributes.title")}
+        </Typography>
+        <div className="space-y-3">
+          {sortedComponents.map((component) => {
+            const attrs = [...(attributesByComponent[component.id] ?? [])].sort(
+              (a, b) => a.sortOrder - b.sortOrder,
+            )
+            if (attrs.length === 0) return null
+            return (
+              <Card
+                key={component.id}
+                className="p-4"
+              >
+                <AttributeConfiguration
+                  componentId={component.id}
+                  productModelId={productModelId}
+                  selectedOptionsByAttribute={selectedOptionsByComponent[component.id] ?? {}}
+                  onSelectOption={(attributeId, option) =>
+                    onSelectOption(component.id, attributeId, option)
+                  }
+                  selectedOtherValuesByAttribute={
+                    selectedOtherValuesByComponent[component.id] ?? {}
+                  }
+                  onOtherChange={
+                    onOtherValueChange
+                      ? (attributeId, value) => onOtherValueChange(component.id, attributeId, value)
+                      : undefined
+                  }
+                  pricingRules={pricingRules}
+                  currency={currency}
+                  attributes={attrs}
+                  optionsByAttribute={optionsByAttribute}
+                />
+              </Card>
+            )
+          })}
+        </div>
+      </div>
     )
   }
 
@@ -125,6 +182,8 @@ export const ComponentSelector = ({
                       }
                       pricingRules={pricingRules}
                       currency={currency}
+                      attributes={attributesByComponent?.[component.id]}
+                      optionsByAttribute={optionsByAttribute}
                     />
                   </div>
                 )}

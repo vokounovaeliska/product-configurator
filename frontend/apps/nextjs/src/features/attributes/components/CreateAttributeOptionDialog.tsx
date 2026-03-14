@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Dialog } from "@workspace/ui/components/dialog"
@@ -9,6 +9,7 @@ import { Label } from "@workspace/ui/components/label"
 import { Typography } from "@workspace/ui/components/typography"
 
 import { ImageUpload } from "@/components/ImageUpload"
+import { labelToCode } from "@/lib/utils"
 
 import { useCreateAttributeOption } from "../api/attributeOptionQueries"
 
@@ -18,6 +19,8 @@ type Props = {
   attributeId: string
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  /** When provided, used as initial sortOrder so new option is added at the end */
+  defaultSortOrder?: number
 }
 
 export const CreateAttributeOptionDialog = ({
@@ -26,13 +29,39 @@ export const CreateAttributeOptionDialog = ({
   attributeId,
   isOpen,
   onOpenChange,
+  defaultSortOrder = 0,
 }: Props) => {
   const t = useTranslations("AttributeOptions")
-  const [value, setValue] = useState("")
   const [label, setLabel] = useState("")
+  const [value, setValue] = useState("")
   const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [sortOrder, setSortOrder] = useState(0)
+  const [sortOrder, setSortOrder] = useState(defaultSortOrder)
   const [formError, setFormError] = useState<string | null>(null)
+  const [isValueTouched, setIsValueTouched] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      setLabel("")
+      setValue("")
+      setImageUrl(null)
+      setSortOrder(defaultSortOrder)
+      setFormError(null)
+      setIsValueTouched(false)
+    }
+  }, [isOpen, defaultSortOrder])
+
+  const handleLabelChange = useCallback(
+    (newLabel: string) => {
+      setLabel(newLabel)
+      setValue((prev) => (isValueTouched ? prev : labelToCode(newLabel)))
+    },
+    [isValueTouched],
+  )
+
+  const handleValueChange = useCallback((newValue: string) => {
+    setValue(newValue)
+    setIsValueTouched(true)
+  }, [])
 
   const createMutation = useCreateAttributeOption(productModelId, componentId, attributeId)
 
@@ -62,10 +91,11 @@ export const CreateAttributeOptionDialog = ({
       },
       {
         onSuccess: () => {
-          setValue("")
           setLabel("")
+          setValue("")
           setImageUrl(null)
-          setSortOrder(0)
+          setSortOrder(defaultSortOrder)
+          setIsValueTouched(false)
           onOpenChange(false)
         },
         onError: (err) => {
@@ -77,11 +107,12 @@ export const CreateAttributeOptionDialog = ({
 
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setValue("")
       setLabel("")
+      setValue("")
       setImageUrl(null)
-      setSortOrder(0)
+      setSortOrder(defaultSortOrder)
       setFormError(null)
+      setIsValueTouched(false)
     }
     onOpenChange(isOpen)
   }
@@ -104,20 +135,11 @@ export const CreateAttributeOptionDialog = ({
           className="space-y-4"
         >
           <div className="space-y-2">
-            <Label htmlFor="value">{t("create.valueLabel")}</Label>
-            <Input
-              id="value"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              placeholder={t("create.valuePlaceholder")}
-            />
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="label">{t("create.labelLabel")}</Label>
             <Input
               id="label"
               value={label}
-              onChange={(e) => setLabel(e.target.value)}
+              onChange={(e) => handleLabelChange(e.target.value)}
               placeholder={t("create.labelPlaceholder")}
             />
           </div>
@@ -141,6 +163,21 @@ export const CreateAttributeOptionDialog = ({
               value={sortOrder}
               onChange={(e) => setSortOrder(Number(e.target.value) || 0)}
               placeholder={t("create.sortOrderPlaceholder")}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="value"
+              className="text-sm font-normal text-muted-foreground"
+            >
+              {t("create.valueLabel")}
+            </Label>
+            <Input
+              id="value"
+              value={value}
+              onChange={(e) => handleValueChange(e.target.value)}
+              placeholder={t("create.valuePlaceholder")}
+              className="bg-muted/30 text-sm text-muted-foreground"
             />
           </div>
 

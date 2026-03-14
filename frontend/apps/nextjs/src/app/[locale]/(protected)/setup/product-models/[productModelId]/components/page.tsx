@@ -22,7 +22,16 @@ export async function generateMetadata(props: Omit<Props, "children">) {
     locale,
     namespace: "Components",
   })
-  const title = t("title")
+  let productModelName: string | undefined
+  try {
+    const productModel = await api
+      .get(`products/api/v1/product-models/${productModelId}`)
+      .json<ProductModelDto>()
+    productModelName = productModel.name
+  } catch {
+    /* use fallback title */
+  }
+  const title = productModelName ? t("titleWithProduct", { name: productModelName }) : t("title")
 
   return {
     title,
@@ -68,7 +77,7 @@ const ComponentsPage = async (props: Props) => {
           weight="bold"
           className="mb-2"
         >
-          {t("title")}
+          {productModelName ? t("titleWithProduct", { name: productModelName }) : t("title")}
         </Typography>
         <Typography
           as="p"

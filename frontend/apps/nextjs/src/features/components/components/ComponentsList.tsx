@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -19,6 +19,11 @@ export const ComponentsList = ({ productModelId }: Props) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
   const { data, isLoading, error } = useComponentsList(productModelId, { limit: 100 })
+  const components = useMemo(() => data?.items ?? [], [data?.items])
+  const sortedComponents = useMemo(
+    () => [...components].sort((a, b) => a.sortOrder - b.sortOrder),
+    [components],
+  )
 
   if (error) {
     return (
@@ -33,8 +38,10 @@ export const ComponentsList = ({ productModelId }: Props) => {
       </div>
     )
   }
-
-  const components = data?.items ?? []
+  const defaultSortOrder =
+    sortedComponents.length > 0
+      ? (sortedComponents[sortedComponents.length - 1]?.sortOrder ?? 0) + 1
+      : 0
 
   return (
     <div className="space-y-6">
@@ -90,6 +97,7 @@ export const ComponentsList = ({ productModelId }: Props) => {
         productModelId={productModelId}
         isOpen={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
+        defaultSortOrder={defaultSortOrder}
       />
     </div>
   )

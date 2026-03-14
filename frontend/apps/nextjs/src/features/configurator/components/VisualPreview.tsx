@@ -45,6 +45,11 @@ type Props = {
   onCaptureReady?: (capture: () => Promise<string | null>) => void
   /** When true, uses compact padding and maximizes 3D area (embed layout). */
   isCompact?: boolean
+  /**
+   * When true, embed preview matches configurator layout and applies configurator zoom.
+   * Zoom controls (scroll/pinch) are enabled using the default from configurator preferences.
+   */
+  embedPreview?: boolean
 }
 
 export const VisualPreview = ({
@@ -61,6 +66,7 @@ export const VisualPreview = ({
   canCapture,
   onCaptureReady,
   isCompact = false,
+  embedPreview: isEmbedPreview = false,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -68,18 +74,19 @@ export const VisualPreview = ({
   const has3dModel = Boolean(model3dUrl?.trim())
 
   if (has3dModel) {
+    const isCompactLayout = isCompact && !isEmbedPreview
     return (
       <Card
         className={cn(
           "flex min-h-0 flex-1 flex-col overflow-hidden",
-          isCompact ? "p-2 sm:p-3" : "p-4 md:p-6",
+          isCompactLayout ? "p-2 sm:p-3" : "p-4 md:p-6",
         )}
         data-embed-preview
       >
         <div
           className={cn(
             "flex flex-1 items-center justify-center rounded-lg border bg-muted/30",
-            isCompact
+            isCompactLayout
               ? "max-h-[55vh] min-h-[30vh] sm:max-h-[60vh] sm:min-h-[40vh] md:min-h-[50vh]"
               : "max-h-[60vh] min-h-[40vh]",
           )}
@@ -94,7 +101,7 @@ export const VisualPreview = ({
             className="rounded-lg"
             config={model3dConfig}
             model3dEffects={model3dEffects}
-            zoomPreset={isCompact ? "embed" : "default"}
+            zoomPreset={isEmbedPreview ? "default" : isCompact ? "embed" : "default"}
             canCapture={canCapture}
             onCaptureReady={onCaptureReady}
           />

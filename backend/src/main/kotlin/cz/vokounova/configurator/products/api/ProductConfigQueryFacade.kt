@@ -12,4 +12,7 @@ interface ProductConfigQueryFacade {
     fun getProductOwnerId(productModelId: UUID): UUID
 
     fun getFullConfigByProductUrl(url: String): FullProductConfigDto
+
+    /** Returns full config for email choice formatting. Null if product not found. */
+    fun getFullConfigByProductId(productModelId: UUID): FullProductConfigDto?
 }

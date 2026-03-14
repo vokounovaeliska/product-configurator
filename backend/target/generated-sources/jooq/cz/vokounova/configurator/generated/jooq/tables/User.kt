@@ -23,6 +23,7 @@ import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Index
 import org.jooq.InverseForeignKey
+import org.jooq.JSONB
 import org.jooq.Name
 import org.jooq.Path
 import org.jooq.PlainSQL
@@ -128,6 +129,58 @@ open class User(
      * The column <code>public.user.notification_email</code>.
      */
     val NOTIFICATION_EMAIL: TableField<UserRecord, String?> = createField(DSL.name("notification_email"), SQLDataType.CLOB, this, "")
+
+    /**
+     * The column <code>public.user.quote_request_email_template_preset</code>.
+     */
+    val QUOTE_REQUEST_EMAIL_TEMPLATE_PRESET: TableField<UserRecord, String?> = createField(DSL.name("quote_request_email_template_preset"), SQLDataType.CLOB, this, "")
+
+    /**
+     * The column <code>public.user.quote_request_email_subject</code>.
+     */
+    val QUOTE_REQUEST_EMAIL_SUBJECT: TableField<UserRecord, String?> = createField(DSL.name("quote_request_email_subject"), SQLDataType.CLOB, this, "")
+
+    /**
+     * The column <code>public.user.quote_request_email_body</code>.
+     */
+    val QUOTE_REQUEST_EMAIL_BODY: TableField<UserRecord, String?> = createField(DSL.name("quote_request_email_body"), SQLDataType.CLOB, this, "")
+
+    /**
+     * The column <code>public.user.quote_request_email_body_is_html</code>.
+     */
+    val QUOTE_REQUEST_EMAIL_BODY_IS_HTML: TableField<UserRecord, Boolean?> = createField(DSL.name("quote_request_email_body_is_html"), SQLDataType.BOOLEAN.defaultValue(DSL.field(DSL.raw("false"), SQLDataType.BOOLEAN)), this, "")
+
+    /**
+     * The column
+     * <code>public.user.supplier_notification_email_template_preset</code>.
+     */
+    val SUPPLIER_NOTIFICATION_EMAIL_TEMPLATE_PRESET: TableField<UserRecord, String?> = createField(DSL.name("supplier_notification_email_template_preset"), SQLDataType.CLOB, this, "")
+
+    /**
+     * The column <code>public.user.supplier_notification_email_subject</code>.
+     */
+    val SUPPLIER_NOTIFICATION_EMAIL_SUBJECT: TableField<UserRecord, String?> = createField(DSL.name("supplier_notification_email_subject"), SQLDataType.CLOB, this, "")
+
+    /**
+     * The column <code>public.user.supplier_notification_email_body</code>.
+     */
+    val SUPPLIER_NOTIFICATION_EMAIL_BODY: TableField<UserRecord, String?> = createField(DSL.name("supplier_notification_email_body"), SQLDataType.CLOB, this, "")
+
+    /**
+     * The column
+     * <code>public.user.supplier_notification_email_body_is_html</code>.
+     */
+    val SUPPLIER_NOTIFICATION_EMAIL_BODY_IS_HTML: TableField<UserRecord, Boolean?> = createField(DSL.name("supplier_notification_email_body_is_html"), SQLDataType.BOOLEAN.defaultValue(DSL.field(DSL.raw("false"), SQLDataType.BOOLEAN)), this, "")
+
+    /**
+     * The column <code>public.user.quote_request_email_labels</code>.
+     */
+    val QUOTE_REQUEST_EMAIL_LABELS: TableField<UserRecord, JSONB?> = createField(DSL.name("quote_request_email_labels"), SQLDataType.JSONB, this, "")
+
+    /**
+     * The column <code>public.user.supplier_notification_email_labels</code>.
+     */
+    val SUPPLIER_NOTIFICATION_EMAIL_LABELS: TableField<UserRecord, JSONB?> = createField(DSL.name("supplier_notification_email_labels"), SQLDataType.JSONB, this, "")
 
     private constructor(alias: Name, aliased: Table<UserRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<UserRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

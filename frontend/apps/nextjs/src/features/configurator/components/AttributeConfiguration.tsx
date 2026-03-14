@@ -26,6 +26,9 @@ type Props = {
   onOtherChange?: (attributeId: string, value: number | boolean) => void
   pricingRules?: AttributePricingRuleDto[]
   currency?: string
+  /** When provided, use these instead of fetching (e.g. for embed with pre-fetched data). */
+  attributes?: AttributeDto[]
+  optionsByAttribute?: Record<string, AttributeOptionDto[]>
 }
 
 export const AttributeConfiguration = ({
@@ -37,6 +40,8 @@ export const AttributeConfiguration = ({
   onOtherChange,
   pricingRules = [],
   currency,
+  attributes: attributesProp,
+  optionsByAttribute: optionsByAttributeProp,
 }: Props) => {
   const t = useTranslations("Configurator")
   const [localOtherValues, setLocalOtherValues] = useState<Record<string, number | boolean>>({})
@@ -55,11 +60,15 @@ export const AttributeConfiguration = ({
     productModelId,
     componentId,
     { limit: 50 },
+    { enabled: attributesProp == null },
   )
 
-  const attributes = [...(attributesData?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
+  const attributes =
+    attributesProp != null
+      ? [...attributesProp].sort((a, b) => a.sortOrder - b.sortOrder)
+      : [...(attributesData?.items ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
 
-  if (isAttributesLoading) {
+  if (attributesProp == null && isAttributesLoading) {
     return (
       <div className="space-y-3">
         <Typography
@@ -120,6 +129,7 @@ export const AttributeConfiguration = ({
             onOtherChange={(value) => handleOtherChange(attr.id, value)}
             pricingRules={pricingRules}
             currency={currency}
+            options={optionsByAttributeProp?.[attr.id]}
           />
         ))}
       </div>
@@ -137,6 +147,8 @@ type AttributeFieldProps = {
   onOtherChange: (value: number | boolean) => void
   pricingRules?: AttributePricingRuleDto[]
   currency?: string
+  /** When provided (e.g. embed), use these instead of fetching. */
+  options?: AttributeOptionDto[]
 }
 
 const AttributeField = ({
@@ -342,6 +354,8 @@ type AttributeSelectProps = {
   attributeLabel: string
   selectedOption: AttributeOptionDto | null
   onSelectOption: (option: AttributeOptionDto | null) => void
+  /** When provided (e.g. embed), use these instead of fetching. */
+  options?: AttributeOptionDto[]
 }
 
 /** Find the pricing rule that applies to the current numeric value (EQ or BETWEEN). */
@@ -372,15 +386,19 @@ const AttributeSelect = ({
   attributeLabel,
   selectedOption,
   onSelectOption,
+  options: optionsProp,
 }: AttributeSelectProps) => {
-  const { data: options, isLoading } = useAttributeOptionsList(
+  const { data: optionsFetched, isLoading } = useAttributeOptionsList(
     productModelId,
     componentId,
     attributeId,
-    { enabled: Boolean(productModelId && componentId && attributeId) },
+    {
+      enabled: Boolean(optionsProp == null && productModelId && componentId && attributeId),
+    },
   )
 
-  const sortedOptions = [...(options ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
+  const options = optionsProp ?? optionsFetched ?? []
+  const sortedOptions = [...options].sort((a, b) => a.sortOrder - b.sortOrder)
   const hasSetDefaultRef = useRef(false)
 
   // Set first option as default once when options load and none is selected
@@ -391,7 +409,7 @@ const AttributeSelect = ({
     onSelectOption(first)
   }, [sortedOptions, selectedOption, onSelectOption])
 
-  if (isLoading) {
+  if (optionsProp == null && isLoading) {
     return (
       <div className="space-y-1.5">
         <Label className="text-sm">{attributeLabel}</Label>

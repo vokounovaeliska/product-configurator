@@ -136,7 +136,7 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
         <Dialog.Content.Header>
           <Dialog.Content.Header.Title>{t("edit.title")}</Dialog.Content.Header.Title>
           <Dialog.Content.Header.Description>
-            {t("edit.description")}
+            {t("edit.dialogDescription")}
           </Dialog.Content.Header.Description>
         </Dialog.Content.Header>
 
@@ -150,10 +150,10 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("edit.name")}</FormLabel>
+                  <FormLabel>{t("edit.name.label")}</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder={t("edit.namePlaceholder")}
+                      placeholder={t("edit.name.placeholder")}
                       {...field}
                     />
                   </FormControl>
@@ -167,10 +167,10 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("edit.description")}</FormLabel>
+                  <FormLabel>{t("edit.description.label")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={t("edit.descriptionPlaceholder")}
+                      placeholder={t("edit.description.placeholder")}
                       rows={4}
                       {...field}
                     />
@@ -186,13 +186,13 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("edit.price")}</FormLabel>
+                    <FormLabel>{t("edit.price.label")}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         step="0.01"
                         min="0"
-                        placeholder={t("edit.pricePlaceholder")}
+                        placeholder={t("edit.price.placeholder")}
                         {...field}
                         onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                         value={field.value ?? ""}
@@ -208,7 +208,7 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
                 name="currency"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("edit.currency")}</FormLabel>
+                    <FormLabel>{t("edit.currency.label")}</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -216,7 +216,7 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
                     >
                       <FormControl>
                         <Select.Trigger>
-                          <Select.Trigger.Value placeholder={t("edit.currencyPlaceholder")} />
+                          <Select.Trigger.Value placeholder={t("edit.currency.placeholder")} />
                         </Select.Trigger>
                       </FormControl>
                       <Select.Content>

@@ -15,11 +15,31 @@ export type RegistrationResponse =
 type UserDtoFromApi = operations["usersGet"]["responses"]["200"]["content"]["*/*"]
 export type UserDto = UserDtoFromApi & {
   notificationEmail?: string | null
+  quoteRequestEmailTemplatePreset?: string | null
+  quoteRequestEmailSubject?: string | null
+  quoteRequestEmailBody?: string | null
+  quoteRequestEmailBodyIsHtml?: boolean
+  quoteRequestEmailLabels?: Record<string, string> | null
+  supplierNotificationEmailTemplatePreset?: string | null
+  supplierNotificationEmailSubject?: string | null
+  supplierNotificationEmailBody?: string | null
+  supplierNotificationEmailBodyIsHtml?: boolean
+  supplierNotificationEmailLabels?: Record<string, string> | null
 }
 
 type UserMeDtoFromApi = operations["usersMe"]["responses"]["200"]["content"]["*/*"]
 export type UserMeDto = UserMeDtoFromApi & {
   notificationEmail?: string | null
+  quoteRequestEmailTemplatePreset?: string | null
+  quoteRequestEmailSubject?: string | null
+  quoteRequestEmailBody?: string | null
+  quoteRequestEmailBodyIsHtml?: boolean
+  quoteRequestEmailLabels?: Record<string, string> | null
+  supplierNotificationEmailTemplatePreset?: string | null
+  supplierNotificationEmailSubject?: string | null
+  supplierNotificationEmailBody?: string | null
+  supplierNotificationEmailBodyIsHtml?: boolean
+  supplierNotificationEmailLabels?: Record<string, string> | null
 }
 
 type UserPatchRequestDtoFromApi =
@@ -31,4 +51,30 @@ type NotificationEmailPatch = {
   value: string | null
 }
 
-export type UserPatchRequestDto = UserPatchRequestDtoFromApi | NotificationEmailPatch
+type QuoteRequestEmailTemplatePatch = {
+  path:
+    | "SlashQuoteRequestEmailTemplatePreset"
+    | "SlashQuoteRequestEmailSubject"
+    | "SlashQuoteRequestEmailBody"
+    | "SlashQuoteRequestEmailBodyIsHtml"
+    | "SlashQuoteRequestEmailLabels"
+  op: "Replace"
+  value: string | null | boolean | Record<string, string>
+}
+
+type SupplierNotificationEmailTemplatePatch = {
+  path:
+    | "SlashSupplierNotificationEmailTemplatePreset"
+    | "SlashSupplierNotificationEmailSubject"
+    | "SlashSupplierNotificationEmailBody"
+    | "SlashSupplierNotificationEmailBodyIsHtml"
+    | "SlashSupplierNotificationEmailLabels"
+  op: "Replace"
+  value: string | null | boolean | Record<string, string>
+}
+
+export type UserPatchRequestDto =
+  | UserPatchRequestDtoFromApi
+  | NotificationEmailPatch
+  | QuoteRequestEmailTemplatePatch
+  | SupplierNotificationEmailTemplatePatch
