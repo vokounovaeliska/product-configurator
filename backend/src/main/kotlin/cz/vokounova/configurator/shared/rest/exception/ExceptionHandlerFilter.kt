@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.shared.rest.exception
 
+import cz.vokounova.configurator.shared.exceptions.AuthException
 import cz.vokounova.configurator.shared.utils.logger
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -24,7 +25,11 @@ class ExceptionHandlerFilter(
         try {
             filterChain.doFilter(request, response)
         } catch (e: RuntimeException) {
-            LOG.error("Unexpected error occurred while running filter", e)
+            if (e is AuthException) {
+                LOG.debug("Unauthenticated request to protected endpoint: {}", request.requestURI)
+            } else {
+                LOG.error("Unexpected error occurred while running filter", e)
+            }
             exceptionResolver.resolveException(request, response, null, e)
         }
     }

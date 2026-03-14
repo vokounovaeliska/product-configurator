@@ -47,8 +47,7 @@ class RestExceptionHandler {
 
     @ExceptionHandler(AuthException::class)
     fun handleAuthException(ex: AuthException): ResponseEntity<ApplicationErrorResponse> {
-        LOGGER
-            .error("Authentication exception occurred", ex)
+        LOGGER.debug("Authentication exception (401 Unauthorized): {}", ex.message)
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)
             .body(ApplicationErrorResponse(ex))

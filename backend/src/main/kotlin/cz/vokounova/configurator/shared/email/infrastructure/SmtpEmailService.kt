@@ -16,11 +16,14 @@ import org.springframework.stereotype.Service
 import java.util.Base64
 
 /**
- * SMTP implementation that sends real emails. Active when spring.mail.host is set and non-empty.
+ * SMTP implementation that sends real emails. Active when spring.mail.host is set and resend.api-key is not.
  */
 @Service
 @Primary
-@ConditionalOnExpression("!T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('spring.mail.host'))")
+@ConditionalOnExpression(
+    "!T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('spring.mail.host')) && " +
+        "T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('resend.api-key'))",
+)
 class SmtpEmailService(
     private val mailSender: JavaMailSender,
     private val mailConfig: MailConfig,
@@ -79,7 +82,7 @@ class SmtpEmailService(
             mailSender.send(message)
             log.info("Email sent successfully: to={}, subject={}", to, subject)
         } catch (e: Exception) {
-            log.warn(
+            log.error(
                 "Failed to send email: to={}, subject={}, error={}, cause={}",
                 to,
                 subject,

@@ -88,12 +88,22 @@ When a customer submits a quote request, the app sends:
 - a confirmation email to the customer
 - a notification email to the product owner (user’s `notificationEmail` or `email`)
 
-Without SMTP configuration, these emails are only logged (noop). To send real emails, add:
+Without email configuration, these emails are only logged (noop). To send real emails, use **Resend** (recommended for Railway) or SMTP.
+
+**Option A – Resend (recommended for Railway Free/Hobby):**
+
+| Variable | Description |
+|----------|-------------|
+| `RESEND_API_KEY` | Your Resend API key (from [resend.com/api-keys](https://resend.com/api-keys)) |
+| `MAIL_FROM` | Sender address (must be from a [verified domain](https://resend.com/domains) in Resend) |
+| `MAIL_FROM_NAME` | Sender display name |
+
+**Option B – SMTP (blocked on Railway Free/Hobby; Pro plan only):**
 
 | Variable | Description | Example (Webglobe) |
 |----------|-------------|--------------------|
 | `SPRING_MAIL_HOST` | SMTP server hostname | `mail.webglobe.cz` |
-| `SPRING_MAIL_PORT` | SMTP port (587 for STARTTLS, 465 for SSL) | `587` |
+| `SPRING_MAIL_PORT` | SMTP port (465 SMTPS, 587 STARTTLS) | `465` (prefer if 587 times out) |
 | `SPRING_MAIL_USERNAME` | Full email address | `info@konfiguruj.com` |
 | `SPRING_MAIL_PASSWORD` | Mailbox password | your mailbox password |
 | `MAIL_FROM` | Sender address (e.g. noreply) | `noreply@konfiguruj.com` |
@@ -108,8 +118,9 @@ You can configure these in one of two ways:
 If a mail secret is missing in GitHub, the workflow leaves the existing Railway value unchanged.
 
 **Webglobe SMTP settings:**
-- Host: `mail.webglobe.cz` (or `email.webglobe.cz` – check your Webglobe panel)
-- Port: `587` (STARTTLS) or `465` (SSL)
+- Host: `mail.webglobe.cz`
+- Port: `465` (SMTPS/SSL) or `587` (STARTTLS). If 587 times out in cloud (Railway etc.), use 465.
+- For port 465: default config uses SSL. For port 587: set `SPRING_MAIL_PORT=587`, `SPRING_MAIL_SSL_ENABLE=false`, `SPRING_MAIL_STARTTLS_ENABLE=true`
 - Authentication required: use full email and mailbox password
 
 Ensure your domain’s SPF/DKIM records allow sending from this server (Webglobe usually configures these).

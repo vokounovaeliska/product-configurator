@@ -79,8 +79,11 @@ export const useProductModelsList = (params?: ProductModelListQueryParams) => {
 /**
  * Hook to fetch a single product model
  */
-export const useProductModel = (id: string) => {
-  return useQuery(getProductModelQueryOptions(id))
+export const useProductModel = (id: string, options?: { enabled?: boolean }) => {
+  return useQuery({
+    ...getProductModelQueryOptions(id),
+    enabled: options?.enabled !== false && Boolean(id),
+  })
 }
 
 /**

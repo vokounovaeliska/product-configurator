@@ -5,6 +5,7 @@ import cz.vokounova.configurator.embed.infrastructure.rest.mapper.toEmbedDto
 import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import org.springframework.http.ResponseEntity
+import java.util.UUID
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -35,6 +36,35 @@ class EmbedController(
         @PathVariable url: String,
     ): ResponseEntity<ProductEmbedFullDto> {
         val config = embedService.getPublishedProductConfigByUrl(url)
+        val dto =
+            ProductEmbedFullDto(
+                product = config.product.toEmbedDto(),
+                components = config.components,
+                attributesByComponent = config.attributesByComponent,
+                optionsByAttribute = config.optionsByAttribute,
+                pricingRules = config.pricingRules,
+                configuratorPreferences =
+                    config.configuratorPreferences?.let {
+                        ConfiguratorPreferencesEmbedDto(
+                            zoomDistanceDefault = it.zoomDistanceDefault,
+                            zoomDistanceEmbed = it.zoomDistanceEmbed,
+                            embedShowProductName = it.embedShowProductName,
+                            embedShowDescription = it.embedShowDescription,
+                            embedShowComponents = it.embedShowComponents,
+                            backgroundPreset = it.backgroundPreset,
+                        )
+                    },
+            )
+        return ResponseEntity.ok(dto)
+    }
+
+    @GetMapping("/products/by-id/{id}/config")
+    fun getPublishedProductConfigById(
+        @PathVariable id: UUID,
+    ): ResponseEntity<ProductEmbedFullDto> {
+        val config =
+            embedService.getPublishedProductConfigById(id)
+                ?: throw ResourceNotFoundException("Product not found or not published")
         val dto =
             ProductEmbedFullDto(
                 product = config.product.toEmbedDto(),
