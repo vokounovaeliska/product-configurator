@@ -1,8 +1,24 @@
-import ky, { HTTPError } from "ky"
+import ky, { HTTPError, type KyInstance } from "ky"
 
 import { env } from "@/config/env"
 
 import { getAccessToken, getAccessTokenClient, setAccessTokenClient } from "../auth/authCookies"
+
+const REST_API_BASE = env.NEXT_PUBLIC_REST_API_URL.replace(/\/$/, "")
+
+/**
+ * Normalizes input for ky to avoid doubled URLs. ky's prefixUrl is applied to ALL input,
+ * including absolute URLs, which causes https://api.example.com/https://api.example.com/path.
+ * When input is already an absolute URL, pass a URL instance so ky bypasses prefixUrl.
+ */
+function normalizeInput(input: string | URL | Request): string | URL | Request {
+  if (typeof input !== "string") return input
+  const trimmed = input.trim()
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return new URL(trimmed)
+  }
+  return input
+}
 
 // Track if we're currently refreshing to avoid multiple simultaneous refresh attempts
 let isRefreshing = false
@@ -72,9 +88,22 @@ function isAccessTokenExpiringSoon(token: string, marginSeconds = 120): boolean 
   }
 }
 
+/** Creates a ky instance with input normalization to prevent doubled URLs. */
+function createApiClient(baseOptions: Parameters<typeof ky.create>[0]): KyInstance {
+  const base = ky.create({ ...baseOptions, prefixUrl: REST_API_BASE })
+  return {
+    get: (input, options) => base.get(normalizeInput(input), options),
+    post: (input, options) => base.post(normalizeInput(input), options),
+    put: (input, options) => base.put(normalizeInput(input), options),
+    patch: (input, options) => base.patch(normalizeInput(input), options),
+    delete: (input, options) => base.delete(normalizeInput(input), options),
+    head: (input, options) => base.head(normalizeInput(input), options),
+    extend: base.extend.bind(base),
+  } as KyInstance
+}
+
 // Authenticated API client (with JWT Bearer token and automatic refresh)
-export const api = ky.create({
-  prefixUrl: env.NEXT_PUBLIC_REST_API_URL,
+export const api = createApiClient({
   credentials: "include",
   hooks: {
     beforeRequest: [
@@ -123,9 +152,8 @@ export const api = ky.create({
   },
 })
 
-// Public API client (no auth, no prefix, but includes credentials for cookies)
-export const publicApi = ky.create({
-  prefixUrl: env.NEXT_PUBLIC_REST_API_URL,
+// Public API client (no auth, includes credentials for cookies)
+export const publicApi = createApiClient({
   credentials: "include", // Include cookies in requests (needed for refresh token)
 })
 
@@ -135,8 +163,7 @@ export const publicApi = ky.create({
  */
 export async function getServerApi() {
   const token = await getAccessToken()
-  return ky.create({
-    prefixUrl: env.NEXT_PUBLIC_REST_API_URL,
+  return createApiClient({
     hooks: {
       beforeRequest: [
         (request) => {
