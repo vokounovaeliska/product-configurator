@@ -40,6 +40,12 @@ Configure the following secrets in your GitHub repository:
 
 - **`SUPABASE_DB_PORT`**: Port (defaults to `6543` if not set – override if your connection string uses `5432` or another port)
 - **`SUPABASE_DB_NAME`**: Database name (defaults to `postgres` if not set)
+- **`SPRING_MAIL_HOST`**: SMTP server hostname (for backend email sync to Railway)
+- **`SPRING_MAIL_PORT`**: SMTP port, e.g. `587`
+- **`SPRING_MAIL_USERNAME`**: Full mailbox email address
+- **`SPRING_MAIL_PASSWORD`**: Mailbox password
+- **`MAIL_FROM`**: Sender address shown in outgoing emails
+- **`MAIL_FROM_NAME`**: Sender display name shown in outgoing emails
 
 ## Railway Setup
 
@@ -75,6 +81,38 @@ Configure the following secrets in your GitHub repository:
     - `CORS_ALLOWED_ORIGINS`: Comma‑separated list of allowed frontend origins for CORS, e.g.  
       `https://frontend-production-1234.up.railway.app,https://your-custom-domain.com`
     - Any other environment variables your application needs
+
+**Email (SMTP) – for sending confirmation and notification emails:**
+
+When a customer submits a quote request, the app sends:
+- a confirmation email to the customer
+- a notification email to the product owner (user’s `notificationEmail` or `email`)
+
+Without SMTP configuration, these emails are only logged (noop). To send real emails, add:
+
+| Variable | Description | Example (Webglobe) |
+|----------|-------------|--------------------|
+| `SPRING_MAIL_HOST` | SMTP server hostname | `mail.webglobe.cz` |
+| `SPRING_MAIL_PORT` | SMTP port (587 for STARTTLS, 465 for SSL) | `587` |
+| `SPRING_MAIL_USERNAME` | Full email address | `info@konfiguruj.com` |
+| `SPRING_MAIL_PASSWORD` | Mailbox password | your mailbox password |
+| `MAIL_FROM` | Sender address (e.g. noreply) | `noreply@konfiguruj.com` |
+| `MAIL_FROM_NAME` | Sender display name | `Konfiguruj` |
+
+You can configure these in one of two ways:
+
+1. **Recommended for this repository:** add the six values above as **GitHub Actions secrets** with the exact same names.  
+   The deployment workflow automatically syncs them to the Railway `backend` service before deploy.
+2. **Manual alternative:** set them directly in Railway → `backend` service → **Variables**.
+
+If a mail secret is missing in GitHub, the workflow leaves the existing Railway value unchanged.
+
+**Webglobe SMTP settings:**
+- Host: `mail.webglobe.cz` (or `email.webglobe.cz` – check your Webglobe panel)
+- Port: `587` (STARTTLS) or `465` (SSL)
+- Authentication required: use full email and mailbox password
+
+Ensure your domain’s SPF/DKIM records allow sending from this server (Webglobe usually configures these).
 
 ### 3. Configure Frontend Service
 
@@ -113,6 +151,7 @@ When code is pushed to the `main` branch:
 
 2. **Railway Deployment**:
     - The workflow uses Railway CLI to deploy both backend and frontend services
+    - Before deploying backend, it syncs optional mail-related GitHub secrets to Railway service variables
     - Backend: Deploys from `backend/` directory
     - Frontend: Deploys from `frontend/` directory using the `nextjs` service name
     - Railway builds and deploys the Docker images automatically
@@ -146,6 +185,8 @@ You can also trigger deployment manually:
     - Backend service: Root directory `backend/`, service name `backend`
     - Frontend service: Root directory `frontend/`, service name `nextjs`
 - Verify all required environment variables are set in Railway for both services
+- If email is still not working, verify the corresponding GitHub secrets exist and are named exactly:
+  `SPRING_MAIL_HOST`, `SPRING_MAIL_PORT`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_FROM_NAME`
 - For frontend: Ensure all `NEXT_PUBLIC_*` variables are set before building
 - For backend: Ensure `DB_URL` is a full JDBC URL starting with `jdbc:postgresql://`
 

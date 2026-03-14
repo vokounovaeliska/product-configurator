@@ -44,7 +44,7 @@ export type CustomerRequestCreateDto = {
   productModelName: string
   productModelDescription?: string | null
   currency: string
-  totalPriceCents: number
+  totalPrice: number
   configurationJson: unknown
   pricingBreakdownJson?: unknown
   snapshotImageBase64?: string | null

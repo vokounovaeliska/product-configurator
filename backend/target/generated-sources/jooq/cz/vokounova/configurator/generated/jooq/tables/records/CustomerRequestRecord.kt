@@ -61,7 +61,7 @@ open class CustomerRequestRecord private constructor() : UpdatableRecordImpl<Cus
         set(value): Unit = set(9, value)
         get(): String = get(9) as String
 
-    open var totalPriceCents: Int
+    open var totalPrice: Int
         set(value): Unit = set(10, value)
         get(): Int = get(10) as Int
 
@@ -94,7 +94,7 @@ open class CustomerRequestRecord private constructor() : UpdatableRecordImpl<Cus
     /**
      * Create a detached, initialised CustomerRequestRecord
      */
-    constructor(id: UUID, status: RequestStatus? = null, customerName: String? = null, customerEmail: String, customerPhone: String? = null, customerNote: String? = null, productModelId: UUID? = null, productModelName: String, productModelDescription: String? = null, currency: String, totalPriceCents: Int, configurationJson: JSONB, pricingBreakdownJson: JSONB? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, snapshotImageBase64: String? = null): this() {
+    constructor(id: UUID, status: RequestStatus? = null, customerName: String? = null, customerEmail: String, customerPhone: String? = null, customerNote: String? = null, productModelId: UUID? = null, productModelName: String, productModelDescription: String? = null, currency: String, totalPrice: Int, configurationJson: JSONB, pricingBreakdownJson: JSONB? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, snapshotImageBase64: String? = null): this() {
         this.id = id
         this.status = status
         this.customerName = customerName
@@ -105,7 +105,7 @@ open class CustomerRequestRecord private constructor() : UpdatableRecordImpl<Cus
         this.productModelName = productModelName
         this.productModelDescription = productModelDescription
         this.currency = currency
-        this.totalPriceCents = totalPriceCents
+        this.totalPrice = totalPrice
         this.configurationJson = configurationJson
         this.pricingBreakdownJson = pricingBreakdownJson
         this.createdAt = createdAt

@@ -117,9 +117,9 @@ open class AttributePricingRule(
     val TO_VALUE: TableField<AttributePricingRuleRecord, String?> = createField(DSL.name("to_value"), SQLDataType.CLOB, this, "")
 
     /**
-     * The column <code>public.attribute_pricing_rule.price_delta_cents</code>.
+     * The column <code>public.attribute_pricing_rule.price</code>.
      */
-    val PRICE_DELTA_CENTS: TableField<AttributePricingRuleRecord, Int?> = createField(DSL.name("price_delta_cents"), SQLDataType.INTEGER.nullable(false), this, "")
+    val PRICE: TableField<AttributePricingRuleRecord, Int?> = createField(DSL.name("price"), SQLDataType.INTEGER.nullable(false), this, "")
 
     /**
      * The column <code>public.attribute_pricing_rule.created_at</code>.

@@ -24,7 +24,7 @@ class UserJsonPatchParamsValidator : AppValidator<UserJsonPatchParams> {
                         notEmpty()
                     }
 
-                UserJsonPatchParamsPath.SUPPLIER_NOTIFICATION_EMAIL -> {
+                UserJsonPatchParamsPath.NOTIFICATION_EMAIL -> {
                     if (value.value == null) {
                         return@validation
                     }

@@ -8,5 +8,5 @@ data class AttributePricingRuleCreateRequestDto(
     val operator: String? = "EQ",
     val value: String,
     val toValue: String? = null,
-    val priceDeltaCents: Int? = 0,
+    val price: Int? = 0,
 )

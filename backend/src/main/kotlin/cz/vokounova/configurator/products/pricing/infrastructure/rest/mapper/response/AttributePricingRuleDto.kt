@@ -11,7 +11,7 @@ data class AttributePricingRuleDto(
     val operator: String,
     val value: String,
     val toValue: String?,
-    val priceDeltaCents: Int,
+    val price: Int,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
 )

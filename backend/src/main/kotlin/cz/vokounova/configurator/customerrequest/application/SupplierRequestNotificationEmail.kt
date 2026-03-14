@@ -9,7 +9,7 @@ object SupplierRequestNotificationEmail {
     fun subject(request: CustomerRequest): String = "New quote request – ${request.productModelName}"
 
     fun bodyHtml(request: CustomerRequest): String {
-        val priceFormatted = formatPrice(request.totalPriceCents, request.currency)
+        val priceFormatted = formatPrice(request.totalPrice, request.currency)
         val customerName = request.customerName?.takeIf { it.isNotBlank() } ?: "Not provided"
         val phone = request.customerPhone?.takeIf { it.isNotBlank() } ?: "Not provided"
         val note =
@@ -34,7 +34,7 @@ object SupplierRequestNotificationEmail {
     }
 
     fun bodyText(request: CustomerRequest): String {
-        val priceFormatted = formatPrice(request.totalPriceCents, request.currency)
+        val priceFormatted = formatPrice(request.totalPrice, request.currency)
         val customerName = request.customerName?.takeIf { it.isNotBlank() } ?: "Not provided"
         val phone = request.customerPhone?.takeIf { it.isNotBlank() } ?: "Not provided"
         val note = request.customerNote?.takeIf { it.isNotBlank() } ?: "No message"

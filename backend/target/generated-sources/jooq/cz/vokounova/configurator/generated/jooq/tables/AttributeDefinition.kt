@@ -10,11 +10,8 @@ import cz.vokounova.configurator.generated.jooq.indexes.IDX_ATTRIBUTE_DEFINITION
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_DEFINITION_COMPONENT_ID_CODE_KEY
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_DEFINITION_PKEY
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_DEFINITION__ATTRIBUTE_DEFINITION_COMPONENT_ID_FKEY
-import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_OPTION_CONSTRAINT__ATTRIBUTE_OPTION_CONSTRAINT_TARGET_ATTRIBUTE_ID_FKEY
-import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_OPTION_CONSTRAINT__ATTRIBUTE_OPTION_CONSTRAINT_WHEN_ATTRIBUTE_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_OPTION__ATTRIBUTE_OPTION_ATTRIBUTE_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOption.AttributeOptionPath
-import cz.vokounova.configurator.generated.jooq.tables.AttributeOptionConstraint.AttributeOptionConstraintPath
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition.ComponentDefinitionPath
 import cz.vokounova.configurator.generated.jooq.tables.records.AttributeDefinitionRecord
 
@@ -236,40 +233,6 @@ open class AttributeDefinition(
 
     val attributeOption: AttributeOptionPath
         get(): AttributeOptionPath = attributeOption()
-
-    private lateinit var _attributeOptionConstraintTargetAttributeIdFkey: AttributeOptionConstraintPath
-
-    /**
-     * Get the implicit to-many join path to the
-     * <code>public.attribute_option_constraint</code> table, via the
-     * <code>attribute_option_constraint_target_attribute_id_fkey</code> key
-     */
-    fun attributeOptionConstraintTargetAttributeIdFkey(): AttributeOptionConstraintPath {
-        if (!this::_attributeOptionConstraintTargetAttributeIdFkey.isInitialized)
-            _attributeOptionConstraintTargetAttributeIdFkey = AttributeOptionConstraintPath(this, null, ATTRIBUTE_OPTION_CONSTRAINT__ATTRIBUTE_OPTION_CONSTRAINT_TARGET_ATTRIBUTE_ID_FKEY.inverseKey)
-
-        return _attributeOptionConstraintTargetAttributeIdFkey;
-    }
-
-    val attributeOptionConstraintTargetAttributeIdFkey: AttributeOptionConstraintPath
-        get(): AttributeOptionConstraintPath = attributeOptionConstraintTargetAttributeIdFkey()
-
-    private lateinit var _attributeOptionConstraintWhenAttributeIdFkey: AttributeOptionConstraintPath
-
-    /**
-     * Get the implicit to-many join path to the
-     * <code>public.attribute_option_constraint</code> table, via the
-     * <code>attribute_option_constraint_when_attribute_id_fkey</code> key
-     */
-    fun attributeOptionConstraintWhenAttributeIdFkey(): AttributeOptionConstraintPath {
-        if (!this::_attributeOptionConstraintWhenAttributeIdFkey.isInitialized)
-            _attributeOptionConstraintWhenAttributeIdFkey = AttributeOptionConstraintPath(this, null, ATTRIBUTE_OPTION_CONSTRAINT__ATTRIBUTE_OPTION_CONSTRAINT_WHEN_ATTRIBUTE_ID_FKEY.inverseKey)
-
-        return _attributeOptionConstraintWhenAttributeIdFkey;
-    }
-
-    val attributeOptionConstraintWhenAttributeIdFkey: AttributeOptionConstraintPath
-        get(): AttributeOptionConstraintPath = attributeOptionConstraintWhenAttributeIdFkey()
     override fun `as`(alias: String): AttributeDefinition = AttributeDefinition(DSL.name(alias), this)
     override fun `as`(alias: Name): AttributeDefinition = AttributeDefinition(alias, this)
     override fun `as`(alias: Table<*>): AttributeDefinition = AttributeDefinition(alias.qualifiedName, this)

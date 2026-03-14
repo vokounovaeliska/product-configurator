@@ -101,7 +101,7 @@ export const EmbedConfigurator = ({
     ],
   )
   const basePriceCents = Math.round(product.price * 100)
-  const totalPriceCents = basePriceCents + modifiersCents
+  const totalPrice = basePriceCents + modifiersCents
 
   const handleResetConfiguration = useCallback(() => {
     setSelectedOptionsByComponent({})
@@ -243,7 +243,7 @@ export const EmbedConfigurator = ({
                   variant="display-sm"
                   weight="semibold"
                 >
-                  {formatPrice(totalPriceCents)}
+                  {formatPrice(totalPrice)}
                 </Typography>
                 <Typography
                   as="span"
@@ -298,7 +298,7 @@ export const EmbedConfigurator = ({
         isOpen={isRequestDialogOpen}
         onOpenChange={setIsRequestDialogOpen}
         product={product}
-        totalPriceCents={totalPriceCents}
+        totalPrice={totalPrice}
         configuration={configurationForRequest}
         snapshotSelector="[data-embed-preview]"
         previewLayers={product.model3dUrl ? undefined : previewLayers}

@@ -210,7 +210,7 @@ export const CustomerRequestDetail = ({ id }: Props) => {
                 variant="body-md"
                 weight="semibold"
               >
-                {formatPrice(request.totalPriceCents, request.currency)}
+                {formatPrice(request.totalPrice, request.currency)}
               </Typography>
             </div>
             <div>

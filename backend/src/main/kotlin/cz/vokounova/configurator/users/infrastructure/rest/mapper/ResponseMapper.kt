@@ -12,7 +12,7 @@ fun User.toDto(): UserDto =
         firstName = firstName,
         surname = surname,
         email = email,
-        supplierNotificationEmail = supplierNotificationEmail,
+        notificationEmail = notificationEmail,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

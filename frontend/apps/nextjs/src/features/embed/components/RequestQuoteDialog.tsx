@@ -40,7 +40,7 @@ type Props = {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
   product: ProductModelEmbedDto
-  totalPriceCents: number
+  totalPrice: number
   configuration: Configuration
   snapshotSelector?: string
   /** For 2D products: layers to composite into snapshot when no 3D canvas exists */
@@ -66,7 +66,7 @@ export const RequestQuoteDialog = ({
   isOpen,
   onOpenChange,
   product,
-  totalPriceCents,
+  totalPrice,
   configuration,
   snapshotSelector = "[data-embed-preview]",
   previewLayers,
@@ -118,7 +118,7 @@ export const RequestQuoteDialog = ({
         productModelName: product.name,
         productModelDescription: product.description ?? undefined,
         currency: product.currency,
-        totalPriceCents,
+        totalPrice,
         configurationJson: configuration,
         pricingBreakdownJson: undefined,
         snapshotImageBase64: snapshot,

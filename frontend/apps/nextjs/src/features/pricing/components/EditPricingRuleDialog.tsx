@@ -180,7 +180,7 @@ export const EditPricingRuleDialog = ({
       operator: rule.operator as "EQ" | "BETWEEN",
       value: rule.value,
       toValue: rule.toValue ?? null,
-      priceDeltaCents: rule.priceDeltaCents,
+      price: rule.price,
     },
     resolver: zodResolver(pricingRuleFormSchema),
   })
@@ -193,7 +193,7 @@ export const EditPricingRuleDialog = ({
         operator: rule.operator as "EQ" | "BETWEEN",
         value: rule.value,
         toValue: rule.toValue ?? null,
-        priceDeltaCents: rule.priceDeltaCents,
+        price: rule.price,
       })
     }
   }, [isOpen, rule, form])
@@ -208,7 +208,7 @@ export const EditPricingRuleDialog = ({
       operator: values.operator,
       value: values.value,
       toValue: values.toValue ?? undefined,
-      priceDeltaCents: values.priceDeltaCents,
+      price: values.price,
     })
   }
 
@@ -473,7 +473,7 @@ export const EditPricingRuleDialog = ({
             </Typography>
             <FormField
               control={form.control}
-              name="priceDeltaCents"
+              name="price"
               render={({ field }) => (
                 <FormItem className="pt-3">
                   <FormLabel>{t("create.price")}</FormLabel>

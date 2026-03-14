@@ -28,7 +28,7 @@ function getPriceForOption(
       r.operator === "EQ" &&
       r.value === optionValue,
   )
-  return rule ? rule.priceDeltaCents : null
+  return rule ? rule.price : null
 }
 
 function getRuleForNumericValue(
@@ -103,14 +103,14 @@ export function computeModifiersCents(
         if (typeof effective === "number" && !Number.isNaN(effective)) {
           const rule = getRuleForNumericValue(pricingRules, component.id, attr.code, effective)
           if (rule) {
-            totalCents += rule.priceDeltaCents
+            totalCents += rule.price
           }
         }
       } else if (attr.type === "BOOLEAN") {
         const value = otherByAttr[attr.id]
         if (typeof value === "boolean") {
           const rule = getRuleForBoolean(pricingRules, component.id, attr.code, value)
-          if (rule) totalCents += rule.priceDeltaCents
+          if (rule) totalCents += rule.price
         }
       }
     }

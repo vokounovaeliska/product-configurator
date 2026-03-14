@@ -15,7 +15,7 @@ fun AttributePricingRuleRecord.toDomain(): AttributePricingRule =
         operator = operator!!.literal,
         value = value,
         toValue = toValue,
-        priceDeltaCents = priceDeltaCents,
+        price = price,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )
@@ -32,7 +32,7 @@ fun AttributePricingRule.toPersistence(): AttributePricingRuleRecord =
         operator = operatorFromString(operator),
         value = value,
         toValue = toValue,
-        priceDeltaCents = priceDeltaCents,
+        price = price,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

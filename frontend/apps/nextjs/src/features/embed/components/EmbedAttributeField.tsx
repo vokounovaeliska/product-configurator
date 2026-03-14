@@ -37,7 +37,7 @@ function getPriceForOption(
       r.operator === "EQ" &&
       r.value === optionValue,
   )
-  return rule ? rule.priceDeltaCents : null
+  return rule ? rule.price : null
 }
 
 function getRuleForNumericValue(
@@ -217,7 +217,7 @@ export const EmbedAttributeField = ({
         </div>
         {rule && (
           <p className="text-sm text-muted-foreground">
-            {t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+            {t("attributes.priceForRange", { amount: formatPrice(rule.price) })}
           </p>
         )}
       </div>
@@ -270,7 +270,7 @@ export const EmbedAttributeField = ({
         </div>
         {rule && (
           <p className="text-sm text-muted-foreground">
-            {t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+            {t("attributes.priceForRange", { amount: formatPrice(rule.price) })}
           </p>
         )}
       </div>

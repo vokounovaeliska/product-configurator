@@ -6,11 +6,9 @@ package cz.vokounova.configurator.generated.jooq.tables.references
 
 import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOption
-import cz.vokounova.configurator.generated.jooq.tables.AttributeOptionConstraint
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
-import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
 import cz.vokounova.configurator.generated.jooq.tables.ProductModelConfiguratorPreferences
@@ -35,11 +33,6 @@ val ATTRIBUTE_DEFINITION: AttributeDefinition = AttributeDefinition.ATTRIBUTE_DE
 val ATTRIBUTE_OPTION: AttributeOption = AttributeOption.ATTRIBUTE_OPTION
 
 /**
- * The table <code>public.attribute_option_constraint</code>.
- */
-val ATTRIBUTE_OPTION_CONSTRAINT: AttributeOptionConstraint = AttributeOptionConstraint.ATTRIBUTE_OPTION_CONSTRAINT
-
-/**
  * The table <code>public.attribute_pricing_rule</code>.
  */
 val ATTRIBUTE_PRICING_RULE: AttributePricingRule = AttributePricingRule.ATTRIBUTE_PRICING_RULE
@@ -53,11 +46,6 @@ val COMPONENT_DEFINITION: ComponentDefinition = ComponentDefinition.COMPONENT_DE
  * The table <code>public.customer_request</code>.
  */
 val CUSTOMER_REQUEST: CustomerRequest = CustomerRequest.CUSTOMER_REQUEST
-
-/**
- * The table <code>public.customer_request_component</code>.
- */
-val CUSTOMER_REQUEST_COMPONENT: CustomerRequestComponent = CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT
 
 /**
  * The table <code>public.pgp_armor_headers</code>.

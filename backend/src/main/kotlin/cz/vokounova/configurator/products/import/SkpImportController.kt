@@ -21,86 +21,40 @@ class SkpImportController(
         "/sketchup",
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
     )
-    fun importFromSketchUp(
-        @RequestParam("skp", required = false) skpFile: MultipartFile?,
-        @RequestParam("glb", required = false) glbFile: MultipartFile?,
+    fun importFromConfiguratorZip(
+        @RequestParam("configuratorZip") configuratorZip: MultipartFile,
         @RequestParam("name", required = false) productName: String?,
-        @RequestParam("parametersJson", required = false) parametersJson: MultipartFile?,
-        @RequestParam("parametersZip", required = false) parametersZip: MultipartFile?,
-        @RequestParam("configuratorZip", required = false) configuratorZip: MultipartFile?,
     ): ResponseEntity<SkpImportResponse> {
-        val useConfiguratorZip =
-            configuratorZip != null &&
-                !configuratorZip.isEmpty &&
-                configuratorZip.originalFilename?.lowercase()?.endsWith(".zip") == true
-        val useParametersZip =
-            parametersZip != null &&
-                !parametersZip.isEmpty &&
-                parametersZip.originalFilename?.lowercase()?.endsWith(".zip") == true
-        val useParametersJson =
-            parametersJson != null &&
-                !parametersJson.isEmpty &&
-                parametersJson.originalFilename?.lowercase()?.endsWith(".json") == true
-        val useSkp = skpFile != null && !skpFile.isEmpty
-
-        if (!useSkp && !useParametersZip && !useParametersJson && !useConfiguratorZip) {
+        if (configuratorZip.isEmpty) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(
                     SkpImportResponse(
                         success = false,
                         productModelId = null,
-                        error = "SKP file, parameters.json, parameters.zip, or configurator.zip is required",
+                        error = "configuratorZip is required",
                     ),
                 )
         }
-        if (useSkp) {
-            val filename = skpFile!!.originalFilename ?: ""
-            if (!filename.lowercase().endsWith(".skp")) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid SKP file type"))
-            }
-        }
-        if (useParametersZip) {
-            val filename = parametersZip!!.originalFilename ?: ""
-            if (!filename.lowercase().endsWith(".zip")) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid parameters.zip file type"))
-            }
-        }
-        if (useConfiguratorZip) {
-            val filename = configuratorZip!!.originalFilename ?: ""
-            if (!filename.lowercase().endsWith(".zip")) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(SkpImportResponse(success = false, productModelId = null, error = "Invalid configurator.zip file type"))
-            }
-        }
-        val glbProvided = glbFile != null && !glbFile.isEmpty && (glbFile.originalFilename?.lowercase()?.endsWith(".glb") == true)
-        if (!useConfiguratorZip && !glbProvided) {
+        val filename = configuratorZip.originalFilename ?: ""
+        if (!filename.lowercase().endsWith(".zip")) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(
                     SkpImportResponse(
                         success = false,
                         productModelId = null,
-                        error = "Valid GLB file is required (or use configurator.zip with GLB inside)",
+                        error = "configuratorZip must be a .zip file (model.glb + parameters.json + materials/)",
                     ),
                 )
         }
 
         val userId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
         val result =
-            skpImportService.importFromSketchUp(
-                skpFile,
-                glbFile,
+            skpImportService.importFromConfiguratorZip(
+                configuratorZip,
                 userId,
                 productName,
-                parametersJson,
-                parametersZip,
-                configuratorZip,
             )
 
         return if (result.success) {

@@ -6,7 +6,7 @@ export type AttributePricingRuleDto = {
   operator: string
   value: string
   toValue: string | null
-  priceDeltaCents: number
+  price: number
   createdAt: string
   modifiedAt: string
 }
@@ -17,7 +17,7 @@ export type AttributePricingRuleCreateDto = {
   operator?: string
   value: string
   toValue?: string | null
-  priceDeltaCents?: number
+  price?: number
 }
 
 export type AttributePricingRuleUpdateDto = AttributePricingRuleCreateDto

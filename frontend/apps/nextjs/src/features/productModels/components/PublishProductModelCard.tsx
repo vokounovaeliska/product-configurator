@@ -87,8 +87,8 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   ])
 
   useEffect(() => {
-    setOrdersRecipientEmail(currentUser?.supplierNotificationEmail ?? "")
-  }, [currentUser?.supplierNotificationEmail])
+    setOrdersRecipientEmail(currentUser?.notificationEmail ?? "")
+  }, [currentUser?.notificationEmail])
 
   const isUrlValid = url === "" || URL_PATTERN.test(url)
   const isUrlError = url !== "" && !isUrlValid
@@ -160,7 +160,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     shouldShowProductNameInEmbed !== isEmbedProductNameShownFromServer ||
     shouldShowDescriptionInEmbed !== isEmbedDescriptionShownFromServer ||
     shouldShowComponentsInEmbed !== isEmbedComponentsShownFromServer
-  const ordersEmailFromServer = currentUser?.supplierNotificationEmail ?? ""
+  const ordersEmailFromServer = currentUser?.notificationEmail ?? ""
   const trimmedOrdersRecipientEmail = ordersRecipientEmail.trim()
   const isOrdersEmailValid =
     trimmedOrdersRecipientEmail.length === 0 || EMAIL_PATTERN.test(trimmedOrdersRecipientEmail)
@@ -196,7 +196,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     const patchValue = trimmedOrdersRecipientEmail.length > 0 ? trimmedOrdersRecipientEmail : null
     const patches: UserPatchRequestDto[] = [
       {
-        path: "SlashSupplierNotificationEmail",
+        path: "SlashNotificationEmail",
         op: "Replace",
         value: patchValue,
       },

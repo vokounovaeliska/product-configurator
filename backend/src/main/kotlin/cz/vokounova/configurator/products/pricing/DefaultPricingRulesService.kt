@@ -47,7 +47,7 @@ class DefaultPricingRulesService(
                 operator = "BETWEEN",
                 value = minValue,
                 toValue = maxValue,
-                priceDeltaCents = 0,
+                price = 0,
                 createdAt = now,
                 modifiedAt = now,
             )
@@ -85,7 +85,7 @@ class DefaultPricingRulesService(
                 operator = "EQ",
                 value = optionValue,
                 toValue = null,
-                priceDeltaCents = 0,
+                price = 0,
                 createdAt = now,
                 modifiedAt = now,
             )

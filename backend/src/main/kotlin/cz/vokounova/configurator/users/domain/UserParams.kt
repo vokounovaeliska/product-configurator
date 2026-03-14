@@ -24,7 +24,7 @@ enum class UserJsonPatchParamsPath(
     FIRST_NAME("/firstName"),
     SURNAME("/surname"),
     EMAIL("/email"),
-    SUPPLIER_NOTIFICATION_EMAIL("/supplierNotificationEmail"),
+    NOTIFICATION_EMAIL("/notificationEmail"),
     IS_ACTIVE("/isActive"),
     ;
 

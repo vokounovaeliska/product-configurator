@@ -67,7 +67,7 @@ class PricingRulesController(
                 operator = operator,
                 value = body.value,
                 toValue = body.toValue,
-                priceDeltaCents = body.priceDeltaCents ?: 0,
+                price = body.price ?: 0,
                 createdAt = now,
                 modifiedAt = now,
             )
@@ -96,7 +96,7 @@ class PricingRulesController(
                 operator = body.operator ?: "EQ",
                 value = body.value,
                 toValue = body.toValue,
-                priceDeltaCents = body.priceDeltaCents ?: 0,
+                price = body.price ?: 0,
             )
         val saved =
             attributePricingRuleRepository.update(updated)

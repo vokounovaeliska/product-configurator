@@ -6,7 +6,7 @@ export const pricingRuleFormSchema = z.object({
   operator: z.enum(["EQ", "BETWEEN"]),
   value: z.string().min(1),
   toValue: z.string().nullable(),
-  priceDeltaCents: z.number().int().min(0),
+  price: z.number().int().min(0),
 })
 
 export type PricingRuleFormSchema = z.infer<typeof pricingRuleFormSchema>

@@ -19,7 +19,6 @@ import cz.vokounova.configurator.shared.rest.jsonpatch.JsonPatchOperation
 import cz.vokounova.configurator.shared.skp.ParametersJsonParser
 import cz.vokounova.configurator.shared.skp.SkpParameter
 import cz.vokounova.configurator.shared.skp.SkpParameterExtractionResult
-import cz.vokounova.configurator.shared.skp.SkpParameterExtractor
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -32,9 +31,9 @@ import java.util.UUID
 import java.util.zip.ZipInputStream
 
 /**
- * Orchestrates import of a product from SketchUp (.skp) and GLB files.
- * Extracts parameters from SKP, creates product model, components, attributes, options,
- * stores the GLB, and sets model_3d_url.
+ * Orchestrates import of a product from configurator ZIP (model.glb + parameters.json + materials/).
+ * Extracts parameters from parameters.json, creates product model, components, attributes, options,
+ * stores the GLB and textures, and sets model_3d_url and model_3d_effects.
  */
 @Service
 class SkpImportService(
@@ -45,84 +44,39 @@ class SkpImportService(
     private val defaultPricingRulesService: DefaultPricingRulesService,
     @Value("\${app.files.upload-dir}") private val uploadDir: String,
 ) {
-    fun importFromSketchUp(
-        skpFile: MultipartFile?,
-        glbFile: MultipartFile?,
+    fun importFromConfiguratorZip(
+        configuratorZip: MultipartFile,
         userId: UserIdDto,
         productName: String? = null,
-        parametersJson: MultipartFile? = null,
-        parametersZip: MultipartFile? = null,
-        configuratorZip: MultipartFile? = null,
     ): SkpImportResult {
-        val useConfiguratorZip =
-            configuratorZip != null &&
-                !configuratorZip.isEmpty &&
-                configuratorZip.originalFilename?.lowercase()?.endsWith(".zip") == true
-        val useParametersZip =
-            parametersZip != null &&
-                !parametersZip.isEmpty &&
-                parametersZip.originalFilename?.lowercase()?.endsWith(".zip") == true
-        val useParametersJson =
-            parametersJson != null &&
-                !parametersJson.isEmpty &&
-                parametersJson.originalFilename?.lowercase()?.endsWith(".json") == true
-
-        val (skpResult: SkpParameterExtractionResult, glbBytesForStore: ByteArray?) =
-            when {
-                useConfiguratorZip -> {
-                    try {
-                        val extracted = extractConfiguratorZip(configuratorZip!!.bytes)
-                        val result = ParametersJsonParser.parse(extracted.jsonBytes, extracted.textures)
-                        result to extracted.glbBytes
-                    } catch (e: Exception) {
-                        return SkpImportResult(
-                            success = false,
-                            productModelId = null,
-                            error = "Invalid configurator.zip: ${e.message}",
-                        )
-                    }
-                }
-                useParametersZip -> {
-                    try {
-                        val extracted = extractParametersFromZip(parametersZip!!.bytes)
-                        ParametersJsonParser.parse(extracted.jsonBytes, extracted.textures) to null
-                    } catch (e: Exception) {
-                        return SkpImportResult(
-                            success = false,
-                            productModelId = null,
-                            error = "Invalid parameters.zip: ${e.message}",
-                        )
-                    }
-                }
-                useParametersJson -> ParametersJsonParser.parse(parametersJson!!.bytes) to null
-                skpFile != null && !skpFile.isEmpty ->
-                    SkpParameterExtractor.extractParametersFromBytes(skpFile.bytes) to null
-                else ->
-                    return SkpImportResult(
-                        success = false,
-                        productModelId = null,
-                        error = "Either SKP file, parameters.json, parameters.zip, or configurator.zip is required",
-                    )
+        val (skpResult: SkpParameterExtractionResult, glbBytes: ByteArray?) =
+            try {
+                val extracted = extractConfiguratorZip(configuratorZip.bytes)
+                val result = ParametersJsonParser.parse(extracted.jsonBytes, extracted.textures)
+                result to extracted.glbBytes
+            } catch (e: Exception) {
+                return SkpImportResult(
+                    success = false,
+                    productModelId = null,
+                    error = "Invalid configurator.zip: ${e.message}",
+                )
             }
 
         if (!skpResult.isSuccess) {
             return SkpImportResult(success = false, productModelId = null, error = skpResult.error)
         }
 
-        val glbBytes = glbBytesForStore ?: glbFile?.takeIf { !it.isEmpty }?.bytes
         if (glbBytes == null || glbBytes.isEmpty()) {
             return SkpImportResult(
                 success = false,
                 productModelId = null,
-                error = "GLB file or configurator.zip with model.glb inside is required",
+                error = "Configurator zip must contain model.glb",
             )
         }
 
         val name =
             productName
-                ?: skpFile?.originalFilename?.removeSuffix(".skp")
-                ?: configuratorZip?.originalFilename?.removeSuffix(".zip")
-                ?: glbFile?.originalFilename?.removeSuffix(".glb")
+                ?: configuratorZip.originalFilename?.removeSuffix(".zip")
                 ?: "Imported Product"
         val productModel =
             productModelAPI.create(
@@ -145,7 +99,7 @@ class SkpImportService(
         createAttributeOptions(attributes, materialTextureUrls, productModel.id)
 
         val patches = mutableListOf<ProductModelJsonPatchParams>()
-        val model3dUrl = storeGlbFromBytes(glbBytes)
+        val model3dUrl = storeGlbFromBytes(glbBytes!!)
         if (model3dUrl != null) {
             patches.add(
                 ProductModelJsonPatchParams(
@@ -376,8 +330,6 @@ class SkpImportService(
             param.effects.any { it.type.equals("material", ignoreCase = true) }
     }
 
-    private fun extractParametersFromZip(zipBytes: ByteArray): ZipExtractionResult = extractFromZip(zipBytes, includeGlb = false)
-
     /**
      * Extracts configurator zip (model.glb + parameters.json + materials/).
      * Returns GLB bytes if present, otherwise null.
@@ -457,18 +409,6 @@ class SkpImportService(
             Files.write(filePath, bytes)
             "/api/v1/files/$uniqueFilename"
         }
-    }
-
-    private fun storeGlb(glbFile: MultipartFile): String? {
-        if (glbFile.isEmpty) return null
-        val originalFilename = glbFile.originalFilename ?: ""
-        if (!originalFilename.lowercase().endsWith(".glb")) return null
-        val uploadPath = Paths.get(uploadDir)
-        Files.createDirectories(uploadPath)
-        val uniqueFilename = "${UUID.randomUUID()}.glb"
-        val filePath = uploadPath.resolve(uniqueFilename)
-        Files.write(filePath, glbFile.bytes)
-        return "/api/v1/files/$uniqueFilename"
     }
 
     companion object {

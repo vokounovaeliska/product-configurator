@@ -231,7 +231,7 @@ const AttributeField = ({
             variant="body-sm"
             className="text-muted-foreground"
           >
-            {t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+            {t("attributes.priceForRange", { amount: formatPrice(rule.price) })}
           </Typography>
         )}
       </div>
@@ -306,7 +306,7 @@ const AttributeField = ({
             variant="body-sm"
             className="text-muted-foreground"
           >
-            {t("attributes.priceForRange", { amount: formatPrice(rule.priceDeltaCents) })}
+            {t("attributes.priceForRange", { amount: formatPrice(rule.price) })}
           </Typography>
         )}
       </div>

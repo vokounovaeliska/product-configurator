@@ -6,11 +6,9 @@ package cz.vokounova.configurator.generated.jooq
 
 import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOption
-import cz.vokounova.configurator.generated.jooq.tables.AttributeOptionConstraint
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
-import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
 import cz.vokounova.configurator.generated.jooq.tables.ProductModelConfiguratorPreferences
@@ -52,11 +50,6 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     val ATTRIBUTE_OPTION: AttributeOption get() = AttributeOption.ATTRIBUTE_OPTION
 
     /**
-     * The table <code>public.attribute_option_constraint</code>.
-     */
-    val ATTRIBUTE_OPTION_CONSTRAINT: AttributeOptionConstraint get() = AttributeOptionConstraint.ATTRIBUTE_OPTION_CONSTRAINT
-
-    /**
      * The table <code>public.attribute_pricing_rule</code>.
      */
     val ATTRIBUTE_PRICING_RULE: AttributePricingRule get() = AttributePricingRule.ATTRIBUTE_PRICING_RULE
@@ -70,11 +63,6 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
      * The table <code>public.customer_request</code>.
      */
     val CUSTOMER_REQUEST: CustomerRequest get() = CustomerRequest.CUSTOMER_REQUEST
-
-    /**
-     * The table <code>public.customer_request_component</code>.
-     */
-    val CUSTOMER_REQUEST_COMPONENT: CustomerRequestComponent get() = CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT
 
     /**
      * The table <code>public.pgp_armor_headers</code>.
@@ -134,11 +122,9 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
     override fun getTables(): List<Table<*>> = listOf(
         AttributeDefinition.ATTRIBUTE_DEFINITION,
         AttributeOption.ATTRIBUTE_OPTION,
-        AttributeOptionConstraint.ATTRIBUTE_OPTION_CONSTRAINT,
         AttributePricingRule.ATTRIBUTE_PRICING_RULE,
         ComponentDefinition.COMPONENT_DEFINITION,
         CustomerRequest.CUSTOMER_REQUEST,
-        CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT,
         PgpArmorHeaders.PGP_ARMOR_HEADERS,
         ProductModel.PRODUCT_MODEL,
         ProductModelConfiguratorPreferences.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES,
