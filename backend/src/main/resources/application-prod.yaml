@@ -37,7 +37,15 @@ spring:
 
 logging:
   level:
-    root: ${LOG_LEVEL_ROOT:INFO}
+    root: ${LOG_LEVEL_ROOT:WARN}
     org.springframework.security: ${LOG_LEVEL_SECURITY:WARN}
     # Application code: use LOG_LEVEL_APP=DEBUG in Railway to see request/response and business logs
     cz.vokounova.configurator: ${LOG_LEVEL_APP:INFO}
+    # Reduce framework noise in production
+    org.springframework.web: WARN
+    org.springframework.boot: WARN
+    org.springframework.jdbc: WARN
+    org.hibernate: WARN
+    com.zaxxer.hikari: WARN
+    org.apache.tomcat: WARN
+    org.eclipse.jetty: WARN
