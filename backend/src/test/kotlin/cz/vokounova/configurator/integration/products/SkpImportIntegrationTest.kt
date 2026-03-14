@@ -50,37 +50,28 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `import from parameters zip creates attributes with correct defaults and unit cm`() {
+    fun `import from configurator zip creates attributes with correct defaults and unit cm`() {
         val parametersJsonBytes =
             javaClass.classLoader
                 .getResourceAsStream("parameters.json")
                 ?.readBytes()
                 ?: throw IllegalStateException("Missing src/test/resources/parameters.json")
 
-        val zipBytes = createZipWithParametersJson(parametersJsonBytes)
-        val glbBytes = createMinimalGlb()
+        val zipBytes = createConfiguratorZip(parametersJsonBytes, createMinimalGlb())
 
-        val parametersZipFile =
+        val configuratorZipFile =
             MockMultipartFile(
-                "parametersZip",
-                "parameters.zip",
+                "configuratorZip",
+                "configurator.zip",
                 "application/zip",
                 zipBytes,
-            )
-        val glbFile =
-            MockMultipartFile(
-                "glb",
-                "model.glb",
-                "model/gltf-binary",
-                glbBytes,
             )
 
         val result =
             mockMvc
                 .perform(
                     multipart("/products/api/v1/import/sketchup")
-                        .file(parametersZipFile)
-                        .file(glbFile)
+                        .file(configuratorZipFile)
                         .with(AuthMocks.mockUser(userId = userId, email = "test@test.com")),
                 ).andExpect(status().isCreated)
                 .andReturn()
@@ -150,11 +141,17 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
         assertEquals(null, bottomColor.defaultDecimal)
     }
 
-    private fun createZipWithParametersJson(jsonBytes: ByteArray): ByteArray {
+    private fun createConfiguratorZip(
+        jsonBytes: ByteArray,
+        glbBytes: ByteArray,
+    ): ByteArray {
         val outputStream = java.io.ByteArrayOutputStream()
         ZipOutputStream(outputStream).use { zos ->
             zos.putNextEntry(ZipEntry("parameters.json"))
             zos.write(jsonBytes)
+            zos.closeEntry()
+            zos.putNextEntry(ZipEntry("model.glb"))
+            zos.write(glbBytes)
             zos.closeEntry()
         }
         return outputStream.toByteArray()

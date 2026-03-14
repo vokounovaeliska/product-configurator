@@ -84,7 +84,7 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
                 "productModelName" to created.name,
                 "productModelDescription" to created.description,
                 "currency" to created.currency,
-                "totalPriceCents" to 150000,
+                "totalPrice" to 150000,
                 "configurationJson" to configJson,
             )
         val payload = objectMapper.writeValueAsString(body)
@@ -144,7 +144,7 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
                 "productModelName" to created.name,
                 "productModelDescription" to created.description,
                 "currency" to created.currency,
-                "totalPriceCents" to 100000,
+                "totalPrice" to 100000,
                 "configurationJson" to configJson,
                 "pricingBreakdownJson" to null,
                 "snapshotImageBase64" to base64Snapshot,

@@ -435,7 +435,7 @@ export const PricingRulesList = ({
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
-                        {formatPrice(rule.priceDeltaCents / 100)}
+                        {formatPrice(rule.price / 100)}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">

@@ -13,7 +13,7 @@ export type CustomerRequestDto = {
   productModelName: string
   productModelDescription: string | null
   currency: string
-  totalPriceCents: number
+  totalPrice: number
   configurationJson: Record<string, unknown>
   pricingBreakdownJson: Record<string, unknown> | null
   snapshotImageBase64: string | null

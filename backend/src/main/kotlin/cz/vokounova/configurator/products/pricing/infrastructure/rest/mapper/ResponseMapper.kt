@@ -12,7 +12,7 @@ fun AttributePricingRule.toDto(): AttributePricingRuleDto =
         operator = operator,
         value = value,
         toValue = toValue,
-        priceDeltaCents = priceDeltaCents,
+        price = price,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

@@ -58,6 +58,37 @@ jobs:
           curl -fsSL https://railway.app/install.sh | sh > /dev/null 2>&1
           echo "$HOME/.railway/bin" >> "$GITHUB_PATH"
 
+      - name: Sync backend email vars to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          SPRING_MAIL_HOST: ${{ secrets.SPRING_MAIL_HOST }}
+          SPRING_MAIL_PORT: ${{ secrets.SPRING_MAIL_PORT }}
+          SPRING_MAIL_USERNAME: ${{ secrets.SPRING_MAIL_USERNAME }}
+          SPRING_MAIL_PASSWORD: ${{ secrets.SPRING_MAIL_PASSWORD }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }}
+        run: |
+          railway login --token "$RAILWAY_TOKEN" > /dev/null 2>&1
+
+          set_backend_variable_if_present() {
+            local key="$1"
+            local value="$2"
+
+            if [ -n "$value" ]; then
+              railway variable set "${key}=${value}" \
+                --service backend \
+                --environment production \
+                --skip-deploys
+            fi
+          }
+
+          set_backend_variable_if_present "SPRING_MAIL_HOST" "$SPRING_MAIL_HOST"
+          set_backend_variable_if_present "SPRING_MAIL_PORT" "$SPRING_MAIL_PORT"
+          set_backend_variable_if_present "SPRING_MAIL_USERNAME" "$SPRING_MAIL_USERNAME"
+          set_backend_variable_if_present "SPRING_MAIL_PASSWORD" "$SPRING_MAIL_PASSWORD"
+          set_backend_variable_if_present "MAIL_FROM" "$MAIL_FROM"
+          set_backend_variable_if_present "MAIL_FROM_NAME" "$MAIL_FROM_NAME"
+
       - name: Deploy backend to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

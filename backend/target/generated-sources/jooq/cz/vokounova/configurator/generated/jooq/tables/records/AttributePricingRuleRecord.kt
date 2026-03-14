@@ -48,7 +48,7 @@ open class AttributePricingRuleRecord private constructor() : UpdatableRecordImp
         set(value): Unit = set(6, value)
         get(): String? = get(6) as String?
 
-    open var priceDeltaCents: Int
+    open var price: Int
         set(value): Unit = set(7, value)
         get(): Int = get(7) as Int
 
@@ -69,7 +69,7 @@ open class AttributePricingRuleRecord private constructor() : UpdatableRecordImp
     /**
      * Create a detached, initialised AttributePricingRuleRecord
      */
-    constructor(id: UUID, productModelId: UUID, componentId: UUID? = null, attributeCode: String, `operator`: ConditionOperator? = null, value: String, toValue: String? = null, priceDeltaCents: Int, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
+    constructor(id: UUID, productModelId: UUID, componentId: UUID? = null, attributeCode: String, `operator`: ConditionOperator? = null, value: String, toValue: String? = null, price: Int, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime): this() {
         this.id = id
         this.productModelId = productModelId
         this.componentId = componentId
@@ -77,7 +77,7 @@ open class AttributePricingRuleRecord private constructor() : UpdatableRecordImp
         this.`operator` = `operator`
         this.value = value
         this.toValue = toValue
-        this.priceDeltaCents = priceDeltaCents
+        this.price = price
         this.createdAt = createdAt
         this.modifiedAt = modifiedAt
         resetChangedOnNotNull()

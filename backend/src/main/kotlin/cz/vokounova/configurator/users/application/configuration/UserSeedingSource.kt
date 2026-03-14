@@ -35,7 +35,7 @@ class UserSeedingSource(
                         firstName = name,
                         surname = surname,
                         email = name,
-                        supplierNotificationEmail = null,
+                        notificationEmail = null,
                         password = email,
                         createdAt = timestamp,
                         modifiedAt = timestamp,

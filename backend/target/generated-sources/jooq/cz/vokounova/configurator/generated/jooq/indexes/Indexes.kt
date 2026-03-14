@@ -6,11 +6,9 @@ package cz.vokounova.configurator.generated.jooq.indexes
 
 import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOption
-import cz.vokounova.configurator.generated.jooq.tables.AttributeOptionConstraint
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
-import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
 import cz.vokounova.configurator.generated.jooq.tables.User
 import cz.vokounova.configurator.generated.jooq.tables.UserRefreshToken
@@ -25,12 +23,10 @@ import org.jooq.impl.Internal
 // INDEX definitions
 // -------------------------------------------------------------------------
 
-val IDX_ATTR_OPTION_CONSTRAINT_COMPONENT: Index = Internal.createIndex(DSL.name("idx_attr_option_constraint_component"), AttributeOptionConstraint.ATTRIBUTE_OPTION_CONSTRAINT, arrayOf(AttributeOptionConstraint.ATTRIBUTE_OPTION_CONSTRAINT.COMPONENT_ID), false)
 val IDX_ATTRIBUTE_DEFINITION_COMPONENT_ID: Index = Internal.createIndex(DSL.name("idx_attribute_definition_component_id"), AttributeDefinition.ATTRIBUTE_DEFINITION, arrayOf(AttributeDefinition.ATTRIBUTE_DEFINITION.COMPONENT_ID), false)
 val IDX_ATTRIBUTE_OPTION_ATTRIBUTE_ID: Index = Internal.createIndex(DSL.name("idx_attribute_option_attribute_id"), AttributeOption.ATTRIBUTE_OPTION, arrayOf(AttributeOption.ATTRIBUTE_OPTION.ATTRIBUTE_ID), false)
 val IDX_ATTRIBUTE_PRICING_RULE_MODEL: Index = Internal.createIndex(DSL.name("idx_attribute_pricing_rule_model"), AttributePricingRule.ATTRIBUTE_PRICING_RULE, arrayOf(AttributePricingRule.ATTRIBUTE_PRICING_RULE.PRODUCT_MODEL_ID), false)
 val IDX_COMPONENT_DEFINITION_MODEL_ID: Index = Internal.createIndex(DSL.name("idx_component_definition_model_id"), ComponentDefinition.COMPONENT_DEFINITION, arrayOf(ComponentDefinition.COMPONENT_DEFINITION.PRODUCT_MODEL_ID), false)
-val IDX_CUSTOMER_REQUEST_COMPONENT_REQUEST_ID: Index = Internal.createIndex(DSL.name("idx_customer_request_component_request_id"), CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT, arrayOf(CustomerRequestComponent.CUSTOMER_REQUEST_COMPONENT.REQUEST_ID), false)
 val IDX_CUSTOMER_REQUEST_EMAIL: Index = Internal.createIndex(DSL.name("idx_customer_request_email"), CustomerRequest.CUSTOMER_REQUEST, arrayOf(CustomerRequest.CUSTOMER_REQUEST.CUSTOMER_EMAIL), false)
 val IDX_CUSTOMER_REQUEST_STATUS_CREATED: Index = Internal.createIndex(DSL.name("idx_customer_request_status_created"), CustomerRequest.CUSTOMER_REQUEST, arrayOf(CustomerRequest.CUSTOMER_REQUEST.STATUS, CustomerRequest.CUSTOMER_REQUEST.CREATED_AT.desc()), false)
 val IDX_PRODUCT_MODEL_URL: Index = Internal.createIndex(DSL.name("idx_product_model_url"), ProductModel.PRODUCT_MODEL, arrayOf(ProductModel.PRODUCT_MODEL.URL), true)

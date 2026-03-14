@@ -7,13 +7,11 @@ package cz.vokounova.configurator.generated.jooq.tables
 import cz.vokounova.configurator.generated.jooq.Public
 import cz.vokounova.configurator.generated.jooq.indexes.IDX_COMPONENT_DEFINITION_MODEL_ID
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_DEFINITION__ATTRIBUTE_DEFINITION_COMPONENT_ID_FKEY
-import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_OPTION_CONSTRAINT__ATTRIBUTE_OPTION_CONSTRAINT_COMPONENT_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_PRICING_RULE__ATTRIBUTE_PRICING_RULE_COMPONENT_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION_PKEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION_PRODUCT_MODEL_ID_CODE_KEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION__COMPONENT_DEFINITION_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition.AttributeDefinitionPath
-import cz.vokounova.configurator.generated.jooq.tables.AttributeOptionConstraint.AttributeOptionConstraintPath
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule.AttributePricingRulePath
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel.ProductModelPath
 import cz.vokounova.configurator.generated.jooq.tables.records.ComponentDefinitionRecord
@@ -200,22 +198,6 @@ open class ComponentDefinition(
 
     val attributeDefinition: AttributeDefinitionPath
         get(): AttributeDefinitionPath = attributeDefinition()
-
-    private lateinit var _attributeOptionConstraint: AttributeOptionConstraintPath
-
-    /**
-     * Get the implicit to-many join path to the
-     * <code>public.attribute_option_constraint</code> table
-     */
-    fun attributeOptionConstraint(): AttributeOptionConstraintPath {
-        if (!this::_attributeOptionConstraint.isInitialized)
-            _attributeOptionConstraint = AttributeOptionConstraintPath(this, null, ATTRIBUTE_OPTION_CONSTRAINT__ATTRIBUTE_OPTION_CONSTRAINT_COMPONENT_ID_FKEY.inverseKey)
-
-        return _attributeOptionConstraint;
-    }
-
-    val attributeOptionConstraint: AttributeOptionConstraintPath
-        get(): AttributeOptionConstraintPath = attributeOptionConstraint()
 
     private lateinit var _attributePricingRule: AttributePricingRulePath
 

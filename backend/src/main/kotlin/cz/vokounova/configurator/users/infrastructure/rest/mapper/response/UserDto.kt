@@ -8,7 +8,7 @@ data class UserDto(
     val firstName: String,
     val surname: String,
     val email: String,
-    val supplierNotificationEmail: String?,
+    val notificationEmail: String?,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
 )

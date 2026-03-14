@@ -11,8 +11,8 @@
     <groupId>cz.vokounova</groupId>
     <artifactId>configurator-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Universal Product Configurator</name>
-    <description>Universal Product Configurator</description>
+    <name>Product Configurator</name>
+    <description>Product Configurator</description>
     <url/>
 
     <properties>

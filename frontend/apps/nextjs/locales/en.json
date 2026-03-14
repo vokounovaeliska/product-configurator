@@ -289,7 +289,7 @@
       "saveUrl": "Save URL",
       "ordersEmail": {
         "label": "Email for notifications",
-        "placeholder": "supplier@company.com",
+        "placeholder": "notifications@company.com",
         "hint": "Customer request confirmations will use this as Reply-To, and new requests will be sent to this address. Leave empty to use your account email.",
         "invalid": "Enter a valid email address",
         "save": "Save notification email",
@@ -355,6 +355,7 @@
     "breadcrumbs": {
       "home": "Home"
     },
+    "editButton": "Edit",
     "title": "Product Configurator",
     "error": {
       "loadingProductModel": "Failed to load product model. Please try again later.",

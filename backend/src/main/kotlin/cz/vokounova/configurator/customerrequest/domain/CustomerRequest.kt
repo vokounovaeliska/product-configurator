@@ -19,7 +19,7 @@ data class CustomerRequest(
     val productModelName: String,
     val productModelDescription: String?,
     val currency: String,
-    val totalPriceCents: Int,
+    val totalPrice: Int,
     val configurationJson: JsonNode,
     val pricingBreakdownJson: JsonNode?,
     val snapshotImageBase64: String?,

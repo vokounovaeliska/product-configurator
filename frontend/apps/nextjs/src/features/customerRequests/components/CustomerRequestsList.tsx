@@ -474,7 +474,7 @@ const RequestRow = ({
             weight="semibold"
             className="tabular-nums"
           >
-            {formatPrice(req.totalPriceCents, req.currency)}
+            {formatPrice(req.totalPrice, req.currency)}
           </Typography>
         </td>
         <td
@@ -592,7 +592,7 @@ const RequestRow = ({
                     as="p"
                     variant="body-md"
                   >
-                    {formatPrice(req.totalPriceCents, req.currency)}
+                    {formatPrice(req.totalPrice, req.currency)}
                   </Typography>
                 </div>
                 <div>

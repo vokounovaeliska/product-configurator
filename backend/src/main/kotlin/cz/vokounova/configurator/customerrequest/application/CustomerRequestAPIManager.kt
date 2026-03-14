@@ -41,7 +41,7 @@ class CustomerRequestAPIManager(
                 productModelName = params.productModelName,
                 productModelDescription = params.productModelDescription,
                 currency = params.currency,
-                totalPriceCents = params.totalPriceCents,
+                totalPrice = params.totalPrice,
                 configurationJson = params.configurationJson,
                 pricingBreakdownJson = params.pricingBreakdownJson,
                 snapshotImageBase64 = params.snapshotImageBase64,
@@ -53,10 +53,10 @@ class CustomerRequestAPIManager(
                 ?: throw IllegalStateException("Failed to create customer request")
         val ownerId = productConfigQueryFacade.getProductOwnerId(params.productModelId)
         val owner = userFacade.getUser(UserIdDto(ownerId), lock = false)
-        val supplierEmail = owner.supplierNotificationEmail ?: owner.email
+        val notificationEmail = owner.notificationEmail ?: owner.email
 
-        emailNotificationService.sendConfirmationEmail(created, replyTo = supplierEmail)
-        emailNotificationService.sendSupplierNotification(created, supplierEmail = supplierEmail)
+        emailNotificationService.sendConfirmationEmail(created, replyTo = notificationEmail)
+        emailNotificationService.sendSupplierNotification(created, supplierEmail = notificationEmail)
         return created
     }
 

@@ -8,10 +8,8 @@ import cz.vokounova.configurator.generated.jooq.Public
 import cz.vokounova.configurator.generated.jooq.enums.RequestStatus
 import cz.vokounova.configurator.generated.jooq.indexes.IDX_CUSTOMER_REQUEST_EMAIL
 import cz.vokounova.configurator.generated.jooq.indexes.IDX_CUSTOMER_REQUEST_STATUS_CREATED
-import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST_COMPONENT__CUSTOMER_REQUEST_COMPONENT_REQUEST_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST_PKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST__CUSTOMER_REQUEST_PRODUCT_MODEL_ID_FKEY
-import cz.vokounova.configurator.generated.jooq.tables.CustomerRequestComponent.CustomerRequestComponentPath
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel.ProductModelPath
 import cz.vokounova.configurator.generated.jooq.tables.records.CustomerRequestRecord
 
@@ -135,9 +133,9 @@ open class CustomerRequest(
     val CURRENCY: TableField<CustomerRequestRecord, String?> = createField(DSL.name("currency"), SQLDataType.CLOB.nullable(false), this, "")
 
     /**
-     * The column <code>public.customer_request.total_price_cents</code>.
+     * The column <code>public.customer_request.total_price</code>.
      */
-    val TOTAL_PRICE_CENTS: TableField<CustomerRequestRecord, Int?> = createField(DSL.name("total_price_cents"), SQLDataType.INTEGER.nullable(false), this, "")
+    val TOTAL_PRICE: TableField<CustomerRequestRecord, Int?> = createField(DSL.name("total_price"), SQLDataType.INTEGER.nullable(false), this, "")
 
     /**
      * The column <code>public.customer_request.configuration_json</code>.
@@ -215,22 +213,6 @@ open class CustomerRequest(
 
     val productModel: ProductModelPath
         get(): ProductModelPath = productModel()
-
-    private lateinit var _customerRequestComponent: CustomerRequestComponentPath
-
-    /**
-     * Get the implicit to-many join path to the
-     * <code>public.customer_request_component</code> table
-     */
-    fun customerRequestComponent(): CustomerRequestComponentPath {
-        if (!this::_customerRequestComponent.isInitialized)
-            _customerRequestComponent = CustomerRequestComponentPath(this, null, CUSTOMER_REQUEST_COMPONENT__CUSTOMER_REQUEST_COMPONENT_REQUEST_ID_FKEY.inverseKey)
-
-        return _customerRequestComponent;
-    }
-
-    val customerRequestComponent: CustomerRequestComponentPath
-        get(): CustomerRequestComponentPath = customerRequestComponent()
     override fun `as`(alias: String): CustomerRequest = CustomerRequest(DSL.name(alias), this)
     override fun `as`(alias: Name): CustomerRequest = CustomerRequest(alias, this)
     override fun `as`(alias: Table<*>): CustomerRequest = CustomerRequest(alias.qualifiedName, this)

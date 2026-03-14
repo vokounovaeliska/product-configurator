@@ -288,7 +288,7 @@
       "saveUrl": "Uložit URL",
       "ordersEmail": {
         "label": "E-mail pro notifikace",
-        "placeholder": "dodavatel@firma.cz",
+        "placeholder": "notifikace@firma.cz",
         "hint": "Použije se jako Reply-To u potvrzení pro zákazníka a nové žádosti budou chodit na tuto adresu. Pokud pole necháte prázdné, použije se e-mail účtu.",
         "invalid": "Zadejte platnou e-mailovou adresu",
         "save": "Uložit e-mail pro notifikace",
@@ -354,6 +354,7 @@
     "breadcrumbs": {
       "home": "Domů"
     },
+    "editButton": "Upravit",
     "title": "Konfigurátor produktů",
     "error": {
       "loadingProductModel": "Nepodařilo se načíst model produktu. Zkuste to prosím později.",

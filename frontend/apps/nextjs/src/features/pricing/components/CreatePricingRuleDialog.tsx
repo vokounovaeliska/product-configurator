@@ -81,7 +81,7 @@ export const CreatePricingRuleDialog = ({
       operator: "EQ",
       value: "",
       toValue: null,
-      priceDeltaCents: 0,
+      price: 0,
     },
     resolver: zodResolver(pricingRuleFormSchema),
   })
@@ -135,7 +135,7 @@ export const CreatePricingRuleDialog = ({
         operator: "EQ",
         value: "",
         toValue: null,
-        priceDeltaCents: 0,
+        price: 0,
       })
     }
   }, [isOpen, hasPreset, presetComponentId, presetAttributeCode, form])
@@ -172,7 +172,7 @@ export const CreatePricingRuleDialog = ({
       componentId,
       attributeCode: values.attributeCode,
       operator: values.operator,
-      priceDeltaCents: values.priceDeltaCents,
+      price: values.price,
     }
     const valuesForSubmit =
       isEnumAttribute && values.operator === "EQ" && values.value.includes(",")
@@ -669,7 +669,7 @@ export const CreatePricingRuleDialog = ({
             </Typography>
             <FormField
               control={form.control}
-              name="priceDeltaCents"
+              name="price"
               render={({ field }) => (
                 <FormItem className="pt-3">
                   <FormLabel>{t("create.price")}</FormLabel>

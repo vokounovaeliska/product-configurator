@@ -1,13 +1,19 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
+import { PencilIcon } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { Button } from "@workspace/ui/components/button"
 import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
+import { useCurrentUser } from "@/api/userQueries"
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
+import { Link } from "@/lib/i18n/navigation"
+import { ROUTES } from "@/lib/routes"
 
 import { useComputedPrice } from "@/features/configurator/hooks/useComputedPrice"
 import { useConfiguratorAttributes } from "@/features/configurator/hooks/useConfiguratorAttributes"
@@ -55,6 +61,10 @@ function buildPreviewLayers(
 }
 
 export const ProductConfigurator = ({ productModelId, productModel, components }: Props) => {
+  const t = useTranslations("Configurator")
+  const { data: currentUser } = useCurrentUser()
+  const isOwner = Boolean(currentUser?.id && currentUser.id === productModel.userId)
+
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null)
   const [selectedOptionsByComponent, setSelectedOptionsByComponent] =
     useState<SelectedOptionsByComponent>({})
@@ -161,22 +171,36 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
         productModelName={productModel.name}
       />
 
-      <div className="space-y-2">
-        <Typography
-          as="h1"
-          variant="display-2xl"
-          weight="bold"
-        >
-          {productModel.name}
-        </Typography>
-        {productModel.description && (
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-2">
           <Typography
-            as="p"
-            variant="body-lg"
-            className="text-muted-foreground"
+            as="h1"
+            variant="display-2xl"
+            weight="bold"
           >
-            {productModel.description}
+            {productModel.name}
           </Typography>
+          {productModel.description && (
+            <Typography
+              as="p"
+              variant="body-lg"
+              className="text-muted-foreground"
+            >
+              {productModel.description}
+            </Typography>
+          )}
+        </div>
+        {isOwner && (
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+          >
+            <Link href={ROUTES.setupComponents(productModelId)}>
+              <PencilIcon className="mr-2 size-4" />
+              {t("editButton")}
+            </Link>
+          </Button>
         )}
       </div>
 

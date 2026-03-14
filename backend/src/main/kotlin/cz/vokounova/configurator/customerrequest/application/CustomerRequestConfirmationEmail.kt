@@ -14,7 +14,7 @@ object CustomerRequestConfirmationEmail {
     }
 
     fun bodyHtml(request: CustomerRequest): String {
-        val priceFormatted = formatPrice(request.totalPriceCents, request.currency)
+        val priceFormatted = formatPrice(request.totalPrice, request.currency)
         val customerName = request.customerName?.takeIf { it.isNotBlank() } ?: "Customer"
         val descBlock =
             request.productModelDescription?.takeIf { it.isNotBlank() }?.let {
@@ -45,7 +45,7 @@ object CustomerRequestConfirmationEmail {
     }
 
     fun bodyText(request: CustomerRequest): String {
-        val priceFormatted = formatPrice(request.totalPriceCents, request.currency)
+        val priceFormatted = formatPrice(request.totalPrice, request.currency)
         val customerName = request.customerName?.takeIf { it.isNotBlank() } ?: "Customer"
         val noteLine =
             request.customerNote?.takeIf { it.isNotBlank() }?.let { "\nYour message: $it" } ?: ""

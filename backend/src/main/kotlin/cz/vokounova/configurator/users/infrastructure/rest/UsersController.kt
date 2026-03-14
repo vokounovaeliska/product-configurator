@@ -86,7 +86,7 @@ class UsersController(
                     firstName = currentUser.firstName,
                     surname = currentUser.surname,
                     email = currentUser.email,
-                    supplierNotificationEmail = currentUser.supplierNotificationEmail,
+                    notificationEmail = currentUser.notificationEmail,
                     createdAt = currentUser.createdAt,
                     modifiedAt = currentUser.modifiedAt,
                 ),
