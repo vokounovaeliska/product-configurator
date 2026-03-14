@@ -17,6 +17,8 @@ class ModuleTest {
             SHARED("shared"),
             USERS("users"),
             PRODUCTS("products"),
+            CUSTOMERREQUEST("customerrequest"),
+            EMBED("embed"),
         }
     }
 
@@ -49,9 +51,9 @@ class ModuleTest {
                 .toTypedArray()
 
         modulePackages.forEach { packageName ->
-            // Special handling for products module which has models and components submodules
+            // Special handling for products module which has models, attributes, components, pricing submodules
             if (packageName == Modules.PRODUCTS.packageName) {
-                listOf("models", "components").forEach { subModule ->
+                listOf("models", "attributes", "components", "pricing").forEach { subModule ->
                     val rule =
                         classes()
                             .that()

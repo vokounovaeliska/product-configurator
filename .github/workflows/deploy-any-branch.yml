@@ -68,7 +68,7 @@ jobs:
           MAIL_FROM: ${{ secrets.MAIL_FROM }}
           MAIL_FROM_NAME: ${{ secrets.MAIL_FROM_NAME }}
         run: |
-          railway login --token "$RAILWAY_TOKEN" > /dev/null 2>&1
+          export PATH="$HOME/.railway/bin:$PATH"
 
           set_backend_variable_if_present() {
             local key="$1"
@@ -94,7 +94,7 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./backend
         run: |
-          railway login --token "$RAILWAY_TOKEN" > /dev/null 2>&1
+          export PATH="$HOME/.railway/bin:$PATH"
           railway up --quiet
 
       - name: Deploy frontend to Railway
@@ -102,6 +102,6 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         working-directory: ./frontend
         run: |
-          railway login --token "$RAILWAY_TOKEN" > /dev/null 2>&1
+          export PATH="$HOME/.railway/bin:$PATH"
           railway up --service nextjs --quiet
 

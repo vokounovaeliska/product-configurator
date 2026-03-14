@@ -1,4 +1,4 @@
-package cz.vokounova.configurator.integration.products
+package cz.vokounova.configurator.integration.products.components
 
 import cz.vokounova.configurator.configuration.BaseIntegrationTest
 import cz.vokounova.configurator.generated.jooq.tables.references.COMPONENT_DEFINITION
