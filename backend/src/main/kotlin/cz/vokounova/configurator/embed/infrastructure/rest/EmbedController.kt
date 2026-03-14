@@ -5,11 +5,11 @@ import cz.vokounova.configurator.embed.infrastructure.rest.mapper.toEmbedDto
 import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import org.springframework.http.ResponseEntity
-import java.util.UUID
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 /**
  * Public embed API – no authentication required.
