@@ -2,7 +2,7 @@ package cz.vokounova.configurator.integration.embed
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import cz.vokounova.configurator.configuration.BaseIntegrationTest
-import cz.vokounova.configurator.embed.infrastructure.rest.mapper.CustomerRequestEmbedDto
+import cz.vokounova.configurator.customerrequest.api.dto.CustomerRequestResultDto
 import cz.vokounova.configurator.generated.jooq.tables.references.CUSTOMER_REQUEST
 import cz.vokounova.configurator.generated.jooq.tables.references.PRODUCT_MODEL
 import cz.vokounova.configurator.generated.jooq.tables.references.USER
@@ -99,7 +99,7 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
                 .andExpect(status().isCreated)
                 .andReturn()
 
-        val parsed = readResponse<CustomerRequestEmbedDto>(result)
+        val parsed = readResponse<CustomerRequestResultDto>(result)
         assertNotNull(parsed)
         assertNotNull(parsed.id)
         assertEquals("NEW", parsed.status)
@@ -161,7 +161,7 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
                 .andExpect(status().isCreated)
                 .andReturn()
 
-        val parsed = readResponse<CustomerRequestEmbedDto>(result)
+        val parsed = readResponse<CustomerRequestResultDto>(result)
         assertNotNull(parsed)
         assertNotNull(parsed.id)
     }

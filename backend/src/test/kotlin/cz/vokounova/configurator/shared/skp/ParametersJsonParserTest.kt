@@ -102,7 +102,7 @@ class ParametersJsonParserTest {
         assertEquals(6.0, leg1["lenx"])
         assertEquals(78.0, leg1["leny"])
         assertEquals(55.0, leg1["lenz"])
-        assertEquals("black", leg1["material"])
+        assertEquals("MS_SL_black_rough9005", leg1["material"])
         assertEquals("Skupina", leg1["_parent"])
     }
 

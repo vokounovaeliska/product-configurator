@@ -1,7 +1,8 @@
-package cz.vokounova.configurator.integration.products
+package cz.vokounova.configurator.integration.products.import
 
 import cz.vokounova.configurator.configuration.BaseIntegrationTest
 import cz.vokounova.configurator.generated.jooq.enums.AttributeType
+import cz.vokounova.configurator.generated.jooq.tables.references.USER
 import cz.vokounova.configurator.mocks.AuthMocks
 import cz.vokounova.configurator.mocks.UserMocks
 import cz.vokounova.configurator.products.attributes.domain.AttributeFilter
@@ -11,6 +12,7 @@ import cz.vokounova.configurator.products.components.ports.outbound.ComponentRep
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.users.domain.UserId
 import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -21,8 +23,6 @@ import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -47,6 +47,11 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
         super.setup()
         val user = UserMocks.getUser(id = userId)
         userRepository.create(user)
+    }
+
+    @AfterEach
+    override fun cleanUp() {
+        dslContext.truncate(USER).cascade().execute()
     }
 
     @Test
@@ -104,34 +109,29 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
             },
         ) { "Per-component _lenx/_leny/_lenz params must not be created as attributes" }
 
-        // DECIMAL params from parameters.json must have defaultDecimal and unit cm
-        // (JSON doubles may have float noise e.g. 117.90000000000002, so compare at 2 decimal places)
-        fun assertDefaultDecimal(
+        // Dimension params (width, height, depth) from parameters.json must have default and unit cm
+        // Import infers them as INTEGER with defaultInt
+        fun assertDefaultInt(
             attr: cz.vokounova.configurator.products.attributes.domain.Attribute?,
-            expected: String,
+            expected: Int,
             label: String,
         ) {
             assertNotNull(attr) { "Expected $label attribute" }
-            val actual = attr!!.defaultDecimal
-            assertNotNull(actual) { "$label defaultDecimal should be $expected" }
-            val scale2 = RoundingMode.HALF_UP
-            assertEquals(
-                BigDecimal(expected).setScale(2, scale2),
-                actual?.setScale(2, scale2),
-                "$label defaultDecimal",
-            )
+            val actual = attr!!.defaultInt
+            assertNotNull(actual) { "$label defaultInt should be $expected" }
+            assertEquals(expected, actual, "$label defaultInt")
         }
 
         val width = attributes.find { it.code == "WIDTH" }
-        assertDefaultDecimal(width, "120", "WIDTH")
+        assertDefaultInt(width, 120, "WIDTH")
         assertEquals("cm", width!!.unit)
 
         val height = attributes.find { it.code == "HEIGHT" }
-        assertDefaultDecimal(height, "55", "HEIGHT")
+        assertDefaultInt(height, 55, "HEIGHT")
         assertEquals("cm", height!!.unit)
 
         val depth = attributes.find { it.code == "DEPTH" }
-        assertDefaultDecimal(depth, "80", "DEPTH")
+        assertDefaultInt(depth, 80, "DEPTH")
         assertEquals("cm", depth!!.unit)
 
         // ENUM param (bottom_color) with default null must have null defaultDecimal

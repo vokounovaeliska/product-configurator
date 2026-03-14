@@ -1,9 +1,9 @@
 package cz.vokounova.configurator.embed.infrastructure.rest
 
+import cz.vokounova.configurator.products.api.dto.AttributeExternalDto
+import cz.vokounova.configurator.products.api.dto.AttributeOptionExternalDto
+import cz.vokounova.configurator.products.api.dto.AttributePricingRuleExternalDto
 import cz.vokounova.configurator.products.api.dto.ComponentExternalDto
-import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.response.AttributeDto
-import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.response.AttributeOptionDto
-import cz.vokounova.configurator.products.pricing.infrastructure.rest.mapper.response.AttributePricingRuleDto
 
 data class ConfiguratorPreferencesEmbedDto(
     val zoomDistanceDefault: Double?,
@@ -17,8 +17,8 @@ data class ConfiguratorPreferencesEmbedDto(
 data class ProductEmbedFullDto(
     val product: ProductModelEmbedDto,
     val components: List<ComponentExternalDto>,
-    val attributesByComponent: Map<String, List<AttributeDto>>,
-    val optionsByAttribute: Map<String, List<AttributeOptionDto>>,
-    val pricingRules: List<AttributePricingRuleDto>,
+    val attributesByComponent: Map<String, List<AttributeExternalDto>>,
+    val optionsByAttribute: Map<String, List<AttributeOptionExternalDto>>,
+    val pricingRules: List<AttributePricingRuleExternalDto>,
     val configuratorPreferences: ConfiguratorPreferencesEmbedDto? = null,
 )
