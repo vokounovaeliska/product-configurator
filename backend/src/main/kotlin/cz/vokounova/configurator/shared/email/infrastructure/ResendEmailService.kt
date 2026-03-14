@@ -9,7 +9,7 @@ import cz.vokounova.configurator.shared.email.ports.outbound.InlineImage
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 import java.util.Base64
@@ -20,7 +20,10 @@ import java.util.Base64
  */
 @Service
 @Primary
-@ConditionalOnProperty(name = ["resend.api-key"], matchIfMissing = false)
+@ConditionalOnExpression(
+    "!T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('resend.api-key')) || " +
+        "!T(org.springframework.util.StringUtils).isEmpty(@environment.getProperty('RESEND_API_KEY'))",
+)
 class ResendEmailService(
     @Value("\${resend.api-key}") private val apiKey: String,
     private val mailConfig: MailConfig,
