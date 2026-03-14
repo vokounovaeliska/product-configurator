@@ -117,7 +117,7 @@ export const SetupSidebar = (_props: Props) => {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center rounded-lg text-sm font-medium transition-colors",
+                    "flex min-h-[44px] items-center rounded-lg text-sm font-medium transition-colors lg:min-h-0",
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
@@ -139,6 +139,7 @@ export const SetupSidebar = (_props: Props) => {
           className="fixed inset-0 z-30 bg-background/80 backdrop-blur-sm lg:hidden"
           onClick={toggle}
           aria-hidden="true"
+          style={{ touchAction: "manipulation" }}
         />
       )}
     </>

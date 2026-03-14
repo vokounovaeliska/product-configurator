@@ -51,6 +51,8 @@ type Props = {
   /** When set (e.g. from attribute pricing page), unit/range/type shown before attribute loads. */
   presetNumericUnit?: string | null
   presetNumericRange?: { min: number; max: number }
+  /** When set (e.g. from filter), operator is preset. */
+  presetOperator?: "EQ" | "BETWEEN"
   /** Existing rules to prevent duplicate rules per ENUM option. */
   existingRules?: AttributePricingRuleDto[]
 }
@@ -66,6 +68,7 @@ export const CreatePricingRuleDialog = ({
   presetAttributeCode,
   presetNumericUnit,
   presetNumericRange,
+  presetOperator,
   existingRules = [],
 }: Props) => {
   const t = useTranslations("Pricing")
@@ -127,18 +130,35 @@ export const CreatePricingRuleDialog = ({
   const rangeStep =
     isDecimal && numericRange ? Math.max((numericRange.max - numericRange.min) / 100, 0.01) : 1
 
+  const defaultOperatorForNumeric = presetNumericRange ? "BETWEEN" : "EQ"
+
   useEffect(() => {
     if (isOpen && hasPreset && presetComponentId && presetAttributeCode) {
       form.reset({
         componentId: presetComponentId,
         attributeCode: presetAttributeCode,
-        operator: "EQ",
+        operator: presetOperator ?? defaultOperatorForNumeric,
         value: "",
         toValue: null,
         price: 0,
       })
+    } else if (isOpen && presetOperator) {
+      form.setValue("operator", presetOperator)
+      form.setValue("value", "")
+      form.setValue("toValue", null)
+    } else if (isOpen && presetNumericRange) {
+      form.setValue("operator", "BETWEEN")
     }
-  }, [isOpen, hasPreset, presetComponentId, presetAttributeCode, form])
+  }, [
+    isOpen,
+    hasPreset,
+    presetComponentId,
+    presetAttributeCode,
+    presetOperator,
+    presetNumericRange,
+    defaultOperatorForNumeric,
+    form,
+  ])
 
   const { data: optionsData } = useAttributeOptionsList(
     productModelId,
@@ -677,9 +697,8 @@ export const CreatePricingRuleDialog = ({
                     <Input
                       type="number"
                       step="0.01"
-                      min="0"
                       placeholder="0"
-                      value={field.value != null && field.value !== 0 ? field.value / 100 : ""}
+                      value={field.value != null ? field.value / 100 : ""}
                       onChange={(e) => {
                         const v = e.target.value
                         field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))

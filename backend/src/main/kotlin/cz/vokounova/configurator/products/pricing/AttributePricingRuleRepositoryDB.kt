@@ -35,6 +35,7 @@ class AttributePricingRuleRepositoryDB(
         return dslContext
             .selectFrom(ATTRIBUTE_PRICING_RULE)
             .where(condition)
+            .orderBy(ATTRIBUTE_PRICING_RULE.CREATED_AT)
             .fetch()
             .map { it.toDomain() }
     }

@@ -49,7 +49,7 @@ export const HeaderAuthMenu = ({ user }: Props) => {
   const initial = displayName?.charAt(0).toUpperCase() ?? "U"
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex min-w-0 shrink items-center gap-2 lg:gap-4">
       <Avatar>
         <AvatarImage
           src=""
@@ -58,9 +58,18 @@ export const HeaderAuthMenu = ({ user }: Props) => {
         <AvatarFallback className="text-sm text-muted-foreground">{initial}</AvatarFallback>
       </Avatar>
 
-      {displayName && <span className="text-sm font-medium text-foreground">{displayName}</span>}
+      {displayName && (
+        <span className="hidden truncate text-sm font-medium text-foreground lg:block">
+          {displayName}
+        </span>
+      )}
 
-      <Button onClick={() => signOut()}>{t("logout")}</Button>
+      <Button
+        onClick={() => signOut()}
+        className="min-h-[44px] shrink-0 px-3 lg:px-4"
+      >
+        {t("logout")}
+      </Button>
     </div>
   )
 }

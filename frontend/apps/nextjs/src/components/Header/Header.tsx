@@ -8,7 +8,7 @@ import { HeaderRoot } from "./HeaderRoot"
 export const Header = () => {
   return (
     <HeaderRoot>
-      <div className={cn("flex items-center gap-4", "lg:gap-12")}>
+      <div className={cn("flex min-w-0 shrink items-center gap-2", "lg:gap-12")}>
         <HeaderLogo />
         <HeaderNav />
       </div>

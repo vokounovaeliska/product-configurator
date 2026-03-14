@@ -194,13 +194,13 @@ export const EmbedConfigurator = ({
     Object.keys(selectedOptionsByComponent).length > 0 ||
     Object.keys(selectedOtherValuesByComponent).length > 0
 
-  const isProductNameShownInEmbed = configuratorPreferences?.embedShowProductName ?? true
-  const isDescriptionShownInEmbed = configuratorPreferences?.embedShowDescription ?? true
-  const isComponentsShownInEmbed = configuratorPreferences?.embedShowComponents ?? true
+  const isProductNameShownInEmbed = configuratorPreferences?.embedShowProductName ?? false
+  const isDescriptionShownInEmbed = configuratorPreferences?.embedShowDescription ?? false
+  const isComponentsShownInEmbed = configuratorPreferences?.embedShowComponents ?? false
 
   return (
     <div
-      className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6"
+      className="flex min-h-0 flex-1 flex-col gap-3 bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6 lg:overflow-hidden"
       style={{
         paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))",
       }}
@@ -229,8 +229,8 @@ export const EmbedConfigurator = ({
         </div>
       )}
 
-      <div className="grid min-h-0 flex-1 gap-6 lg:min-h-0 lg:grid-cols-3">
-        <div className="relative z-0 flex max-h-[60vh] min-h-[40vh] flex-col lg:col-span-2 lg:max-h-[60vh] lg:min-h-[50vh]">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:grid lg:min-h-0 lg:grid-cols-3 lg:grid-rows-none">
+        <div className="relative z-0 order-2 flex min-h-0 flex-1 flex-col lg:order-none lg:col-span-2">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
@@ -245,7 +245,7 @@ export const EmbedConfigurator = ({
           />
         </div>
 
-        <div className="flex min-h-0 flex-col gap-6 overflow-y-auto lg:max-h-full">
+        <div className="order-1 flex min-h-0 flex-1 flex-col gap-3 lg:order-none lg:max-h-full">
           <div className="flex shrink-0 flex-col gap-2">
             <Card className="p-3 shadow-sm">
               <div className="flex items-baseline justify-between gap-2">
@@ -280,25 +280,27 @@ export const EmbedConfigurator = ({
             )}
           </div>
 
-          <ComponentSelector
-            components={components}
-            selectedComponentId={activeComponentId}
-            onSelectComponent={handleSelectComponent}
-            productModelId={product.id}
-            selectedOptionsByComponent={selectedOptionsByComponent}
-            onSelectOption={handleSelectOption}
-            selectedOtherValuesByComponent={selectedOtherValuesByComponent}
-            onOtherValueChange={handleOtherValueChange}
-            pricingRules={pricingRules}
-            currency={product.currency}
-            attributesByComponent={attributesByComponent}
-            optionsByAttribute={_optionsByAttribute}
-            shouldShowComponents={isComponentsShownInEmbed}
-          />
+          <div className="min-h-0 flex-1 overflow-visible lg:overflow-y-auto">
+            <ComponentSelector
+              components={components}
+              selectedComponentId={activeComponentId}
+              onSelectComponent={handleSelectComponent}
+              productModelId={product.id}
+              selectedOptionsByComponent={selectedOptionsByComponent}
+              onSelectOption={handleSelectOption}
+              selectedOtherValuesByComponent={selectedOtherValuesByComponent}
+              onOtherValueChange={handleOtherValueChange}
+              pricingRules={pricingRules}
+              currency={product.currency}
+              attributesByComponent={attributesByComponent}
+              optionsByAttribute={_optionsByAttribute}
+              shouldShowComponents={isComponentsShownInEmbed}
+            />
+          </div>
 
           <Button
             size="default"
-            className="mt-auto min-h-[44px] shrink-0 py-3 shadow-md sm:min-h-0 sm:py-2"
+            className="shrink-0 py-3 shadow-md sm:py-2"
             onClick={() => setIsRequestDialogOpen(true)}
           >
             {t("requestQuote")}

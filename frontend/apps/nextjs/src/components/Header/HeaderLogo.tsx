@@ -12,7 +12,7 @@ export const HeaderLogo = () => {
   return (
     <Link
       href={ROUTES.home}
-      className="flex items-center gap-3"
+      className="flex min-h-[44px] min-w-[44px] items-center gap-3 lg:min-h-0 lg:min-w-0"
       aria-label={t("description")}
     >
       <Image

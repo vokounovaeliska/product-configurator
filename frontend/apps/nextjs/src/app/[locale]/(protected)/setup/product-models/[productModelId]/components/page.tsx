@@ -10,7 +10,7 @@ import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
 import { env } from "@/config/env"
 import { api } from "@/lib/api/restClient"
 
-import { ModelSetupUnified } from "@/features/setup/components/ModelSetupUnified"
+import { ProductModelSetupTabs } from "@/features/setup/components/ProductModelSetupTabs"
 
 type Props = {
   params: Promise<{ locale: Locale; productModelId: string }>
@@ -95,7 +95,7 @@ const ComponentsPage = async (props: Props) => {
           </div>
         }
       >
-        <ModelSetupUnified productModelId={productModelId} />
+        <ProductModelSetupTabs productModelId={productModelId} />
       </Suspense>
     </div>
   )
