@@ -7,14 +7,21 @@ import type { ComponentDto } from "@/api/componentTypes"
 
 export type ConfiguratorAttributesByComponent = Record<string, AttributeDto[]>
 
+type UseConfiguratorAttributesOptions = {
+  enabled?: boolean
+}
+
 export function useConfiguratorAttributes(
   productModelId: string,
   components: ComponentDto[],
+  options?: UseConfiguratorAttributesOptions,
 ): { attributesByComponent: ConfiguratorAttributesByComponent; isLoading: boolean } {
+  const isEnabled = options?.enabled !== false
   const queries = useQueries({
-    queries: components.map((c) =>
-      getAttributesListQueryOptions(productModelId, c.id, { limit: 50 }),
-    ),
+    queries: components.map((c) => ({
+      ...getAttributesListQueryOptions(productModelId, c.id, { limit: 50 }),
+      enabled: isEnabled && Boolean(productModelId),
+    })),
   })
 
   const isLoading = queries.some((q) => q.isLoading)

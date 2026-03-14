@@ -3,8 +3,11 @@
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { useCurrentUser } from "@/api/userQueries"
+
 import { useComponentsList } from "@/features/components/api/componentQueries"
 import { ProductConfigurator } from "@/features/configurator/components/ProductConfigurator"
+import { useEmbedProductConfigById } from "@/features/embed/api/embedQueries"
 import { useProductModel } from "@/features/productModels/api/productModelQueries"
 
 type Props = {
@@ -12,19 +15,45 @@ type Props = {
 }
 
 export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
+  const { data: currentUser } = useCurrentUser()
+  const isLoggedIn = Boolean(currentUser?.id)
+
+  const {
+    data: embedConfig,
+    isLoading: isLoadingEmbed,
+    error: embedError,
+  } = useEmbedProductConfigById(productModelId, { enabled: !isLoggedIn })
   const {
     data: productModel,
     isLoading: isLoadingProductModel,
     error: productModelError,
-  } = useProductModel(productModelId)
+  } = useProductModel(productModelId, { enabled: isLoggedIn })
   const { data: componentsData, isLoading: isLoadingComponents } = useComponentsList(
     productModelId,
     { limit: 100 },
+    { enabled: isLoggedIn },
   )
 
-  const components = componentsData?.items ?? []
+  const components = componentsData?.items ?? embedConfig?.components ?? []
+  const isLoading = isLoggedIn ? isLoadingProductModel || isLoadingComponents : isLoadingEmbed
 
-  if (productModelError) {
+  if (!isLoggedIn && embedError) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-10">
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+          <Typography
+            as="p"
+            variant="body-md"
+            className="text-destructive"
+          >
+            {embedError instanceof Error ? embedError.message : "Product not found"}
+          </Typography>
+        </div>
+      </div>
+    )
+  }
+
+  if (isLoggedIn && productModelError) {
     return (
       <div className="flex flex-1 items-center justify-center p-10">
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
@@ -40,7 +69,7 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
     )
   }
 
-  if (isLoadingProductModel || isLoadingComponents) {
+  if (isLoading) {
     return (
       <div className="flex flex-1 flex-col gap-6 p-6 md:p-10">
         <div className="space-y-2">
@@ -55,7 +84,7 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
     )
   }
 
-  if (!productModel) {
+  if (isLoggedIn && !productModel) {
     return (
       <div className="flex flex-1 items-center justify-center p-10">
         <Typography
@@ -69,12 +98,41 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
     )
   }
 
-  // TypeScript knows productModel is not null here due to the check above
-  return (
-    <ProductConfigurator
-      productModelId={productModelId}
-      productModel={productModel}
-      components={components}
-    />
-  )
+  if (!isLoggedIn && embedConfig) {
+    const productModelFromEmbed = {
+      id: embedConfig.product.id,
+      userId: "",
+      name: embedConfig.product.name,
+      description: embedConfig.product.description,
+      price: embedConfig.product.price,
+      currency: embedConfig.product.currency,
+      isActive: true,
+      model3dUrl: embedConfig.product.model3dUrl,
+      model3dEffects: embedConfig.product.model3dEffects,
+      url: embedConfig.product.url,
+      isPublished: true,
+      createdAt: "",
+      modifiedAt: "",
+    }
+    return (
+      <ProductConfigurator
+        productModelId={productModelId}
+        productModel={productModelFromEmbed}
+        components={components}
+        prefetchedConfig={embedConfig}
+      />
+    )
+  }
+
+  if (productModel) {
+    return (
+      <ProductConfigurator
+        productModelId={productModelId}
+        productModel={productModel}
+        components={components}
+      />
+    )
+  }
+
+  return null
 }

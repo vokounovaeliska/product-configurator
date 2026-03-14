@@ -28,15 +28,19 @@ type UsePricingRulesListParams = {
   attributeCode?: string
 }
 
-export const usePricingRulesList = ({
-  productModelId,
-  componentId,
-  attributeCode,
-}: UsePricingRulesListParams) => {
+type UsePricingRulesListOptions = {
+  enabled?: boolean
+}
+
+export const usePricingRulesList = (
+  { productModelId, componentId, attributeCode }: UsePricingRulesListParams,
+  options?: UsePricingRulesListOptions,
+) => {
   const filter =
     componentId != null && componentId !== "" && attributeCode != null && attributeCode !== ""
       ? { componentId, attributeCode }
       : undefined
+  const isEnabled = options?.enabled !== false
   return useQuery({
     queryKey: pricingRulesKey(productModelId, filter),
     queryFn: async () => {
@@ -47,7 +51,7 @@ export const usePricingRulesList = ({
         .json<AttributePricingRuleDto[]>()
       return Array.isArray(list) ? list : []
     },
-    enabled: Boolean(productModelId),
+    enabled: isEnabled && Boolean(productModelId),
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 2000),
   })

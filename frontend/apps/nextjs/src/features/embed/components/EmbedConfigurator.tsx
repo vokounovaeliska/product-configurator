@@ -9,17 +9,14 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+ 
+import type { ConfiguratorPreferencesEmbedDto, ProductModelEmbedDto } from "@/api/embedTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
 /* eslint-disable import/no-restricted-paths -- embed composes configurator preview and pricing utils */
 import { ComponentSelector } from "@/features/configurator/components/ComponentSelector"
 import { VisualPreview } from "@/features/configurator/components/VisualPreview"
 import { computeModifiersCents } from "@/features/configurator/utils/computePriceFromRules"
-/* eslint-enable import/no-restricted-paths */
-import type {
-  ConfiguratorPreferencesEmbedDto,
-  ProductModelEmbedDto,
-} from "@/features/embed/api/embedQueries"
 import { buildFullConfigurationForRequest } from "@/features/embed/utils/buildFullConfiguration"
 
 import { RequestQuoteDialog } from "./RequestQuoteDialog"

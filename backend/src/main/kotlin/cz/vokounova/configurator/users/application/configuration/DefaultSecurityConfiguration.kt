@@ -39,9 +39,7 @@ class DefaultSecurityConfiguration {
             // File downloads (GET) are public so images can be displayed in frontend
             // File uploads (POST) require authentication (handled by anyRequest().authenticated())
             it.requestMatchers(HttpMethod.GET, "/api/v1/files/**").permitAll()
-            // Configuration preview (price calculation) is public for customer configurator
-            it.requestMatchers(HttpMethod.POST, "/products/api/v1/product-models/*/configuration-preview").permitAll()
-            // Embed API – public (product by url, full config, customer request create)
+            // Embed API – public (product by url or by id, full config, customer request create)
             it.requestMatchers(HttpMethod.GET, "/embed/api/v1/products/**").permitAll()
             // Customer request – public create (rate limit recommended in production)
             it.requestMatchers(HttpMethod.POST, "/embed/api/v1/customer-requests").permitAll()

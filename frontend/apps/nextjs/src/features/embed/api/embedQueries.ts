@@ -1,39 +1,14 @@
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query"
 
-import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
-import type { ComponentDto } from "@/api/componentTypes"
-import type { AttributePricingRuleDto } from "@/api/pricingTypes"
+import type { ProductEmbedFullDto } from "@/api/embedTypes"
 import { publicApi } from "@/lib/api/restClient"
 import { extractErrorMessage } from "@/lib/utils"
 
-export type ProductModelEmbedDto = {
-  id: string
-  name: string
-  description: string | null
-  price: number
-  currency: string
-  model3dUrl: string | null
-  model3dEffects: string | null
-  url: string | null
-}
-
-export type ConfiguratorPreferencesEmbedDto = {
-  zoomDistanceDefault: number | null
-  zoomDistanceEmbed: number | null
-  embedShowProductName: boolean | null
-  embedShowDescription: boolean | null
-  embedShowComponents: boolean | null
-  backgroundPreset: string | null
-}
-
-export type ProductEmbedFullDto = {
-  product: ProductModelEmbedDto
-  components: ComponentDto[]
-  attributesByComponent: Record<string, AttributeDto[]>
-  optionsByAttribute: Record<string, AttributeOptionDto[]>
-  pricingRules: AttributePricingRuleDto[]
-  configuratorPreferences?: ConfiguratorPreferencesEmbedDto | null
-}
+export type {
+  ConfiguratorPreferencesEmbedDto,
+  ProductEmbedFullDto,
+  ProductModelEmbedDto,
+} from "@/api/embedTypes"
 
 export type CustomerRequestCreateDto = {
   customerName?: string | null
@@ -58,7 +33,29 @@ export type CustomerRequestEmbedDto = {
 export const embedKeys = {
   all: ["embed"] as const,
   productConfig: (url: string) => [...embedKeys.all, "config", url] as const,
+  productConfigById: (id: string) => [...embedKeys.all, "config-by-id", id] as const,
 } as const
+
+export const getEmbedProductConfigByIdQueryOptions = (productModelId: string) =>
+  queryOptions({
+    queryKey: embedKeys.productConfigById(productModelId),
+    queryFn: async (): Promise<ProductEmbedFullDto> => {
+      const res = await publicApi
+        .get(`embed/api/v1/products/by-id/${encodeURIComponent(productModelId)}/config`)
+        .json<ProductEmbedFullDto>()
+      return res
+    },
+    enabled: Boolean(productModelId),
+  })
+
+export const useEmbedProductConfigById = (
+  productModelId: string,
+  options?: { enabled?: boolean },
+) =>
+  useQuery({
+    ...getEmbedProductConfigByIdQueryOptions(productModelId),
+    enabled: options?.enabled !== false && Boolean(productModelId),
+  })
 
 export const getEmbedProductConfigQueryOptions = (url: string) =>
   queryOptions({

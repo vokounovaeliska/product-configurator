@@ -1,3 +1,7 @@
+# Resend API (HTTPS, works on Railway Free/Hobby). When set, takes precedence over SMTP.
+resend:
+  api-key: ${RESEND_API_KEY:}
+
 app:
   files:
     upload-dir: ${UPLOAD_DIR:uploads/images}

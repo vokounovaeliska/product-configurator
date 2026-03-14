@@ -8,6 +8,7 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import type { ProductEmbedFullDto } from "@/api/embedTypes"
 import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { useCurrentUser } from "@/api/userQueries"
@@ -28,6 +29,7 @@ type Props = {
   productModelId: string
   productModel: ProductModelDto
   components: ComponentDto[]
+  prefetchedConfig?: ProductEmbedFullDto | null
 }
 
 /** Selected options per component: componentId -> attributeId -> option (ENUM) */
@@ -60,7 +62,12 @@ function buildPreviewLayers(
   return layers
 }
 
-export const ProductConfigurator = ({ productModelId, productModel, components }: Props) => {
+export const ProductConfigurator = ({
+  productModelId,
+  productModel,
+  components,
+  prefetchedConfig,
+}: Props) => {
   const t = useTranslations("Configurator")
   const { data: currentUser } = useCurrentUser()
   const isOwner = Boolean(currentUser?.id && currentUser.id === productModel.userId)
@@ -90,14 +97,25 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
 
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
 
-  const { data: pricingRules = [] } = usePricingRulesList({ productModelId })
-  const { attributesByComponent } = useConfiguratorAttributes(productModelId, components)
-  const optionsByAttribute = useOptionsByAttributeFor3D(
+  const { data: pricingRulesFromApi = [] } = usePricingRulesList(
+    { productModelId },
+    { enabled: prefetchedConfig == null },
+  )
+  const { attributesByComponent: attributesFromApi } = useConfiguratorAttributes(
     productModelId,
     components,
-    attributesByComponent,
-    Boolean(productModel.model3dUrl),
+    { enabled: prefetchedConfig == null },
   )
+  const optionsByAttributeFromApi = useOptionsByAttributeFor3D(
+    productModelId,
+    components,
+    attributesFromApi,
+    Boolean(productModel.model3dUrl) && prefetchedConfig == null,
+  )
+
+  const pricingRules = prefetchedConfig?.pricingRules ?? pricingRulesFromApi
+  const attributesByComponent = prefetchedConfig?.attributesByComponent ?? attributesFromApi
+  const optionsByAttribute = prefetchedConfig?.optionsByAttribute ?? optionsByAttributeFromApi
   const { data: computedPrice, isLoading: isPriceLoading } = useComputedPrice(
     productModelId,
     productModel.price,
@@ -213,6 +231,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             model3dUrl={productModel.model3dUrl}
             model3dConfig={model3dConfig}
             model3dEffects={productModel.model3dEffects}
+            configuratorPreferencesFromServer={prefetchedConfig?.configuratorPreferences}
             cameraDistanceOverride={sliderOverride}
             backgroundPresetOverride={backgroundOverride}
             onCameraDistanceChange={onCameraDistanceChange}
@@ -220,7 +239,7 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
         </div>
 
         <div className="space-y-6">
-          {productModel.model3dUrl && (
+          {productModel.model3dUrl && isOwner && (
             <ConfiguratorPreviewSettings
               productModelId={productModelId}
               liveZoomFromViewer={liveZoomFromViewer}
@@ -248,6 +267,8 @@ export const ProductConfigurator = ({ productModelId, productModel, components }
             onOtherValueChange={handleOtherValueChange}
             pricingRules={pricingRules}
             currency={productModel.currency}
+            attributesByComponent={attributesByComponent}
+            optionsByAttribute={optionsByAttribute}
           />
         </div>
       </div>

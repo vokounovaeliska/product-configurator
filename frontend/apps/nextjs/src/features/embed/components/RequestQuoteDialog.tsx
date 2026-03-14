@@ -20,7 +20,8 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
-import type { ProductModelEmbedDto } from "@/features/embed/api/embedQueries"
+import type { ProductModelEmbedDto } from "@/api/embedTypes"
+
 import { useCreateCustomerRequest } from "@/features/embed/api/embedQueries"
 import { capture2DSnapshot } from "@/features/embed/utils/capture2DSnapshot"
 
