@@ -77,6 +77,25 @@ function resizeTextureToPowerOf2(tex: THREE.Texture): THREE.Texture {
 /** Camera position for snapshot capture – front-right-top product shot angle (scene units = m). */
 const SNAPSHOT_CAMERA_POSITION = new THREE.Vector3(22, 18, 22)
 
+/** Padding factor so the model is not flush against the frame edges. */
+const SNAPSHOT_FIT_PADDING = 1.25
+
+function computeSceneBoundingBox(scene: THREE.Scene): THREE.Box3 | null {
+  const box = new THREE.Box3()
+  scene.traverse((child: THREE.Object3D) => {
+    if (child instanceof THREE.Mesh && child.geometry) {
+      const geom = child.geometry as THREE.BufferGeometry
+      geom.computeBoundingBox()
+      const bbox = geom.boundingBox
+      if (bbox) {
+        const worldBox = bbox.clone().applyMatrix4(child.matrixWorld)
+        box.union(worldBox)
+      }
+    }
+  })
+  return box.isEmpty() ? null : box
+}
+
 /** Syncs camera position when it changes (e.g. after zoom preferences are saved). R3F Canvas only uses camera prop on mount. */
 function CameraPositionSync({ position }: { position: [number, number, number] }) {
   const camera = useThree((s) => s.camera)
@@ -162,6 +181,8 @@ type Props = {
   canCapture?: boolean
   /** Called when capture at fixed angle is available (embed only). */
   onCaptureReady?: (capture: () => Promise<string | null>) => void
+  /** When false, disables zoom (scroll/pinch). Use for embed to apply configurator zoom without user control. */
+  enableZoom?: boolean
   /**
    * When true, render raw GLB with no parametric transforms, no Center, no edge generation.
    * Use for debugging to match online GLB viewer. Enable via ?renderRawGlb=1 or NEXT_PUBLIC_RENDER_RAW_GLB.
@@ -1331,7 +1352,7 @@ function SnapshotCaptureController({
   zoomPreset: "default" | "embed" | "thumbnail"
   savedZoomDistance?: number | null
 }) {
-  const { camera, gl, invalidate } = useThree()
+  const { camera, gl, invalidate, scene } = useThree()
   const pendingResolveRef = useRef<((data: string | null) => void) | null>(null)
   const framesUntilCaptureRef = useRef(0)
 
@@ -1346,15 +1367,28 @@ function SnapshotCaptureController({
         if (controls) savedTarget.copy(controls.target)
         const savedZoom = camera.zoom
 
+        const baseDistance = getSnapshotCameraDistance(zoomPreset, savedZoomDistance)
+        let targetCenter = new THREE.Vector3(0, 0, 0)
+        let distance = baseDistance
+
+        scene.updateMatrixWorld(true)
+        const box = computeSceneBoundingBox(scene)
+        if (box && !box.isEmpty()) {
+          targetCenter = box.getCenter(new THREE.Vector3())
+          const size = box.getSize(new THREE.Vector3())
+          const maxDim = Math.max(size.x, size.y, size.z)
+          const fovRad = (camera.fov * Math.PI) / 180
+          const minDistanceToFit = (maxDim * SNAPSHOT_FIT_PADDING) / (2 * Math.tan(fovRad / 2))
+          distance = Math.max(minDistanceToFit, baseDistance)
+        }
+
         const dir = SNAPSHOT_CAMERA_POSITION.clone().normalize()
-        camera.position.copy(
-          dir.multiplyScalar(getSnapshotCameraDistance(zoomPreset, savedZoomDistance)),
-        )
+        camera.position.copy(targetCenter).add(dir.multiplyScalar(distance))
         camera.zoom = 1
-        camera.lookAt(0, 0, 0)
+        camera.lookAt(targetCenter)
         camera.updateProjectionMatrix()
         if (controls) {
-          controls.target.set(0, 0, 0)
+          controls.target.copy(targetCenter)
           controls.update()
         }
         invalidate()
@@ -1374,7 +1408,16 @@ function SnapshotCaptureController({
       })
 
     onCaptureReady(capture)
-  }, [camera, controlsRef, invalidate, onCaptureReady, canCapture, zoomPreset, savedZoomDistance])
+  }, [
+    camera,
+    controlsRef,
+    invalidate,
+    onCaptureReady,
+    canCapture,
+    zoomPreset,
+    savedZoomDistance,
+    scene,
+  ])
 
   useFrame(() => {
     if (framesUntilCaptureRef.current > 0) {
@@ -1501,6 +1544,7 @@ function SceneWithCapture({
   cameraDistanceOverride,
   onCameraDistanceChange,
   savedZoomDistance,
+  enableZoom: canZoom,
 }: {
   modelUrl: string
   config?: Model3dConfig | null
@@ -1516,6 +1560,8 @@ function SceneWithCapture({
   cameraDistanceOverride?: number | null
   onCameraDistanceChange?: (distance: number) => void
   savedZoomDistance?: number | null
+  /** When false, disables zoom. When undefined, uses zoomPreset !== "thumbnail". */
+  enableZoom?: boolean
 }) {
   const controlsRef = useRef<OrbitControlsRef>(null)
   const shouldUseCenter = !isRenderRawGlb
@@ -1547,7 +1593,7 @@ function SceneWithCapture({
       <OrbitControls
         ref={controlsRef}
         enablePan={zoomPreset !== "thumbnail"}
-        enableZoom={zoomPreset !== "thumbnail"}
+        enableZoom={canZoom ?? zoomPreset !== "thumbnail"}
         enableRotate={zoomPreset !== "thumbnail"}
         {...(zoomPreset === "default" && {
           minDistance: ZOOM_MIN_DEFAULT,
@@ -1613,6 +1659,7 @@ export const ModelViewer3D = ({
   canCapture,
   onCaptureReady,
   renderRawGlb: isRenderRawGlbProp,
+  enableZoom: canZoom,
 }: Props) => {
   const t = useTranslations("Configurator.preview")
   const [isContextLost, setIsContextLost] = useState(false)
@@ -1793,6 +1840,7 @@ export const ModelViewer3D = ({
             cameraDistanceOverride={cameraDistanceOverride}
             onCameraDistanceChange={onCameraDistanceChange}
             savedZoomDistance={savedZoomDistance}
+            enableZoom={canZoom}
           />
         </Suspense>
       </Canvas>

@@ -25,4 +25,15 @@ interface AttributePricingRuleRepository {
     fun update(rule: AttributePricingRule): AttributePricingRule?
 
     fun delete(id: AttributePricingRuleId): Int
+
+    /**
+     * Deletes all EQ pricing rules for the given product model, component, attribute, and option value.
+     * Call when deleting an ENUM attribute option.
+     */
+    fun deleteByProductModelComponentAttributeValue(
+        productModelId: ProductModelId,
+        componentId: UUID,
+        attributeCode: String,
+        optionValue: String,
+    ): Int
 }

@@ -119,14 +119,6 @@ export const EditAttributeOptionDialog = ({
             className="space-y-4"
           >
             <div className="space-y-2">
-              <Label htmlFor="edit-value">{t("edit.valueLabel")}</Label>
-              <Input
-                id="edit-value"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="edit-label">{t("edit.labelLabel")}</Label>
               <Input
                 id="edit-label"
@@ -146,6 +138,20 @@ export const EditAttributeOptionDialog = ({
                 type="number"
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value) || 0)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="edit-value"
+                className="text-sm font-normal text-muted-foreground"
+              >
+                {t("edit.valueLabel")}
+              </Label>
+              <Input
+                id="edit-value"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                className="bg-muted/30 text-sm text-muted-foreground"
               />
             </div>
 

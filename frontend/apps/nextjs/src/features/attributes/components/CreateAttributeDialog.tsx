@@ -1,6 +1,8 @@
 "use client"
 
+import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { InfoIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
@@ -17,6 +19,7 @@ import {
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
 import { Select } from "@workspace/ui/components/select"
+import { Tooltip } from "@workspace/ui/components/tooltip"
 
 import { DualRangeSlider } from "@/components/DualRangeSlider"
 
@@ -28,6 +31,8 @@ type Props = {
   componentId: string
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
+  /** When provided, used as initial sortOrder so new attribute is added at the end */
+  defaultSortOrder?: number
 }
 
 export const CreateAttributeDialog = ({
@@ -35,6 +40,7 @@ export const CreateAttributeDialog = ({
   componentId,
   isOpen,
   onOpenChange,
+  defaultSortOrder = 0,
 }: Props) => {
   const t = useTranslations("Attributes")
   const createAttribute = useCreateAttribute(productModelId, componentId)
@@ -54,12 +60,31 @@ export const CreateAttributeDialog = ({
       defaultInt: null,
       defaultDecimal: null,
       unit: null,
-      sortOrder: 0,
+      sortOrder: defaultSortOrder,
     },
     resolver: zodResolver(attributeFormSchema),
   })
 
   const selectedType = form.watch("type")
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        code: "",
+        label: "",
+        type: "INTEGER",
+        isRequired: true,
+        minInt: null,
+        maxInt: null,
+        minDecimal: null,
+        maxDecimal: null,
+        defaultInt: null,
+        defaultDecimal: null,
+        unit: null,
+        sortOrder: defaultSortOrder,
+      })
+    }
+  }, [isOpen, defaultSortOrder, form])
 
   const onSubmit = async (values: AttributeFormSchema) => {
     try {
@@ -373,8 +398,21 @@ export const CreateAttributeDialog = ({
               name="code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs font-normal text-muted-foreground">
+                  <FormLabel className="flex items-center gap-1.5 text-xs font-normal text-muted-foreground">
                     {t("create.code")}
+                    <Tooltip>
+                      <Tooltip.Trigger asChild>
+                        <span className="cursor-help hover:text-foreground">
+                          <InfoIcon className="size-3.5" />
+                        </span>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content
+                        side="top"
+                        className="max-w-sm"
+                      >
+                        {t("create.codeTooltip")}
+                      </Tooltip.Content>
+                    </Tooltip>
                   </FormLabel>
                   <FormControl>
                     <Input

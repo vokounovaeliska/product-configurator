@@ -85,3 +85,15 @@ export const extractErrorMessage = async (error: unknown): Promise<string> => {
 
   return "An unexpected error occurred"
 }
+
+/**
+ * Converts a label (display name) to a code suitable for option value.
+ * Lowercase, diacritics removed, spaces/special chars → underscore.
+ */
+export const labelToCode = (label: string): string =>
+  label
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "")

@@ -9,6 +9,7 @@ import cz.vokounova.configurator.generated.jooq.tables.User
 import java.time.OffsetDateTime
 import java.util.UUID
 
+import org.jooq.JSONB
 import org.jooq.Record1
 import org.jooq.impl.UpdatableRecordImpl
 
@@ -59,6 +60,46 @@ open class UserRecord private constructor() : UpdatableRecordImpl<UserRecord>(Us
         set(value): Unit = set(9, value)
         get(): String? = get(9) as String?
 
+    open var quoteRequestEmailTemplatePreset: String?
+        set(value): Unit = set(10, value)
+        get(): String? = get(10) as String?
+
+    open var quoteRequestEmailSubject: String?
+        set(value): Unit = set(11, value)
+        get(): String? = get(11) as String?
+
+    open var quoteRequestEmailBody: String?
+        set(value): Unit = set(12, value)
+        get(): String? = get(12) as String?
+
+    open var quoteRequestEmailBodyIsHtml: Boolean?
+        set(value): Unit = set(13, value)
+        get(): Boolean? = get(13) as Boolean?
+
+    open var supplierNotificationEmailTemplatePreset: String?
+        set(value): Unit = set(14, value)
+        get(): String? = get(14) as String?
+
+    open var supplierNotificationEmailSubject: String?
+        set(value): Unit = set(15, value)
+        get(): String? = get(15) as String?
+
+    open var supplierNotificationEmailBody: String?
+        set(value): Unit = set(16, value)
+        get(): String? = get(16) as String?
+
+    open var supplierNotificationEmailBodyIsHtml: Boolean?
+        set(value): Unit = set(17, value)
+        get(): Boolean? = get(17) as Boolean?
+
+    open var quoteRequestEmailLabels: JSONB?
+        set(value): Unit = set(18, value)
+        get(): JSONB? = get(18) as JSONB?
+
+    open var supplierNotificationEmailLabels: JSONB?
+        set(value): Unit = set(19, value)
+        get(): JSONB? = get(19) as JSONB?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -68,7 +109,7 @@ open class UserRecord private constructor() : UpdatableRecordImpl<UserRecord>(Us
     /**
      * Create a detached, initialised UserRecord
      */
-    constructor(id: UUID, email: String, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, firstName: String, surname: String, password: String, checkSum: String, searchVector: String? = null, notificationEmail: String? = null): this() {
+    constructor(id: UUID, email: String, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, firstName: String, surname: String, password: String, checkSum: String, searchVector: String? = null, notificationEmail: String? = null, quoteRequestEmailTemplatePreset: String? = null, quoteRequestEmailSubject: String? = null, quoteRequestEmailBody: String? = null, quoteRequestEmailBodyIsHtml: Boolean? = null, supplierNotificationEmailTemplatePreset: String? = null, supplierNotificationEmailSubject: String? = null, supplierNotificationEmailBody: String? = null, supplierNotificationEmailBodyIsHtml: Boolean? = null, quoteRequestEmailLabels: JSONB? = null, supplierNotificationEmailLabels: JSONB? = null): this() {
         this.id = id
         this.email = email
         this.createdAt = createdAt
@@ -79,6 +120,16 @@ open class UserRecord private constructor() : UpdatableRecordImpl<UserRecord>(Us
         this.checkSum = checkSum
         this.searchVector = searchVector
         this.notificationEmail = notificationEmail
+        this.quoteRequestEmailTemplatePreset = quoteRequestEmailTemplatePreset
+        this.quoteRequestEmailSubject = quoteRequestEmailSubject
+        this.quoteRequestEmailBody = quoteRequestEmailBody
+        this.quoteRequestEmailBodyIsHtml = quoteRequestEmailBodyIsHtml
+        this.supplierNotificationEmailTemplatePreset = supplierNotificationEmailTemplatePreset
+        this.supplierNotificationEmailSubject = supplierNotificationEmailSubject
+        this.supplierNotificationEmailBody = supplierNotificationEmailBody
+        this.supplierNotificationEmailBodyIsHtml = supplierNotificationEmailBodyIsHtml
+        this.quoteRequestEmailLabels = quoteRequestEmailLabels
+        this.supplierNotificationEmailLabels = supplierNotificationEmailLabels
         resetChangedOnNotNull()
     }
 }

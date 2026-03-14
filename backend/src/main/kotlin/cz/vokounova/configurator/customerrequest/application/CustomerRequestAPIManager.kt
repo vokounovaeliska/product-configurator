@@ -52,11 +52,10 @@ class CustomerRequestAPIManager(
             customerRequestRepository.create(request)
                 ?: throw IllegalStateException("Failed to create customer request")
         val ownerId = productConfigQueryFacade.getProductOwnerId(params.productModelId)
-        val owner = userFacade.getUser(UserIdDto(ownerId), lock = false)
-        val notificationEmail = owner.notificationEmail ?: owner.email
+        val ownerDto = userFacade.getUser(UserIdDto(ownerId), lock = false)
+        val manufacturerEmail = ownerDto.notificationEmail ?: ownerDto.email
 
-        emailNotificationService.sendConfirmationEmail(created, replyTo = notificationEmail)
-        emailNotificationService.sendSupplierNotification(created, supplierEmail = notificationEmail)
+        emailNotificationService.sendQuoteRequestEmail(created, manufacturerEmail, ownerDto)
         return created
     }
 

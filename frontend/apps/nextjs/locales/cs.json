@@ -116,7 +116,17 @@
       "pricingRules": "Cenová pravidla",
       "productModels": "Modely produktů",
       "importSketchup": "Import ze SketchUp",
+      "publish": "Publikování a vložení",
       "title": "Nastavení"
+    },
+    "quickActions": "Rychlé akce",
+    "Publish": {
+      "title": "Publikování a vložení",
+      "description": "Nakonfigurujte šablony e-mailů a nastavení oznámení jednou. Platí pro všechny vaše modely produktů.",
+      "emailTemplateTitle": "Šablona e-mailu pro cenové poptávky",
+      "emailTemplateDescription": "Přizpůsobte potvrzovací e-mail odesílaný zákazníkům při odeslání cenové poptávky. Tato šablona se používá pro všechny vaše publikované konfigurátory.",
+      "emailTabCustomer": "E-mail pro zákazníky",
+      "emailTabSupplier": "E-mail mně"
     },
     "productModels": {
       "action": "Spravovat modely",
@@ -241,10 +251,14 @@
     "description": "Spravujte své modely produktů. Vytvářejte a konfigurujte modely, které mohou zákazníci přizpůsobit.",
     "edit": {
       "cancelButton": "Zrušit",
-      "currency": "Měna",
-      "currencyPlaceholder": "Vyberte měnu",
-      "description": "Aktualizujte údaje o modelu produktu",
-      "descriptionPlaceholder": "Zadejte popis vašeho modelu produktu",
+      "currency": {
+        "label": "Měna",
+        "placeholder": "Vyberte měnu"
+      },
+      "description": {
+        "label": "Popis",
+        "placeholder": "Zadejte popis vašeho modelu produktu"
+      },
       "errorMessages": {
         "currencyRequiredMessage": "Vyberte měnu",
         "generalError": "Něco se pokazilo",
@@ -254,10 +268,21 @@
       },
       "isActive": "Aktivní",
       "isActiveDescription": "Zda je tento model produktu aktuálně aktivní a dostupný pro zákazníky",
-      "name": "Název modelu",
-      "namePlaceholder": "např. Stůl Icatu, Skříň Oslo",
-      "price": "Základní cena",
-      "pricePlaceholder": "0.00",
+      "name": {
+        "label": "Název modelu",
+        "placeholder": "např. Stůl Icatu, Skříň Oslo"
+      },
+      "price": {
+        "label": "Základní cena",
+        "placeholder": "0.00"
+      },
+      "dialogDescription": "Aktualizujte údaje o modelu produktu",
+      "sectionDescription": {
+        "label": "Základní údaje modelu produktu"
+      },
+      "discardButton": {
+        "label": "Zrušit změny"
+      },
       "submitButton": "Uložit změny",
       "title": "Upravit model produktu"
     },
@@ -304,6 +329,78 @@
         "showProductName": "Název produktu",
         "showDescription": "Popis",
         "showComponents": "Výběr komponent",
+        "save": "Uložit",
+        "saving": "Ukládám…"
+      },
+      "emailTemplate": {
+        "title": "Šablona e-mailu pro potvrzení poptávky",
+        "description": "Vyberte výchozí šablonu nebo si nastavte vlastní text. Zákazník obdrží jeden e-mail, vy dostanete kopii.",
+        "presetLabel": "Šablona",
+        "presetEn": "Angličtina",
+        "presetCs": "Čeština",
+        "presetCustom": "Vlastní text",
+        "loadFromEn": "Načíst anglickou šablonu",
+        "loadFromCs": "Načíst českou šablonu",
+        "subjectLabel": "Předmět e-mailu",
+        "bodyIsHtmlLabel": "Tělo je HTML (vložit HTML přímo)",
+        "bodyLabel": "Text e-mailu",
+        "placeholdersHint": "Placeholdery: '{{customerName}}', '{{productName}}', '{{totalPrice}}', '{{customerNote}}', '{{customerEmail}}', '{{customerPhone}}'",
+        "previewTitle": "Náhled e-mailu",
+        "previewInbox": "Doručená pošta",
+        "previewFrom": "Od",
+        "previewTo": "Komu",
+        "previewSubjectLabel": "Předmět",
+        "previewProduct": "Produkt",
+        "previewTotalPrice": "Celková cena",
+        "previewYourMessage": "Vaše zpráva",
+        "previewPhone": "Telefon",
+        "previewConfigurationPreview": "Náhled konfigurace",
+        "labelsSectionTitle": "Štítky polí",
+        "labelsSectionHint": "Přizpůsobte štítky pro Produkt, Telefon, Celková cena atd. Prázdné = výchozí z šablony.",
+        "labelProduct": "Produkt",
+        "labelTotalPrice": "Celková cena",
+        "labelPhone": "Telefon",
+        "labelYourMessage": "Vaše zpráva",
+        "labelDescription": "Popis",
+        "labelYourChoices": "Vaše volby",
+        "labelConfigurationPreview": "Náhled konfigurace",
+        "save": "Uložit",
+        "saving": "Ukládám…"
+      },
+      "supplierEmailTemplate": {
+        "title": "Šablona e-mailu pro dodavatele",
+        "description": "Přizpůsobte e-mail odesílaný vám při odeslání cenové poptávky zákazníkem. Odpovězte na tento e-mail pro přímou odpověď zákazníkovi.",
+        "presetLabel": "Šablona",
+        "presetEn": "Angličtina",
+        "presetCs": "Čeština",
+        "presetCustom": "Vlastní text",
+        "loadFromEn": "Načíst anglickou šablonu",
+        "loadFromCs": "Načíst českou šablonu",
+        "subjectLabel": "Předmět e-mailu",
+        "bodyIsHtmlLabel": "Tělo je HTML (vložit HTML přímo)",
+        "bodyLabel": "Text e-mailu",
+        "placeholdersHint": "Placeholdery: '{{customerName}}', '{{productName}}', '{{totalPrice}}', '{{customerNote}}', '{{customerEmail}}', '{{customerPhone}}'",
+        "previewTitle": "Náhled e-mailu",
+        "previewInbox": "Doručená pošta",
+        "previewFrom": "Od",
+        "previewTo": "Komu",
+        "previewSubjectLabel": "Předmět",
+        "previewProduct": "Produkt",
+        "previewTotalPrice": "Celková cena",
+        "previewCustomer": "Zákazník",
+        "previewPhone": "Telefon",
+        "previewCustomerMessage": "Zpráva zákazníka",
+        "previewConfigurationPreview": "Náhled konfigurace",
+        "labelsSectionTitle": "Štítky polí",
+        "labelsSectionHint": "Přizpůsobte štítky pro Zákazník, Produkt atd. Prázdné = výchozí z šablony.",
+        "labelCustomer": "Zákazník",
+        "labelProduct": "Produkt",
+        "labelTotalPrice": "Celková cena",
+        "labelPhone": "Telefon",
+        "labelCustomerMessage": "Zpráva zákazníka",
+        "labelDescription": "Popis",
+        "labelCustomerChoices": "Volby zákazníka",
+        "labelConfigurationPreview": "Náhled konfigurace",
         "save": "Uložit",
         "saving": "Ukládám…"
       }
@@ -410,6 +507,7 @@
   },
   "Components": {
     "title": "Komponenty",
+    "titleWithProduct": "Komponenty – {name}",
     "description": "Spravujte komponenty pro tento model produktu. Komponenty jsou stavební bloky, které mohou zákazníci konfigurovat.",
     "card": {
       "attributesButton": "Spravovat atributy",
@@ -621,6 +719,7 @@
       "code": "Kód",
       "codeDescription": "Technický identifikátor pro SketchUp a integrace.",
       "codePlaceholder": "např. COLOR, WIDTH, HEIGHT",
+      "codeTooltip": "Podporované kódy pro 3D model: Barvy/textury (ENUM): color_X, barva_X, material_X (X = název uzlu v GLB, např. top, legs). Rozměry (číslo): width/sirka/lenx, height/vyska/leny, depth/hloubka/lenz, diameter/prumer, thickness/tloustka.",
       "defaultDecimal": "Výchozí",
       "defaultDecimalPlaceholder": "Volitelné – v rozsahu min..max",
       "defaultInt": "Výchozí",
@@ -723,6 +822,16 @@
     },
     "list": {
       "createButton": "Vytvořit atribut",
+      "columnCode": "Kód",
+      "columnLabel": "Název",
+      "columnType": "Typ",
+      "columnRange": "Rozsah",
+      "columnDefault": "Výchozí",
+      "columnUnit": "Jednotka",
+      "columnOptions": "Možnosti",
+      "columnPricing": "Cenění",
+      "columnSortOrder": "Pořadí",
+      "saveButton": "Uložit",
       "emptyState": {
         "createButton": "Vytvořit první atribut",
         "message": "Zatím jste nevytvořili žádné atributy. Začněte vytvořením svého prvního atributu."
@@ -742,17 +851,21 @@
         "createButton": "Přidat první možnost"
       },
       "errorMessage": "Nepodařilo se načíst možnosti.",
+      "imagePreview": "Náhled obrázku",
+      "saveButton": "Uložit",
       "sortOrder": "Pořadí",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
       "editImageButton": "Upravit obrázek",
+      "replaceImageButton": "Vyměnit obrázek",
+      "editorButton": "Editor",
       "moveDown": "Posunout dolů",
       "moveUp": "Posunout nahoru"
     },
     "create": {
       "title": "Přidat možnost",
       "description": "Vytvořte novou možnost pro tento atribut. Každá možnost musí mít obrázek (stejná velikost pro skládání v konfigurátoru).",
-      "valueLabel": "Hodnota",
+      "valueLabel": "Kód",
       "valuePlaceholder": "např. red, 1",
       "labelLabel": "Název",
       "labelPlaceholder": "např. Červená",
@@ -764,7 +877,7 @@
       "submitButton": "Přidat možnost",
       "cancelButton": "Zrušit",
       "errorMessages": {
-        "valueRequired": "Hodnota je povinná.",
+        "valueRequired": "Kód je povinný.",
         "labelRequired": "Název je povinný.",
         "imageRequired": "Obrázek je povinný. Nahrajte obrázek nebo použijte editor k výřezu z fotky.",
         "generalError": "Něco se pokazilo."
@@ -773,7 +886,7 @@
     "edit": {
       "title": "Upravit možnost",
       "description": "Upravte údaje možnosti.",
-      "valueLabel": "Hodnota",
+      "valueLabel": "Kód",
       "labelLabel": "Název",
       "imageLabel": "Obrázek (volitelné)",
       "sortOrderLabel": "Pořadí",

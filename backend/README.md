@@ -20,13 +20,13 @@ Backend runs at `http://localhost:8080`
 
 ## Environment Variables
 
-Copy `.env.dev` to `.env` and adjust if needed:
+Copy `.env.example` to `.env` and adjust if needed:
 
 ```bash
-cp .env.dev .env
+cp .env.example .env
 ```
 
-Required variables: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`
+Required variables: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SPRING_MAIL_PASSWORD` (for email)
 
 ## API Documentation
 

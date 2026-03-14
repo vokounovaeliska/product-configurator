@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -8,7 +8,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   LayersIcon,
-  PencilIcon,
+  ListIcon,
   PlusIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -27,17 +27,16 @@ import { ROUTES } from "@/lib/routes"
 
 /* eslint-disable import/no-restricted-paths -- setup page composes attributes, components, pricing, productModels */
 import { useAttributesList, useUpdateAttribute } from "@/features/attributes/api/attributeQueries"
+import { AttributeInlineForm } from "@/features/attributes/components/AttributeInlineForm"
 import { AttributeOptionsList } from "@/features/attributes/components/AttributeOptionsList"
 import { CreateAttributeDialog } from "@/features/attributes/components/CreateAttributeDialog"
 import { DeleteAttributeDialog } from "@/features/attributes/components/DeleteAttributeDialog"
-import { EditAttributeDialog } from "@/features/attributes/components/EditAttributeDialog"
 import { useComponentsList, useUpdateComponent } from "@/features/components/api/componentQueries"
 import { CreateComponentDialog } from "@/features/components/components/CreateComponentDialog"
 import { DeleteComponentDialog } from "@/features/components/components/DeleteComponentDialog"
 import { EditComponentDialog } from "@/features/components/components/EditComponentDialog"
 import { useProductModel } from "@/features/productModels/api/productModelQueries"
-import { EditProductModelDialog } from "@/features/productModels/components/EditProductModelDialog"
-import { PublishProductModelCard } from "@/features/productModels/components/PublishProductModelCard"
+import { ProductModelInlineForm } from "@/features/productModels/components/ProductModelInlineForm"
 
 /* eslint-enable import/no-restricted-paths */
 
@@ -85,11 +84,7 @@ const CollapsibleSection = ({
       </button>
       {actions != null && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>
-    {isOpen && (
-      <div className="max-h-[70vh] overflow-y-auto border-t border-border px-4 py-4">
-        {children}
-      </div>
-    )}
+    {isOpen && <div className="border-t border-border px-4 py-4">{children}</div>}
   </div>
 )
 
@@ -104,13 +99,13 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
     expandComponentId ? new Set([expandComponentId]) : new Set(),
   )
   const [expandedAttributes, setExpandedAttributes] = useState<Set<string>>(new Set())
+  const [defaultAttributeSortOrder, setDefaultAttributeSortOrder] = useState<number>(0)
   const [isCreateComponentOpen, setIsCreateComponentOpen] = useState(false)
   const [isCreateAttributeOpen, setIsCreateAttributeOpen] = useState<string | null>(null)
   const [editingComponent, setEditingComponent] = useState<ComponentDto | null>(null)
   const [deletingComponent, setDeletingComponent] = useState<ComponentDto | null>(null)
-  const [editingAttribute, setEditingAttribute] = useState<AttributeDto | null>(null)
+  const [_editingAttribute, _setEditingAttribute] = useState<AttributeDto | null>(null)
   const [deletingAttribute, setDeletingAttribute] = useState<AttributeDto | null>(null)
-  const [isEditModelDialogOpen, setIsEditModelDialogOpen] = useState(false)
 
   const toggleComponent = (id: string) => {
     setExpandedComponents((prev) => {
@@ -141,6 +136,25 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
     () => [...components].sort((a, b) => a.sortOrder - b.sortOrder),
     [components],
   )
+
+  const componentIdsForExpand = useMemo(
+    () =>
+      sortedComponents
+        .map((c) => c.id)
+        .sort()
+        .join(","),
+    [sortedComponents],
+  )
+  useEffect(() => {
+    if (componentIdsForExpand) {
+      const ids = componentIdsForExpand.split(",")
+      setExpandedComponents((prev) => {
+        const next = new Set(prev)
+        ids.forEach((id) => next.add(id))
+        return next
+      })
+    }
+  }, [componentIdsForExpand])
 
   const handleMoveComponentUp = (component: ComponentDto) => {
     const idx = sortedComponents.findIndex((c) => c.id === component.id)
@@ -184,79 +198,89 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
 
   return (
     <div className="space-y-6">
-      {/* Header: model name + quick links */}
-      <Card className="p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <Typography
-              as="h2"
-              variant="display-lg"
-              weight="bold"
-              className="mb-1"
-            >
-              {productModel?.name ?? "—"}
-            </Typography>
-            <Typography
-              as="p"
-              variant="body-sm"
-              className="text-muted-foreground"
-            >
-              {t("unified.setupDescription")}
-            </Typography>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {productModel && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditModelDialogOpen(true)}
-              >
-                <PencilIcon className="mr-2 size-4" />
-                {tProductModels("card.editButton")}
-              </Button>
-            )}
+      {/* Quick links bar */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+        <Typography
+          as="span"
+          variant="body-sm"
+          weight="medium"
+          className="shrink-0 text-muted-foreground"
+        >
+          {t("quickActions")}
+        </Typography>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+          >
+            <Link href={ROUTES.setupPricingRules(productModelId)}>
+              <BanknoteIcon className="mr-2 size-4" />
+              {t("navigation.pricingRules")}
+            </Link>
+          </Button>
+          {productModel?.isActive && (
             <Button
               variant="outline"
               size="sm"
               asChild
             >
-              <Link href={ROUTES.setupPricingRules(productModelId)}>
-                <BanknoteIcon className="mr-2 size-4" />
-                {t("navigation.pricingRules")}
+              <Link href={ROUTES.configurator(productModelId)}>
+                {tProductModels("card.configureButton")}
               </Link>
             </Button>
-            {productModel?.isActive && (
-              <Button
-                variant="default"
-                size="sm"
-                asChild
+          )}
+          {productModel?.isPublished && productModel?.url && (
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+            >
+              <a
+                href={`${env.NEXT_PUBLIC_SITE_URL}${ROUTES.embed(productModel.url)}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <Link href={ROUTES.configurator(productModelId)}>
-                  {tProductModels("card.configureButton")}
-                </Link>
-              </Button>
-            )}
-            {productModel?.isPublished && productModel?.url && (
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-              >
-                <a
-                  href={`${env.NEXT_PUBLIC_SITE_URL}${ROUTES.embed(productModel.url)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {tProductModels("Publish.previewEmbed")}
-                </a>
-              </Button>
-            )}
-          </div>
+                {tProductModels("Publish.previewEmbed")}
+              </a>
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+          >
+            <Link href={ROUTES.setupProductModelPublish(productModelId)}>
+              {tProductModels("Publish.title")}
+            </Link>
+          </Button>
         </div>
-      </Card>
+      </div>
 
-      {/* Publish & Embed */}
-      {productModel && <PublishProductModelCard productModel={productModel} />}
+      {/* Product model: always visible */}
+      {productModel && (
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div>
+              <Typography
+                as="h2"
+                variant="display-md"
+                weight="semibold"
+              >
+                {tProductModels("edit.title")}
+              </Typography>
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="mt-1 text-muted-foreground"
+              >
+                {tProductModels("edit.sectionDescription.label")}
+              </Typography>
+            </div>
+            <ProductModelInlineForm productModel={productModel} />
+          </div>
+        </Card>
+      )}
 
       {/* Components */}
       <div className="space-y-3">
@@ -303,12 +327,14 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
                 onToggle={() => toggleComponent(component.id)}
                 expandedAttributes={expandedAttributes}
                 onToggleAttribute={toggleAttribute}
-                onAddAttribute={() => setIsCreateAttributeOpen(component.id)}
+                onAddAttribute={(defaultSortOrder) => {
+                  setDefaultAttributeSortOrder(defaultSortOrder)
+                  setIsCreateAttributeOpen(component.id)
+                }}
                 onEditComponent={() => setEditingComponent(component)}
                 onDeleteComponent={() => setDeletingComponent(component)}
                 onMoveComponentUp={() => handleMoveComponentUp(component)}
                 onMoveComponentDown={() => handleMoveComponentDown(component)}
-                onEditAttribute={setEditingAttribute}
                 onDeleteAttribute={setDeletingAttribute}
               />
             ))}
@@ -321,6 +347,11 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
         productModelId={productModelId}
         isOpen={isCreateComponentOpen}
         onOpenChange={setIsCreateComponentOpen}
+        defaultSortOrder={
+          sortedComponents.length > 0
+            ? (sortedComponents[sortedComponents.length - 1]?.sortOrder ?? 0) + 1
+            : 0
+        }
       />
 
       {isCreateAttributeOpen && (
@@ -329,6 +360,7 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
           componentId={isCreateAttributeOpen}
           isOpen={true}
           onOpenChange={(isOpen) => !isOpen && setIsCreateAttributeOpen(null)}
+          defaultSortOrder={defaultAttributeSortOrder}
         />
       )}
 
@@ -350,16 +382,6 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
         />
       )}
 
-      {editingAttribute && (
-        <EditAttributeDialog
-          attribute={editingAttribute}
-          productModelId={productModelId}
-          componentId={editingAttribute.componentId}
-          isOpen={true}
-          onOpenChange={(isOpen) => !isOpen && setEditingAttribute(null)}
-        />
-      )}
-
       {deletingAttribute && (
         <DeleteAttributeDialog
           attribute={deletingAttribute}
@@ -367,14 +389,6 @@ export const ModelSetupUnified = ({ productModelId }: Props) => {
           componentId={deletingAttribute.componentId}
           isOpen={true}
           onOpenChange={(isOpen) => !isOpen && setDeletingAttribute(null)}
-        />
-      )}
-
-      {productModel && (
-        <EditProductModelDialog
-          productModel={productModel}
-          isOpen={isEditModelDialogOpen}
-          onOpenChange={setIsEditModelDialogOpen}
         />
       )}
     </div>
@@ -390,12 +404,11 @@ type ComponentSectionProps = {
   onToggle: () => void
   expandedAttributes: Set<string>
   onToggleAttribute: (id: string) => void
-  onAddAttribute: () => void
+  onAddAttribute: (defaultSortOrder: number) => void
   onEditComponent: () => void
   onDeleteComponent: () => void
   onMoveComponentUp: () => void
   onMoveComponentDown: () => void
-  onEditAttribute: (attr: AttributeDto) => void
   onDeleteAttribute: (attr: AttributeDto) => void
 }
 
@@ -413,7 +426,6 @@ const ComponentSection = ({
   onDeleteComponent,
   onMoveComponentUp,
   onMoveComponentDown,
-  onEditAttribute,
   onDeleteAttribute,
 }: ComponentSectionProps) => {
   const t = useTranslations("Components")
@@ -471,6 +483,19 @@ const ComponentSection = ({
       actions={
         <>
           <Button
+            variant="outline"
+            size="sm"
+            asChild
+          >
+            <Link
+              href={ROUTES.setupAttributes(productModelId, component.id)}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ListIcon className="size-4" />
+              <span className="ml-1.5">{t("card.attributesButton")}</span>
+            </Link>
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             onClick={(e) => {
@@ -499,7 +524,11 @@ const ComponentSection = ({
             size="sm"
             onClick={(e) => {
               e.stopPropagation()
-              onAddAttribute()
+              const defaultSortOrder =
+                sortedAttributes.length > 0
+                  ? (sortedAttributes[sortedAttributes.length - 1]?.sortOrder ?? 0) + 1
+                  : 0
+              onAddAttribute(defaultSortOrder)
             }}
             title={tAttributes("list.createButton")}
           >
@@ -546,7 +575,7 @@ const ComponentSection = ({
           <Button
             variant="outline"
             size="sm"
-            onClick={onAddAttribute}
+            onClick={() => onAddAttribute(0)}
           >
             {tAttributes("list.emptyState.createButton")}
           </Button>
@@ -563,7 +592,6 @@ const ComponentSection = ({
               canMoveDown={attrIndex < sortedAttributes.length - 1}
               isExpanded={expandedAttributes.has(attribute.id)}
               onToggle={() => onToggleAttribute(attribute.id)}
-              onEdit={() => onEditAttribute(attribute)}
               onDelete={() => onDeleteAttribute(attribute)}
               onMoveUp={() => handleMoveAttributeUp(attribute)}
               onMoveDown={() => handleMoveAttributeDown(attribute)}
@@ -583,7 +611,6 @@ type AttributeSectionProps = {
   canMoveDown: boolean
   isExpanded: boolean
   onToggle: () => void
-  onEdit: () => void
   onDelete: () => void
   onMoveUp: () => void
   onMoveDown: () => void
@@ -597,32 +624,11 @@ const AttributeSection = ({
   canMoveDown,
   isExpanded,
   onToggle,
-  onEdit,
   onDelete,
   onMoveUp,
   onMoveDown,
 }: AttributeSectionProps) => {
   const t = useTranslations("Attributes")
-
-  const getRangeDisplay = () => {
-    const unitSuffix =
-      (attribute.type === "INTEGER" || attribute.type === "DECIMAL") && attribute.unit?.trim()
-        ? ` ${attribute.unit.trim()}`
-        : ""
-    if (attribute.type === "INTEGER") {
-      if (attribute.minInt != null && attribute.maxInt != null) {
-        return `${attribute.minInt}–${attribute.maxInt}${unitSuffix}`
-      }
-    }
-    if (attribute.type === "DECIMAL") {
-      if (attribute.minDecimal != null && attribute.maxDecimal != null) {
-        return `${attribute.minDecimal}–${attribute.maxDecimal}${unitSuffix}`
-      }
-    }
-    return null
-  }
-
-  const rangeDisplay = getRangeDisplay()
 
   return (
     <CollapsibleSection
@@ -660,42 +666,17 @@ const AttributeSection = ({
           >
             <ArrowDownIcon className="size-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEdit()
-            }}
-          >
-            {t("card.editButton")}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-destructive hover:text-destructive"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete()
-            }}
-          >
-            {t("card.deleteButton")}
-          </Button>
         </>
       }
       className="ml-4 border-l-2 border-l-primary/20"
     >
       <div className="space-y-6">
-        {rangeDisplay && (
-          <Typography
-            as="p"
-            variant="body-sm"
-            className="text-muted-foreground"
-          >
-            {t("card.range")}: {rangeDisplay}
-          </Typography>
-        )}
-
+        <AttributeInlineForm
+          attribute={attribute}
+          productModelId={productModelId}
+          componentId={componentId}
+          onDelete={onDelete}
+        />
         {attribute.type === "ENUM" && (
           <div className="flex min-h-0 flex-col space-y-3">
             <div className="flex shrink-0 items-center gap-2">
@@ -708,7 +689,7 @@ const AttributeSection = ({
                 {t("card.manageOptionsButton")}
               </Typography>
             </div>
-            <div className="max-h-[400px] min-h-0 overflow-y-auto">
+            <div>
               <AttributeOptionsList
                 productModelId={productModelId}
                 componentId={componentId}
@@ -717,19 +698,6 @@ const AttributeSection = ({
             </div>
           </div>
         )}
-
-        <div className="flex items-center gap-2">
-          <BanknoteIcon className="size-4 text-muted-foreground" />
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-          >
-            <Link href={ROUTES.setupAttributePricing(productModelId, componentId, attribute.id)}>
-              {t("card.pricingButton")}
-            </Link>
-          </Button>
-        </div>
       </div>
     </CollapsibleSection>
   )

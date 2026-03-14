@@ -13,12 +13,12 @@ fun ProductModelConfiguratorPreferences.toPersistence(
         productModelId = productModelId.value,
         zoomDistanceDefault = zoomDistanceDefault,
         zoomDistanceEmbed = zoomDistanceEmbed,
+        createdAt = createdAt,
+        modifiedAt = modifiedAt,
         embedShowProductName = embedShowProductName,
         embedShowDescription = embedShowDescription,
         embedShowComponents = embedShowComponents,
         backgroundPreset = backgroundPreset,
-        createdAt = createdAt,
-        modifiedAt = modifiedAt,
     )
 
 fun ProductModelConfiguratorPreferencesRecord.toDomain(): ProductModelConfiguratorPreferences =

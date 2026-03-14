@@ -20,6 +20,16 @@ data class User(
     val surname: String,
     val email: String,
     val notificationEmail: String?,
+    val quoteRequestEmailTemplatePreset: String?,
+    val quoteRequestEmailSubject: String?,
+    val quoteRequestEmailBody: String?,
+    val quoteRequestEmailBodyIsHtml: Boolean,
+    val quoteRequestEmailLabels: Map<String, String>?,
+    val supplierNotificationEmailTemplatePreset: String?,
+    val supplierNotificationEmailSubject: String?,
+    val supplierNotificationEmailBody: String?,
+    val supplierNotificationEmailBodyIsHtml: Boolean,
+    val supplierNotificationEmailLabels: Map<String, String>?,
     val password: String,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
@@ -38,6 +48,16 @@ data class User(
                 surname = params.surname,
                 email = params.email,
                 notificationEmail = null,
+                quoteRequestEmailTemplatePreset = null,
+                quoteRequestEmailSubject = null,
+                quoteRequestEmailBody = null,
+                quoteRequestEmailBodyIsHtml = false,
+                quoteRequestEmailLabels = null,
+                supplierNotificationEmailTemplatePreset = null,
+                supplierNotificationEmailSubject = null,
+                supplierNotificationEmailBody = null,
+                supplierNotificationEmailBodyIsHtml = false,
+                supplierNotificationEmailLabels = null,
                 password = params.password,
                 createdAt = timestamp,
                 modifiedAt = timestamp,
@@ -49,4 +69,11 @@ data class User(
     fun fullName(): String = "$firstName $surname"
 }
 
-fun User.getChecksum(): String = "${id.value}$firstName$surname$email$notificationEmail$password".getMd5Hash()
+fun User.getChecksum(): String {
+    val extra =
+        "$quoteRequestEmailTemplatePreset$quoteRequestEmailSubject$quoteRequestEmailBody$quoteRequestEmailBodyIsHtml" +
+            "$quoteRequestEmailLabels" +
+            "$supplierNotificationEmailTemplatePreset$supplierNotificationEmailSubject$supplierNotificationEmailBody" +
+            "$supplierNotificationEmailBodyIsHtml$supplierNotificationEmailLabels"
+    return "${id.value}$firstName$surname$email$notificationEmail$extra$password".getMd5Hash()
+}

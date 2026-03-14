@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
@@ -23,9 +24,16 @@ type Props = {
   productModelId: string
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
+  /** When provided, used as initial sortOrder so new component is added at the end */
+  defaultSortOrder?: number
 }
 
-export const CreateComponentDialog = ({ productModelId, isOpen, onOpenChange }: Props) => {
+export const CreateComponentDialog = ({
+  productModelId,
+  isOpen,
+  onOpenChange,
+  defaultSortOrder = 0,
+}: Props) => {
   const t = useTranslations("Components")
   const createComponent = useCreateComponent(productModelId)
 
@@ -36,11 +44,23 @@ export const CreateComponentDialog = ({ productModelId, isOpen, onOpenChange }: 
       code: "",
       label: "",
       description: "",
-      sortOrder: 0,
+      sortOrder: defaultSortOrder,
       imageZIndex: 0,
     },
     resolver: zodResolver(componentFormSchema),
   })
+
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        code: "",
+        label: "",
+        description: "",
+        sortOrder: defaultSortOrder,
+        imageZIndex: 0,
+      })
+    }
+  }, [isOpen, defaultSortOrder, form])
 
   const onSubmit = async (values: ComponentFormSchema) => {
     try {

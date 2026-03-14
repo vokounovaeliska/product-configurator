@@ -1,3 +1,5 @@
+export type QuoteRequestEmailTemplatePreset = "en" | "cs" | "custom"
+
 export type ConfiguratorPreferencesDto = {
   zoomDistanceDefault: number | null
   zoomDistanceEmbed: number | null

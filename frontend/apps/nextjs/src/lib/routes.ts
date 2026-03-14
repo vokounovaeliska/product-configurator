@@ -14,6 +14,9 @@ export const ROUTES = {
     `/setup/product-models/${productModelId}/components/${componentId}/attributes/${attributeId}/pricing`,
   setupPricingRules: (productModelId: string) =>
     `/setup/product-models/${productModelId}/pricing-rules`,
+  setupProductModelPublish: (productModelId: string) =>
+    `/setup/product-models/${productModelId}/publish`,
+  setupPublish: "/setup/publish",
   configurator: (productModelId: string) => `/configurator/${productModelId}`,
   /** Embed URL: /e/{url} – globally unique when published */
   embed: (url: string) => `/e/${url}`,

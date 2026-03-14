@@ -7,6 +7,7 @@ import {
   InboxIcon,
   LayoutDashboardIcon,
   PackageIcon,
+  SendIcon,
   SettingsIcon,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -43,6 +44,12 @@ export const SetupSidebar = (_props: Props) => {
       href: ROUTES.setupImportSketchup,
       label: t("navigation.importSketchup"),
       icon: FileUpIcon,
+      exact: true,
+    },
+    {
+      href: ROUTES.setupPublish,
+      label: t("navigation.publish"),
+      icon: SendIcon,
       exact: true,
     },
     {

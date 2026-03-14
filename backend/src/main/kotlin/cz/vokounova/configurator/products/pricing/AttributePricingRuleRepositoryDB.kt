@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.products.pricing
 
+import cz.vokounova.configurator.generated.jooq.enums.ConditionOperator
 import cz.vokounova.configurator.generated.jooq.tables.references.ATTRIBUTE_PRICING_RULE
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.pricing.domain.AttributePricingRule
@@ -71,5 +72,22 @@ class AttributePricingRuleRepositoryDB(
         dslContext
             .deleteFrom(ATTRIBUTE_PRICING_RULE)
             .where(ATTRIBUTE_PRICING_RULE.ID.eq(id.value))
+            .execute()
+
+    override fun deleteByProductModelComponentAttributeValue(
+        productModelId: ProductModelId,
+        componentId: UUID,
+        attributeCode: String,
+        optionValue: String,
+    ): Int =
+        dslContext
+            .deleteFrom(ATTRIBUTE_PRICING_RULE)
+            .where(
+                ATTRIBUTE_PRICING_RULE.PRODUCT_MODEL_ID.eq(productModelId.value)
+                    .and(ATTRIBUTE_PRICING_RULE.COMPONENT_ID.eq(componentId))
+                    .and(ATTRIBUTE_PRICING_RULE.ATTRIBUTE_CODE.eq(attributeCode))
+                    .and(ATTRIBUTE_PRICING_RULE.OPERATOR.eq(ConditionOperator.EQ))
+                    .and(ATTRIBUTE_PRICING_RULE.VALUE.eq(optionValue)),
+            )
             .execute()
 }

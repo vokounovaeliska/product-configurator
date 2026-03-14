@@ -91,4 +91,22 @@ class DefaultPricingRulesService(
             )
         attributePricingRuleRepository.create(rule)
     }
+
+    /**
+     * Deletes all EQ pricing rules for the given product model, component, attribute, and option value.
+     * Call when deleting an ENUM attribute option.
+     */
+    fun deleteForOptionValue(
+        productModelId: UUID,
+        componentId: UUID,
+        attributeCode: String,
+        optionValue: String,
+    ) {
+        attributePricingRuleRepository.deleteByProductModelComponentAttributeValue(
+            productModelId = ProductModelId(productModelId),
+            componentId = componentId,
+            attributeCode = attributeCode,
+            optionValue = optionValue,
+        )
+    }
 }

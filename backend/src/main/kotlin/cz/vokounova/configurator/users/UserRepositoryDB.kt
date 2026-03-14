@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.users
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import cz.vokounova.configurator.generated.jooq.tables.records.UserRecord
 import cz.vokounova.configurator.generated.jooq.tables.references.USER
 import cz.vokounova.configurator.shared.pagination.CursorCodec
@@ -37,13 +38,14 @@ class UserRepositoryDB(
     private val dslContext: DSLContext,
     private val encoder: UserPasswordEncoder,
     private val cursorCodec: CursorCodec<UserPagination>,
+    private val objectMapper: ObjectMapper,
 ) : UserRepository {
     override fun findByEmail(email: String): User? =
         dslContext
             .selectFrom(USER)
             .where(USER.EMAIL.eq(email))
             .fetchOne()
-            ?.toDomain()
+            ?.toDomain(objectMapper)
 
     override fun findById(
         id: UserId,
@@ -54,7 +56,7 @@ class UserRepositoryDB(
             .where(USER.ID.eq(id.value))
             .run { if (lock) this.forUpdate() else this }
             .fetchOne()
-            ?.toDomain()
+            ?.toDomain(objectMapper)
 
     override fun findByFilter(filter: UserFilter?): List<User> =
         dslContext
@@ -63,15 +65,16 @@ class UserRepositoryDB(
                 filter?.let {
                     where(buildFilterConditions(filter))
                 }
-            }.fetch()
-            .map { it.toDomain() }
+            }
+            .fetch()
+            .map { it.toDomain(objectMapper) }
 
     override fun create(user: User): User? {
         val userWithEncodedPassword = user.copy(password = encoder.encode(user.password))
         val record =
             userWithEncodedPassword
                 .copy(checkSum = userWithEncodedPassword.getChecksum())
-                .toPersistence()
+                .toPersistence(objectMapper)
                 .ignoreFields(USER.SEARCH_VECTOR)
 
         return dslContext
@@ -79,7 +82,7 @@ class UserRepositoryDB(
             .set(record)
             .returning()
             .fetchOne()
-            ?.toDomain()
+            ?.toDomain(objectMapper)
     }
 
     override fun update(user: User): User? {
@@ -87,7 +90,7 @@ class UserRepositoryDB(
         val record =
             updatedUser
                 .copy(checkSum = updatedUser.getChecksum())
-                .toPersistence()
+                .toPersistence(objectMapper)
                 .ignoreFields(USER.SEARCH_VECTOR)
 
         return dslContext
@@ -96,7 +99,7 @@ class UserRepositoryDB(
             .where(USER.ID.eq(record.id))
             .returning()
             .fetchOne()
-            ?.toDomain()
+            ?.toDomain(objectMapper)
     }
 
     override fun updatePassword(user: User) {
@@ -172,7 +175,7 @@ class UserRepositoryDB(
         pageResult: PageResult<UserRecord>,
         usedOrderByFields: List<OrderBy<UserSortableField>>,
     ): PaginatedResult<User> {
-        val data = pageResult.data.map { it.toDomain() }
+        val data = pageResult.data.map { it.toDomain(objectMapper) }
 
         val cursorBefore =
             pageResult.before?.let {

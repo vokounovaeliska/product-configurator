@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useQueries } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
+import { Input } from "@workspace/ui/components/input"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
@@ -56,6 +57,9 @@ export const PricingRulesList = ({
   const t = useTranslations("Pricing")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [editingRule, setEditingRule] = useState<AttributePricingRuleDto | null>(null)
+  const [editingPriceRuleId, setEditingPriceRuleId] = useState<string | null>(null)
+  const [editingPriceInput, setEditingPriceInput] = useState("")
+  const priceInputRef = useRef<HTMLInputElement>(null)
   const [filterAttributeCode, setFilterAttributeCode] = useState(presetAttributeCode ?? "")
   const [filterOperator, setFilterOperator] = useState<string>(FILTER_OPERATOR_ALL)
   const [currentPage, setCurrentPage] = useState(1)
@@ -283,6 +287,40 @@ export const PricingRulesList = ({
     }
   }
 
+  const handleStartInlinePriceEdit = (rule: AttributePricingRuleDto) => {
+    setEditingPriceRuleId(rule.id)
+    setEditingPriceInput((rule.price / 100).toString())
+    setTimeout(() => priceInputRef.current?.focus(), 0)
+  }
+
+  const handleSaveInlinePrice = (rule: AttributePricingRuleDto) => {
+    const parsed = Number.parseFloat(editingPriceInput.replace(",", "."))
+    if (!Number.isNaN(parsed) && parsed >= 0) {
+      const priceCents = Math.round(parsed * 100)
+      updateMutation.mutate(
+        {
+          ruleId: rule.id,
+          body: {
+            componentId: rule.componentId ?? undefined,
+            attributeCode: rule.attributeCode,
+            operator: rule.operator,
+            value: rule.value,
+            toValue: rule.toValue ?? undefined,
+            price: priceCents,
+          },
+        },
+        { onSettled: () => setEditingPriceRuleId(null) },
+      )
+    } else {
+      setEditingPriceRuleId(null)
+    }
+  }
+
+  const handleCancelInlinePrice = () => {
+    setEditingPriceRuleId(null)
+    setEditingPriceInput("")
+  }
+
   if (error) {
     return (
       <Card className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
@@ -435,7 +473,35 @@ export const PricingRulesList = ({
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
-                        {formatPrice(rule.price / 100)}
+                        {editingPriceRuleId === rule.id ? (
+                          <Input
+                            ref={priceInputRef}
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={editingPriceInput}
+                            onChange={(e) => setEditingPriceInput(e.target.value)}
+                            onBlur={() => handleSaveInlinePrice(rule)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault()
+                                handleSaveInlinePrice(rule)
+                              } else if (e.key === "Escape") {
+                                handleCancelInlinePrice()
+                              }
+                            }}
+                            className="h-8 w-24 text-right"
+                            aria-label={t("create.price")}
+                          />
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleStartInlinePriceEdit(rule)}
+                            className="rounded px-2 py-1.5 text-right hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
+                          >
+                            {formatPrice(rule.price / 100)}
+                          </button>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-2">

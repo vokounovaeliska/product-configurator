@@ -178,6 +178,14 @@ export const Breadcrumbs = ({
     })
   }
 
+  // Add Publish (administrator) if we're on that page
+  if (segments.includes("publish") && !segments.includes("product-models")) {
+    breadcrumbs.push({
+      label: tSetup("navigation.publish"),
+      href: ROUTES.setupPublish,
+    })
+  }
+
   // Add Product Models if we're in that section
   if (segments.includes("product-models")) {
     breadcrumbs.push({
@@ -190,6 +198,14 @@ export const Breadcrumbs = ({
         breadcrumbs.push({
           label: modelName,
           href: ROUTES.setupComponents(resolvedProductModelId),
+        })
+      }
+
+      // Publish at product model level
+      if (segments.includes("publish")) {
+        breadcrumbs.push({
+          label: tSetup("navigation.publish"),
+          href: ROUTES.setupProductModelPublish(resolvedProductModelId),
         })
       }
 

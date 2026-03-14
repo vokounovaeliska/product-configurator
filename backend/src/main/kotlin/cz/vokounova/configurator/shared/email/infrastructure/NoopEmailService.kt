@@ -17,12 +17,15 @@ class NoopEmailService : EmailService {
         bodyHtml: String,
         bodyText: String?,
         replyTo: String?,
+        cc: String?,
+        inlineImage: cz.vokounova.configurator.shared.email.ports.outbound.InlineImage?,
     ) {
         log.info(
-            "Email (noop): to={}, subject={}, replyTo={}, bodyLength={}. Configure spring.mail to send real emails.",
+            "Email (noop): to={}, subject={}, replyTo={}, cc={}, bodyLength={}. Configure spring.mail to send real emails.",
             to,
             subject,
             replyTo,
+            cc,
             bodyHtml.length,
         )
     }

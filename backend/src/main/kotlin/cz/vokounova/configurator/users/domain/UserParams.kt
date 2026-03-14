@@ -25,6 +25,16 @@ enum class UserJsonPatchParamsPath(
     SURNAME("/surname"),
     EMAIL("/email"),
     NOTIFICATION_EMAIL("/notificationEmail"),
+    QUOTE_REQUEST_EMAIL_TEMPLATE_PRESET("/quoteRequestEmailTemplatePreset"),
+    QUOTE_REQUEST_EMAIL_SUBJECT("/quoteRequestEmailSubject"),
+    QUOTE_REQUEST_EMAIL_BODY("/quoteRequestEmailBody"),
+    QUOTE_REQUEST_EMAIL_BODY_IS_HTML("/quoteRequestEmailBodyIsHtml"),
+    QUOTE_REQUEST_EMAIL_LABELS("/quoteRequestEmailLabels"),
+    SUPPLIER_NOTIFICATION_EMAIL_TEMPLATE_PRESET("/supplierNotificationEmailTemplatePreset"),
+    SUPPLIER_NOTIFICATION_EMAIL_SUBJECT("/supplierNotificationEmailSubject"),
+    SUPPLIER_NOTIFICATION_EMAIL_BODY("/supplierNotificationEmailBody"),
+    SUPPLIER_NOTIFICATION_EMAIL_BODY_IS_HTML("/supplierNotificationEmailBodyIsHtml"),
+    SUPPLIER_NOTIFICATION_EMAIL_LABELS("/supplierNotificationEmailLabels"),
     IS_ACTIVE("/isActive"),
     ;
 
