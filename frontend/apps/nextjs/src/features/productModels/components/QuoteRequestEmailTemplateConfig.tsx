@@ -349,14 +349,16 @@ export const QuoteRequestEmailTemplateConfig = ({
             )}
           >
             <div className="rounded-t-lg border-b border-gray-200 bg-gray-50 px-3 py-2">
-              <p className="text-xs font-medium text-gray-500">{t("previewInbox")}</p>
+              <p className="text-xs font-medium text-gray-500">
+                {t("previewInbox" as "previewTitle")}
+              </p>
             </div>
             <div className="border-b border-gray-200 bg-white px-4 py-3">
               <p className="text-xs text-gray-500">
-                {t("previewFrom")}: Konfiguruj &lt;info@konfiguruj.com&gt;
+                {t("previewFrom" as "previewTitle")}: Konfiguruj &lt;info@konfiguruj.com&gt;
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                {t("previewTo")}: {SAMPLE_REQUEST.customerEmail}
+                {t("previewTo" as "previewTitle")}: {SAMPLE_REQUEST.customerEmail}
               </p>
               <p className="mt-2 text-sm font-semibold">{previewSubject}</p>
             </div>
@@ -375,18 +377,18 @@ export const QuoteRequestEmailTemplateConfig = ({
                     ? replacePlaceholders(customBody ?? DEFAULT_TEMPLATES.en.body)
                     : `<p style="font-size: 16px;">${escapeHtml(previewBody).replace(/\n/g, "<br>")}</p>`,
                   `<div style="background: #fff; border-radius: 8px; padding: 16px; margin: 20px 0; border: 1px solid #e5e5e5; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">`,
-                  `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.product)}:</strong> ${escapeHtml(SAMPLE_REQUEST.productName)}</p>`,
+                  `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.product ?? "")}:</strong> ${escapeHtml(SAMPLE_REQUEST.productName)}</p>`,
                   SAMPLE_REQUEST.customerPhone
-                    ? `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.phone)}:</strong> ${escapeHtml(SAMPLE_REQUEST.customerPhone)}</p>`
+                    ? `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.phone ?? "")}:</strong> ${escapeHtml(SAMPLE_REQUEST.customerPhone)}</p>`
                     : "",
-                  `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.totalPrice)}:</strong> ${escapeHtml(SAMPLE_REQUEST.totalPrice)}</p>`,
-                  `<p style="margin: 8px 0 0 0;"><strong>${escapeHtml(effectiveLabels.yourChoices)}:</strong></p>` +
+                  `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.totalPrice ?? "")}:</strong> ${escapeHtml(SAMPLE_REQUEST.totalPrice)}</p>`,
+                  `<p style="margin: 8px 0 0 0;"><strong>${escapeHtml(effectiveLabels.yourChoices ?? "")}:</strong></p>` +
                     `<ul style="margin: 4px 0 0 0; padding-left: 20px;">${SAMPLE_CHOICES.map((c) => `<li style="margin: 2px 0;">${escapeHtml(c)}</li>`).join("")}</ul>`,
                   SAMPLE_REQUEST.customerNote
-                    ? `<p style="margin: 8px 0 0 0;"><strong>${escapeHtml(effectiveLabels.yourMessage)}:</strong> ${escapeHtml(SAMPLE_REQUEST.customerNote)}</p>`
+                    ? `<p style="margin: 8px 0 0 0;"><strong>${escapeHtml(effectiveLabels.yourMessage ?? "")}:</strong> ${escapeHtml(SAMPLE_REQUEST.customerNote)}</p>`
                     : "",
                   `</div>`,
-                  `<p style="margin: 16px 0 8px 0;"><strong>${escapeHtml(effectiveLabels.configurationPreview)}:</strong></p>`,
+                  `<p style="margin: 16px 0 8px 0;"><strong>${escapeHtml(effectiveLabels.configurationPreview ?? "")}:</strong></p>`,
                   `<p style="margin: 0;"><img src="${EXAMPLE_CONFIGURATION_PREVIEW_IMAGE}" alt="Configuration" style="max-width: 70%; height: auto; border-radius: 8px; border: 1px solid #e5e5e5;" /></p>`,
                 ].join(""),
               }}

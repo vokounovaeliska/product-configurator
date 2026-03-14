@@ -1377,9 +1377,11 @@ function SnapshotCaptureController({
           targetCenter = box.getCenter(new THREE.Vector3())
           const size = box.getSize(new THREE.Vector3())
           const maxDim = Math.max(size.x, size.y, size.z)
-          const fovRad = (camera.fov * Math.PI) / 180
-          const minDistanceToFit = (maxDim * SNAPSHOT_FIT_PADDING) / (2 * Math.tan(fovRad / 2))
-          distance = Math.max(minDistanceToFit, baseDistance)
+          if (camera instanceof THREE.PerspectiveCamera) {
+            const fovRad = (camera.fov * Math.PI) / 180
+            const minDistanceToFit = (maxDim * SNAPSHOT_FIT_PADDING) / (2 * Math.tan(fovRad / 2))
+            distance = Math.max(minDistanceToFit, baseDistance)
+          }
         }
 
         const dir = SNAPSHOT_CAMERA_POSITION.clone().normalize()
