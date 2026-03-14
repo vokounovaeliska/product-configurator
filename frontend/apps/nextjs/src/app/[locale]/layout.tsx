@@ -60,7 +60,13 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider>
           <Providers>
             <HeaderOrNull />
-            <main className={cn("flex min-h-svh flex-col p-6 pt-16", "lg:p-12 lg:pt-30")}>
+            <main
+              className={cn(
+                "flex min-h-svh flex-col p-6",
+                "pt-[calc(4rem+env(safe-area-inset-top,0px))]",
+                "lg:p-12 lg:pt-30",
+              )}
+            >
               {children}
             </main>
           </Providers>

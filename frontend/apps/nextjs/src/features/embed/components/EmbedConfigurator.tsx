@@ -200,7 +200,7 @@ export const EmbedConfigurator = ({
 
   return (
     <div
-      className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6"
+      className="flex min-h-0 flex-1 flex-col gap-3 bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6 lg:overflow-hidden"
       style={{
         paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))",
       }}
@@ -229,8 +229,8 @@ export const EmbedConfigurator = ({
         </div>
       )}
 
-      <div className="grid min-h-0 flex-1 gap-4 lg:min-h-0 lg:grid-cols-3">
-        <div className="relative z-0 flex min-h-0 flex-1 flex-col lg:col-span-2">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:grid lg:min-h-0 lg:grid-cols-3 lg:grid-rows-none">
+        <div className="relative z-0 order-2 flex min-h-0 flex-1 flex-col lg:order-none lg:col-span-2">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
@@ -245,7 +245,7 @@ export const EmbedConfigurator = ({
           />
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 lg:max-h-full">
+        <div className="order-1 flex min-h-0 flex-1 flex-col gap-3 lg:order-none lg:max-h-full">
           <div className="flex shrink-0 flex-col gap-2">
             <Card className="p-3 shadow-sm">
               <div className="flex items-baseline justify-between gap-2">
@@ -280,7 +280,7 @@ export const EmbedConfigurator = ({
             )}
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="min-h-0 flex-1 overflow-visible lg:overflow-y-auto">
             <ComponentSelector
               components={components}
               selectedComponentId={activeComponentId}

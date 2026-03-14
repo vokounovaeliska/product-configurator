@@ -188,6 +188,8 @@ type Props = {
    * Use for debugging to match online GLB viewer. Enable via ?renderRawGlb=1 or NEXT_PUBLIC_RENDER_RAW_GLB.
    */
   renderRawGlb?: boolean
+  /** Y offset for Center (scene units). Use on mobile embed to adjust model position in viewport. */
+  centerOffsetY?: number
 }
 
 type OrbitControlsRef = React.ComponentRef<typeof OrbitControls>
@@ -1547,6 +1549,7 @@ function SceneWithCapture({
   onCameraDistanceChange,
   savedZoomDistance,
   enableZoom: canZoom,
+  centerOffsetY = 0,
 }: {
   modelUrl: string
   config?: Model3dConfig | null
@@ -1564,6 +1567,7 @@ function SceneWithCapture({
   savedZoomDistance?: number | null
   /** When false, disables zoom. When undefined, uses zoomPreset !== "thumbnail". */
   enableZoom?: boolean
+  centerOffsetY?: number
 }) {
   const controlsRef = useRef<OrbitControlsRef>(null)
   const shouldUseCenter = !isRenderRawGlb
@@ -1583,12 +1587,15 @@ function SceneWithCapture({
   return (
     <>
       {shouldUseCenter ? (
-        <Center
-          cacheKey={getCenterCacheKey(config)}
-          precise
-        >
-          {model}
-        </Center>
+        /* eslint-disable-next-line react/no-unknown-property -- R3F/Three.js: position on group */
+        <group position={[0, centerOffsetY, 0]}>
+          <Center
+            cacheKey={getCenterCacheKey(config)}
+            precise
+          >
+            {model}
+          </Center>
+        </group>
       ) : (
         model
       )}
@@ -1662,6 +1669,7 @@ export const ModelViewer3D = ({
   onCaptureReady,
   renderRawGlb: isRenderRawGlbProp,
   enableZoom: canZoom,
+  centerOffsetY,
 }: Props) => {
   const t = useTranslations("Configurator.preview")
   const [isContextLost, setIsContextLost] = useState(false)
@@ -1843,6 +1851,7 @@ export const ModelViewer3D = ({
             onCameraDistanceChange={onCameraDistanceChange}
             savedZoomDistance={savedZoomDistance}
             enableZoom={canZoom}
+            centerOffsetY={centerOffsetY}
           />
         </Suspense>
       </Canvas>

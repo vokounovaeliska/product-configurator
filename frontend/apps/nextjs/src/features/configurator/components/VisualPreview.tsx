@@ -6,6 +6,7 @@ import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
 import { SmartImageComposer } from "@/components/SmartImageComposer"
+import { useMediaQuery } from "@/hooks/useMediaQuery"
 
 import type { Model3dConfig } from "@/features/configurator/types/model3dConfig"
 
@@ -69,6 +70,7 @@ export const VisualPreview = ({
   embedPreview: isEmbedPreview = false,
 }: Props) => {
   const t = useTranslations("Configurator")
+  const isMobile = useMediaQuery("(max-width: 1023px)")
 
   const layerItems = selectedOptionLayers
   const has3dModel = Boolean(model3dUrl?.trim())
@@ -89,7 +91,7 @@ export const VisualPreview = ({
             isCompactLayout
               ? "max-h-[55vh] min-h-[30vh] sm:max-h-[60vh] sm:min-h-[40vh] md:min-h-[50vh]"
               : isEmbedPreview
-                ? "max-h-[75vh] min-h-[50vh]"
+                ? "max-h-[55vh] min-h-[40vh] sm:max-h-[75vh] sm:min-h-[50vh]"
                 : "max-h-[60vh] min-h-[40vh]",
           )}
         >
@@ -106,6 +108,7 @@ export const VisualPreview = ({
             zoomPreset={isEmbedPreview ? "default" : isCompact ? "embed" : "default"}
             canCapture={canCapture}
             onCaptureReady={onCaptureReady}
+            centerOffsetY={isEmbedPreview && isMobile ? -0.08 : undefined}
           />
         </div>
       </Card>
