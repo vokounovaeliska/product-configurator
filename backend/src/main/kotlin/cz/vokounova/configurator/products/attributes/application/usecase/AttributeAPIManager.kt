@@ -39,8 +39,14 @@ class AttributeAPIManager(
 
     @Transactional
     override fun delete(id: AttributeId) {
-        attributeOptionRepository.findByAttributeId(id).forEach { option ->
-            uploadedFileDeleter.deleteByUrl(option.imageUrl)
+        val optionsToDelete = attributeOptionRepository.findByAttributeId(id)
+        val excludeIds = optionsToDelete.map { it.id }.toSet()
+        optionsToDelete.forEach { option ->
+            if (!option.imageUrl.isNullOrBlank() &&
+                !attributeOptionRepository.existsOtherOptionWithImageUrl(option.imageUrl, excludeIds)
+            ) {
+                uploadedFileDeleter.deleteByUrl(option.imageUrl)
+            }
         }
         attributeOptionRepository.deleteByAttributeId(id)
         val deletedCount = attributeRepository.delete(id)

@@ -12,9 +12,14 @@ import { useProductModel } from "@/features/productModels/api/productModelQuerie
 
 type Props = {
   productModelId: string
+  /** When true (e.g. public configurator page), always use embed API for config to avoid 401 on products API. */
+  shouldPreferEmbedConfig?: boolean
 }
 
-export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
+export const ProductConfiguratorWrapper = ({
+  productModelId,
+  shouldPreferEmbedConfig = false,
+}: Props) => {
   const { data: currentUser } = useCurrentUser()
   const isLoggedIn = Boolean(currentUser?.id)
 
@@ -22,7 +27,9 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
     data: embedConfig,
     isLoading: isLoadingEmbed,
     error: embedError,
-  } = useEmbedProductConfigById(productModelId, { enabled: !isLoggedIn })
+  } = useEmbedProductConfigById(productModelId, {
+    enabled: shouldPreferEmbedConfig || !isLoggedIn,
+  })
   const {
     data: productModel,
     isLoading: isLoadingProductModel,
@@ -35,9 +42,13 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
   )
 
   const components = componentsData?.items ?? embedConfig?.components ?? []
-  const isLoading = isLoggedIn ? isLoadingProductModel || isLoadingComponents : isLoadingEmbed
+  const isLoading = shouldPreferEmbedConfig
+    ? isLoadingEmbed
+    : isLoggedIn
+      ? isLoadingProductModel || isLoadingComponents
+      : isLoadingEmbed
 
-  if (!isLoggedIn && embedError) {
+  if ((shouldPreferEmbedConfig || !isLoggedIn) && embedError) {
     return (
       <div className="flex flex-1 items-center justify-center p-10">
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
@@ -84,24 +95,10 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
     )
   }
 
-  if (isLoggedIn && !productModel) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-10">
-        <Typography
-          as="p"
-          variant="body-lg"
-          className="text-muted-foreground"
-        >
-          Product model not found
-        </Typography>
-      </div>
-    )
-  }
-
-  if (!isLoggedIn && embedConfig) {
+  if ((shouldPreferEmbedConfig || !isLoggedIn) && embedConfig) {
     const productModelFromEmbed = {
       id: embedConfig.product.id,
-      userId: "",
+      userId: productModel?.userId ?? "",
       name: embedConfig.product.name,
       description: embedConfig.product.description,
       price: embedConfig.product.price,
@@ -131,6 +128,20 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
         productModel={productModel}
         components={components}
       />
+    )
+  }
+
+  if (isLoggedIn && !productModel) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-10">
+        <Typography
+          as="p"
+          variant="body-lg"
+          className="text-muted-foreground"
+        >
+          Product model not found
+        </Typography>
+      </div>
     )
   }
 
