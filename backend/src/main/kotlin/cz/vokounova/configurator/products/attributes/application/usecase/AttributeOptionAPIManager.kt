@@ -69,7 +69,7 @@ class AttributeOptionAPIManager(
             attributeCode = attribute.code,
             optionValue = existing.value,
         )
-        uploadedFileDeleter.deleteByUrl(existing.imageUrl)
+        deleteImageIfUnused(existing.imageUrl, excludeOptionIds = setOf(id))
         val deletedCount = attributeOptionRepository.delete(id)
         if (deletedCount == 0) {
             throw ResourceNotFoundException("Attribute option with id ${id.value} not found")
@@ -89,7 +89,7 @@ class AttributeOptionAPIManager(
         val existingOption = findAttributeOption(id)
         val patched = jsonPatchUtils.applyAndMapJsonPatch(jsonPatchParams, existingOption)
         if (existingOption.imageUrl != patched.imageUrl && !existingOption.imageUrl.isNullOrBlank()) {
-            uploadedFileDeleter.deleteByUrl(existingOption.imageUrl)
+            deleteImageIfUnused(existingOption.imageUrl, excludeOptionIds = setOf(id))
         }
         return attributeOptionRepository.update(patched)
             ?: throw AttributeException(AttributeErrorCode.UPDATE_ATTRIBUTE_OPTION_FAILED)
@@ -98,4 +98,18 @@ class AttributeOptionAPIManager(
     private fun findAttributeOption(id: AttributeOptionId): AttributeOption =
         attributeOptionRepository.findById(id)
             ?: throw ResourceNotFoundException("Attribute option with id ${id.value} is not found.")
+
+    /**
+     * Deletes the image file only if no other attribute option references it.
+     * Prevents breaking shared images (e.g. textures from SketchUp import used by multiple options).
+     */
+    private fun deleteImageIfUnused(
+        imageUrl: String?,
+        excludeOptionIds: Set<AttributeOptionId>,
+    ) {
+        if (imageUrl.isNullOrBlank()) return
+        if (!attributeOptionRepository.existsOtherOptionWithImageUrl(imageUrl, excludeOptionIds)) {
+            uploadedFileDeleter.deleteByUrl(imageUrl)
+        }
+    }
 }

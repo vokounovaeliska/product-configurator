@@ -65,4 +65,17 @@ class AttributeOptionRepositoryDB(
             .deleteFrom(ATTRIBUTE_OPTION)
             .where(ATTRIBUTE_OPTION.ATTRIBUTE_ID.eq(attributeId.value))
             .execute()
+
+    override fun existsOtherOptionWithImageUrl(
+        imageUrl: String,
+        excludeOptionIds: Set<AttributeOptionId>,
+    ): Boolean {
+        var condition = ATTRIBUTE_OPTION.IMAGE_URL.eq(imageUrl)
+        if (excludeOptionIds.isNotEmpty()) {
+            condition = condition.and(ATTRIBUTE_OPTION.ID.notIn(excludeOptionIds.map { it.value }))
+        }
+        return dslContext.fetchExists(
+            dslContext.selectFrom(ATTRIBUTE_OPTION).where(condition),
+        )
+    }
 }

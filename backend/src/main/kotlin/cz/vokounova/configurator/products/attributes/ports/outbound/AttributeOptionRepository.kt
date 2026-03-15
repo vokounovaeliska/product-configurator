@@ -16,4 +16,14 @@ interface AttributeOptionRepository {
     fun delete(id: AttributeOptionId): Int
 
     fun deleteByAttributeId(attributeId: AttributeId): Int
+
+    /**
+     * Returns true if any attribute option (excluding the given IDs) references [imageUrl].
+     * Used to avoid deleting image files that are still referenced by other options (e.g. shared
+     * textures from SketchUp import).
+     */
+    fun existsOtherOptionWithImageUrl(
+        imageUrl: String,
+        excludeOptionIds: Set<AttributeOptionId>,
+    ): Boolean
 }
