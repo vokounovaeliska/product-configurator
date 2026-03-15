@@ -78,10 +78,10 @@ class ResendEmailService(
                     .to(listOf(to))
                     .subject(subject)
                     .html(bodyHtml)
-                    .replyTo(replyTo?.let { listOf(it) })
-                    .cc(cc?.let { listOf(it) })
+                    .replyTo(replyTo?.let { listOf(it) } ?: emptyList())
+                    .cc(cc?.let { listOf(it) } ?: emptyList())
                     .text(bodyText?.takeIf { it.isNotBlank() })
-                    .attachments(attachments.takeIf { it.isNotEmpty() })
+                    .attachments(attachments.ifEmpty { emptyList() })
                     .build()
 
             val response = resend.emails().send(params)

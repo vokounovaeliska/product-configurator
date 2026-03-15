@@ -1738,7 +1738,9 @@ export const ModelViewer3D = ({
       }
     }, [model3dEffects])
 
-  const { data: preferencesFromApi } = useConfiguratorPreferences(productModelId ?? "")
+  const { data: preferencesFromApi } = useConfiguratorPreferences(productModelId ?? "", {
+    enabled: !configuratorPreferencesFromServer,
+  })
   const patchPreferences = usePatchConfiguratorPreferences(productModelId ?? "")
 
   const backgroundConfig = useMemo(() => {
@@ -1756,8 +1758,13 @@ export const ModelViewer3D = ({
   const savedZoomDistance = useMemo(() => {
     if (zoomPreset === "thumbnail") return null
     const d =
-      configuratorPreferencesFromServer?.zoomDistanceDefault ??
-      preferencesFromApi?.zoomDistanceDefault
+      zoomPreset === "embed"
+        ? (configuratorPreferencesFromServer?.zoomDistanceEmbed ??
+          configuratorPreferencesFromServer?.zoomDistanceDefault ??
+          preferencesFromApi?.zoomDistanceEmbed ??
+          preferencesFromApi?.zoomDistanceDefault)
+        : (configuratorPreferencesFromServer?.zoomDistanceDefault ??
+          preferencesFromApi?.zoomDistanceDefault)
     if (zoomPreset === "embed") {
       if (d != null && d >= ZOOM_MIN_EMBED && d <= ZOOM_MAX_EMBED) return d
       return null
@@ -1767,7 +1774,9 @@ export const ModelViewer3D = ({
   }, [
     zoomPreset,
     configuratorPreferencesFromServer?.zoomDistanceDefault,
+    configuratorPreferencesFromServer?.zoomDistanceEmbed,
     preferencesFromApi?.zoomDistanceDefault,
+    preferencesFromApi?.zoomDistanceEmbed,
   ])
 
   const onSaveZoom = useCallback(
