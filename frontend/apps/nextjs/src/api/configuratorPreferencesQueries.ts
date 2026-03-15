@@ -11,18 +11,23 @@ export const configuratorPreferencesKeys = {
   detail: (productModelId: string) => [...configuratorPreferencesKeys.all, productModelId] as const,
 }
 
-export const getConfiguratorPreferencesQueryOptions = (productModelId: string) =>
+export const getConfiguratorPreferencesQueryOptions = (
+  productModelId: string,
+  options?: { enabled?: boolean },
+) =>
   ({
     queryKey: configuratorPreferencesKeys.detail(productModelId),
     queryFn: async (): Promise<ConfiguratorPreferencesDto> =>
       api
         .get(`products/api/v1/product-models/${productModelId}/configurator-preferences`)
         .json<ConfiguratorPreferencesDto>(),
-    enabled: Boolean(productModelId),
+    enabled: options?.enabled !== false && Boolean(productModelId),
   }) as const
 
-export const useConfiguratorPreferences = (productModelId: string) =>
-  useQuery(getConfiguratorPreferencesQueryOptions(productModelId))
+export const useConfiguratorPreferences = (
+  productModelId: string,
+  queryOptions?: { enabled?: boolean },
+) => useQuery(getConfiguratorPreferencesQueryOptions(productModelId, queryOptions))
 
 export const usePatchConfiguratorPreferences = (productModelId: string) => {
   const queryClient = useQueryClient()

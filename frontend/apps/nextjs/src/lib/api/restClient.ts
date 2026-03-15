@@ -7,14 +7,22 @@ import { getAccessToken, getAccessTokenClient, setAccessTokenClient } from "../a
 const REST_API_BASE = env.NEXT_PUBLIC_REST_API_URL.replace(/\/$/, "")
 
 /**
- * Normalizes input for ky to avoid doubled URLs. ky's prefixUrl is applied to ALL input,
+ * Normalizes input for ky to avoid doubled URLs. ky's prefixUrl is applied to ALL string input,
  * including absolute URLs, which causes https://api.example.com/https://api.example.com/path.
- * When input is already an absolute URL, pass a URL instance so ky bypasses prefixUrl.
+ * - When input is already an absolute URL for our API, strip the base and pass the path so ky
+ *   prepends prefixUrl once. This handles cases where ky may still apply prefixUrl to URL objects.
+ * - Otherwise pass through.
  */
 function normalizeInput(input: string | URL | Request): string | URL | Request {
   if (typeof input !== "string") return input
   const trimmed = input.trim()
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    // If it's our API base, strip it and return the relative path so ky adds prefixUrl once
+    if (trimmed.startsWith(REST_API_BASE)) {
+      const path = trimmed.slice(REST_API_BASE.length).replace(/^\//, "")
+      return path || "."
+    }
+    // External URL: pass as URL so ky bypasses prefixUrl
     return new URL(trimmed)
   }
   return input
@@ -130,14 +138,17 @@ export const api = createApiClient({
             const retryRequest = request.clone()
             retryRequest.headers.set("Authorization", `Bearer ${newAccessToken}`)
 
-            // Create a new request with the updated headers
+            // Create a new request with the updated headers.
+            // Omit prefixUrl to avoid doubled URLs when retrying (ky would prepend prefixUrl again).
+            const opts = options as unknown as Record<string, unknown>
+            const { prefixUrl: _prefixUrl, ...optionsWithoutPrefix } = opts
             const retryOptions = {
-              ...options,
+              ...optionsWithoutPrefix,
               headers: Object.fromEntries(retryRequest.headers.entries()),
               body: request.body,
             }
 
-            return ky(request.url, { ...retryOptions, credentials: "include" })
+            return ky(new URL(request.url), { ...retryOptions, credentials: "include" })
           } else {
             // Refresh failed - user needs to log in again
             // Clear the access token cookie
