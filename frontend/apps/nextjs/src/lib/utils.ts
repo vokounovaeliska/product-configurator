@@ -38,7 +38,7 @@ export const extractErrorMessage = async (error: unknown): Promise<string> => {
     // Return user-friendly messages based on HTTP status codes
     switch (status) {
       case 401:
-        return "Invalid email or password. Please check your credentials and try again."
+        return "Invalid credentials."
       case 403:
         return "You don't have permission to perform this action."
       case 404:
@@ -64,7 +64,7 @@ export const extractErrorMessage = async (error: unknown): Promise<string> => {
       const status = Number.parseInt(statusMatch[1] ?? "0", 10)
       switch (status) {
         case 401:
-          return "Invalid email or password. Please check your credentials and try again."
+          return "Invalid credentials."
         case 403:
           return "You don't have permission to perform this action."
         case 404:
@@ -79,6 +79,11 @@ export const extractErrorMessage = async (error: unknown): Promise<string> => {
         case 504:
           return "Server error. Please try again later."
       }
+    }
+    // Map network/connection errors to a user-friendly message
+    const msg = error.message.toLowerCase()
+    if (msg === "failed to fetch" || msg.includes("network") || msg.includes("connection")) {
+      return "Unable to connect. Please check your connection and try again."
     }
     return error.message
   }

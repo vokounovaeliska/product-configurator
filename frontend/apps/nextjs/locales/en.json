@@ -1,5 +1,9 @@
 {
   "Common": {
+    "PasswordInput": {
+      "hidePassword": "Hide password",
+      "showPassword": "Show password"
+    },
     "BaseLayout": {
       "Header": {
         "AuthMenu": {
@@ -27,7 +31,7 @@
         }
       },
       "seo": {
-        "description": "Konfiguruj at configuruj.com - Product configurator for your e-shop or website.",
+        "description": "Configure at konfiguruj.com - Product configurator for your e-shop or website.",
         "siteName": "Konfiguruj"
       },
       "Footer": {
@@ -56,7 +60,7 @@
       "emailInvalidMessage": "Invalid e-mail format",
       "emailRequiredMessage": "Please enter an e-mail",
       "generalError": "Something went wrong",
-      "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
+      "invalidCredentials": "Invalid credentials.",
       "passwordLengthMessage": "Password must be at least 8 characters",
       "passwordRequiredMessage": "Please enter a password",
       "serverError": "Server error. Please try again later."
