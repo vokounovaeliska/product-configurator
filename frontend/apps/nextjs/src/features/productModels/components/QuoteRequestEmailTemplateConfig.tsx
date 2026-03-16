@@ -344,30 +344,29 @@ export const QuoteRequestEmailTemplateConfig = ({
           <Label>{t("previewTitle")}</Label>
           <div
             className={cn(
-              "min-h-[200px] overflow-auto rounded-lg border bg-gray-100 p-4 text-base lg:min-h-[280px]",
-              "font-sans leading-relaxed text-gray-800",
+              "min-h-[200px] overflow-auto rounded-lg border border-border bg-card p-4 text-base lg:min-h-[280px]",
+              "font-sans leading-relaxed text-foreground",
             )}
           >
-            <div className="rounded-t-lg border-b border-gray-200 bg-gray-50 px-3 py-2">
-              <p className="text-xs font-medium text-gray-500">
+            <div className="rounded-t-lg border-b border-border bg-muted/50 px-3 py-2">
+              <p className="text-xs font-medium text-muted-foreground">
                 {t("previewInbox" as "previewTitle")}
               </p>
             </div>
-            <div className="border-b border-gray-200 bg-white px-4 py-3">
-              <p className="text-xs text-gray-500">
+            <div className="border-b border-border bg-card px-4 py-3">
+              <p className="text-xs text-muted-foreground">
                 {t("previewFrom" as "previewTitle")}: Konfiguruj &lt;info@konfiguruj.com&gt;
               </p>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {t("previewTo" as "previewTitle")}: {SAMPLE_REQUEST.customerEmail}
               </p>
-              <p className="mt-2 text-sm font-semibold">{previewSubject}</p>
+              <p className="mt-2 text-sm font-semibold text-foreground">{previewSubject}</p>
             </div>
             <div
-              className="rounded bg-white p-4 text-base"
+              className="rounded bg-card p-4 text-base text-foreground"
               style={{
                 fontFamily: "system-ui, -apple-system, sans-serif",
                 lineHeight: 1.6,
-                color: "#333",
                 fontSize: "16px",
                 maxWidth: "100%",
               }}
@@ -376,7 +375,7 @@ export const QuoteRequestEmailTemplateConfig = ({
                   selectedPreset === "custom" && isCustomBodyHtml
                     ? replacePlaceholders(customBody ?? DEFAULT_TEMPLATES.en.body)
                     : `<p style="font-size: 16px;">${escapeHtml(previewBody).replace(/\n/g, "<br>")}</p>`,
-                  `<div style="background: #fff; border-radius: 8px; padding: 16px; margin: 20px 0; border: 1px solid #e5e5e5; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">`,
+                  `<div style="background: var(--card); border-radius: 8px; padding: 16px; margin: 20px 0; border: 1px solid var(--border); box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: var(--foreground);">`,
                   `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.product ?? "")}:</strong> ${escapeHtml(SAMPLE_REQUEST.productName)}</p>`,
                   SAMPLE_REQUEST.customerPhone
                     ? `<p style="margin: 0 0 8px 0;"><strong>${escapeHtml(effectiveLabels.phone ?? "")}:</strong> ${escapeHtml(SAMPLE_REQUEST.customerPhone)}</p>`
@@ -389,7 +388,7 @@ export const QuoteRequestEmailTemplateConfig = ({
                     : "",
                   `</div>`,
                   `<p style="margin: 16px 0 8px 0;"><strong>${escapeHtml(effectiveLabels.configurationPreview ?? "")}:</strong></p>`,
-                  `<p style="margin: 0;"><img src="${EXAMPLE_CONFIGURATION_PREVIEW_IMAGE}" alt="Configuration" style="max-width: 70%; height: auto; border-radius: 8px; border: 1px solid #e5e5e5;" /></p>`,
+                  `<p style="margin: 0;"><img src="${EXAMPLE_CONFIGURATION_PREVIEW_IMAGE}" alt="Configuration" style="max-width: 70%; height: auto; border-radius: 8px; border: 1px solid var(--border);" /></p>`,
                 ].join(""),
               }}
             />

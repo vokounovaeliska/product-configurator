@@ -6,7 +6,7 @@ import cz.vokounova.configurator.products.api.dto.FullProductConfigDto
 
 /**
  * Extracts user choices from configurationJson for display in emails.
- * When productConfig is provided, formats as "Attribute: value" or "Component – Attribute: value".
+ * When productConfig is provided, formats as "Attribute: value" (attribute label only).
  * Otherwise uses option.label when available; falls back to value.
  */
 object ConfigurationChoiceFormatter {
@@ -20,7 +20,6 @@ object ConfigurationChoiceFormatter {
         val obj = configurationJson as ObjectNode
         val items = mutableListOf<ChoiceItem>()
 
-        val componentMap = productConfig?.components?.associateBy { it.id.toString() } ?: emptyMap()
         val attrsByComp = productConfig?.attributesByComponent ?: emptyMap()
 
         val opts = obj.get("selectedOptionsByComponent")
@@ -29,7 +28,6 @@ object ConfigurationChoiceFormatter {
                 val compId = compEntry.key
                 val comp = compEntry.value
                 if (comp == null || !comp.isObject) continue
-                val compLabel = componentMap[compId]?.label ?: componentMap[compId]?.code
                 val attrs = attrsByComp[compId] ?: emptyList()
                 val attrMap = attrs.associateBy { it.id.toString() }
 
@@ -50,8 +48,6 @@ object ConfigurationChoiceFormatter {
                     val attrLabel = attrMap[attrId]?.label ?: attrMap[attrId]?.code
                     val display =
                         when {
-                            compLabel != null && attrLabel != null ->
-                                "$compLabel – $attrLabel: $valueDisplay"
                             attrLabel != null -> "$attrLabel: $valueDisplay"
                             else -> valueDisplay
                         }
@@ -66,7 +62,6 @@ object ConfigurationChoiceFormatter {
                 val compId = compEntry.key
                 val comp = compEntry.value
                 if (comp == null || !comp.isObject) continue
-                val compLabel = componentMap[compId]?.label ?: componentMap[compId]?.code
                 val attrs = attrsByComp[compId] ?: emptyList()
                 val attrMap = attrs.associateBy { it.id.toString() }
 
@@ -88,8 +83,6 @@ object ConfigurationChoiceFormatter {
                         if (unit != null && v.isNumber) "$valueDisplay $unit" else valueDisplay
                     val display =
                         when {
-                            compLabel != null && attrLabel != null ->
-                                "$compLabel – $attrLabel: $valueWithUnit"
                             attrLabel != null -> "$attrLabel: $valueWithUnit"
                             else -> valueWithUnit
                         }

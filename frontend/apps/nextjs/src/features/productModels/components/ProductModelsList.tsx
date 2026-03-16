@@ -34,15 +34,21 @@ export const ProductModelsList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Typography
           as="h2"
           variant="display-lg"
           weight="semibold"
+          className="min-w-0"
         >
           {t("list.title")}
         </Typography>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>{t("list.createButton")}</Button>
+        <Button
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="w-full shrink-0 sm:w-auto"
+        >
+          {t("list.createButton")}
+        </Button>
       </div>
 
       {isLoading ? (

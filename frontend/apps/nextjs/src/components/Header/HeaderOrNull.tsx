@@ -15,5 +15,5 @@ export const HeaderOrNull = async () => {
   const isEmbed = pathname.includes(EMBED_PATH_PREFIX)
 
   if (isEmbed) return null
-  return <Header />
+  return <Header pathname={pathname} />
 }

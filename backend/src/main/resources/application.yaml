@@ -6,8 +6,8 @@ app:
   files:
     upload-dir: ${UPLOAD_DIR:uploads/images}
   mail:
-    from-address: ${MAIL_FROM:noreply@configurator.local}
-    from-name: ${MAIL_FROM_NAME:Product Configurator}
+    from-address: ${MAIL_FROM:info@konfiguruj.com}
+    from-name: ${MAIL_FROM_NAME:Konfiguruj}
 
 spring:
   application:

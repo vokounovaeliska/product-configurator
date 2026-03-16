@@ -40,9 +40,9 @@ const ProductModelsPage = async (props: Props) => {
   })
 
   return (
-    <div className="flex-1 rounded-2xl bg-muted/50 p-10">
+    <div className="min-w-0 flex-1 overflow-x-hidden rounded-2xl bg-muted/50 p-4 sm:p-6 md:p-10">
       <Breadcrumbs />
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <Typography
           as="h1"
           variant="display-3xl"

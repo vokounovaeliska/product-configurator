@@ -41,8 +41,8 @@ const CustomerRequestsPage = async (props: Props) => {
   }
 
   return (
-    <div className="flex-1 rounded-2xl bg-muted/50 p-6 md:p-10">
-      <div className="mb-8">
+    <div className="min-w-0 flex-1 overflow-x-hidden rounded-2xl bg-muted/50 p-4 sm:p-6 md:p-10">
+      <div className="mb-6 md:mb-8">
         <h1 className="mb-2 text-2xl font-bold md:text-3xl">{t("customerRequests.title")}</h1>
         <p className="text-muted-foreground">{t("customerRequests.description")}</p>
       </div>

@@ -1,7 +1,9 @@
 import {
+  ArrowRightIcon,
   CalculatorIcon,
   DownloadIcon,
   GlobeIcon,
+  LogInIcon,
   PackageIcon,
   SlidersHorizontalIcon,
 } from "lucide-react"
@@ -10,10 +12,20 @@ import { getTranslations, setRequestLocale } from "next-intl/server"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
+import { cn } from "@workspace/ui/lib/utils"
 
 import { getSession } from "@/lib/auth/session"
 import { Link, redirect } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
+
+import { HowItWorksSection } from "@/features/setup/components/HowItWorksSection"
+
+const STEP_ACCENT_CLASSES = [
+  "bg-chart-1 text-white",
+  "bg-chart-2 text-white",
+  "bg-chart-3 text-white",
+  "bg-chart-4 text-white",
+] as const
 
 const WORKFLOW_STEPS = [
   {
@@ -54,97 +66,106 @@ export default async function Page({ params }: Props) {
   const t = await getTranslations({ locale })
 
   return (
-    <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center gap-12 py-12">
+    <div className="mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-5xl flex-col items-center gap-6 px-2 py-4 sm:gap-12 sm:px-4 sm:py-12">
       {/* Hero */}
-      <div className="flex flex-col items-center gap-4 text-center">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">{t("HomePage.title")}</h1>
-        <p className="max-w-2xl text-lg text-muted-foreground sm:text-xl">
+      <div className="flex flex-col items-center gap-3 text-center sm:gap-4">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-4xl lg:text-6xl">
+          {t("HomePage.title")}
+        </h1>
+        <p className="max-w-2xl text-base text-muted-foreground sm:text-lg sm:text-xl">
           {t("HomePage.description")}
         </p>
-        <div className="flex gap-4">
-          <Button asChild>
-            <Link
-              href={ROUTES.login}
-              prefetch={false}
-            >
-              {t("HomePage.loginButton")}
-            </Link>
-          </Button>
+        <div className="flex w-full max-w-xs flex-col items-center justify-center gap-3 sm:max-w-none sm:flex-row sm:gap-4">
           <Button
             asChild
-            variant="outline"
+            size="lg"
+            className="w-full gap-2 px-6 shadow-md transition-all hover:shadow-lg sm:w-auto"
           >
             <Link
               href={ROUTES.registration}
               prefetch={false}
             >
-              {t("HomePage.registerButton")}
+              {t("HomePage.primaryCta")}
+              <ArrowRightIcon className="size-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            size="lg"
+            className="w-full gap-2 text-muted-foreground hover:bg-muted/80 hover:text-foreground sm:w-auto"
+          >
+            <Link
+              href={ROUTES.login}
+              prefetch={false}
+            >
+              <LogInIcon className="size-4" />
+              {t("HomePage.secondaryCta")}
             </Link>
           </Button>
         </div>
       </div>
 
       {/* How it works */}
-      <section className="w-full max-w-5xl px-4">
-        <Typography
-          as="h2"
-          variant="display-lg"
-          weight="semibold"
-          className="mb-1 text-center"
+      <div className="w-full px-2 sm:px-4">
+        <HowItWorksSection
+          title={t("Setup.guide.howItWorks")}
+          description={t("Setup.guide.howItWorksDescription")}
+          showStepsLabel={t("Setup.guide.showSteps")}
+          hideStepsLabel={t("Setup.guide.hideSteps")}
+          isCentered
+          isCollapsible={false}
         >
-          {t("Setup.guide.howItWorks")}
-        </Typography>
-        <Typography
-          as="p"
-          variant="body-sm"
-          className="mb-6 text-center text-muted-foreground"
-        >
-          {t("Setup.guide.howItWorksDescription")}
-        </Typography>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {WORKFLOW_STEPS.map((step, idx) => {
-            const Icon = step.icon
-            return (
-              <Card
-                key={step.titleKey}
-                className="relative flex flex-col gap-3 p-5"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                    {idx + 1}
-                  </span>
-                  <Icon className="size-5 text-muted-foreground" />
-                </div>
-                <Typography
-                  as="h3"
-                  variant="body-md"
-                  weight="semibold"
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {WORKFLOW_STEPS.map((step, idx) => {
+              const Icon = step.icon
+              const accentClass = STEP_ACCENT_CLASSES[idx]
+              return (
+                <Card
+                  key={step.titleKey}
+                  className="group relative flex flex-col gap-3 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg sm:p-5"
                 >
-                  {t(step.titleKey)}
-                </Typography>
-                <Typography
-                  as="p"
-                  variant="body-sm"
-                  className="text-muted-foreground"
-                >
-                  {t(step.descKey)}
-                </Typography>
-                {idx === 0 && (
-                  <a
-                    href="/downloads/configurator_dc_export.rbz"
-                    download="configurator_dc_export.rbz"
-                    className="mt-1 inline-flex items-center text-sm text-primary hover:underline"
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "flex size-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold shadow-sm transition-transform group-hover:scale-110",
+                        accentClass,
+                      )}
+                    >
+                      {idx + 1}
+                    </span>
+                    <Icon className="size-5 text-muted-foreground transition-colors group-hover:text-foreground" />
+                  </div>
+                  <Typography
+                    as="h3"
+                    variant="body-md"
+                    weight="semibold"
                   >
-                    <DownloadIcon className="mr-1 size-3.5" />
-                    {t("Setup.guide.downloadPlugin")}
-                  </a>
-                )}
-              </Card>
-            )
-          })}
-        </div>
-      </section>
+                    {t(step.titleKey)}
+                  </Typography>
+                  <Typography
+                    as="p"
+                    variant="body-sm"
+                    className="text-muted-foreground"
+                  >
+                    {t(step.descKey)}
+                  </Typography>
+                  {idx === 0 && (
+                    <a
+                      href="/downloads/configurator_dc_export.rbz"
+                      download="configurator_dc_export.rbz"
+                      className="mt-1 inline-flex items-center text-sm font-medium text-chart-1 hover:underline"
+                    >
+                      <DownloadIcon className="mr-1 size-3.5" />
+                      {t("Setup.guide.downloadPlugin")}
+                    </a>
+                  )}
+                </Card>
+              )
+            })}
+          </div>
+        </HowItWorksSection>
+      </div>
     </div>
   )
 }

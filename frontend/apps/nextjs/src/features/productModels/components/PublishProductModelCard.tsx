@@ -170,7 +170,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   ])
 
   return (
-    <Card className="p-6">
+    <Card className="p-4 sm:p-6">
       <div className="space-y-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -222,13 +222,16 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
         <div className="space-y-4 border-t pt-6">
           <div className="space-y-2">
             <Label htmlFor="url-input">{t("urlLabel")}</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Input
                 id="url-input"
                 value={url}
                 onChange={(e) => setUrl(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
                 placeholder={t("urlPlaceholder")}
-                className={cn("font-mono", isUrlError && "border-destructive")}
+                className={cn(
+                  "min-w-0 flex-1 font-mono sm:min-w-[200px] sm:flex-initial",
+                  isUrlError && "border-destructive",
+                )}
                 disabled={updateProductModel.isPending}
               />
               <Button
@@ -329,7 +332,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                     key={`embed-preview-${isEmbedProductNameShownFromServer}-${isEmbedDescriptionShownFromServer}-${isEmbedComponentsShownFromServer}`}
                     src={embedUrl}
                     title={t("embedPreviewTitle")}
-                    className="h-[800px] min-h-[500px] w-full border-0"
+                    className="h-[60vh] min-h-[400px] w-full border-0 sm:h-[70vh] sm:min-h-[500px]"
                     allowFullScreen
                   />
                 </div>

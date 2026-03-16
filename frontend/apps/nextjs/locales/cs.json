@@ -15,7 +15,7 @@
           }
         },
         "Logo": {
-          "description": "Konfigurátor produktů"
+          "description": "Konfiguruj"
         },
         "ThemeSwitcher": {
           "label": "Změnit téma",
@@ -27,17 +27,28 @@
         }
       },
       "seo": {
-        "description": "Konfigurátor produktů - Konfigurujte a přizpůsobujte své produkty.",
-        "siteName": "Konfigurátor produktů"
+        "description": "Konfiguruj na configuruj.com - Konfigurátor produktů pro váš e-shop nebo web.",
+        "siteName": "Konfiguruj"
+      },
+      "Footer": {
+        "contact": "Kontaktuj mě"
       }
     }
   },
   "HomePage": {
-    "description": "Toto je konfigurátor produktů",
+    "description": "Pro firmy, které hledají konfigurátor produktů pro svůj e-shop nebo web.",
     "loginButton": "Přihlásit",
     "registerButton": "Registrovat",
+    "primaryCta": "Začít zdarma",
+    "secondaryCta": "Přihlásit se",
     "setupCta": "Přejít na nastavení modelů",
-    "title": "Konfigurátor produktů"
+    "title": "Konfiguruj"
+  },
+  "Contact": {
+    "title": "Kontaktuj mě",
+    "description": "Máte dotazy nebo chcete konfigurátor vložit na svůj e‑shop? Napište mi ohledně ukázky nebo technického nastavení.",
+    "author": "Eliška Vokounová",
+    "emailAddress": "info@konfiguruj.com"
   },
   "Login": {
     "email": "E-mail",
@@ -197,15 +208,17 @@
     "welcome": "Vítejte, {name}!",
     "guide": {
       "howItWorks": "Jak to funguje",
-      "howItWorksDescription": "Spusťte svůj konfigurátor produktů ve čtyřech krocích.",
-      "step1Title": "Vytvořte nebo importujte produkt",
-      "step1Description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Configurator → Export) pro automatické vytvoření produktu s komponentami a atributy, nebo vytvořte model ručně.",
-      "step2Title": "Nastavte atributy a možnosti",
-      "step2Description": "Definujte, co si zákazníci mohou vybrat: barvy, rozměry, materiály. Nastavte komponenty a jejich atributy.",
-      "step3Title": "Nastavte cenová pravidla",
-      "step3Description": "Definujte, jak každá volba ovlivní cenu — pevná částka nebo přírůstek za jednotku.",
-      "step4Title": "Publikujte a vložte",
-      "step4Description": "Nastavte embed URL, publikujte produkt a zkopírujte iframe kód pro vložení konfigurátoru na váš web.",
+      "howItWorksDescription": "Od 3D modelu k živému konfigurátoru ve čtyřech krocích.",
+      "showSteps": "Zobrazit kroky",
+      "hideSteps": "Skrýt kroky",
+      "step1Title": "Přidejte svůj produkt",
+      "step1Description": "Import ze SketchUp nebo vytvořte od nuly.",
+      "step2Title": "Nechte zákazníky přizpůsobit",
+      "step2Description": "Barvy, rozměry, materiály — vy rozhodujete.",
+      "step3Title": "Nastavte cenění",
+      "step3Description": "Pevná částka nebo cena za jednotku.",
+      "step4Title": "Spusťte na svém webu",
+      "step4Description": "Jedno kliknutí pro vložení. Bez kódu.",
       "quickActions": "Rychlé akce",
       "importAction": "Import ze SketchUp",
       "importDescription": "Nahrajte .skp a .glb soubory pro automatické vytvoření produktu s komponentami a atributy.",
@@ -424,7 +437,7 @@
     "title": "Modely produktů"
   },
   "Embed": {
-    "title": "Konfigurátor produktů",
+    "title": "Konfiguruj",
     "requestQuote": "Požádat o cenovou nabídku",
     "priceBreakdown": "Základ {base} + doplňky {modifier}",
     "resetConfiguration": "Obnovit konfiguraci",
@@ -459,7 +472,7 @@
       "home": "Domů"
     },
     "editButton": "Upravit",
-    "title": "Konfigurátor produktů",
+    "title": "Konfiguruj",
     "error": {
       "loadingProductModel": "Nepodařilo se načíst model produktu. Zkuste to prosím později.",
       "productModelNotFound": "Model produktu nebyl nalezen."
@@ -467,7 +480,7 @@
     "components": {
       "title": "Komponenty",
       "emptyState": "Pro tento model produktu nejsou k dispozici žádné komponenty.",
-      "progress": "{{current}} z {{total}} nakonfigurováno"
+      "progress": "{current} z {total} nakonfigurováno"
     },
     "attributes": {
       "title": "Konfigurace",
@@ -632,17 +645,17 @@
       "clickToEdit": "Kliknutím upravíte",
       "selectAll": "Vybrat vše na stránce",
       "selectRow": "Vybrat řádek",
-      "selectedCount": "{{count}} vybráno",
+      "selectedCount": "{count} vybráno",
       "editSelected": "Upravit vybrané",
       "deleteSelected": "Smazat vybrané",
-      "deleteSelectedConfirm": "Smazat {{count}} pravidlo(la)?",
+      "deleteSelectedConfirm": "Smazat {count} pravidlo(la)?",
       "clearSelection": "Zrušit výběr",
       "saveButton": "Uložit",
       "addWithFilter": "Přidat pravidlo (s aktuálními filtry)",
-      "paginationInfo": "{{from}}–{{to}} z {{total}}",
+      "paginationInfo": "{from}–{to} z {total}",
       "paginationPrev": "Předchozí",
       "paginationNext": "Další",
-      "paginationPage": "{{current}} / {{total}}"
+      "paginationPage": "{current} / {total}"
     },
     "create": {
       "title": "Přidat cenové pravidlo",
@@ -675,7 +688,7 @@
       "rangeSection": "Rozsah hodnot",
       "priceSection": "Cena",
       "enumOptionsLabel": "Možnosti (vyberte jednu nebo více, stejná cena pro všechny)",
-      "enumSelectedCount": "Vybráno {{count}}",
+      "enumSelectedCount": "Vybráno {count}",
       "enumSelectAll": "Vše",
       "enumClear": "Zrušit",
       "enumNoOptions": "Pro tento atribut nejsou definovány žádné možnosti. Nejdříve přidejte možnosti na stránce možností atributu.",

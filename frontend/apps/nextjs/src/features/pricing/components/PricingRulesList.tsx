@@ -246,13 +246,13 @@ export const PricingRulesList = ({
   const isEnumRule = (rule: AttributePricingRuleDto): boolean =>
     Boolean(
       rule.componentId &&
-        rule.attributeCode &&
-        allAttributes.some(
-          (a) =>
-            a.componentId === rule.componentId &&
-            a.code?.toLowerCase().trim() === rule.attributeCode?.toLowerCase().trim() &&
-            a.type === "ENUM",
-        ),
+      rule.attributeCode &&
+      allAttributes.some(
+        (a) =>
+          a.componentId === rule.componentId &&
+          a.code?.toLowerCase().trim() === rule.attributeCode?.toLowerCase().trim() &&
+          a.type === "ENUM",
+      ),
     )
 
   const _getConditionDisplay = (rule: AttributePricingRuleDto): string => {
@@ -375,9 +375,9 @@ export const PricingRulesList = ({
   const canAddInlineRow = Boolean(
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional boolean OR
     (isAttributeScoped && presetComponentId && presetAttributeCode) ||
-      (createPresetFromFilters?.componentId &&
-        createPresetFromFilters?.attributeCode &&
-        hasFilterApplied),
+    (createPresetFromFilters?.componentId &&
+      createPresetFromFilters?.attributeCode &&
+      hasFilterApplied),
   )
 
   const newRowAttribute = useMemo(() => {
@@ -719,7 +719,7 @@ export const PricingRulesList = ({
             )}
           </div>
 
-          <div className="rounded-lg border border-border">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">

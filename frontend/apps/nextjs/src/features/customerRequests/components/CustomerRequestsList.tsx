@@ -308,9 +308,26 @@ export const CustomerRequestsList = () => {
           </Typography>
         </Card>
       ) : (
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full caption-bottom text-sm">
+        <>
+          {/* Mobile: card list */}
+          <div className="space-y-3 md:hidden">
+            {filteredRequests.map((req) => (
+              <RequestCard
+                key={req.id}
+                request={req}
+                isExpanded={selectedId === req.id}
+                onToggle={() => handleToggleExpand(req.id)}
+                onStatusChange={(newStatus) => handleStatusChange(req.id, newStatus)}
+                isStatusUpdating={updateStatus.isPending}
+                t={t}
+              />
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <Card className="hidden md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full caption-bottom text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
                   <th
@@ -375,8 +392,9 @@ export const CustomerRequestsList = () => {
               </tbody>
             </table>
           </div>
+        </Card>
           {updateStatus.isError && (
-            <div className="border-t border-border px-4 py-2">
+            <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2">
               <Typography
                 as="p"
                 variant="body-sm"
@@ -386,9 +404,268 @@ export const CustomerRequestsList = () => {
               </Typography>
             </div>
           )}
-        </Card>
+        </>
       )}
     </>
+  )
+}
+
+type RequestCardProps = {
+  request: CustomerRequestDto
+  isExpanded: boolean
+  onToggle: () => void
+  onStatusChange: (newStatus: string) => void
+  isStatusUpdating: boolean
+  t: ReturnType<typeof useTranslations<"Setup.customerRequests">>
+}
+
+const RequestCard = ({
+  request: req,
+  isExpanded,
+  onToggle,
+  onStatusChange,
+  isStatusUpdating,
+  t,
+}: RequestCardProps) => {
+  const config = req.configurationJson as Record<string, unknown> | null
+  const configStr = config != null ? JSON.stringify(config, null, 2) : "—"
+  const configurationData = useRequestConfigurationData(config, req.productModelId, {
+    enabled: isExpanded,
+  })
+
+  return (
+    <Card
+      className={cn(
+        "overflow-hidden transition-colors",
+        isExpanded && "ring-2 ring-primary/30",
+      )}
+    >
+      <div
+        role="button"
+        tabIndex={0}
+        className="flex w-full flex-col gap-2 p-4 text-left cursor-pointer"
+        onClick={onToggle}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            onToggle()
+          }
+        }}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <Typography
+            as="span"
+            variant="body-md"
+            weight="medium"
+            className="line-clamp-2 flex-1 min-w-0"
+          >
+            {req.productModelName}
+          </Typography>
+          <Typography
+            as="span"
+            variant="body-md"
+            weight="semibold"
+            className="shrink-0 tabular-nums"
+          >
+            {formatPrice(req.totalPrice, req.currency)}
+          </Typography>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Typography
+            as="span"
+            variant="body-sm"
+            className="text-muted-foreground"
+          >
+            {req.customerName ?? req.customerEmail}
+          </Typography>
+          <Select
+            value={req.status}
+            onValueChange={onStatusChange}
+            disabled={isStatusUpdating}
+          >
+            <Select.Trigger
+              className={cn(
+                "h-8 min-w-[90px] border-0 bg-transparent shadow-none hover:bg-muted/50",
+                getStatusBadgeClasses(req.status),
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Select.Trigger.Value />
+            </Select.Trigger>
+            <Select.Content align="start">
+              {REQUEST_STATUSES.map((s) => (
+                <Select.Content.Item
+                  key={s}
+                  value={s}
+                >
+                  {t(STATUS_KEYS[s])}
+                </Select.Content.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        </div>
+        <ChevronDownIcon
+          className={cn(
+            "size-4 shrink-0 self-center text-muted-foreground transition-transform",
+            isExpanded && "rotate-180",
+          )}
+        />
+      </div>
+      {isExpanded && (
+        <div className="border-t border-border bg-muted/20 px-4 py-4">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <Typography
+                as="h3"
+                variant="body-lg"
+                weight="semibold"
+              >
+                {t("detail.title")}
+              </Typography>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+              >
+                <Link href={ROUTES.setupCustomerRequestDetail(req.id)}>
+                  <ExternalLinkIcon className="mr-1.5 size-3.5" />
+                  {t("detail.openFullPage")}
+                </Link>
+              </Button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  weight="semibold"
+                  className="text-muted-foreground"
+                >
+                  {t("table.customer")}
+                </Typography>
+                <Typography
+                  as="p"
+                  variant="body-md"
+                >
+                  {req.customerName ?? "—"}
+                </Typography>
+              </div>
+              <div>
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  weight="semibold"
+                  className="text-muted-foreground"
+                >
+                  {t("table.email")}
+                </Typography>
+                <Typography
+                  as="p"
+                  variant="body-md"
+                >
+                  <a
+                    href={`mailto:${req.customerEmail}`}
+                    className="text-primary hover:underline"
+                  >
+                    {req.customerEmail}
+                  </a>
+                </Typography>
+              </div>
+              <div>
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  weight="semibold"
+                  className="text-muted-foreground"
+                >
+                  {t("table.price")}
+                </Typography>
+                <Typography
+                  as="p"
+                  variant="body-md"
+                >
+                  {formatPrice(req.totalPrice, req.currency)}
+                </Typography>
+              </div>
+              <div>
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  weight="semibold"
+                  className="text-muted-foreground"
+                >
+                  {t("table.date")}
+                </Typography>
+                <Typography
+                  as="p"
+                  variant="body-md"
+                >
+                  {formatDate(req.createdAt)}
+                </Typography>
+              </div>
+            </div>
+
+            {req.customerNote && (
+              <div>
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  weight="semibold"
+                  className="mb-1 text-muted-foreground"
+                >
+                  {t("detail.message")}
+                </Typography>
+                <Typography
+                  as="p"
+                  variant="body-md"
+                  className="rounded-lg border bg-background p-3 whitespace-pre-wrap"
+                >
+                  {req.customerNote}
+                </Typography>
+              </div>
+            )}
+
+            {req.snapshotImageBase64 && (
+              <div>
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  weight="semibold"
+                  className="mb-2 text-muted-foreground"
+                >
+                  {t("detail.snapshot")}
+                </Typography>
+                <Image
+                  src={req.snapshotImageBase64}
+                  alt="Configuration snapshot"
+                  width={800}
+                  height={384}
+                  className="max-h-72 w-full rounded-lg border bg-background object-contain"
+                  unoptimized
+                />
+              </div>
+            )}
+
+            <div>
+              <Typography
+                as="p"
+                variant="body-sm"
+                weight="semibold"
+                className="mb-2 text-muted-foreground"
+              >
+                {t("detail.configuration")}
+              </Typography>
+              <RequestConfigurationDisplay
+                config={config}
+                configStr={configStr}
+                configurationData={configurationData}
+                variant="compact"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </Card>
   )
 }
 

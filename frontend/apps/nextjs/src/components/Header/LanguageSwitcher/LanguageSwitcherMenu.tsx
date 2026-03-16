@@ -41,7 +41,7 @@ export const LanguageSwitcherMenu = ({ currentLocale, options }: Props) => {
         <Button
           variant="ghost"
           size="icon"
-          className="min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0"
+          className="size-9 min-h-9 min-w-9 shrink-0 lg:min-h-0 lg:min-w-0"
         >
           <Icon as={GlobeIcon} />
           <span className="sr-only">{t("label")}</span>

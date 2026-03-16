@@ -88,12 +88,12 @@ export const CustomerRequestDetail = ({ id }: Props) => {
   const configStr = config != null ? JSON.stringify(config, null, 2) : "—"
 
   return (
-    <div className="flex-1 rounded-2xl bg-muted/50 p-6 md:p-10">
-      <div className="mb-6">
+    <div className="min-w-0 flex-1 overflow-x-hidden rounded-2xl bg-muted/50 p-4 sm:p-6 md:p-10">
+      <div className="mb-4 md:mb-6">
         <Button
           variant="ghost"
           size="sm"
-          className="mb-4"
+          className="mb-3 min-h-10 touch-manipulation md:mb-4"
           asChild
         >
           <Link href={ROUTES.setupCustomerRequests}>
@@ -118,9 +118,9 @@ export const CustomerRequestDetail = ({ id }: Props) => {
         </Typography>
       </div>
 
-      <Card className="p-6">
-        <div className="space-y-6">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <Card className="p-4 sm:p-6">
+        <div className="space-y-5 sm:space-y-6">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             <div>
               <Typography
                 as="p"

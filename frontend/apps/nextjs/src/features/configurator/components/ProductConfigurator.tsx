@@ -183,7 +183,7 @@ export const ProductConfigurator = ({
   )
 
   return (
-    <div className="flex flex-1 flex-col gap-6 bg-muted/30 p-6 md:p-10">
+    <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden bg-muted/30 p-4 sm:gap-6 sm:p-6 md:p-10">
       <Breadcrumbs
         productModelId={productModelId}
         productModelName={productModel.name}
@@ -222,8 +222,8 @@ export const ProductConfigurator = ({
         )}
       </div>
 
-      <div className="grid flex-1 gap-6 lg:min-h-0 lg:grid-cols-3">
-        <div className="flex max-h-[60vh] min-h-[40vh] flex-col lg:col-span-2 lg:max-h-[60vh] lg:min-h-[50vh]">
+      <div className="grid min-w-0 flex-1 gap-4 sm:gap-6 lg:min-h-0 lg:grid-cols-3">
+        <div className="flex max-h-[50vh] min-h-[280px] flex-col sm:max-h-[60vh] sm:min-h-[40vh] lg:col-span-2 lg:max-h-[60vh] lg:min-h-[50vh]">
           <VisualPreview
             productModelId={productModelId}
             selectedComponentId={activeComponentId}
@@ -238,7 +238,7 @@ export const ProductConfigurator = ({
           />
         </div>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-4 sm:space-y-6">
           {productModel.model3dUrl && isOwner && (
             <ConfiguratorPreviewSettings
               productModelId={productModelId}

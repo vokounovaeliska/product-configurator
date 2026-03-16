@@ -126,9 +126,9 @@ export const Breadcrumbs = ({
     return (
       <nav
         aria-label="Breadcrumb"
-        className="mb-6"
+        className="mb-4 min-w-0 overflow-x-auto md:mb-6"
       >
-        <ol className="flex items-center gap-2 text-sm">
+        <ol className="flex min-w-max items-center gap-2 text-sm">
           {breadcrumbs.map((crumb, index) => {
             const isLast = index === breadcrumbs.length - 1
 
@@ -262,16 +262,16 @@ export const Breadcrumbs = ({
   return (
     <nav
       aria-label="Breadcrumb"
-      className="mb-6"
+      className="mb-4 min-w-0 overflow-x-auto md:mb-6"
     >
-      <ol className="flex items-center gap-2 text-sm">
+      <ol className="flex min-w-max items-center gap-2 text-sm">
         {breadcrumbs.map((crumb, index) => {
           const isLast = index === breadcrumbs.length - 1
 
           return (
             <li
               key={`${crumb.href}-${index}-${crumb.label}`}
-              className="flex items-center gap-2"
+              className="flex shrink-0 items-center gap-2"
             >
               {index > 0 && <ChevronRightIcon className="size-4 text-muted-foreground" />}
               {isLast ? (

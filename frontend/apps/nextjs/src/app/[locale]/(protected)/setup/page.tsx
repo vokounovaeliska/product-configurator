@@ -14,11 +14,14 @@ import { getTranslations } from "next-intl/server"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
+import { cn } from "@workspace/ui/lib/utils"
 
 import { env } from "@/config/env"
 import { getSession } from "@/lib/auth/session"
 import { Link, redirect } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
+
+import { HowItWorksSection } from "@/features/setup/components/HowItWorksSection"
 
 type Props = {
   params: Promise<{ locale: Locale }>
@@ -43,6 +46,13 @@ export async function generateMetadata(props: Omit<Props, "children">) {
     },
   } satisfies Metadata
 }
+
+const STEP_ACCENT_CLASSES = [
+  "bg-chart-1 text-white",
+  "bg-chart-2 text-white",
+  "bg-chart-3 text-white",
+  "bg-chart-4 text-white",
+] as const
 
 const WORKFLOW_STEPS = [
   { titleKey: "guide.step1Title", descKey: "guide.step1Description", icon: PackageIcon },
@@ -89,36 +99,32 @@ const SetupPage = async (props: Props) => {
       </div>
 
       {/* How it works */}
-      <section className="mb-10">
-        <Typography
-          as="h2"
-          variant="display-lg"
-          weight="semibold"
-          className="mb-1"
-        >
-          {t("guide.howItWorks")}
-        </Typography>
-        <Typography
-          as="p"
-          variant="body-sm"
-          className="mb-5 text-muted-foreground"
-        >
-          {t("guide.howItWorksDescription")}
-        </Typography>
-
+      <HowItWorksSection
+        title={t("guide.howItWorks")}
+        description={t("guide.howItWorksDescription")}
+        showStepsLabel={t("guide.showSteps")}
+        hideStepsLabel={t("guide.hideSteps")}
+        className="mb-10"
+      >
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {WORKFLOW_STEPS.map((step, idx) => {
             const Icon = step.icon
+            const accentClass = STEP_ACCENT_CLASSES[idx]
             return (
               <Card
                 key={step.titleKey}
-                className="relative flex flex-col gap-3 p-5"
+                className="group relative flex flex-col gap-3 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                  <span
+                    className={cn(
+                      "flex size-9 shrink-0 items-center justify-center rounded-xl text-sm font-bold shadow-sm transition-transform group-hover:scale-110",
+                      accentClass,
+                    )}
+                  >
                     {idx + 1}
                   </span>
-                  <Icon className="size-5 text-muted-foreground" />
+                  <Icon className="size-5 text-muted-foreground transition-colors group-hover:text-foreground" />
                 </div>
                 <Typography
                   as="h3"
@@ -138,7 +144,7 @@ const SetupPage = async (props: Props) => {
             )
           })}
         </div>
-      </section>
+      </HowItWorksSection>
 
       {/* Quick actions */}
       <section className="mb-10">
@@ -153,9 +159,11 @@ const SetupPage = async (props: Props) => {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <Link href={ROUTES.setupProductModels}>
-            <div className="group flex h-full flex-col rounded-lg border bg-card p-6 transition-colors hover:bg-accent">
-              <div className="mb-3 flex items-center gap-2">
-                <PackageIcon className="size-5 text-primary" />
+            <div className="group flex h-full min-h-[200px] flex-col rounded-xl border bg-card p-7 transition-colors hover:bg-accent">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <PackageIcon className="size-6" />
+                </span>
                 <Typography
                   as="h3"
                   variant="body-md"
@@ -181,9 +189,11 @@ const SetupPage = async (props: Props) => {
           </Link>
 
           <Link href={ROUTES.setupImportSketchup}>
-            <div className="group flex h-full flex-col rounded-lg border bg-card p-6 transition-colors hover:bg-accent">
-              <div className="mb-3 flex items-center gap-2">
-                <FileUpIcon className="size-5 text-primary" />
+            <div className="group flex h-full min-h-[200px] flex-col rounded-xl border bg-card p-7 transition-colors hover:bg-accent">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <FileUpIcon className="size-6" />
+                </span>
                 <Typography
                   as="h3"
                   variant="body-md"
@@ -209,9 +219,11 @@ const SetupPage = async (props: Props) => {
           </Link>
 
           <Link href={ROUTES.setupCustomerRequests}>
-            <div className="group flex h-full flex-col rounded-lg border bg-card p-6 transition-colors hover:bg-accent">
-              <div className="mb-3 flex items-center gap-2">
-                <InboxIcon className="size-5 text-primary" />
+            <div className="group flex h-full min-h-[200px] flex-col rounded-xl border bg-card p-7 transition-colors hover:bg-accent">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <InboxIcon className="size-6" />
+                </span>
                 <Typography
                   as="h3"
                   variant="body-md"

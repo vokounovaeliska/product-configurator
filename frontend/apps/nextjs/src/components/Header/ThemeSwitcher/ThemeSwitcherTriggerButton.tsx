@@ -13,7 +13,7 @@ export const ThemeSwitcherTriggerButton = ({ className, ...props }: Props) => {
     <Button
       variant="ghost"
       size="icon"
-      className={cn("min-h-[44px] min-w-[44px] lg:min-h-0 lg:min-w-0", className)}
+      className={cn("size-9 min-h-9 min-w-9 shrink-0 lg:min-h-0 lg:min-w-0", className)}
       {...props}
     >
       <Icon as={SunIcon} />
