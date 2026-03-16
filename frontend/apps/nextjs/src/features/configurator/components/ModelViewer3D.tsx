@@ -1491,6 +1491,45 @@ function ZoomPersistence({
 
 /** Reusable vector for slider→camera sync to avoid per-frame allocations. */
 const _directionForSliderSync = new THREE.Vector3()
+const _directionForInitialSync = new THREE.Vector3()
+
+/** Forces initial camera distance on first frame. OrbitControls can override Canvas camera on mount. */
+function InitialZoomSync({
+  controlsRef,
+  zoomPreset,
+  savedZoomDistance,
+  centerOffsetY,
+}: {
+  controlsRef: React.RefObject<OrbitControlsRef | null>
+  zoomPreset: "default" | "embed" | "thumbnail"
+  savedZoomDistance?: number | null
+  centerOffsetY?: number
+}) {
+  const hasSyncedRef = useRef(false)
+  useFrame(() => {
+    if (zoomPreset === "thumbnail" || hasSyncedRef.current) return
+    const controls = controlsRef.current
+    if (!controls) return
+
+    hasSyncedRef.current = true
+    const target = new THREE.Vector3(0, centerOffsetY ?? 0, 0)
+    const defaultDistance = zoomPreset === "embed" ? ZOOM_DEFAULT_EMBED : ZOOM_DEFAULT_DISTANCE
+    const distance = savedZoomDistance ?? defaultDistance
+    const minDist = zoomPreset === "embed" ? ZOOM_MIN_EMBED : ZOOM_MIN_DEFAULT
+    const maxDist = zoomPreset === "embed" ? ZOOM_MAX_EMBED : ZOOM_MAX_DEFAULT
+    const clamped = Math.max(minDist, Math.min(maxDist, distance))
+
+    controls.target.copy(target)
+    const cam = controls.object
+    _directionForInitialSync.subVectors(cam.position, target)
+    const len = _directionForInitialSync.length()
+    if (len < 1e-6) _directionForInitialSync.set(0, 0.37, 0.93)
+    else _directionForInitialSync.normalize()
+    cam.position.copy(target).addScaledVector(_directionForInitialSync, clamped)
+    if (typeof controls.update === "function") controls.update()
+  })
+  return null
+}
 
 /** Syncs cameraDistanceOverride to OrbitControls when slider changes. */
 function CameraDistanceOverrideSync({
@@ -1612,7 +1651,13 @@ function SceneWithCapture({
           minDistance: ZOOM_MIN_EMBED,
           maxDistance: ZOOM_MAX_EMBED,
         })}
-        target={[0, 0, 0]}
+        target={[0, centerOffsetY, 0]}
+      />
+      <InitialZoomSync
+        controlsRef={controlsRef}
+        zoomPreset={zoomPreset}
+        savedZoomDistance={savedZoomDistance}
+        centerOffsetY={centerOffsetY}
       />
       {zoomPreset !== "thumbnail" && (
         <>
@@ -1796,8 +1841,10 @@ export const ModelViewer3D = ({
     const defaultDistance = zoomPreset === "embed" ? ZOOM_DEFAULT_EMBED : ZOOM_DEFAULT_DISTANCE
     const distance =
       zoomPreset === "thumbnail" ? ZOOM_DEFAULT_DISTANCE : (savedZoomDistance ?? defaultDistance)
-    return dir.multiplyScalar(distance).toArray() as [number, number, number]
-  }, [zoomPreset, savedZoomDistance])
+    const targetY = centerOffsetY ?? 0
+    const target = new THREE.Vector3(0, targetY, 0)
+    return target.clone().add(dir.multiplyScalar(distance)).toArray() as [number, number, number]
+  }, [zoomPreset, savedZoomDistance, centerOffsetY])
 
   if (isContextLost) {
     return (

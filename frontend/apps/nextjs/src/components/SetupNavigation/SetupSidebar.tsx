@@ -2,10 +2,10 @@
 
 import {
   ChevronLeftIcon,
-  ChevronRightIcon,
   FileUpIcon,
   InboxIcon,
   LayoutDashboardIcon,
+  MenuIcon,
   PackageIcon,
   SendIcon,
   SettingsIcon,
@@ -64,12 +64,12 @@ export const SetupSidebar = (_props: Props) => {
     <>
       <aside
         className={cn(
-          "fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] border-r bg-muted/30 transition-all duration-300 lg:relative lg:top-0 lg:h-screen",
-          isOpen ? "w-64 translate-x-0" : "-translate-x-full lg:w-16 lg:translate-x-0",
-          "lg:shrink-0",
+          "fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] border-r bg-muted/30 transition-all duration-300 lg:relative lg:top-0 lg:h-fit lg:shrink-0",
+          isOpen ? "w-72 translate-x-0" : "-translate-x-full lg:w-16 lg:translate-x-0",
+          "rounded-r-xl rounded-b-xl lg:rounded-t-xl lg:rounded-b-xl",
         )}
       >
-        <div className={cn("flex h-full flex-col", isOpen ? "p-4" : "p-2")}>
+        <div className={cn("flex flex-col", isOpen ? "p-4" : "p-2")}>
           <div
             className={cn("mb-4 flex items-center", isOpen ? "justify-between" : "justify-center")}
           >
@@ -102,12 +102,12 @@ export const SetupSidebar = (_props: Props) => {
                 className="w-full hover:bg-accent"
                 aria-label="Expand sidebar"
               >
-                <ChevronRightIcon className="size-4" />
+                <MenuIcon className="size-5" />
               </Button>
             )}
           </div>
 
-          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+          <nav className="space-y-1">
             {navItems.map((item) => {
               const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
               const Icon = item.icon

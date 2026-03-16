@@ -50,7 +50,7 @@ export const ProductConfiguratorWrapper = ({
 
   if ((shouldPreferEmbedConfig || !isLoggedIn) && embedError) {
     return (
-      <div className="flex flex-1 items-center justify-center p-10">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-10">
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
           <Typography
             as="p"
@@ -66,7 +66,7 @@ export const ProductConfiguratorWrapper = ({
 
   if (isLoggedIn && productModelError) {
     return (
-      <div className="flex flex-1 items-center justify-center p-10">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-10">
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
           <Typography
             as="p"
@@ -82,7 +82,7 @@ export const ProductConfiguratorWrapper = ({
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 flex-col gap-6 p-6 md:p-10">
+      <div className="flex flex-1 flex-col gap-4 p-4 sm:gap-6 sm:p-6 md:p-10">
         <div className="space-y-2">
           <Skeleton className="h-10 w-64" />
           <Skeleton className="h-6 w-96" />
@@ -133,7 +133,7 @@ export const ProductConfiguratorWrapper = ({
 
   if (isLoggedIn && !productModel) {
     return (
-      <div className="flex flex-1 items-center justify-center p-10">
+      <div className="flex flex-1 items-center justify-center p-4 sm:p-10">
         <Typography
           as="p"
           variant="body-lg"

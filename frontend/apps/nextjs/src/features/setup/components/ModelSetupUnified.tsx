@@ -65,11 +65,11 @@ const CollapsibleSection = ({
   className?: string
 }) => (
   <div className={cn("rounded-lg border border-border bg-card", className)}>
-    <div className="flex w-full min-w-0 items-center gap-3 px-4 py-3">
+    <div className="flex w-full min-w-0 flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3">
       <button
         type="button"
         onClick={onToggle}
-        className="-mt-1 -mr-2 -mb-1 -ml-2 flex min-w-0 flex-1 items-center gap-3 rounded px-2 py-1 text-left transition-colors hover:bg-muted/50"
+        className="-mt-1 -mr-2 -mb-1 -ml-2 flex min-w-0 flex-1 touch-manipulation items-center gap-3 rounded px-2 py-1 text-left transition-colors hover:bg-muted/50"
         aria-expanded={isOpen}
       >
         {isOpen ? (
@@ -85,7 +85,9 @@ const CollapsibleSection = ({
         </span>
         {badge != null && <span className="shrink-0">{badge}</span>}
       </button>
-      {actions != null && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions != null && (
+        <div className="-mx-2 flex shrink-0 flex-wrap items-center gap-2 sm:mx-0">{actions}</div>
+      )}
     </div>
     {isOpen && <div className="border-t border-border px-4 py-4">{children}</div>}
   </div>
@@ -263,7 +265,7 @@ export const ModelSetupUnified = ({ productModelId, isQuickActionsHidden = false
 
       {/* Product model: always visible */}
       {productModel && (
-        <Card className="p-6">
+        <Card className="p-4 sm:p-6">
           <div className="space-y-4">
             <div>
               <Typography

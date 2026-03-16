@@ -72,7 +72,7 @@ const OptionsPage = async (props: Props) => {
   }
 
   return (
-    <div className="flex-1 rounded-2xl bg-muted/50 p-10">
+    <div className="min-w-0 flex-1 overflow-x-hidden rounded-2xl bg-muted/50 p-4 sm:p-6 md:p-10">
       <Breadcrumbs
         productModelId={productModelId}
         productModelName={productModelName}

@@ -2,8 +2,6 @@ import { hasLocale } from "next-intl"
 
 import { ConfiguratorQueryProvider } from "@/app/_wrappers/ConfiguratorQueryProvider"
 import { SetupSidebarWrapper } from "@/app/_wrappers/SetupSidebarWrapper"
-import { SidebarToggle } from "@/components/SetupNavigation/SidebarToggle"
-import { SidebarProvider } from "@/components/SetupNavigation/useSidebar"
 import { getSession } from "@/lib/auth/session"
 import { redirect } from "@/lib/i18n/navigation"
 import { routing } from "@/lib/i18n/routing"
@@ -31,13 +29,10 @@ export default async function ProtectedLayout({ children, params }: Props) {
 
   return (
     <ConfiguratorQueryProvider>
-      <SidebarProvider>
-        <div className="flex flex-1 gap-6">
-          <SetupSidebarWrapper />
-          <SidebarToggle />
-          <div className="flex-1">{children}</div>
-        </div>
-      </SidebarProvider>
+      <div className="relative flex flex-1 gap-6">
+        <SetupSidebarWrapper />
+        <div className="flex-1">{children}</div>
+      </div>
     </ConfiguratorQueryProvider>
   )
 }

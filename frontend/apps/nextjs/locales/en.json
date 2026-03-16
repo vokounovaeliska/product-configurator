@@ -15,7 +15,7 @@
           }
         },
         "Logo": {
-          "description": "Product Configurator"
+          "description": "Konfiguruj"
         },
         "ThemeSwitcher": {
           "label": "Change theme",
@@ -27,17 +27,28 @@
         }
       },
       "seo": {
-        "description": "Product Configurator - Configure and customize your products.",
-        "siteName": "Product Configurator"
+        "description": "Konfiguruj at configuruj.com - Product configurator for your e-shop or website.",
+        "siteName": "Konfiguruj"
+      },
+      "Footer": {
+        "contact": "Contact me"
       }
     }
   },
   "HomePage": {
-    "description": "This is a product configurator",
+    "description": "For businesses looking for a product configurator for their e-shop or website.",
     "loginButton": "Login",
     "registerButton": "Register",
+    "primaryCta": "Get started free",
+    "secondaryCta": "Log in",
     "setupCta": "Go to model setup",
-    "title": "Product Configurator"
+    "title": "Konfiguruj"
+  },
+  "Contact": {
+    "title": "Contact me",
+    "description": "Have questions about the configurator or want to embed it on your e‑shop? I can help with a demo or technical setup. Get in touch.",
+    "author": "Eliška Vokounová",
+    "emailAddress": "info@konfiguruj.com"
   },
   "Login": {
     "email": "E-mail",
@@ -198,15 +209,17 @@
     "welcome": "Welcome, {name}!",
     "guide": {
       "howItWorks": "How it works",
-      "howItWorksDescription": "Get your product configurator up and running in four steps.",
-      "step1Title": "Create or import a product",
-      "step1Description": "Upload the configurator zip from the SketchUp plugin (Plugins → Configurator → Export) to auto-create a product with components and attributes, or create a model manually.",
-      "step2Title": "Configure attributes & options",
-      "step2Description": "Define what customers can choose: colors, sizes, materials. Set up components and their attributes.",
-      "step3Title": "Set pricing rules",
-      "step3Description": "Define how each option affects the price — fixed amounts or per-unit increments.",
-      "step4Title": "Publish & embed",
-      "step4Description": "Set the embed URL, publish the product, and copy the iframe code to embed the configurator on your website.",
+      "howItWorksDescription": "From 3D model to live configurator in four steps.",
+      "showSteps": "Show steps",
+      "hideSteps": "Hide steps",
+      "step1Title": "Add your product",
+      "step1Description": "Import from SketchUp or build from scratch.",
+      "step2Title": "Let customers customize",
+      "step2Description": "Colors, sizes, materials — you decide.",
+      "step3Title": "Set your prices",
+      "step3Description": "Fixed amounts or per-unit pricing.",
+      "step4Title": "Go live on your site",
+      "step4Description": "One click to embed. No coding needed.",
       "quickActions": "Quick actions",
       "importAction": "Import from SketchUp",
       "importDescription": "Upload .skp and .glb files to auto-create a product with components and attributes.",
@@ -425,7 +438,7 @@
     "title": "Product Models"
   },
   "Embed": {
-    "title": "Product Configurator",
+    "title": "Konfiguruj",
     "requestQuote": "Request quote",
     "priceBreakdown": "Base {base} + options {modifier}",
     "resetConfiguration": "Reset configuration",
@@ -460,7 +473,7 @@
       "home": "Home"
     },
     "editButton": "Edit",
-    "title": "Product Configurator",
+    "title": "Konfiguruj",
     "error": {
       "loadingProductModel": "Failed to load product model. Please try again later.",
       "productModelNotFound": "Product model not found."
@@ -468,7 +481,7 @@
     "components": {
       "title": "Components",
       "emptyState": "No components available for this product model.",
-      "progress": "{{current}} of {{total}} configured"
+      "progress": "{current} of {total} configured"
     },
     "attributes": {
       "title": "Configuration",
@@ -634,17 +647,17 @@
       "clickToEdit": "Click to edit",
       "selectAll": "Select all on page",
       "selectRow": "Select row",
-      "selectedCount": "{{count}} selected",
+      "selectedCount": "{count} selected",
       "editSelected": "Edit selected",
       "deleteSelected": "Delete selected",
       "deleteSelectedConfirm": "Delete {{count}} rule(s)?",
       "clearSelection": "Clear selection",
       "saveButton": "Save",
       "addWithFilter": "Add rule (with current filters)",
-      "paginationInfo": "{{from}}–{{to}} of {{total}}",
+      "paginationInfo": "{from}–{to} of {total}",
       "paginationPrev": "Previous",
       "paginationNext": "Next",
-      "paginationPage": "{{current}} / {{total}}"
+      "paginationPage": "{current} / {total}"
     },
     "create": {
       "title": "Add pricing rule",
@@ -677,7 +690,7 @@
       "rangeSection": "Value range",
       "priceSection": "Price",
       "enumOptionsLabel": "Options (select one or more, same price for all)",
-      "enumSelectedCount": "{{count}} selected",
+      "enumSelectedCount": "{count} selected",
       "enumSelectAll": "All",
       "enumClear": "Clear",
       "enumNoOptions": "No options defined for this attribute. Add options in the attribute options page first.",

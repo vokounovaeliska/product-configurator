@@ -1,8 +1,10 @@
 import { hasLocale, NextIntlClientProvider, type Locale } from "next-intl"
 import { cn } from "@workspace/ui/lib/utils"
 
+import { FooterOrNull } from "@/components/Footer/FooterOrNull"
 import { HeaderOrNull } from "@/components/Header/HeaderOrNull"
 import { Providers } from "@/components/Providers"
+import { SidebarProvider } from "@/components/SetupNavigation/useSidebar"
 import { fontDisplay, fontSans } from "@/styles/fonts"
 
 import "@/styles/global.css"
@@ -56,19 +58,28 @@ export default async function LocaleLayout({ children, params }: Props) {
       lang={locale}
       suppressHydrationWarning
     >
-      <body className={cn(fontSans.variable, fontDisplay.variable, "font-sans antialiased")}>
+      <body
+        className={cn(
+          fontSans.variable,
+          fontDisplay.variable,
+          "flex min-h-screen flex-col font-sans antialiased",
+        )}
+      >
         <NextIntlClientProvider>
           <Providers>
-            <HeaderOrNull />
-            <main
-              className={cn(
-                "flex min-h-svh flex-col p-6",
-                "pt-[calc(4rem+env(safe-area-inset-top,0px))]",
-                "lg:p-12 lg:pt-30",
-              )}
-            >
-              {children}
-            </main>
+            <SidebarProvider>
+              <HeaderOrNull />
+              <main
+                className={cn(
+                  "flex min-h-0 flex-1 flex-col px-4 py-4",
+                  "pt-[calc(4rem+env(safe-area-inset-top,0px))]",
+                  "sm:p-6 lg:p-12 lg:pt-30",
+                )}
+              >
+                {children}
+              </main>
+              <FooterOrNull />
+            </SidebarProvider>
           </Providers>
         </NextIntlClientProvider>
       </body>

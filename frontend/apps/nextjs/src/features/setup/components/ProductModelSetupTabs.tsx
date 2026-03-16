@@ -110,9 +110,9 @@ export const ProductModelSetupTabs = ({ productModelId }: Props) => {
 
       <TabsContent
         value="configure"
-        className="mt-0"
+        className="mt-0 min-w-0 overflow-x-hidden"
       >
-        <div className="min-h-[60vh] rounded-lg border bg-card">
+        <div className="min-h-[40vh] overflow-hidden rounded-lg border bg-card sm:min-h-[50vh] lg:min-h-[60vh]">
           <ProductConfiguratorWrapper productModelId={productModelId} />
         </div>
       </TabsContent>

@@ -7,7 +7,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
-/** Content-ID for inline configuration preview image. Must match InlineImage.contentId when sending. */
+/** Content-ID for inline configuration preview. Must match InlineImage.contentId when sending. */
 const val CONFIG_PREVIEW_CID = "config-preview"
 
 /**

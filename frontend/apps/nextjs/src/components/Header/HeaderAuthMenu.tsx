@@ -1,5 +1,6 @@
 "use client"
 
+import { LogOut } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
@@ -49,13 +50,13 @@ export const HeaderAuthMenu = ({ user }: Props) => {
   const initial = displayName?.charAt(0).toUpperCase() ?? "U"
 
   return (
-    <div className="flex min-w-0 shrink items-center gap-2 lg:gap-4">
-      <Avatar>
+    <div className="flex min-w-0 shrink items-center gap-1 sm:gap-2 lg:gap-4">
+      <Avatar className="size-8 shrink-0 lg:size-9">
         <AvatarImage
           src=""
           alt={displayName ?? "User avatar"}
         />
-        <AvatarFallback className="text-sm text-muted-foreground">{initial}</AvatarFallback>
+        <AvatarFallback className="text-xs text-muted-foreground">{initial}</AvatarFallback>
       </Avatar>
 
       {displayName && (
@@ -66,7 +67,16 @@ export const HeaderAuthMenu = ({ user }: Props) => {
 
       <Button
         onClick={() => signOut()}
-        className="min-h-[44px] shrink-0 px-3 lg:px-4"
+        variant="ghost"
+        size="icon"
+        className="min-h-[44px] min-w-[44px] shrink-0 sm:hidden"
+        aria-label={t("logout")}
+      >
+        <LogOut className="size-4" />
+      </Button>
+      <Button
+        onClick={() => signOut()}
+        className="hidden min-h-[44px] shrink-0 px-3 sm:inline-flex lg:px-4"
       >
         {t("logout")}
       </Button>
