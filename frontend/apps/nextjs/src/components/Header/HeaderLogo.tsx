@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl"
 import Image from "next/image"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
@@ -9,19 +8,19 @@ import { ROUTES } from "@/lib/routes"
 
 type Props = {
   href?: string
+  logoDescription: string
 }
 
-export const HeaderLogo = ({ href = ROUTES.home }: Props) => {
-  const t = useTranslations("Common.BaseLayout.Header.Logo")
+export const HeaderLogo = ({ href = ROUTES.home, logoDescription }: Props) => {
   return (
     <Link
       href={href}
       className="flex min-h-[44px] min-w-0 shrink items-center gap-3 py-2 lg:min-w-0"
-      aria-label={t("description")}
+      aria-label={logoDescription}
     >
       <Image
         src={Logo}
-        alt={t("description")}
+        alt={logoDescription}
         className={cn("h-6 w-auto dark:invert", "lg:h-8")}
         priority
       />
@@ -30,7 +29,7 @@ export const HeaderLogo = ({ href = ROUTES.home }: Props) => {
         weight="semibold"
         className="max-lg:hidden"
       >
-        {t("description")}
+        {logoDescription}
       </Typography>
     </Link>
   )

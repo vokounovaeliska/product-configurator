@@ -1,5 +1,9 @@
 {
   "Common": {
+    "PasswordInput": {
+      "hidePassword": "Skrýt heslo",
+      "showPassword": "Zobrazit heslo"
+    },
     "BaseLayout": {
       "Header": {
         "AuthMenu": {
@@ -27,7 +31,7 @@
         }
       },
       "seo": {
-        "description": "Konfiguruj na configuruj.com - Konfigurátor produktů pro váš e-shop nebo web.",
+        "description": "Konfiguruj na konfiguruj.com - Konfigurátor produktů pro váš e-shop nebo web.",
         "siteName": "Konfiguruj"
       },
       "Footer": {
@@ -56,7 +60,7 @@
       "emailInvalidMessage": "Neplatný formát emailu",
       "emailRequiredMessage": "Zadejte e-mail",
       "generalError": "Něco se pokazilo",
-      "invalidCredentials": "Neplatný e-mail nebo heslo. Zkontrolujte prosím své přihlašovací údaje a zkuste to znovu.",
+      "invalidCredentials": "Neplatné přihlašovací údaje.",
       "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
       "passwordRequiredMessage": "Zadejte heslo",
       "serverError": "Chyba serveru. Zkuste to prosím později."

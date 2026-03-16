@@ -52,10 +52,9 @@ export const useAuth = () => {
 
       return { error: null, data: response }
     } catch (error) {
+      const message = await extractErrorMessage(error)
       return {
-        error: {
-          message: error instanceof Error ? error.message : "Login failed",
-        },
+        error: { message },
         data: null,
       }
     }

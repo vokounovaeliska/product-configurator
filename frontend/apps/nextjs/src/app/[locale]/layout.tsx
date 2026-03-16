@@ -10,7 +10,7 @@ import { fontDisplay, fontSans } from "@/styles/fonts"
 import "@/styles/global.css"
 
 import type { Metadata } from "next"
-import { getTranslations, setRequestLocale } from "next-intl/server"
+import { getLocale, getMessages, getTranslations, setRequestLocale } from "next-intl/server"
 import { notFound } from "next/navigation"
 
 import { env } from "@/config/env"
@@ -34,6 +34,7 @@ export async function generateMetadata(props: Omit<Props, "children">) {
   return {
     title: { default: siteName, template: `%s | ${siteName}` },
     description: t("description"),
+    icons: { icon: "/icon.png" },
     alternates: {
       canonical: env.NEXT_PUBLIC_SITE_URL,
       languages: {
@@ -53,6 +54,9 @@ export default async function LocaleLayout({ children, params }: Props) {
   // Enable static rendering
   setRequestLocale(locale)
 
+  const messages = await getMessages()
+  const resolvedLocale = await getLocale()
+
   return (
     <html
       lang={locale}
@@ -65,7 +69,10 @@ export default async function LocaleLayout({ children, params }: Props) {
           "flex min-h-screen flex-col font-sans antialiased",
         )}
       >
-        <NextIntlClientProvider>
+        <NextIntlClientProvider
+          locale={resolvedLocale}
+          messages={messages}
+        >
           <Providers>
             <SidebarProvider>
               <HeaderOrNull />
