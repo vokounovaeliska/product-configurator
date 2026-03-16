@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server"
 import { cn } from "@workspace/ui/lib/utils"
 
 import { getSession } from "@/lib/auth/session"
@@ -15,6 +16,7 @@ type Props = {
 
 export const Header = async ({ pathname = "" }: Props) => {
   const { session } = await getSession()
+  const t = await getTranslations("Common.BaseLayout.Header.Logo")
   const logoHref = session?.isValid ? ROUTES.setup : ROUTES.home
   const isSetupRoute = pathname.includes("/setup")
   const isContactWithSidebar = pathname.includes("contact") && session?.isValid
@@ -28,7 +30,10 @@ export const Header = async ({ pathname = "" }: Props) => {
             <SidebarToggle />
           </div>
         )}
-        <HeaderLogo href={logoHref} />
+        <HeaderLogo
+          href={logoHref}
+          logoDescription={t("description")}
+        />
         <HeaderNav />
       </div>
       <HeaderMenu />
