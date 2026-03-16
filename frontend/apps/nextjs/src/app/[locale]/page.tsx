@@ -152,8 +152,8 @@ export default async function Page({ params }: Props) {
                   </Typography>
                   {idx === 0 && (
                     <a
-                      href="/downloads/configurator_dc_export.rbz"
-                      download="configurator_dc_export.rbz"
+                      href="/downloads/konfiguruj_export.rbz"
+                      download="konfiguruj_export.rbz"
                       className="mt-1 inline-flex items-center text-sm font-medium text-chart-1 hover:underline"
                     >
                       <DownloadIcon className="mr-1 size-3.5" />

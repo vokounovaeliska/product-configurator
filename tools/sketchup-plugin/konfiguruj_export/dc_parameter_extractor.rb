@@ -33,7 +33,7 @@ module ConfiguratorDcExport
       return UI.messagebox("No Dynamic Component parameters found.\n\nTip: Select the root group/component with your parameters, then try again.", MB_OK) if params.empty?
 
       default_zip = default_configurator_export_path(model)
-      zip_path = UI.savepanel("Export for Configurator (single zip)", File.dirname(default_zip), File.basename(default_zip))
+      zip_path = UI.savepanel("Export for Konfiguruj", File.dirname(default_zip), File.basename(default_zip))
       return if zip_path.nil? || zip_path.empty?
 
       zip_path = zip_path + ".zip" unless zip_path.downcase.end_with?(".zip")
@@ -74,7 +74,7 @@ module ConfiguratorDcExport
       lines = []
       log = ->(msg) { lines << msg; puts "[Configurator] #{msg}" }
 
-      log.call("=== Configurator DC Export Debug ===")
+      log.call("=== Konfiguruj Export Debug ===")
       log.call("Model: #{model.path.empty? ? '(unsaved)' : model.path}")
 
       sel = model.selection
@@ -626,6 +626,8 @@ module ConfiguratorDcExport
     end
 
     def add_formula_effects(formula_str, ref_param, comp_name, effects)
+      return if ref_param.nil? || ref_param.to_s.strip.empty?
+
       multiplier = extract_multiplier_from_formula(formula_str) || 1.0
       subtract_param = extract_subtract_param_from_formula(formula_str)
       offset_cm = extract_offset_from_formula(formula_str)
@@ -870,12 +872,11 @@ module ConfiguratorDcExport
 end
 
 unless file_loaded?(__FILE__)
-  menu = UI.menu("Plugins").add_submenu("Configurator")
-  menu.add_item("Export for Configurator (single zip)") do
-    ConfiguratorDcExport.export_parameters
-  end
-  menu.add_item("Debug: Show what plugin finds") do
-    ConfiguratorDcExport.debug_run
-  end
+  export_cmd = UI::Command.new("Export for Konfiguruj") { ConfiguratorDcExport.export_parameters }
+  debug_cmd = UI::Command.new("Debug") { ConfiguratorDcExport.debug_run }
+
+  menu = UI.menu("Plugins").add_submenu("Konfiguruj Export")
+  menu.add_item(export_cmd)
+  menu.add_item(debug_cmd)
   file_loaded(__FILE__)
 end

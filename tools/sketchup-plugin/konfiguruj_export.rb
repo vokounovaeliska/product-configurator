@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Configurator DC Export - SketchUp plugin to export Dynamic Component parameters
+# Konfiguruj Export - SketchUp plugin to export Dynamic Component parameters
 # for use with the configurator web app. Outputs parameters.json with effects
 # Copyright (c) Vokounova Eliska
 # SPDX-License-Identifier: MIT
@@ -11,12 +11,12 @@ Sketchup.require "extensions"
 
 unless file_loaded?(__FILE__)
   ext = SketchupExtension.new(
-    "Configurator DC Export",
-    "configurator_dc_export/dc_parameter_extractor",
+    "Konfiguruj Export",
+    "konfiguruj_export/dc_parameter_extractor",
   )
-  ext.description = "Export Dynamic Component parameters to parameters.json for the configurator (MIT License)"
+  ext.description = "Export Dynamic Components to GLB + parameters.json for the Konfiguruj web configurator."
   ext.version = "1.0.0"
-  ext.creator = "Vokounova Eliska"
+  ext.creator = "Eliška Vokounová"
   Sketchup.register_extension(ext, true)
   file_loaded(__FILE__)
 end

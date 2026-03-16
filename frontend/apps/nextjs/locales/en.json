@@ -226,13 +226,13 @@
       "requestsAction": "Inquiries",
       "requestsDescription": "View quote inquiries submitted through your embedded configurator.",
       "tipTitle": "Tip: 3D model preparation",
-      "tipBody": "Use the SketchUp plugin (Plugins → Configurator → Export for Configurator). The plugin exports model.glb, parameters.json, and materials into a single zip file. Use Dynamic Components for configurable parameters (colors, dimensions).",
+      "tipBody": "Use the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The plugin exports model.glb, parameters.json, and materials into a single zip file. Use Dynamic Components for configurable parameters (colors, dimensions).",
       "downloadPlugin": "Download SketchUp plugin"
     }
   },
   "SketchUpImport": {
     "title": "Import from SketchUp",
-    "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Configurator → Export). The zip contains the 3D model, parameters, and materials. After import, set prices and preview in the configurator.",
+    "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The zip contains the 3D model, parameters, and materials. After import, set prices and preview in the configurator.",
     "downloadPlugin": "Download SketchUp plugin",
     "downloadPluginHint": "Don't have the plugin yet? Download the .rbz file and install it in SketchUp via Extensions → Extension Manager → Install Extension.",
     "form": {
@@ -240,7 +240,7 @@
       "productNamePlaceholder": "Optional – defaults to zip filename",
       "productNameHint": "Leave empty to use the zip filename as the product name.",
       "configuratorZip": "Configurator zip",
-      "configuratorZipHint": "Zip from SketchUp plugin: model.glb + parameters.json + materials/. Export via Plugins → Configurator → Export for Configurator (single zip).",
+      "configuratorZipHint": "Zip from SketchUp plugin: model.glb + parameters.json + materials/. Export via Plugins → Konfiguruj Export → Export for Konfiguruj.",
       "submit": "Import",
       "submitting": "Importing…"
     }
