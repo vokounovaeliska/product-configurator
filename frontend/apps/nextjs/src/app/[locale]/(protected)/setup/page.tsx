@@ -276,8 +276,8 @@ const SetupPage = async (props: Props) => {
               size="sm"
             >
               <a
-                href="/downloads/configurator_dc_export.rbz"
-                download="configurator_dc_export.rbz"
+                href="/downloads/konfiguruj_export.rbz"
+                download="konfiguruj_export.rbz"
               >
                 <DownloadIcon className="mr-2 size-4" />
                 {t("guide.downloadPlugin")}

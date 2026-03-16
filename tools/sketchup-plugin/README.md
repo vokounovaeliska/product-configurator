@@ -1,4 +1,4 @@
-# Configurator DC Export – SketchUp Plugin
+# Konfiguruj Export – SketchUp Plugin
 
 Exports Dynamic Component parameters from SketchUp to `parameters.json` for use with the configurator web app. Supports **one parameter affecting multiple mesh nodes** (e.g. `width` → Top scale, Bottom scale, Legs2 position).
 
@@ -9,7 +9,7 @@ Exports Dynamic Component parameters from SketchUp to `parameters.json` for use 
 If the plugin doesn't export anything:
 
 1. **Open the Ruby Console** – **Window → Ruby Console** (or **Extensions → Developer → Ruby Console**)
-2. Run **Plugins → Configurator → Debug: Show what plugin finds**
+2. Run **Plugins → Konfiguruj Export → Debug**
 3. Check the Ruby Console output – it shows what entities, definitions, and dynamic attributes the plugin sees
 4. Ensure your root group/component with parameters is **selected** before running Export or Debug
 
@@ -18,17 +18,17 @@ If the plugin doesn't export anything:
 1. Package the plugin as `.rbz` (from project root):
    ```bash
    cd tools/sketchup-plugin
-   zip -r configurator_dc_export.rbz configurator_dc_export.rb configurator_dc_export/
+   zip -r konfiguruj_export.rbz konfiguruj_export.rb konfiguruj_export/
    ```
    Or run: `./package.sh` if available.
 
 2. In SketchUp: **Window → Extension Manager → Install Extension**
-3. Select `configurator_dc_export.rbz`
+3. Select `konfiguruj_export.rbz`
 
 ## Usage
 
 1. Open a SketchUp model with Dynamic Components
-2. **Plugins → Configurator → Export for Configurator (single zip)**
+2. **Plugins → Konfiguruj Export → Export for Konfiguruj**
 3. Choose save location (default: `modelname_configurator.zip`)
 4. The plugin creates a **single zip** containing:
    - **`model.glb`** – 3D model for the configurator

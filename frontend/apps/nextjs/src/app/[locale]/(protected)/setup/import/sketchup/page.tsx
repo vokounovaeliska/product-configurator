@@ -10,7 +10,7 @@ import { env } from "@/config/env"
 
 import { SketchUpImportForm } from "@/features/skpImport/components/SketchUpImportForm"
 
-const PLUGIN_DOWNLOAD_URL = "/downloads/configurator_dc_export.rbz"
+const PLUGIN_DOWNLOAD_URL = "/downloads/konfiguruj_export.rbz"
 
 type Props = {
   params: Promise<{ locale: Locale }>
@@ -70,7 +70,7 @@ const SketchUpImportPage = async (props: Props) => {
           >
             <a
               href={PLUGIN_DOWNLOAD_URL}
-              download="configurator_dc_export.rbz"
+              download="konfiguruj_export.rbz"
             >
               <DownloadIcon className="mr-2 size-4" />
               {t("downloadPlugin")}

@@ -225,13 +225,13 @@
       "requestsAction": "Poptávky",
       "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
       "tipTitle": "Tip: Příprava 3D modelu",
-      "tipBody": "Použijte plugin SketchUp (Pluginy → Configurator → Export for Configurator). Plugin exportuje model.glb, parameters.json a materiály do jednoho zip souboru. Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry).",
+      "tipBody": "Použijte plugin SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Plugin exportuje model.glb, parameters.json a materiály do jednoho zip souboru. Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry).",
       "downloadPlugin": "Stáhnout plugin SketchUp"
     }
   },
   "SketchUpImport": {
     "title": "Import ze SketchUp",
-    "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Configurator → Export). Zip obsahuje 3D model, parametry a materiály. Po importu nastavte ceny a náhled v konfigurátoru.",
+    "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Zip obsahuje 3D model, parametry a materiály. Po importu nastavte ceny a náhled v konfigurátoru.",
     "downloadPlugin": "Stáhnout plugin SketchUp",
     "downloadPluginHint": "Nemáte ještě plugin? Stáhněte si .rbz soubor a nainstalujte ho v SketchUp přes Pluginy → Manager pluginu → Instalace rozšíření.",
     "form": {
@@ -239,7 +239,7 @@
       "productNamePlaceholder": "Volitelné – výchozí je název zip souboru",
       "productNameHint": "Nechte prázdné pro použití názvu zip souboru jako názvu produktu.",
       "configuratorZip": "Configurator zip",
-      "configuratorZipHint": "Zip z pluginu SketchUp: model.glb + parameters.json + materials/. Export přes Pluginy → Configurator → Export for Configurator (single zip).",
+      "configuratorZipHint": "Zip z pluginu SketchUp: model.glb + parameters.json + materials/. Export přes Pluginy → Konfiguruj Export → Export for Konfiguruj.",
       "submit": "Importovat",
       "submitting": "Importuji…"
     }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 
 /**
- * Parses parameters.json from the SketchUp Configurator DC Export plugin.
+ * Parses parameters.json from the SketchUp Konfiguruj Export plugin.
  * Supports one parameter affecting multiple mesh nodes via effects array.
  */
 object ParametersJsonParser {
