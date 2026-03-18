@@ -15,16 +15,9 @@ function getAbsolutePath(value: string): string {
 }
 
 const config: StorybookConfig = {
-  stories: [
-    "../../../packages/ui/src/**/*.mdx",
-    "../docs/**/*.mdx",
-    "../../../packages/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-    "../../../apps/nextjs/src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-  ],
+  stories: ["../docs/**/*.mdx", "../../../packages/ui/src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [
-    getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("@storybook/addon-essentials"),
-    getAbsolutePath("@storybook/addon-interactions"),
+    getAbsolutePath("@storybook/addon-docs"),
     getAbsolutePath("@storybook/addon-themes"),
     getAbsolutePath("@storybook/addon-a11y"),
   ],
@@ -46,6 +39,16 @@ const config: StorybookConfig = {
       ...config,
       define: {
         "process.env": {},
+      },
+      optimizeDeps: {
+        ...config.optimizeDeps,
+        include: [
+          ...(config.optimizeDeps?.include
+            ? ([] as string[]).concat(config.optimizeDeps.include)
+            : []),
+          "react-dom/client",
+          "react-dom/test-utils",
+        ],
       },
       esbuild: {
         jsxInject: `import React from 'react'`,
