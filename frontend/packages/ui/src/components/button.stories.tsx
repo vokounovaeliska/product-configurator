@@ -7,7 +7,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: "A button component. Add link to Figma?",
+        component: "A button component with multiple variants and sizes.",
       },
     },
   },

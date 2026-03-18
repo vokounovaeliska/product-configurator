@@ -1,13 +1,39 @@
-import { Meta } from "@storybook/blocks"
+import { Meta } from "@storybook/addon-docs/blocks"
 
 <Meta title="Getting Started" />
 
 # Getting Started
 
-## Table of Contents
+Welcome to the **Konfiguruj** component library. This Storybook documents all shared UI components used across the configurator application.
 
-- Design Resources
-  - Figma
-  - UI/UX Design Guidelines
+## Browse Components
+
+Use the sidebar to explore components. Each component includes:
+
+- **Canvas** – Interactive examples you can tweak with controls
+- **Docs** – Usage, props, and accessibility notes
+- **Accessibility** – a11y checks (via the addon)
+
+## Components
+
+Organized under **UI/**:
+
+- **Form controls** – Button, Input, Textarea, Select, Checkbox, Label
+- **Layout & overlays** – Card, Dialog, Popover, Tooltip, DropdownMenu
+- **Content & feedback** – Avatar, Icon, Typography, Skeleton
+- **Composite** – Form, Tabs
+
+## Local Development
+
+```bash
+# From the project root
+cd frontend && pnpm run dev --filter=storybook
+```
+
+Storybook runs at [http://localhost:3003](http://localhost:3003).
+
+## Theme
+
+Use the **theme** control in the toolbar to switch between light and dark mode and verify component appearance in both themes.
 
 ---

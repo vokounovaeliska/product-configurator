@@ -117,3 +117,12 @@ jobs:
           export PATH="$HOME/.railway/bin:$PATH"
           railway up -s nextjs -e production
           echo "::endgroup::"
+
+      - name: Deploy Storybook to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "::group::Deploy Storybook to Railway"
+          export PATH="$HOME/.railway/bin:$PATH"
+          railway up -s storybook -e production
+          echo "::endgroup::"

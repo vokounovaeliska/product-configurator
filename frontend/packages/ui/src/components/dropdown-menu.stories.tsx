@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { LogOut, Settings, User } from "lucide-react"
-
-import { Button } from "./button"
-import { DropdownMenu } from "./dropdown-menu"
+import { Button } from "@workspace/ui/components/button"
+import { DropdownMenu } from "@workspace/ui/components/dropdown-menu"
 
 const meta = {
   title: "UI/DropdownMenu",
