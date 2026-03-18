@@ -15,12 +15,20 @@ export const Footer = () => {
     >
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
         <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Konfiguruj</p>
-        <Link
-          href={ROUTES.contact}
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {t("contact")}
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link
+            href={ROUTES.tutorial}
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {t("tutorial")}
+          </Link>
+          <Link
+            href={ROUTES.contact}
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {t("contact")}
+          </Link>
+        </div>
       </div>
     </footer>
   )

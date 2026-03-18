@@ -13,8 +13,9 @@ jwt:
     refresh-token-expiration-in-minutes: 1440  # 1 day (24 * 60)
 
 cors:
+  # Must include frontend origin(s) when using credentials (cookies). Override via CORS_ALLOWED_ORIGINS.
   allowed-origins: >
-    ${CORS_ALLOWED_ORIGINS}
+    ${CORS_ALLOWED_ORIGINS:https://konfiguruj.com,https://www.konfiguruj.com}
 
 # Email (SMTP). Set these env vars in Railway to send real emails:
 #   SPRING_MAIL_HOST=mail.webglobe.cz

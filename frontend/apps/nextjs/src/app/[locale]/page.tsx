@@ -21,10 +21,10 @@ import { ROUTES } from "@/lib/routes"
 import { HowItWorksSection } from "@/features/setup/components/HowItWorksSection"
 
 const STEP_ACCENT_CLASSES = [
-  "bg-chart-1 text-white",
-  "bg-chart-2 text-white",
-  "bg-chart-3 text-white",
-  "bg-chart-4 text-white",
+  "bg-primary/15 text-primary",
+  "bg-primary/12 text-primary",
+  "bg-primary/10 text-primary",
+  "bg-primary/8 text-primary",
 ] as const
 
 const WORKFLOW_STEPS = [
@@ -123,7 +123,7 @@ export default async function Page({ params }: Props) {
               return (
                 <Card
                   key={step.titleKey}
-                  className="group relative flex flex-col gap-3 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg sm:p-5"
+                  className="group relative flex min-w-0 flex-col gap-3 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg sm:p-5"
                 >
                   <div className="flex items-center gap-3">
                     <span
@@ -151,14 +151,21 @@ export default async function Page({ params }: Props) {
                     {t(step.descKey)}
                   </Typography>
                   {idx === 0 && (
-                    <a
-                      href="/downloads/konfiguruj_export.rbz"
-                      download="konfiguruj_export.rbz"
-                      className="mt-1 inline-flex items-center text-sm font-medium text-chart-1 hover:underline"
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 w-fit"
                     >
-                      <DownloadIcon className="mr-1 size-3.5" />
-                      {t("Setup.guide.downloadPlugin")}
-                    </a>
+                      <a
+                        href="/downloads/konfiguruj_export.rbz"
+                        download="konfiguruj_export.rbz"
+                        className="inline-flex items-center gap-2"
+                      >
+                        <DownloadIcon className="size-4" />
+                        {t("Setup.guide.downloadPluginShort")}
+                      </a>
+                    </Button>
                   )}
                 </Card>
               )

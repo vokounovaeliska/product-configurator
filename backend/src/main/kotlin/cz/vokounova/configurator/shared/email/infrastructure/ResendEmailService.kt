@@ -55,20 +55,20 @@ class ResendEmailService(
         bodyText: String?,
         replyTo: String?,
         cc: String?,
-        inlineImage: InlineImage?,
+        inlineImages: List<InlineImage>?,
     ) {
         log.info(
-            "Sending email via Resend: to={}, subject={}, from={}, replyTo={}, cc={}, hasInlineImage={}",
+            "Sending email via Resend: to={}, subject={}, from={}, replyTo={}, cc={}, inlineImageCount={}",
             to,
             subject,
             mailConfig.fromAddress,
             replyTo,
             cc,
-            inlineImage != null,
+            inlineImages?.size ?: 0,
         )
         try {
-            if (inlineImage != null) {
-                sendWithInlineImage(to, subject, bodyHtml, bodyText, replyTo, cc, inlineImage)
+            if (!inlineImages.isNullOrEmpty()) {
+                sendWithInlineImages(to, subject, bodyHtml, bodyText, replyTo, cc, inlineImages)
             } else {
                 sendWithSdk(to, subject, bodyHtml, bodyText, replyTo, cc)
             }
@@ -119,30 +119,30 @@ class ResendEmailService(
         log.info("Email sent successfully via Resend: to={}, subject={}, id={}", to, subject, response?.id)
     }
 
-    private fun sendWithInlineImage(
+    private fun sendWithInlineImages(
         to: String,
         subject: String,
         bodyHtml: String,
         bodyText: String?,
         replyTo: String?,
         cc: String?,
-        inlineImage: InlineImage,
+        inlineImages: List<InlineImage>,
     ) {
         val fromFormatted = "${mailConfig.fromName} <${mailConfig.fromAddress}>"
-        val base64 =
-            inlineImage.base64Data
-                .removePrefix("data:image/png;base64,")
-                .removePrefix("data:image/jpeg;base64,")
-                .removePrefix("data:image/jpg;base64,")
-        val content = Base64.getEncoder().encodeToString(Base64.getDecoder().decode(base64))
         val attachments =
-            listOf(
+            inlineImages.map { img ->
+                val base64 =
+                    img.base64Data
+                        .removePrefix("data:image/png;base64,")
+                        .removePrefix("data:image/jpeg;base64,")
+                        .removePrefix("data:image/jpg;base64,")
+                val content = Base64.getEncoder().encodeToString(Base64.getDecoder().decode(base64))
                 mapOf(
-                    "filename" to "${inlineImage.contentId}.png",
+                    "filename" to "${img.contentId}.png",
                     "content" to content,
-                    "content_id" to inlineImage.contentId,
-                ),
-            )
+                    "content_id" to img.contentId,
+                )
+            }
         val body =
             buildMap<String, Any?> {
                 put("from", fromFormatted)

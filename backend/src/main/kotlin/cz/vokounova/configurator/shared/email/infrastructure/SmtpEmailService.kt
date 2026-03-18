@@ -50,16 +50,16 @@ class SmtpEmailService(
         bodyText: String?,
         replyTo: String?,
         cc: String?,
-        inlineImage: InlineImage?,
+        inlineImages: List<InlineImage>?,
     ) {
         log.info(
-            "Sending email: to={}, subject={}, from={}, replyTo={}, cc={}, hasInlineImage={}",
+            "Sending email: to={}, subject={}, from={}, replyTo={}, cc={}, inlineImageCount={}",
             to,
             subject,
             mailConfig.fromAddress,
             replyTo,
             cc,
-            inlineImage != null,
+            inlineImages?.size ?: 0,
         )
         try {
             val message: MimeMessage = mailSender.createMimeMessage()
@@ -70,7 +70,7 @@ class SmtpEmailService(
             cc?.let { helper.setCc(it) }
             helper.setSubject(subject)
             helper.setText(bodyText ?: bodyHtml.replace(Regex("<[^>]+>"), ""), bodyHtml)
-            inlineImage?.let { img ->
+            inlineImages?.forEach { img ->
                 val base64 =
                     img.base64Data
                         .removePrefix("data:image/png;base64,")
