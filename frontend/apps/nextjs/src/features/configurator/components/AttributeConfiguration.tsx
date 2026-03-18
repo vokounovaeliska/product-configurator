@@ -161,6 +161,7 @@ const AttributeField = ({
   onOtherChange,
   pricingRules = [],
   currency = "CZK",
+  options,
 }: AttributeFieldProps) => {
   const t = useTranslations("Configurator")
   const [localEditValue, setLocalEditValue] = useState<string | null>(null)
@@ -174,6 +175,7 @@ const AttributeField = ({
         attributeLabel={attribute.label}
         selectedOption={selectedOption}
         onSelectOption={onSelectOption}
+        options={options}
       />
     )
   }

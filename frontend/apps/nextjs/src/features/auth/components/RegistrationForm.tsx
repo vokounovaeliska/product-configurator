@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { AlertCircleIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
@@ -14,9 +15,13 @@ import {
   FormMessage,
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
+import { Typography } from "@workspace/ui/components/typography"
+import { cn } from "@workspace/ui/lib/utils"
 
-import { env } from "@/config/env"
+import { PasswordInput } from "@/components/PasswordInput"
 import { useAuth } from "@/hooks/useAuth"
+import { publicApi } from "@/lib/api/restClient"
+import { extractErrorMessage } from "@/lib/utils"
 
 import {
   getRegistrationFormSchema,
@@ -46,52 +51,28 @@ export const RegistrationForm = () => {
     setError(null)
 
     try {
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_REST_API_URL}/users/api/v1/auth/public/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+      // Register the user
+      await publicApi
+        .post("users/api/v1/auth/public/register", {
+          json: {
             firstName: values.firstName,
             surname: values.surname,
             email: values.email,
             password: values.password,
             confirmPassword: values.confirmPassword,
-          }),
-        },
-      )
-
-      if (!response.ok) {
-        let errorMessage = t("errorMessages.generalError")
-
-        try {
-          const errorData = (await response.json()) as { message?: string } | null | undefined
-
-          if (
-            errorData &&
-            typeof errorData === "object" &&
-            "message" in errorData &&
-            typeof errorData.message === "string"
-          ) {
-            errorMessage = errorData.message ?? t("errorMessages.generalError")
-          }
-        } catch {
-          // Ignore JSON parsing errors and fall back to generic message
-        }
-
-        throw new Error(errorMessage)
-      }
+          },
+        })
+        .json()
 
       // Auto-login after successful registration
       const { error: loginError } = await signIn(values.email, values.password)
 
       if (loginError) {
-        throw new Error(loginError.message ?? t("errorMessages.generalError"))
+        setError(loginError.message ?? t("errorMessages.generalError"))
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorMessages.generalError"))
+      const errorMessage = await extractErrorMessage(err)
+      setError(errorMessage)
     }
   }
 
@@ -157,10 +138,7 @@ export const RegistrationForm = () => {
               <FormItem>
                 <FormLabel>{t("password")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    {...field}
-                  />
+                  <PasswordInput {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -173,10 +151,7 @@ export const RegistrationForm = () => {
               <FormItem>
                 <FormLabel>{t("confirmPassword")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    {...field}
-                  />
+                  <PasswordInput {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -186,11 +161,27 @@ export const RegistrationForm = () => {
           <Button
             type="submit"
             className="w-full"
+            disabled={form.formState.isSubmitting}
           >
-            {t("submitButton")}
+            {form.formState.isSubmitting ? t("submitButton") + "..." : t("submitButton")}
           </Button>
 
-          {error && <div className="rounded-lg bg-red-50 p-4 text-red-800">{error}</div>}
+          {error && (
+            <div
+              className={cn(
+                "flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4",
+              )}
+            >
+              <AlertCircleIcon className="mt-0.5 size-5 shrink-0 text-destructive" />
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="text-destructive"
+              >
+                {error}
+              </Typography>
+            </div>
+          )}
         </form>
       </Form>
     </div>

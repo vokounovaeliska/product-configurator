@@ -17,5 +17,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...getEntries(ROUTES.home),
     ...getEntries(ROUTES.login),
     ...getEntries(ROUTES.registration),
+    ...getEntries(ROUTES.tutorial),
   ]
 }

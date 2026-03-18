@@ -19,6 +19,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
+import { PasswordInput } from "@/components/PasswordInput"
 import { useAuth } from "@/hooks/useAuth"
 
 import { getLoginFormSchema, type LoginSchema } from "@/features/auth/schemas/loginFormSchema"
@@ -79,10 +80,7 @@ export const SignInForm = () => {
               <FormItem>
                 <FormLabel>{t("password")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    {...field}
-                  />
+                  <PasswordInput {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

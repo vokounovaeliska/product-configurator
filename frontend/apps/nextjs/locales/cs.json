@@ -35,7 +35,8 @@
         "siteName": "Konfiguruj"
       },
       "Footer": {
-        "contact": "Kontaktuj mě"
+        "contact": "Kontaktuj mě",
+        "tutorial": "Návod SketchUp"
       }
     }
   },
@@ -230,7 +231,8 @@
       "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
       "tipTitle": "Tip: Příprava 3D modelu",
       "tipBody": "Použijte plugin SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Plugin exportuje model.glb, parameters.json a materiály do jednoho zip souboru. Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry).",
-      "downloadPlugin": "Stáhnout plugin SketchUp"
+      "downloadPlugin": "Stáhnout plugin SketchUp",
+      "tutorial": "Návod"
     }
   },
   "SketchUpImport": {
@@ -246,6 +248,60 @@
       "configuratorZipHint": "Zip z pluginu SketchUp: model.glb + parameters.json + materials/. Export přes Pluginy → Konfiguruj Export → Export for Konfiguruj.",
       "submit": "Importovat",
       "submitting": "Importuji…"
+    }
+  },
+  "SketchUpTutorial": {
+    "title": "Návod k pluginu SketchUp",
+    "subtitle": "Jak exportovat Dynamic Components pro konfigurátor Konfiguruj",
+    "metaDescription": "Podrobný návod k použití pluginu Konfiguruj pro SketchUp – export Dynamic Components do webového konfigurátoru.",
+    "intro": "Plugin Konfiguruj Export exportuje parametry Dynamic Components ze SketchUp do zip souboru (model.glb, parameters.json, materiály), který můžete nahrát do konfigurátoru. Váš model musí používat Dynamic Components s konfigurovatelnými parametry.",
+    "downloadPlugin": "Stáhnout plugin SketchUp",
+    "goToImport": "Přejít na Import",
+    "installation": {
+      "title": "Instalace",
+      "step1": "Stáhněte .rbz soubor pomocí tlačítka výše.",
+      "step2": "Ve SketchUp: Okno → Manager pluginu → Instalace rozšíření.",
+      "step3": "Vyberte konfiguruj_export.rbz. Plugin se objeví v Pluginy → Konfiguruj Export."
+    },
+    "supportedEntities": {
+      "title": "Podporované entity",
+      "intro": "Plugin čte atributy Dynamic Components z:",
+      "groups": "Skupin – s atributy Dynamic Components ve slovníku dynamic_attributes",
+      "components": "Instancí komponent – s atributy Dynamic Components"
+    },
+    "parameters": {
+      "title": "Parametry",
+      "intro": "Podporované typy parametrů:",
+      "dimensions": "Rozměry: LenX, LenY, LenZ, width, height, depth (a česky: sirka, vyska, hloubka, prumer)",
+      "materials": "Materiály: color, barva, material",
+      "options": "Možnosti: avariant, variant, typ",
+      "formulasTitle": "Syntaxe formulí",
+      "formulaParent": "Parent!param – odkazuje na parametr z nadřazené skupiny/komponenty",
+      "formulaComponent": "ComponentName!param – odkazuje na parametr z jiné komponenty (např. stul!leny)"
+    },
+    "effects": {
+      "title": "Typy efektů",
+      "scale": "scale – škálování mesh na ose (x, y, z, xz)",
+      "position": "position – pozice mesh z formule (např. z LenY)",
+      "material": "material – aplikace materiálu/barvy na mesh"
+    },
+    "workflow": {
+      "title": "Postup exportu",
+      "step1": "Otevřete model SketchUp s Dynamic Components.",
+      "step2": "Vyberte kořenovou skupinu nebo komponentu s parametry.",
+      "step3": "Pluginy → Konfiguruj Export → Export for Konfiguruj.",
+      "step4": "Zvolte umístění uložení (výchozí: modelname_configurator.zip).",
+      "step5": "Nahrajte zip do konfigurátoru přes Import ze SketchUp."
+    },
+    "troubleshooting": {
+      "title": "Řešení problémů",
+      "intro": "Pokud plugin nic neexportuje:",
+      "debug": "Spusťte Pluginy → Konfiguruj Export → Debug a zkontrolujte Ruby Console (Okno → Ruby Console) pro nalezené entity a parametry.",
+      "selectRoot": "Před exportem vyberte kořenovou skupinu/komponentu s parametry."
+    },
+    "materials": {
+      "title": "Materiály",
+      "description": "Jako PNG se exportují pouze texturované materiály. Materiály pouze s barvou se přeskočí; konfigurátor podporuje textury. Parametry rozměrů se exportují v cm (SketchUp vrací palce; plugin převádí)."
     }
   },
   "ProductModels": {

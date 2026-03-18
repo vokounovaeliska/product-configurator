@@ -35,7 +35,8 @@
         "siteName": "Konfiguruj"
       },
       "Footer": {
-        "contact": "Contact me"
+        "contact": "Contact me",
+        "tutorial": "SketchUp tutorial"
       }
     }
   },
@@ -231,7 +232,8 @@
       "requestsDescription": "View quote inquiries submitted through your embedded configurator.",
       "tipTitle": "Tip: 3D model preparation",
       "tipBody": "Use the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The plugin exports model.glb, parameters.json, and materials into a single zip file. Use Dynamic Components for configurable parameters (colors, dimensions).",
-      "downloadPlugin": "Download SketchUp plugin"
+      "downloadPlugin": "Download SketchUp plugin",
+      "tutorial": "Tutorial"
     }
   },
   "SketchUpImport": {
@@ -247,6 +249,60 @@
       "configuratorZipHint": "Zip from SketchUp plugin: model.glb + parameters.json + materials/. Export via Plugins → Konfiguruj Export → Export for Konfiguruj.",
       "submit": "Import",
       "submitting": "Importing…"
+    }
+  },
+  "SketchUpTutorial": {
+    "title": "SketchUp Plugin Tutorial",
+    "subtitle": "How to export Dynamic Components for the Konfiguruj configurator",
+    "metaDescription": "Step-by-step tutorial for using the Konfiguruj SketchUp plugin to export Dynamic Components to the web configurator.",
+    "intro": "The Konfiguruj Export plugin exports Dynamic Component parameters from SketchUp to a zip file (model.glb, parameters.json, materials) that you can upload to the configurator. Your model must use Dynamic Components with configurable parameters.",
+    "downloadPlugin": "Download SketchUp plugin",
+    "goToImport": "Go to Import",
+    "installation": {
+      "title": "Installation",
+      "step1": "Download the .rbz file using the button above.",
+      "step2": "In SketchUp: Window → Extension Manager → Install Extension.",
+      "step3": "Select konfiguruj_export.rbz. The plugin appears under Plugins → Konfiguruj Export."
+    },
+    "supportedEntities": {
+      "title": "Supported entities",
+      "intro": "The plugin reads Dynamic Component attributes from:",
+      "groups": "Groups – with Dynamic Component attributes in the dynamic_attributes dictionary",
+      "components": "Component instances – with Dynamic Component attributes"
+    },
+    "parameters": {
+      "title": "Parameters",
+      "intro": "Supported parameter types:",
+      "dimensions": "Dimensions: LenX, LenY, LenZ, width, height, depth (and Czech: sirka, vyska, hloubka, prumer)",
+      "materials": "Materials: color, barva, material",
+      "options": "Options: avariant, variant, typ",
+      "formulasTitle": "Formula syntax",
+      "formulaParent": "Parent!param – references a parameter from the parent group/component",
+      "formulaComponent": "ComponentName!param – references a parameter from another component (e.g. stul!leny)"
+    },
+    "effects": {
+      "title": "Effect types",
+      "scale": "scale – scale mesh on axis (x, y, z, xz)",
+      "position": "position – position mesh from formula (e.g. from LenY)",
+      "material": "material – apply material/color to mesh"
+    },
+    "workflow": {
+      "title": "Export workflow",
+      "step1": "Open a SketchUp model with Dynamic Components.",
+      "step2": "Select the root group or component that contains your parameters.",
+      "step3": "Plugins → Konfiguruj Export → Export for Konfiguruj.",
+      "step4": "Choose save location (default: modelname_configurator.zip).",
+      "step5": "Upload the zip to the configurator via Import from SketchUp."
+    },
+    "troubleshooting": {
+      "title": "Troubleshooting",
+      "intro": "If the plugin does not export anything:",
+      "debug": "Run Plugins → Konfiguruj Export → Debug and check the Ruby Console (Window → Ruby Console) for entities and parameters found.",
+      "selectRoot": "Ensure the root group/component with parameters is selected before running Export."
+    },
+    "materials": {
+      "title": "Materials",
+      "description": "Only textured materials are exported as PNG. Color-only materials are skipped; the configurator supports textures. Dimension parameters are exported in cm (SketchUp returns inches; the plugin converts)."
     }
   },
   "ProductModels": {

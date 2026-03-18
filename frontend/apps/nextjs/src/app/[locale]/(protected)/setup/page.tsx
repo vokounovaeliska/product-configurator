@@ -270,19 +270,28 @@ const SetupPage = async (props: Props) => {
             >
               {t("guide.tipBody")}
             </Typography>
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-            >
-              <a
-                href="/downloads/konfiguruj_export.rbz"
-                download="konfiguruj_export.rbz"
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
               >
-                <DownloadIcon className="mr-2 size-4" />
-                {t("guide.downloadPlugin")}
-              </a>
-            </Button>
+                <a
+                  href="/downloads/konfiguruj_export.rbz"
+                  download="konfiguruj_export.rbz"
+                >
+                  <DownloadIcon className="mr-2 size-4" />
+                  {t("guide.downloadPlugin")}
+                </a>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+              >
+                <Link href={ROUTES.tutorial}>{t("guide.tutorial")}</Link>
+              </Button>
+            </div>
           </div>
         </Card>
       </section>
