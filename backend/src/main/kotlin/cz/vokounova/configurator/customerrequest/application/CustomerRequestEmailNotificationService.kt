@@ -3,7 +3,6 @@ package cz.vokounova.configurator.customerrequest.application
 import cz.vokounova.configurator.customerrequest.domain.CustomerRequest
 import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
 import cz.vokounova.configurator.shared.email.EmailSignature
-import cz.vokounova.configurator.shared.email.infrastructure.MailConfig
 import cz.vokounova.configurator.shared.email.ports.outbound.EmailService
 import cz.vokounova.configurator.shared.email.ports.outbound.InlineImage
 import cz.vokounova.configurator.users.api.dto.UserDto
@@ -22,8 +21,8 @@ import org.springframework.stereotype.Service
 class CustomerRequestEmailNotificationService(
     private val emailService: EmailService,
     private val productConfigQueryFacade: ProductConfigQueryFacade,
-    private val mailConfig: MailConfig,
     @Value("\${app.site-url:}") private val siteUrl: String,
+    @Value("\${app.mail.signature-enabled:true}") private val signatureEnabled: Boolean,
 ) {
     @Async
     fun sendQuoteRequestEmail(
@@ -92,7 +91,7 @@ class CustomerRequestEmailNotificationService(
         )
     }
 
-    private fun shouldAppendSignature(): Boolean = mailConfig.signatureEnabled && siteUrl.isNotBlank()
+    private fun shouldAppendSignature(): Boolean = signatureEnabled && siteUrl.isNotBlank()
 
     private fun maybeAppendSignature(
         html: String,
