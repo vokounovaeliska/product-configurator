@@ -128,7 +128,7 @@
       "customerRequests": "Poptávky",
       "dashboard": "Nástěnka",
       "options": "Možnosti",
-      "pricing": "Cenění",
+      "pricing": "Ceny",
       "pricingRules": "Cenová pravidla",
       "productModels": "Modely produktů",
       "importSketchup": "Import ze SketchUp",
@@ -138,7 +138,7 @@
     "quickActions": "Rychlé akce",
     "tabs": {
       "general": "Obecné",
-      "pricing": "Cenění",
+      "pricing": "Ceny",
       "publish": "Publikování",
       "configure": "Konfigurovat"
     },
@@ -220,7 +220,7 @@
       "step1Description": "Import ze SketchUp nebo vytvořte od nuly.",
       "step2Title": "Nechte zákazníky přizpůsobit",
       "step2Description": "Barvy, rozměry, materiály — vy rozhodujete.",
-      "step3Title": "Nastavte cenění",
+      "step3Title": "Nastavte ceny",
       "step3Description": "Pevná částka nebo cena za jednotku.",
       "step4Title": "Spusťte na svém webu",
       "step4Description": "Jedno kliknutí pro vložení. Bez kódu.",
@@ -231,14 +231,15 @@
       "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
       "tipTitle": "Tip: Příprava 3D modelu",
       "tipBody": "Použijte plugin SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Plugin exportuje model.glb, parameters.json a materiály do jednoho zip souboru. Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry).",
-      "downloadPlugin": "Stáhnout plugin SketchUp",
+      "downloadPlugin": "Stáhnout plugin pro SketchUp",
+      "downloadPluginShort": "Stáhnout plugin",
       "tutorial": "Návod"
     }
   },
   "SketchUpImport": {
     "title": "Import ze SketchUp",
     "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Zip obsahuje 3D model, parametry a materiály. Po importu nastavte ceny a náhled v konfigurátoru.",
-    "downloadPlugin": "Stáhnout plugin SketchUp",
+    "downloadPlugin": "Stáhnout plugin pro SketchUp",
     "downloadPluginHint": "Nemáte ještě plugin? Stáhněte si .rbz soubor a nainstalujte ho v SketchUp přes Pluginy → Manager pluginu → Instalace rozšíření.",
     "form": {
       "productName": "Název produktu",
@@ -255,7 +256,7 @@
     "subtitle": "Jak exportovat Dynamic Components pro konfigurátor Konfiguruj",
     "metaDescription": "Podrobný návod k použití pluginu Konfiguruj pro SketchUp – export Dynamic Components do webového konfigurátoru.",
     "intro": "Plugin Konfiguruj Export exportuje parametry Dynamic Components ze SketchUp do zip souboru (model.glb, parameters.json, materiály), který můžete nahrát do konfigurátoru. Váš model musí používat Dynamic Components s konfigurovatelnými parametry.",
-    "downloadPlugin": "Stáhnout plugin SketchUp",
+    "downloadPlugin": "Stáhnout plugin pro SketchUp",
     "goToImport": "Přejít na Import",
     "installation": {
       "title": "Instalace",
@@ -668,7 +669,7 @@
     "title": "Cenová pravidla",
     "description": "Definujte, jak hodnoty atributů ovlivňují cenu produktu (pevná částka za možnost nebo přírůstek za jednotku).",
     "attributePricing": {
-      "title": "Cenění atributu",
+      "title": "Ceny atributu",
       "description": "Definujte, jak tento atribut ovlivňuje cenu produktu.",
       "descriptionWithAttribute": "Definujte, jak „{attribute}“ ovlivňuje cenu produktu (pevně za možnost nebo za jednotku).",
       "attributeNotFound": "Atribut nebyl nalezen.",
@@ -802,7 +803,7 @@
       "manageOptionsButton": "Spravovat možnosti",
       "moveDown": "Posunout dolů",
       "moveUp": "Posunout nahoru",
-      "pricingButton": "Cenění",
+      "pricingButton": "Ceny",
       "required": "Povinné",
       "range": "Rozsah",
       "sortOrder": "Pořadí"
@@ -922,7 +923,7 @@
       "columnDefault": "Výchozí",
       "columnUnit": "Jednotka",
       "columnOptions": "Možnosti",
-      "columnPricing": "Cenění",
+      "columnPricing": "Ceny",
       "columnSortOrder": "Pořadí",
       "saveButton": "Uložit",
       "emptyState": {

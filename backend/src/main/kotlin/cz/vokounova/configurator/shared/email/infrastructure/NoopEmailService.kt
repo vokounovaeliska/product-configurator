@@ -19,7 +19,7 @@ class NoopEmailService : EmailService {
         bodyText: String?,
         replyTo: String?,
         cc: String?,
-        inlineImage: InlineImage?,
+        inlineImages: List<InlineImage>?,
     ) {
         log.info(
             "Email (noop): to={}, subject={}, replyTo={}, cc={}, bodyLength={}. Configure spring.mail to send real emails.",

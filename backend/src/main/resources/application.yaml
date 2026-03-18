@@ -8,6 +8,8 @@ app:
   mail:
     from-address: ${MAIL_FROM:info@konfiguruj.com}
     from-name: ${MAIL_FROM_NAME:Konfiguruj}
+    signature-enabled: ${MAIL_SIGNATURE_ENABLED:true}
+  site-url: ${SITE_URL:konfiguruj.com}
 
 spring:
   application:

@@ -233,6 +233,7 @@
       "tipTitle": "Tip: 3D model preparation",
       "tipBody": "Use the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The plugin exports model.glb, parameters.json, and materials into a single zip file. Use Dynamic Components for configurable parameters (colors, dimensions).",
       "downloadPlugin": "Download SketchUp plugin",
+      "downloadPluginShort": "Download plugin",
       "tutorial": "Tutorial"
     }
   },

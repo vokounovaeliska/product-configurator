@@ -18,7 +18,7 @@ interface EmailService {
      * Send an email. Implementations should not throw – log errors instead so that
      * the primary operation (e.g. creating a customer request) is not affected.
      * @param cc Optional CC recipient (e.g. manufacturer copy).
-     * @param inlineImage Optional inline image embedded via CID for reliable display in email clients.
+     * @param inlineImages Optional inline images embedded via CID for reliable display in email clients.
      */
     fun send(
         to: String,
@@ -27,6 +27,6 @@ interface EmailService {
         bodyText: String?,
         replyTo: String? = null,
         cc: String? = null,
-        inlineImage: InlineImage? = null,
+        inlineImages: List<InlineImage>? = null,
     )
 }

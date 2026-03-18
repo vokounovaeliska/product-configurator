@@ -48,10 +48,10 @@ export async function generateMetadata(props: Omit<Props, "children">) {
 }
 
 const STEP_ACCENT_CLASSES = [
-  "bg-chart-1 text-white",
-  "bg-chart-2 text-white",
-  "bg-chart-3 text-white",
-  "bg-chart-4 text-white",
+  "bg-primary/15 text-primary",
+  "bg-primary/12 text-primary",
+  "bg-primary/10 text-primary",
+  "bg-primary/8 text-primary",
 ] as const
 
 const WORKFLOW_STEPS = [
@@ -113,7 +113,7 @@ const SetupPage = async (props: Props) => {
             return (
               <Card
                 key={step.titleKey}
-                className="group relative flex flex-col gap-3 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+                className="group relative flex min-w-0 flex-col gap-3 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
               >
                 <div className="flex items-center gap-3">
                   <span
