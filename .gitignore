@@ -92,6 +92,7 @@ lib/
 test_outputs/
 
 .cursor/
+.cursorrules
 
 ### Legacy SketchUp bundle (superseded by konfiguruj_export.rbz) ###
 tools/sketchup-plugin/configurator_dc_export.rbz
