@@ -34,10 +34,7 @@ const ConfiguratorPage = async (props: Props) => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <ProductConfiguratorWrapper
-        productModelId={productModelId}
-        shouldPreferEmbedConfig
-      />
+      <ProductConfiguratorWrapper productModelId={productModelId} />
     </div>
   )
 }

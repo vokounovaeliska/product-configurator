@@ -45,7 +45,6 @@ build/
 *.iws
 *.iml
 *.ipr
-out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
@@ -92,6 +91,10 @@ lib/
 !backend/**/lib/
 test_outputs/
 
-/.cursorrules
-/.cursor/*
-/.cursor/**
+.cursor/
+.cursorrules
+
+### SketchUp plugin bundles (build with pnpm plugin:package; do not commit binaries) ###
+tools/sketchup-plugin/*.rbz
+tools/sketchup-plugin/configurator_dc_export.rbz
+frontend/apps/nextjs/public/downloads/konfiguruj_export.rbz

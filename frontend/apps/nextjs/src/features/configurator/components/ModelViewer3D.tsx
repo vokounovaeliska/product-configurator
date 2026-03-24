@@ -240,8 +240,14 @@ function nodeMatchesPattern(nodeName: string, pattern: MeshMatcher): boolean {
 /** Patterns per logical part. RegExp = full regex test. */
 const MESH_PATTERNS: Record<string, MeshMatcher[]> = {
   top: [/^top$/i, /top/i, /desk/i, /deska/i, /surface/i],
+  /** Czech DC names: deska ≈ top for materials and scale targets. */
+  deska: [/^deska$/i, /deska/i, /^top$/i, /top/i, /desk/i, /surface/i],
   bottom: [/^bottom$/i, /bottom/i, /podstavec/i, /platform/i, /base/i],
   legs: [/^legs?$/i, /^leg\d+$/i, /noh[ay]/i],
+  /** noha / nohy ≈ leg for Czech models. */
+  noha: [/^noha\d*$/i, /^nohy$/i, /^leg\d*$/i, /noh[ay]/i],
+  nohy: [/^nohy$/i, /^noha\d*$/i, /^leg\d*$/i, /noh[ay]/i],
+  leg: [/^leg\d*$/i, /^noha\d*$/i, /^nohy$/i, /noh[ay]/i],
   group: [/^group$/i, /^skupina$/i, /skupina/i, /group/i],
   headboard: [/^headboard$/i, /headboard/i, /opieradlo/i, /zadni/i],
   platform: [/^platform$/i, /platform/i, /plosina/i],
@@ -297,26 +303,61 @@ function normalizeMaterialToken(value: string | null | undefined): string {
   return (value ?? "").trim().toLowerCase()
 }
 
+/** Loose match for SketchUp material ids vs API option values (e.g. _37#5 vs __37_5). */
+function normalizeMaterialKeyLoose(value: string | null | undefined): string {
+  return (value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "")
+}
+
 function findOptionByMaterialToken<T extends { label?: string; value?: string }>(
   options: T[],
   token: string,
 ): T | undefined {
   const normalizedToken = normalizeMaterialToken(token)
   if (!normalizedToken) return undefined
+  const looseToken = normalizeMaterialKeyLoose(token)
   return options.find((option) => {
     const label = normalizeMaterialToken(option.label)
     const value = normalizeMaterialToken(option.value)
-    return label === normalizedToken || value === normalizedToken
+    if (label === normalizedToken || value === normalizedToken) return true
+    if (!looseToken) return false
+    const looseLabel = normalizeMaterialKeyLoose(option.label)
+    const looseVal = normalizeMaterialKeyLoose(option.value)
+    return looseLabel === looseToken || looseVal === looseToken
   })
+}
+
+/** Map Czech/English tabletop vs leg tokens to mesh pattern keys (top / legs). */
+function normalizeMaterialTargetBase(base: string): string | null {
+  const b = base.trim()
+  if (!b) return null
+  if (b.includes("deska") || b.includes("top")) return "top"
+  if (b.includes("noha") || b.includes("nohy") || b.includes("leg")) return "legs"
+  return b
 }
 
 function getColorTargetFromCode(code: string): string | null {
   const lower = code.toLowerCase()
-  if (lower.startsWith("color_")) return lower.slice(6)
-  if (lower.startsWith("barva_")) return lower.slice(6)
-  if (lower.startsWith("material_")) return lower.slice(9) // material_top → top
-  if (lower === "material") return "top" // material (no suffix) → top
-  if (lower.endsWith("_color")) return lower.slice(0, -6) // top_color → top
+  if (lower.startsWith("color_"))
+    {return normalizeMaterialTargetBase(lower.slice(6)) ?? lower.slice(6)}
+  if (lower.startsWith("barva_"))
+    {return normalizeMaterialTargetBase(lower.slice(6)) ?? lower.slice(6)}
+  if (lower.startsWith("material_")) {
+    const rest = lower.slice(9)
+    return normalizeMaterialTargetBase(rest) ?? rest
+  }
+  if (lower === "material" || lower === "barva") return "top"
+  if (lower.endsWith("_color")) {
+    const base = lower.slice(0, -6)
+    return normalizeMaterialTargetBase(base) ?? (base.length > 0 ? base : null)
+  }
+  if (lower.endsWith("_barva")) {
+    const base = lower.slice(0, -6)
+    return normalizeMaterialTargetBase(base) ?? (base.length > 0 ? base : null)
+  }
+  if (lower.endsWith("_material")) {
+    const base = lower.slice(0, -9)
+    return normalizeMaterialTargetBase(base) ?? (base.length > 0 ? base : null)
+  }
   return null
 }
 
@@ -719,7 +760,14 @@ function findNodeByExactName(scene: THREE.Object3D, name: string): THREE.Object3
 const ROOT_NODE_ALIASES: Record<string, string[]> = {
   skupina: ["assembly-6", "assembly-5", "assembly-4", "assembly", "group"],
   table: ["assembly-6", "assembly", "group"],
+  stul: ["assembly-6", "assembly", "group", "table"],
   group: ["assembly-6", "assembly", "skupina"],
+  top: ["deska", "desk", "tabletop"],
+  deska: ["top", "desk", "tabletop"],
+  leg: ["noha", "noha1", "noha2", "leg1", "leg2"],
+  legs: ["noha", "noha1", "noha2", "leg", "leg1", "leg2"],
+  noha: ["leg", "leg1", "leg2", "noha1", "noha2"],
+  nohy: ["leg", "leg1", "leg2", "noha", "noha1", "noha2"],
 }
 
 /** SketchUp often adds #1, #2 to names. GLB export may use base name. Try variants. */
@@ -816,7 +864,9 @@ function applyConfigToScene(
         code.startsWith("color") ||
         code.startsWith("barva") ||
         code.startsWith("material") ||
-        code.endsWith("_color")
+        code.endsWith("_color") ||
+        code.endsWith("_barva") ||
+        code.endsWith("_material")
       ) {
         // When componentTransforms handles materials (e.g. Komponenta→color_top, legs→color_legs),
         // skip this loop to avoid double-application. model3dEffectsMap may map color_top→"table"
@@ -885,14 +935,14 @@ function applyConfigToScene(
       "thickness",
       "tloustka",
     ])
+    const lengthWithUnit = getNumericValueWithUnitFromCodes(attrs, otherValues, [
+      "length",
+      "delka",
+      "lenx",
+    ])
     const widthWithUnit = getNumericValueWithUnitFromCodes(attrs, otherValues, [
       "width",
       "sirka",
-      "lenx",
-    ])
-    const depthWithUnit = getNumericValueWithUnitFromCodes(attrs, otherValues, [
-      "depth",
-      "hloubka",
       "lenz",
     ])
     const heightWithUnit = getNumericValueWithUnitFromCodes(attrs, otherValues, [
@@ -977,7 +1027,7 @@ function applyConfigToScene(
     }
 
     const hasRoundScale = diameterWithUnit != null || thicknessWithUnit != null
-    const hasRectScale = widthWithUnit != null || depthWithUnit != null || heightWithUnit != null
+    const hasRectScale = lengthWithUnit != null || widthWithUnit != null || heightWithUnit != null
     const scaleTargetNode =
       hasRoundScale || hasRectScale
         ? (findNodeByName(scene, "top", "TOP") ?? findNodeByName(scene, comp.label, comp.code))
@@ -985,7 +1035,7 @@ function applyConfigToScene(
 
     if (scaleTargetNode && !model3dEffectsMap && !componentTransforms) {
       scaleTargetNode.scale.set(1, 1, 1)
-      if (diameterWithUnit != null && (widthWithUnit == null || depthWithUnit == null)) {
+      if (diameterWithUnit != null && (lengthWithUnit == null || widthWithUnit == null)) {
         // Round table: diameter → X,Z uniform, thickness → Y
         const diameterCm = toCm(diameterWithUnit.value, diameterWithUnit.unit)
         const thicknessCm =
@@ -995,19 +1045,19 @@ function applyConfigToScene(
         const diamScale = Math.max(0.01, diameterCm / BASE_PRUMER_CM)
         const thickScale = Math.max(0.01, thicknessCm / BASE_TLOUSTKA_CM)
         scaleTargetNode.scale.set(diamScale, diamScale, thickScale)
-      } else if (widthWithUnit != null || depthWithUnit != null || heightWithUnit != null) {
-        // Rectangular: width→X, depth→Z, height→Y
+      } else if (lengthWithUnit != null || widthWithUnit != null || heightWithUnit != null) {
+        // Rectangular: length→X, width→Z, height→Y
+        const lengthCm = lengthWithUnit
+          ? toCm(lengthWithUnit.value, lengthWithUnit.unit)
+          : BASE_WIDTH_CM
         const widthCm = widthWithUnit
           ? toCm(widthWithUnit.value, widthWithUnit.unit)
-          : BASE_WIDTH_CM
-        const depthCm = depthWithUnit
-          ? toCm(depthWithUnit.value, depthWithUnit.unit)
           : BASE_DEPTH_CM
         const heightCm = heightWithUnit
           ? toCm(heightWithUnit.value, heightWithUnit.unit)
           : BASE_HEIGHT_CM
-        const scaleX = Math.max(0.01, widthCm / BASE_WIDTH_CM)
-        const scaleZ = Math.max(0.01, depthCm / BASE_DEPTH_CM)
+        const scaleX = Math.max(0.01, lengthCm / BASE_WIDTH_CM)
+        const scaleZ = Math.max(0.01, widthCm / BASE_DEPTH_CM)
         const scaleY = Math.max(0.01, heightCm / BASE_HEIGHT_CM)
         scaleTargetNode.scale.set(scaleX, scaleY, scaleZ)
       } else if (thicknessWithUnit != null && thicknessWithUnit.value > 0) {

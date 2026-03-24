@@ -137,6 +137,18 @@ export const AttributeConfiguration = ({
   )
 }
 
+/** SketchUp exports sometimes store unit as "STRING" for DC dimensions; show cm in UI. */
+const DIMENSION_CODE_PATTERN = /length|width|height|tloustka|thickness|lenx|leny|lenz/i
+
+function getDisplayAttributeUnit(unit: string | null | undefined, code: string): string | null {
+  const u = unit?.trim()
+  if (!u) return null
+  if (u.toUpperCase() === "STRING" && DIMENSION_CODE_PATTERN.test(code)) {
+    return "cm"
+  }
+  return u
+}
+
 type AttributeFieldProps = {
   attribute: AttributeDto
   productModelId: string
@@ -181,6 +193,7 @@ const AttributeField = ({
   }
 
   if (attribute.type === "INTEGER") {
+    const displayUnit = getDisplayAttributeUnit(attribute.unit, attribute.code)
     const value =
       typeof otherValue === "number" ? otherValue : (attribute.defaultInt ?? attribute.minInt ?? 0)
     const displayValue = localEditValue ?? String(value)
@@ -218,8 +231,8 @@ const AttributeField = ({
           className="text-sm"
         >
           {attribute.label}
-          {attribute.unit?.trim() && (
-            <span className="ml-1 font-normal text-muted-foreground">({attribute.unit})</span>
+          {displayUnit?.trim() && (
+            <span className="ml-1 font-normal text-muted-foreground">({displayUnit})</span>
           )}
         </Label>
         <div className="flex items-center gap-2">
@@ -235,8 +248,8 @@ const AttributeField = ({
             onBlur={(e) => commitInteger(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}
           />
-          {attribute.unit?.trim() && (
-            <span className="shrink-0 text-sm text-muted-foreground">{attribute.unit.trim()}</span>
+          {displayUnit?.trim() && (
+            <span className="shrink-0 text-sm text-muted-foreground">{displayUnit.trim()}</span>
           )}
         </div>
         {rule && (
@@ -253,6 +266,7 @@ const AttributeField = ({
   }
 
   if (attribute.type === "DECIMAL") {
+    const displayUnit = getDisplayAttributeUnit(attribute.unit, attribute.code)
     const value =
       typeof otherValue === "number"
         ? otherValue
@@ -292,8 +306,8 @@ const AttributeField = ({
           className="text-sm"
         >
           {attribute.label}
-          {attribute.unit?.trim() && (
-            <span className="ml-1 font-normal text-muted-foreground">({attribute.unit})</span>
+          {displayUnit?.trim() && (
+            <span className="ml-1 font-normal text-muted-foreground">({displayUnit})</span>
           )}
         </Label>
         <div className="flex items-center gap-2">
@@ -310,8 +324,8 @@ const AttributeField = ({
             onBlur={(e) => commitDecimal(e.target.value)}
             placeholder={t("attributes.numberPlaceholder")}
           />
-          {attribute.unit?.trim() && (
-            <span className="shrink-0 text-sm text-muted-foreground">{attribute.unit.trim()}</span>
+          {displayUnit?.trim() && (
+            <span className="shrink-0 text-sm text-muted-foreground">{displayUnit.trim()}</span>
           )}
         </div>
         {rule && (

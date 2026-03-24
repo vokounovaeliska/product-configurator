@@ -23,7 +23,6 @@
     "typescript-eslint": ">=8.28",
     "@tanstack/eslint-plugin-query": ">=5.68",
     "@tanstack/eslint-plugin-router": ">=1.114",
-    "@vitest/eslint-plugin": ">=1.1",
     "eslint-import-resolver-typescript": ">=4.2",
     "eslint-plugin-import": ">=2.31",
     "eslint-plugin-jsx-a11y": ">=6.10"

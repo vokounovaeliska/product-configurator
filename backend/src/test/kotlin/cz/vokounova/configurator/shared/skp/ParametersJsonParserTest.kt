@@ -36,9 +36,14 @@ class ParametersJsonParserTest {
         assertEquals(120.0, topLenx!!.defaultDouble!!, 0.01)
         assertEquals("cm", topLenx.unit)
 
+        val length = result.parameters.find { it.name == "length" }
+        assertNotNull(length)
+        assertEquals(120.0, length!!.defaultDouble!!, 0.01)
+        assertEquals("cm", length.unit)
+
         val width = result.parameters.find { it.name == "width" }
         assertNotNull(width)
-        assertEquals(120.0, width!!.defaultDouble!!, 0.01)
+        assertEquals(80.0, width!!.defaultDouble!!, 0.01)
         assertEquals("cm", width.unit)
 
         val height = result.parameters.find { it.name == "height" }
@@ -68,7 +73,8 @@ class ParametersJsonParserTest {
         assertEquals(117.9, result.parameterDefaults["BOTTOM_LENX"]!!, 0.01)
         assertEquals(77.9, result.parameterDefaults["BOTTOM_LENY"]!!, 0.01)
         assertEquals(120.0, result.parameterDefaults["TOP_LENX"]!!, 0.01)
-        assertEquals(120.0, result.parameterDefaults["WIDTH"]!!, 0.01)
+        assertEquals(120.0, result.parameterDefaults["LENGTH"]!!, 0.01)
+        assertEquals(80.0, result.parameterDefaults["WIDTH"]!!, 0.01)
         assertEquals(55.0, result.parameterDefaults["HEIGHT"]!!, 0.01)
 
         // ENUM params with null default must not appear in parameterDefaults
@@ -90,14 +96,14 @@ class ParametersJsonParserTest {
 
         val skupina = result.componentTransforms["Skupina"]
         assertNotNull(skupina)
-        assertEquals("=width", skupina!!["width"])
+        assertEquals("=length", skupina!!["length"])
+        assertEquals("=width", skupina["width"])
         assertEquals("=height", skupina["height"])
-        assertEquals("=depth", skupina["depth"])
 
         val leg1 = result.componentTransforms["leg1"]
         assertNotNull(leg1)
         assertEquals("=1", leg1!!["x"])
-        assertEquals("=(parent! depth-LenY)/2", leg1["y"])
+        assertEquals("=(parent!width-LenY)/2", leg1["y"])
         assertEquals("=0", leg1["z"])
         assertEquals(6.0, leg1["lenx"])
         assertEquals(78.0, leg1["leny"])
@@ -122,8 +128,8 @@ class ParametersJsonParserTest {
         assertTrue(result.meshNames.contains("top"))
 
         assertTrue(result.model3dEffects.isNotEmpty())
+        assertNotNull(result.model3dEffects["LENGTH"])
         assertNotNull(result.model3dEffects["WIDTH"])
         assertNotNull(result.model3dEffects["HEIGHT"])
-        assertNotNull(result.model3dEffects["DEPTH"])
     }
 }

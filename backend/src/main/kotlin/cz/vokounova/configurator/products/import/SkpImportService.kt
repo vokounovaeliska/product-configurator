@@ -18,6 +18,7 @@ import cz.vokounova.configurator.products.pricing.DefaultPricingRulesService
 import cz.vokounova.configurator.shared.rest.jsonpatch.JsonPatchOperation
 import cz.vokounova.configurator.shared.skp.ParametersJsonParser
 import cz.vokounova.configurator.shared.skp.SkpParameter
+import cz.vokounova.configurator.shared.skp.SkpParameterEffect
 import cz.vokounova.configurator.shared.skp.SkpParameterExtractionResult
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.springframework.beans.factory.annotation.Value
@@ -27,6 +28,8 @@ import java.io.ByteArrayInputStream
 import java.math.BigDecimal
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.text.Normalizer
+import java.util.Locale
 import java.util.UUID
 import java.util.zip.ZipInputStream
 
@@ -99,16 +102,14 @@ class SkpImportService(
         createAttributeOptions(attributes, materialTextureUrls, productModel.id)
 
         val patches = mutableListOf<ProductModelJsonPatchParams>()
-        val model3dUrl = storeGlbFromBytes(glbBytes!!)
-        if (model3dUrl != null) {
-            patches.add(
-                ProductModelJsonPatchParams(
-                    path = ProductModelJsonPatchParamsPath.MODEL_3D_URL,
-                    value = model3dUrl,
-                    op = JsonPatchOperation.REPLACE,
-                ),
-            )
-        }
+        val model3dUrl = storeGlbFromBytes(glbBytes)
+        patches.add(
+            ProductModelJsonPatchParams(
+                path = ProductModelJsonPatchParamsPath.MODEL_3D_URL,
+                value = model3dUrl,
+                op = JsonPatchOperation.REPLACE,
+            ),
+        )
         if (skpResult.componentTransforms.isNotEmpty() || skpResult.model3dEffects.isNotEmpty()) {
             val model3dPayload =
                 when {
@@ -117,11 +118,13 @@ class SkpImportService(
                             mutableMapOf<String, Any?>(
                                 "componentTransforms" to skpResult.componentTransforms,
                             )
-                        if (skpResult.model3dEffects.isNotEmpty()) {
-                            payload["effects"] = skpResult.model3dEffects
+                        val effectsForPayload = withoutGenericMaterialEffects(skpResult.model3dEffects)
+                        if (effectsForPayload.isNotEmpty()) {
+                            payload["effects"] = effectsForPayload
                         }
-                        if (skpResult.parameterDefaults.isNotEmpty()) {
-                            payload["parameterDefaults"] = skpResult.parameterDefaults
+                        val defaultsForPayload = withoutGenericMaterialParameterDefaults(skpResult.parameterDefaults)
+                        if (defaultsForPayload.isNotEmpty()) {
+                            payload["parameterDefaults"] = defaultsForPayload
                         }
                         if (materialTextureUrls.isNotEmpty()) {
                             payload["materials"] =
@@ -131,10 +134,11 @@ class SkpImportService(
                         }
                         payload
                     }
-                    else -> skpResult.model3dEffects
+                    else -> withoutGenericMaterialEffects(skpResult.model3dEffects)
                 }
             val effectsJson =
-                com.fasterxml.jackson.databind.ObjectMapper()
+                com.fasterxml.jackson.databind
+                    .ObjectMapper()
                     .writeValueAsString(model3dPayload)
             patches.add(
                 ProductModelJsonPatchParams(
@@ -154,7 +158,7 @@ class SkpImportService(
     /**
      * Keeps merchant-relevant params for pricing and config.
      * Supports both old SKP DC format (color_X, thickness_X) and plugin parameters.json
-     * (X_color, X_thickness, width, height, lenx/y/z).
+     * (X_color, X_thickness, length/width/height/thickness, lenx/y/z).
      */
     private fun filterMerchantRelevantParams(params: List<SkpParameter>): List<SkpParameter> {
         val hasDiameter =
@@ -162,21 +166,60 @@ class SkpImportService(
         return params.filter { param ->
             val n = param.name.lowercase()
             if (n in INTERNAL_SKP_PARAMS) return@filter false
+            // Generic DC "material" / "materiál" duplicates specific *_material / *_color; never create a merchant attribute.
+            if (isGenericMaterialParamName(param.name)) return@filter false
             when {
-                n.endsWith("_lenx") || n.endsWith("_leny") || n.endsWith("_lenz") -> false
-                n.startsWith("color") || n.endsWith("_color") -> true
+                n.startsWith("color") ||
+                    n.endsWith("_color") ||
+                    n.startsWith("barva_") ||
+                    n.endsWith("_barva") ||
+                    n == "barva" -> true
                 n == "diameter" || n.startsWith("diameter_") -> true
                 n == "thickness" ||
                     n.startsWith("thickness_") ||
                     n.endsWith("_thickness") ->
                     true
+                n.endsWith("_lenx") || n.endsWith("_leny") || n.endsWith("_lenz") -> false
                 n.contains("count") || n.contains("leg") || n.contains("visibility") -> true
                 n in listOf("lenx", "leny", "lenz") -> !hasDiameter
-                n in listOf("width", "depth", "height", "sirka", "hloubka", "vyska") -> true
+                n.contains("tloustka") ||
+                    n.endsWith("_material") ||
+                    isMerchantDimensionParamName(param.name) ->
+                    true
                 else -> false
             }
         }
     }
+
+    /** SketchUp params often use Czech names (délka, šířka, výška) while the filter only allowed English. */
+    private fun isMerchantDimensionParamName(raw: String): Boolean {
+        val a = normalizeSkpLatinAscii(raw)
+        return a in
+            setOf(
+                "length",
+                "width",
+                "height",
+                "depth",
+                "delka",
+                "sirka",
+                "vyska",
+                "hloubka",
+            )
+    }
+
+    private fun normalizeSkpLatinAscii(s: String): String =
+        Normalizer
+            .normalize(s.lowercase(Locale.ROOT), Normalizer.Form.NFD)
+            .replace("\\p{M}+".toRegex(), "")
+
+    /** True for the generic DC attribute "material" (any casing, optional diacritics), not for top_material etc. */
+    private fun isGenericMaterialParamName(raw: String): Boolean = normalizeSkpLatinAscii(raw.trim()) == "material"
+
+    private fun withoutGenericMaterialEffects(map: Map<String, List<SkpParameterEffect>>): Map<String, List<SkpParameterEffect>> =
+        map.filterKeys { !isGenericMaterialParamName(it) }
+
+    private fun withoutGenericMaterialParameterDefaults(map: Map<String, Double>): Map<String, Double> =
+        map.filterKeys { !isGenericMaterialParamName(it) }
 
     private fun createSingleComponent(
         productModelId: ProductModelId,
@@ -208,7 +251,8 @@ class SkpImportService(
         parameters.forEachIndexed { index, param ->
             val inference = inferAttributeType(param)
             val defaultDecimal =
-                param.defaultDouble?.let { BigDecimal.valueOf(it) }
+                param.defaultDouble
+                    ?.let { BigDecimal.valueOf(it) }
                     ?.takeIf { inference.type == AttributeType.DECIMAL }
             val defaultInt =
                 param.defaultDouble?.toInt()?.takeIf { inference.type == AttributeType.INTEGER }
@@ -227,7 +271,7 @@ class SkpImportService(
                         defaultInt = defaultInt,
                         defaultDecimal = defaultDecimal,
                         unit =
-                            param.unit.takeIf { it.isNotBlank() }
+                            resolveSkpAttributeUnit(param)
                                 ?: "mm".takeIf {
                                     param.name.contains("diameter") ||
                                         param.name.contains("thickness") ||
@@ -237,7 +281,8 @@ class SkpImportService(
                     ),
                 )
             when {
-                attribute.minInt != null && attribute.maxInt != null &&
+                attribute.minInt != null &&
+                    attribute.maxInt != null &&
                     inference.type == AttributeType.INTEGER ->
                     defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
                         productModelId.value,
@@ -246,7 +291,8 @@ class SkpImportService(
                         attribute.minInt.toString(),
                         attribute.maxInt.toString(),
                     )
-                attribute.minDecimal != null && attribute.maxDecimal != null &&
+                attribute.minDecimal != null &&
+                    attribute.maxDecimal != null &&
                     inference.type == AttributeType.DECIMAL ->
                     defaultPricingRulesService.createDefaultsForNumericAttributeIfEmpty(
                         productModelId.value,
@@ -261,20 +307,51 @@ class SkpImportService(
         return created
     }
 
+    /**
+     * SketchUp sometimes exports unit as "STRING"; dimension params still use cm in parameters.json.
+     */
+    private fun resolveSkpAttributeUnit(param: SkpParameter): String? {
+        val raw = param.unit.trim()
+        if (raw.equals("CENTIMETERS", ignoreCase = true)) {
+            return "cm"
+        }
+        if (raw.isNotBlank() && !raw.equals("STRING", ignoreCase = true)) {
+            return raw
+        }
+        val n = param.name.lowercase()
+        return "cm".takeIf {
+            isMerchantDimensionParamName(param.name) ||
+                n in listOf("length", "width", "height") ||
+                n.endsWith("_lenx") ||
+                n.endsWith("_leny") ||
+                n.endsWith("_lenz") ||
+                n.contains("tloustka") ||
+                n.contains("thickness")
+        }
+    }
+
     private fun inferAttributeType(param: SkpParameter): AttributeTypeInference {
         val n = param.name.lowercase()
         return when {
-            n == "material" || n.startsWith("color") || n.endsWith("_color") ->
+            n == "material" ||
+                n == "barva" ||
+                n.startsWith("color") ||
+                n.startsWith("barva_") ||
+                n.endsWith("_color") ||
+                n.endsWith("_barva") ||
+                n.endsWith("_material") ->
                 AttributeTypeInference(AttributeType.ENUM, null, null, null, null)
             n.contains("count") || (n.contains("leg") && !n.endsWith("_color")) ->
                 AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 10)
             n.contains("diameter") ||
                 n.contains("thickness") ||
+                n.contains("tloustka") ||
                 n.contains("len") ||
                 n.endsWith("_lenx") ||
                 n.endsWith("_leny") ||
                 n.endsWith("_lenz") ||
-                n in listOf("width", "depth", "height", "sirka", "hloubka", "vyska") ->
+                n in listOf("length", "width", "height", "thickness") ||
+                isMerchantDimensionParamName(param.name) ->
                 AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 5000)
             else ->
                 AttributeTypeInference(AttributeType.INTEGER, null, null, 1, 5000)
@@ -290,7 +367,8 @@ class SkpImportService(
             if (attribute.type == AttributeType.ENUM) {
                 val optionNames =
                     when {
-                        // Material-type params: use only textured materials from the zip
+                        isMaterialTypeParam(param) && param.options.isNotEmpty() ->
+                            param.options
                         isMaterialTypeParam(param) && materialTextureUrls.isNotEmpty() ->
                             materialTextureUrls.keys.sorted()
                         param.options.isNotEmpty() -> param.options
@@ -299,7 +377,6 @@ class SkpImportService(
                 optionNames.forEachIndexed { idx, name ->
                     val textureUrl =
                         materialTextureUrls[name] ?: materialTextureUrls[name.lowercase()]
-                    if (isMaterialTypeParam(param) && textureUrl == null) return@forEachIndexed
                     val optionValue = name.uppercase().replace(Regex("[^A-Z0-9]"), "_")
                     attributeOptionAPI.create(
                         AttributeOptionCreateParams(
@@ -326,6 +403,7 @@ class SkpImportService(
         return n == "material" ||
             n.startsWith("color") ||
             n.endsWith("_color") ||
+            n.endsWith("_material") ||
             n.contains("barva") ||
             param.effects.any { it.type.equals("material", ignoreCase = true) }
     }
@@ -430,7 +508,6 @@ class SkpImportService(
                 "rotx",
                 "roty",
                 "rotz",
-                "material",
                 "copy",
                 "scalex",
                 "scaley",

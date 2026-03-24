@@ -277,8 +277,8 @@
       ]
     },
     {
-      "name": "depth",
-      "label": "depth",
+      "name": "width",
+      "label": "width",
       "unit": "cm",
       "default": 80.0,
       "min": null,
@@ -401,8 +401,8 @@
       ]
     },
     {
-      "name": "width",
-      "label": "width",
+      "name": "length",
+      "label": "length",
       "unit": "cm",
       "default": 120.0,
       "min": null,
@@ -440,12 +440,12 @@
   ],
   "componentTransforms": {
     "Skupina": {
+      "length": "=length",
       "width": "=width",
-      "height": "=height",
-      "depth": "=depth"
+      "height": "=height"
     },
     "leg2": {
-      "x": "=parent!width-LenX-1",
+      "x": "=parent!length-LenX-1",
       "y": 0.9999999999999999,
       "z": "=0",
       "lenx": 6.0,
@@ -476,7 +476,7 @@
     },
     "leg1": {
       "x": "=1",
-      "y": "=(parent! depth-LenY)/2",
+      "y": "=(parent!width-LenY)/2",
       "z": "=0",
       "lenx": 6.0,
       "leny": 78.0,

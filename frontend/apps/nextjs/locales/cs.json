@@ -241,6 +241,8 @@
     "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Zip obsahuje 3D model, parametry a materiály. Po importu nastavte ceny a náhled v konfigurátoru.",
     "downloadPlugin": "Stáhnout plugin pro SketchUp",
     "downloadPluginHint": "Nemáte ještě plugin? Stáhněte si .rbz soubor a nainstalujte ho v SketchUp přes Pluginy → Manager pluginu → Instalace rozšíření.",
+    "pluginHelpSectionTitle": "Stažení pluginu pro SketchUp",
+    "downloadPluginLink": "Stáhnout plugin",
     "form": {
       "productName": "Název produktu",
       "productNamePlaceholder": "Volitelné – výchozí je název zip souboru",
@@ -316,6 +318,10 @@
       "manageComponentsButton": "Spravovat"
     },
     "create": {
+      "importSketchupButton": "Import ze SketchUpu",
+      "importSketchupHint": "Nahrajte zip z pluginu Konfiguruj Export (3D model, parametry, materiály). Doporučeno.",
+      "orDivider": "nebo",
+      "manualSectionTitle": "Vytvořit prázdný model produktu",
       "cancelButton": "Zrušit",
       "description": "Vytvořte nový model produktu, který mohou zákazníci konfigurovat",
       "descriptionPlaceholder": "Zadejte popis vašeho modelu produktu",
