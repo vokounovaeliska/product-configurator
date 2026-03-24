@@ -94,5 +94,7 @@ test_outputs/
 .cursor/
 .cursorrules
 
-### Legacy SketchUp bundle (superseded by konfiguruj_export.rbz) ###
+### SketchUp plugin bundles (build with pnpm plugin:package; do not commit binaries) ###
+tools/sketchup-plugin/*.rbz
 tools/sketchup-plugin/configurator_dc_export.rbz
+frontend/apps/nextjs/public/downloads/konfiguruj_export.rbz
