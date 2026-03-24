@@ -19,4 +19,4 @@ Copy `.env.example` to `.env`:
 cp .env.example .env
 ```
 
-Required variables: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_BE_URL`, `NEXT_PUBLIC_REST_API_URL`
+Required variables: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_BE_URL`, `NEXT_PUBLIC_REST_API_URL`

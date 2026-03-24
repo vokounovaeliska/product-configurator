@@ -138,9 +138,8 @@ Ensure your domain’s SPF/DKIM records allow sending from this server (Webglobe
 - Add the following environment variables (required for build):
     - `ENV_NAME`: `production`
     - `NEXT_PUBLIC_SITE_URL`: Your **public frontend URL** (e.g., `https://your-frontend.railway.app`)
-    - `NEXT_PUBLIC_API_URL`: Your **public backend API URL** (e.g., `https://your-backend.railway.app`)
-    - `NEXT_PUBLIC_BE_URL`: Your backend URL (same as `NEXT_PUBLIC_API_URL`)
-    - `NEXT_PUBLIC_REST_API_URL`: Your REST API URL (same as `NEXT_PUBLIC_API_URL`)
+    - `NEXT_PUBLIC_BE_URL`: Your **public backend base URL** (e.g., `https://your-backend.railway.app`), used for OpenAPI and tooling
+    - `NEXT_PUBLIC_REST_API_URL`: Your **public REST API base URL** (typically the same origin as `NEXT_PUBLIC_BE_URL` for this project)
 
 **Important:**
 

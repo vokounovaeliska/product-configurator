@@ -18,7 +18,7 @@ module ConfiguratorDcExport
   # Formulas often use sycek!leny, sycek!lenz (parent refs). Map to Group params.
   PARAM_ALIASES = {
     "leny" => %w[height vyska LenY],
-    "lenx" => %w[width sirka LenX],
+    "lenx" => %w[width sirka LenX length delka],
     "lenz" => %w[depth hloubka LenZ],
     "avar" => %w[avariant variant typ],
   }.freeze
@@ -84,8 +84,9 @@ module ConfiguratorDcExport
       log.call("Top-level entities: #{model.entities.count}")
       model.entities.each_with_index do |e, i|
         defn = e.respond_to?(:definition) ? e.definition : nil
-        dict = defn ? (e.attribute_dictionaries&.[]("dynamic_attributes") || defn.attribute_dictionaries&.[]("dynamic_attributes")) : nil
-        log.call("  [#{i}] #{e.class} name=#{defn&.name} has_dc=#{!dict.nil?} keys=#{dict&.keys&.count || 0}")
+        dict = defn ? merge_dc_dicts(defn, e) : nil
+        key_count = dict ? dict.each_pair.count : 0
+        log.call("  [#{i}] #{e.class} name=#{defn&.name} has_dc=#{!dict.nil?} keys=#{key_count}")
       end
 
       log.call("Definitions with dynamic_attributes:")
@@ -123,8 +124,10 @@ module ConfiguratorDcExport
       component_names = []
       seen_defn_ids = {}
 
-      collect_from_definitions(model, params_by_name, component_names, seen_defn_ids)
+      # Instance attributes often live only on the placed group/component; the definition dict can be
+      # sparse. Process the model tree first (merge instance + definition), then definitions not in the tree.
       collect_from_entities(model.entities, model, params_by_name, component_names, seen_defn_ids)
+      collect_from_definitions(model, params_by_name, component_names, seen_defn_ids)
       collect_from_selection(model, params_by_name, component_names, seen_defn_ids)
       add_params_referenced_in_formulas(model, params_by_name, component_names, seen_defn_ids)
 
@@ -165,6 +168,28 @@ module ConfiguratorDcExport
       ad["dynamic_attributes"]
     end
 
+    # Merges Dynamic Component dictionaries from definition and instance. Instance wins on key clashes.
+    # Using only instance OR only definition misses keys that exist on one side (common for custom attrs).
+    def merge_dc_dicts(defn, ent)
+      d_def = get_dc_dict(defn)
+      d_inst = ent&.respond_to?(:attribute_dictionaries) ? get_dc_dict(ent) : nil
+      return d_def if d_inst.nil?
+      return d_inst if d_def.nil?
+
+      merged = {}
+      d_def.each_pair { |k, v| merged[k.to_s] = v }
+      d_inst.each_pair { |k, v| merged[k.to_s] = v }
+      merged
+    end
+
+    # Matches generic DC "material" / "materiál" (not top_material, etc.).
+    def generic_material_param_name?(name)
+      n =
+        name.to_s.unicode_normalize(:nfkd).encode("UTF-8", invalid: :replace, undef: :replace)
+          .strip.downcase.gsub(/\p{M}/u, "")
+      n == "material"
+    end
+
     # Per-component: x, y, z, lenx, leny, lenz, material. Each is either a value or a formula string.
     def collect_component_transforms(model)
       transforms = {}
@@ -176,7 +201,7 @@ module ConfiguratorDcExport
         entities.each do |ent|
           defn = ent.respond_to?(:definition) ? ent.definition : nil
           next unless defn
-          dict = get_dc_dict(ent) || get_dc_dict(defn)
+          dict = merge_dc_dicts(defn, ent)
           next unless dict
           next if seen_defn_ids[defn.object_id]
           seen_defn_ids[defn.object_id] = true
@@ -196,7 +221,7 @@ module ConfiguratorDcExport
       model.entities.each do |ent|
         defn = ent.respond_to?(:definition) ? ent.definition : nil
         next unless defn
-        dict = get_dc_dict(ent) || get_dc_dict(defn)
+        dict = merge_dc_dicts(defn, ent)
         next unless dict
         next if seen_defn_ids[defn.object_id]
         seen_defn_ids[defn.object_id] = true
@@ -223,7 +248,7 @@ module ConfiguratorDcExport
       ent = model.selection[0]
       defn = ent.respond_to?(:definition) ? ent.definition : nil
       return unless defn
-      dict = get_dc_dict(ent) || get_dc_dict(defn)
+      dict = merge_dc_dicts(defn, ent)
       return unless dict
       return if seen_defn_ids[defn.object_id]
       seen_defn_ids[defn.object_id] = true
@@ -243,7 +268,7 @@ module ConfiguratorDcExport
       entities.each do |ent|
         defn = ent.respond_to?(:definition) ? ent.definition : nil
         next unless defn
-        dict = get_dc_dict(ent) || get_dc_dict(defn)
+        dict = merge_dc_dicts(defn, ent)
         next unless dict
         next if seen_defn_ids[defn.object_id]
         seen_defn_ids[defn.object_id] = true
@@ -347,6 +372,8 @@ module ConfiguratorDcExport
 
         param_name = key.to_s
         next if param_name.empty?
+        # SketchUp DC often has a generic "material" alongside deska_material / nohy_material; skip as configurator param.
+        next if generic_material_param_name?(param_name)
 
         formula = dict["_#{param_name}_formula"] || dict["_#{param_name}_formlabel"]
         formula_str = formula.to_s.strip
@@ -413,12 +440,12 @@ module ConfiguratorDcExport
         defn = nil
         if ent.is_a?(Sketchup::Group)
           defn = ent.definition
-          dict = get_dc_dict(ent) || get_dc_dict(defn)
+          dict = merge_dc_dicts(defn, ent)
           process_dc_dict(dict, defn, defn.name.to_s.strip, model, params_by_name, component_names, seen_defn_ids)
           collect_from_entities(defn.entities, model, params_by_name, component_names, seen_defn_ids)
         elsif ent.is_a?(Sketchup::ComponentInstance)
           defn = ent.definition
-          dict = get_dc_dict(ent) || get_dc_dict(defn)
+          dict = merge_dc_dicts(defn, ent)
           process_dc_dict(dict, defn, defn.name.to_s.strip, model, params_by_name, component_names, seen_defn_ids)
           collect_from_entities(defn.entities, model, params_by_name, component_names, seen_defn_ids)
         end
@@ -430,7 +457,7 @@ module ConfiguratorDcExport
       ent = model.selection[0]
       defn = ent.respond_to?(:definition) ? ent.definition : nil
       return unless defn
-      dict = get_dc_dict(ent) || get_dc_dict(defn)
+      dict = merge_dc_dicts(defn, ent)
       process_dc_dict(dict, defn, defn.name.to_s.strip, model, params_by_name, component_names, seen_defn_ids)
       collect_from_entities(defn.entities, model, params_by_name, component_names, seen_defn_ids)
     end
@@ -481,7 +508,7 @@ module ConfiguratorDcExport
         child_defn = ent.respond_to?(:definition) ? ent.definition : nil
         next unless child_defn
 
-        dict = get_dc_dict(child_defn) || (ent.respond_to?(:attribute_dictionaries) ? get_dc_dict(ent) : nil)
+        dict = merge_dc_dicts(child_defn, ent.respond_to?(:attribute_dictionaries) ? ent : nil)
         next unless dict
 
         # Match param by exact key or case-insensitive
@@ -505,7 +532,7 @@ module ConfiguratorDcExport
         entities.each do |ent|
           defn = ent.respond_to?(:definition) ? ent.definition : nil
           next unless defn
-          dict = get_dc_dict(defn) || (ent.respond_to?(:attribute_dictionaries) ? get_dc_dict(ent) : nil)
+          dict = merge_dc_dicts(defn, ent)
           if dict
             dict.each_pair do |key, _val|
               next if key.to_s.start_with?("_")
@@ -692,7 +719,9 @@ module ConfiguratorDcExport
          (name.include?("thickness") || name.include?("tloustka"))
         return child_names_matching(parent_defn, /bottom/i)
       end
-      if name == "width" || name == "sirka" || name == "lenx" || name == "depth" || name == "hloubka" || name == "lenz"
+      if name == "width" || name == "sirka" || name == "lenx" ||
+          name == "length" || name == "delka" ||
+          name == "depth" || name == "hloubka" || name == "lenz"
         top = child_names_matching(parent_defn, /top/i)
         bottom = child_names_matching(parent_defn, /bottom/i)
         return (top + bottom).uniq
@@ -762,6 +791,7 @@ module ConfiguratorDcExport
 
     def scale_param?(name)
       SCALE_PARAMS.any? { |p| p.downcase == name } ||
+        name == "length" || name == "delka" ||
         name == "width" || name == "sirka" ||
         name == "depth" || name == "hloubka" ||
         name == "height" || name == "vyska" ||
@@ -770,7 +800,7 @@ module ConfiguratorDcExport
 
     def axis_for_scale_param(name)
       case name
-      when "lenx", "width", "sirka" then "x"
+      when "lenx", "width", "sirka", "length", "delka" then "x"
       when "leny", "height", "vyska" then "y"
       when "lenz", "depth", "hloubka" then "z"
       when "prumer", "průměr" then "xz"
@@ -828,7 +858,7 @@ module ConfiguratorDcExport
         child_defn = ent.respond_to?(:definition) ? ent.definition : nil
         next unless child_defn
 
-        child_dict = get_dc_dict(child_defn) || (ent.respond_to?(:attribute_dictionaries) ? get_dc_dict(ent) : nil)
+        child_dict = merge_dc_dicts(child_defn, ent.respond_to?(:attribute_dictionaries) ? ent : nil)
         next unless child_dict
 
         child_name = child_defn.name.to_s.strip

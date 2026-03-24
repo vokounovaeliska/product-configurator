@@ -109,7 +109,7 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
             },
         ) { "Per-component _lenx/_leny/_lenz params must not be created as attributes" }
 
-        // Dimension params (width, height, depth) from parameters.json must have default and unit cm
+        // Dimension params (length, width, height) from parameters.json must have default and unit cm
         // Import infers them as INTEGER with defaultInt
         fun assertDefaultInt(
             attr: cz.vokounova.configurator.products.attributes.domain.Attribute?,
@@ -122,17 +122,17 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
             assertEquals(expected, actual, "$label defaultInt")
         }
 
-        val width = attributes.find { it.code == "WIDTH" }
-        assertDefaultInt(width, 120, "WIDTH")
-        assertEquals("cm", width!!.unit)
+        val length = attributes.find { it.code == "LENGTH" }
+        assertDefaultInt(length, 120, "LENGTH")
+        assertEquals("cm", length!!.unit)
 
         val height = attributes.find { it.code == "HEIGHT" }
         assertDefaultInt(height, 55, "HEIGHT")
         assertEquals("cm", height!!.unit)
 
-        val depth = attributes.find { it.code == "DEPTH" }
-        assertDefaultInt(depth, 80, "DEPTH")
-        assertEquals("cm", depth!!.unit)
+        val width = attributes.find { it.code == "WIDTH" }
+        assertDefaultInt(width, 80, "WIDTH")
+        assertEquals("cm", width!!.unit)
 
         // ENUM param (bottom_color) with default null must have null defaultDecimal
         val bottomColor = attributes.find { it.code == "BOTTOM_COLOR" }

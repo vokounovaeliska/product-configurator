@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { FileUpIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
@@ -15,6 +16,10 @@ import {
 } from "@workspace/ui/components/form"
 import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
+import { Typography } from "@workspace/ui/components/typography"
+
+import { Link } from "@/lib/i18n/navigation"
+import { ROUTES } from "@/lib/routes"
 
 import {
   getProductModelFormSchema,
@@ -62,18 +67,65 @@ export const CreateProductModelDialog = ({ isOpen, onOpenChange }: Props) => {
       open={isOpen}
       onOpenChange={onOpenChange}
     >
-      <Dialog.Content>
-        <Dialog.Content.Header>
+      <Dialog.Content className="grid max-h-[min(90vh,40rem)] min-w-0 gap-4 overflow-x-hidden overflow-y-auto">
+        <Dialog.Content.Header className="min-w-0 shrink-0">
           <Dialog.Content.Header.Title>{t("create.title")}</Dialog.Content.Header.Title>
           <Dialog.Content.Header.Description>
             {t("create.description")}
           </Dialog.Content.Header.Description>
         </Dialog.Content.Header>
 
+        <div className="min-w-0 space-y-3">
+          <Button
+            asChild
+            className="h-auto w-full max-w-full min-w-0 flex-col gap-1 py-4"
+          >
+            <Link
+              href={ROUTES.setupImportSketchup}
+              onClick={() => onOpenChange(false)}
+              className="inline-flex max-w-full min-w-0 flex-col items-stretch gap-1.5 px-2 py-0 text-center break-words"
+            >
+              <span className="flex min-w-0 items-center justify-center gap-2 text-base font-semibold">
+                <FileUpIcon
+                  className="size-5 shrink-0"
+                  aria-hidden
+                />
+                <span className="min-w-0">{t("create.importSketchupButton")}</span>
+              </span>
+              <span className="text-xs font-normal text-pretty text-muted-foreground">
+                {t("create.importSketchupHint")}
+              </span>
+            </Link>
+          </Button>
+
+          <div
+            className="relative py-1"
+            role="separator"
+          >
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                {t("create.orDivider")}
+              </span>
+            </div>
+          </div>
+
+          <Typography
+            as="p"
+            variant="body-sm"
+            weight="medium"
+            className="text-muted-foreground"
+          >
+            {t("create.manualSectionTitle")}
+          </Typography>
+        </div>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
+            className="mt-4 min-w-0 space-y-4"
           >
             <FormField
               control={form.control}
@@ -118,18 +170,20 @@ export const CreateProductModelDialog = ({ isOpen, onOpenChange }: Props) => {
               </div>
             )}
 
-            <Dialog.Content.Footer>
+            <Dialog.Content.Footer className="min-w-0 shrink-0 gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={createProductModel.isPending}
+                className="w-full min-w-0 sm:w-auto"
               >
                 {t("create.cancelButton")}
               </Button>
               <Button
                 type="submit"
                 disabled={createProductModel.isPending}
+                className="w-full min-w-0 sm:w-auto"
               >
                 {t("create.submitButton")}
               </Button>

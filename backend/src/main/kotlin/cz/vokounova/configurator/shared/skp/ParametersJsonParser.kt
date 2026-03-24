@@ -26,7 +26,8 @@ object ParametersJsonParser {
             if (parametersNode == null || !parametersNode.isArray) {
                 SkpParameterExtractionResult(error = "Invalid parameters.json: missing or invalid 'parameters' array")
             } else {
-                val parameters = parametersNode.mapNotNull { parseParameter(it) }
+                val parameters =
+                    parametersNode.mapNotNull { parseParameter(it) }.map { normalizeSkpParameter(it) }
                 val components =
                     componentsNode
                         ?.takeIf { it.isArray }
@@ -35,13 +36,9 @@ object ParametersJsonParser {
                         ?.distinct()
                         ?: parameters.flatMap { p -> p.effects.map { it.meshNode } }.distinct()
 
-                val rootComponent =
-                    components.find { it.equals("table", ignoreCase = true) }
-                        ?: components.firstOrNull()
-                        ?: "Default"
-
                 val (materialColors, materialTextures) = parseMaterials(root, materialTexturesFromZip)
                 val componentTransforms = parseComponentTransforms(root)
+                val rootComponent = inferRootComponentFromTransforms(components, componentTransforms)
                 val parameterDefaults = buildParameterDefaults(parameters)
 
                 SkpParameterExtractionResult(
@@ -59,6 +56,58 @@ object ParametersJsonParser {
         } catch (e: Exception) {
             SkpParameterExtractionResult(error = "Failed to parse parameters.json: ${e.message}")
         }
+
+    /**
+     * SketchUp often reports unit as STRING or CENTIMETERS while [SkpParameter.defaultDouble] is still
+     * in inches (e.g. length ≈ 70.866 in ≈ 180 cm). Convert only when the value matches typical inch export.
+     */
+    private fun normalizeSkpParameter(p: SkpParameter): SkpParameter {
+        val d = p.defaultDouble ?: return p
+        val n = p.name.lowercase()
+        val u = p.unit.trim()
+        val uu = u.uppercase()
+        if ((n == "length" || n == "delka") && (uu == "STRING" || uu == "CENTIMETERS")) {
+            val converted = d * 2.54
+            val roundedCm = kotlin.math.round(converted)
+            val hasFractionalPart = kotlin.math.abs(d - kotlin.math.floor(d)) > 1e-6
+            val nearRoundCm = kotlin.math.abs(converted - roundedCm) < 0.25
+            val plausibleTableCm = roundedCm in 50.0..220.0
+            val looksLikeFractionalInches =
+                d in 25.0..85.0 && hasFractionalPart && nearRoundCm && plausibleTableCm
+            val nearStandard180cmInches =
+                d in 40.0..120.0 && kotlin.math.abs(d - 70.86614173228347) < 0.1
+            return if (looksLikeFractionalInches || nearStandard180cmInches) {
+                p.copy(defaultDouble = converted, unit = "cm")
+            } else {
+                p.copy(unit = "cm")
+            }
+        }
+        return p
+    }
+
+    /**
+     * Prefer the DC root (no `_parent` in componentTransforms), e.g. "Stul", not the first name in `components`.
+     */
+    private fun inferRootComponentFromTransforms(
+        components: List<String>,
+        transforms: Map<String, Map<String, Any?>>,
+    ): String {
+        if (transforms.isEmpty()) {
+            return components.find { it.equals("table", ignoreCase = true) }
+                ?: components.firstOrNull()
+                ?: "Default"
+        }
+        val roots =
+            transforms.keys.filter { meshName ->
+                transforms[meshName]?.get("_parent") == null
+            }
+        return roots.firstOrNull { it.equals("Stul", ignoreCase = true) }
+            ?: roots.firstOrNull { it.equals("table", ignoreCase = true) }
+            ?: roots.firstOrNull()
+            ?: components.find { it.equals("table", ignoreCase = true) }
+            ?: components.firstOrNull()
+            ?: "Default"
+    }
 
     private fun parseParameter(node: JsonNode): SkpParameter? {
         val name = node["name"]?.asText()?.trim() ?: return null

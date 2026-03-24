@@ -12,23 +12,20 @@ import { useProductModel } from "@/features/productModels/api/productModelQuerie
 
 type Props = {
   productModelId: string
-  /** When true (e.g. public configurator page), always use embed API for config to avoid 401 on products API. */
-  shouldPreferEmbedConfig?: boolean
 }
 
-export const ProductConfiguratorWrapper = ({
-  productModelId,
-  shouldPreferEmbedConfig = false,
-}: Props) => {
+export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
   const { data: currentUser } = useCurrentUser()
   const isLoggedIn = Boolean(currentUser?.id)
+  /** Public embed API is published-only. Use it only when unauthenticated; owners load drafts via private API. */
+  const shouldUseEmbedApi = !isLoggedIn
 
   const {
     data: embedConfig,
     isLoading: isLoadingEmbed,
     error: embedError,
   } = useEmbedProductConfigById(productModelId, {
-    enabled: shouldPreferEmbedConfig || !isLoggedIn,
+    enabled: shouldUseEmbedApi,
   })
   const {
     data: productModel,
@@ -42,13 +39,11 @@ export const ProductConfiguratorWrapper = ({
   )
 
   const components = componentsData?.items ?? embedConfig?.components ?? []
-  const isLoading = shouldPreferEmbedConfig
+  const isLoading = shouldUseEmbedApi
     ? isLoadingEmbed
-    : isLoggedIn
-      ? isLoadingProductModel || isLoadingComponents
-      : isLoadingEmbed
+    : isLoadingProductModel || isLoadingComponents
 
-  if ((shouldPreferEmbedConfig || !isLoggedIn) && embedError) {
+  if (shouldUseEmbedApi && embedError) {
     return (
       <div className="flex flex-1 items-center justify-center p-4 sm:p-10">
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
@@ -95,7 +90,7 @@ export const ProductConfiguratorWrapper = ({
     )
   }
 
-  if ((shouldPreferEmbedConfig || !isLoggedIn) && embedConfig) {
+  if (shouldUseEmbedApi && embedConfig) {
     const productModelFromEmbed = {
       id: embedConfig.product.id,
       userId: productModel?.userId ?? "",

@@ -242,6 +242,8 @@
     "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The zip contains the 3D model, parameters, and materials. After import, set prices and preview in the configurator.",
     "downloadPlugin": "Download SketchUp plugin",
     "downloadPluginHint": "Don't have the plugin yet? Download the .rbz file and install it in SketchUp via Extensions → Extension Manager → Install Extension.",
+    "pluginHelpSectionTitle": "Download the SketchUp plugin",
+    "downloadPluginLink": "Download plugin",
     "form": {
       "productName": "Product name",
       "productNamePlaceholder": "Optional – defaults to zip filename",
@@ -317,6 +319,10 @@
       "manageComponentsButton": "Manage"
     },
     "create": {
+      "importSketchupButton": "Import from SketchUp",
+      "importSketchupHint": "Upload the zip from the Konfiguruj Export plugin (3D model, parameters, materials). Recommended.",
+      "orDivider": "or",
+      "manualSectionTitle": "Create an empty product model",
       "cancelButton": "Cancel",
       "description": "Create a new product model that customers can configure",
       "descriptionPlaceholder": "Enter a description for your product model",

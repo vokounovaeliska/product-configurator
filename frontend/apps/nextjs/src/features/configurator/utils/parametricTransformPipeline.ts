@@ -1,7 +1,7 @@
 /**
  * Parametric transform pipeline for SketchUp-derived GLB models.
- * Resolves formulas (parent!width, LenX, etc.) and computes position/scale deltas.
- * Uses identity axis mapping: SketchUp Z-up (X=width, Y=depth, Z=height).
+ * Resolves formulas (parent!length, parent!width, LenX, etc.) and computes position/scale deltas.
+ * SketchUp Z-up: X = length, Z = width (second horizontal), Y = height.
  */
 
 import type { Model3dConfig } from "../types/model3dConfig"
@@ -22,14 +22,14 @@ export function glbUnitsToCm(glbUnits: number): number {
   return glbUnits * CM_PER_INCH
 }
 
-/** Component transform from parameters.json: x, y, z, lenx, leny, lenz, width, height, depth, material, _parent. */
+/** Component transform from parameters.json: x, y, z, lenx, leny, lenz, length/width/height, thickness*, material, _parent. */
 export type ComponentTransform = Record<string, string | number | null | undefined>
 
-/** Base dimensions (width × depth × height in cm). */
+/** Base outer dimensions: length × width × height (cm). */
 export type BaseDimensions = {
+  length: number
   width: number
   height: number
-  depth: number
 }
 
 /** Target transform for a node: position and scale in GLB units. */
@@ -53,7 +53,7 @@ export type DeltaTransformFromUserParams = {
   scale: [number, number, number]
 }
 
-/** Identity axis mapping: SketchUp Z-up (X=width, Y=depth, Z=height). */
+/** Identity axis mapping: SketchUp Z-up (X=length, Y=height, Z=width). */
 export type AxisMapping = "x" | "y" | "z"
 
 /** Maps JSON axis string to scene axis (identity). */
@@ -80,24 +80,38 @@ type ResolvedComponentDimensions = {
   lenx: number
   leny: number
   lenz: number
+  /** Span along X (length). */
+  length?: number
+  /** Span along Z (second horizontal, “width” in plan). */
   width?: number
+  /** Span along Y (height). */
   height?: number
-  depth?: number
 }
 
 /** Resolved dimensions per component name. */
 export type ResolvedDimensions = Record<string, ResolvedComponentDimensions>
 
-/** Returns true if component has only width/height/depth (no lenx/leny/lenz). Skips for transform application. */
+/** Returns true if component has only global box dims (no lenx/leny/lenz). Skips for transform application. */
 export function isGroupContainer(transform: ComponentTransform): boolean {
   const hasLenx = "lenx" in transform && transform.lenx != null
   const hasLeny = "leny" in transform && transform.leny != null
   const hasLenz = "lenz" in transform && transform.lenz != null
   const hasLenDimensions = hasLenx || hasLeny || hasLenz
-  const hasWidthHeightDepth =
-    ("width" in transform || "height" in transform || "depth" in transform) &&
-    (transform.width != null || transform.height != null || transform.depth != null)
-  return hasWidthHeightDepth && !hasLenDimensions
+  const t = transform as Record<string, string | number | null | undefined>
+  const hasBox =
+    ("length" in t ||
+      "width" in t ||
+      "height" in t ||
+      "delka" in t ||
+      "sirka" in t ||
+      "vyska" in t) &&
+    (t.length != null ||
+      t.width != null ||
+      t.height != null ||
+      t.delka != null ||
+      t.sirka != null ||
+      t.vyska != null)
+  return hasBox && !hasLenDimensions
 }
 
 /** Extracts base dimensions from root group component. */
@@ -112,18 +126,53 @@ export function getBaseDimensions(
     return t != null && isGroupContainer(t)
   })
   if (!rootKey) {
-    return { width: 100, height: 75, depth: 60 }
+    return { length: 100, width: 60, height: 75 }
   }
   const r = resolved[rootKey]
-  if (!r) return { width: 100, height: 75, depth: 60 }
+  if (!r) return { length: 100, width: 60, height: 75 }
   return {
-    width: r.width ?? r.lenx ?? 100,
-    height: r.height ?? r.lenz ?? 75,
-    depth: r.depth ?? r.leny ?? 60,
+    length: r.length ?? r.lenx ?? 100,
+    width: r.width ?? r.lenz ?? 60,
+    height: r.height ?? r.leny ?? 75,
   }
 }
 
-/** Evaluates a formula string. Supports: parent!width, parent!height, parent!depth, LenX, LenY, LenZ, parent!top_thickness, parent!bottom_thickness. */
+function pickTransformScalar(
+  t: ComponentTransform,
+  ...keys: string[]
+): string | number | null | undefined {
+  const tr = t as Record<string, string | number | null | undefined>
+  for (const k of keys) {
+    if (k in tr && tr[k] != null) return tr[k]
+  }
+  return undefined
+}
+
+/**
+ * Root group often omits length/width on componentTransforms; child formulas still use parent!length.
+ * If parent resolved dim is missing or zero, fall back to global config params.
+ */
+function parentDimOrParams(
+  parent: ResolvedComponentDimensions | undefined,
+  key: "length" | "width" | "height",
+  params: Record<string, number>,
+): number {
+  const pv = parent?.[key]
+  if (pv != null && pv > 0) return pv
+  const czech =
+    key === "length"
+      ? (params.delka ?? params.DELKA)
+      : key === "width"
+        ? (params.sirka ?? params.SIRKA)
+        : (params.vyska ?? params.VYSKA)
+  const fromParams = params[key] ?? params[key.toUpperCase()] ?? czech
+  return typeof fromParams === "number" ? fromParams : 0
+}
+
+/**
+ * Evaluates a formula string.
+ * Global box: length (X), width (Z), height (Y); thickness* for slab depth.
+ */
 export function evaluateFormula(
   formula: string,
   context: {
@@ -141,9 +190,11 @@ export function evaluateFormula(
   const params: Record<string, number> = context.params ?? {}
 
   const replacements: [RegExp, string][] = [
-    [/\bparent!\s*width\b/gi, String(parent?.width ?? params.width ?? params.WIDTH ?? 0)],
-    [/\bparent!\s*height\b/gi, String(parent?.height ?? params.height ?? params.HEIGHT ?? 0)],
-    [/\bparent!\s*depth\b/gi, String(parent?.depth ?? params.depth ?? params.DEPTH ?? 0)],
+    [/\bparent!\s*length\b/gi, String(parentDimOrParams(parent, "length", params))],
+    [/\bparent!\s*width\b/gi, String(parentDimOrParams(parent, "width", params))],
+    [/\bparent!\s*height\b/gi, String(parentDimOrParams(parent, "height", params))],
+    // Legacy DC name "depth" for the second horizontal (same as width in parameters.json).
+    [/\bparent!\s*depth\b/gi, String(parentDimOrParams(parent, "width", params))],
     [
       /\bparent!\s*top_thickness\b/gi,
       String(params.top_thickness ?? params.TOP_THICKNESS ?? parent?.lenz ?? 0),
@@ -157,12 +208,23 @@ export function evaluateFormula(
       /\bparent!\s*thickness_top\b/gi,
       String(params.thickness_top ?? params.THICKNESS_TOP ?? parent?.lenz ?? 0),
     ],
+    [/\bparent!\s*thickness\b/gi, String(params.thickness ?? params.THICKNESS ?? 0)],
+    [/\bparent!\s*tloustka\b/gi, String(params.tloustka ?? params.TLOUSTKA ?? 0)],
+    [/\bparent!\s*delka\b/gi, String(parentDimOrParams(parent, "length", params))],
+    [/\bparent!\s*sirka\b/gi, String(parentDimOrParams(parent, "width", params))],
+    [/\bparent!\s*vyska\b/gi, String(parentDimOrParams(parent, "height", params))],
     [/\bLenX\b/g, String(self?.lenx ?? 0)],
     [/\bLenY\b/g, String(self?.leny ?? 0)],
     [/\bLenZ\b/g, String(self?.lenz ?? 0)],
+    [/\blength\b/gi, String(params.length ?? params.LENGTH ?? 0)],
+    [/\bdepth\b/gi, String(params.width ?? params.WIDTH ?? 0)],
     [/\bwidth\b/gi, String(params.width ?? params.WIDTH ?? 0)],
     [/\bheight\b/gi, String(params.height ?? params.HEIGHT ?? 0)],
-    [/\bdepth\b/gi, String(params.depth ?? params.DEPTH ?? 0)],
+    [/\bdelka\b/gi, String(params.length ?? params.LENGTH ?? params.delka ?? params.DELKA ?? 0)],
+    [/\bsirka\b/gi, String(params.width ?? params.WIDTH ?? params.sirka ?? params.SIRKA ?? 0)],
+    [/\bvyska\b/gi, String(params.height ?? params.HEIGHT ?? params.vyska ?? params.VYSKA ?? 0)],
+    [/\bthickness\b/gi, String(params.thickness ?? params.THICKNESS ?? 0)],
+    [/\btloustka\b/gi, String(params.tloustka ?? params.TLOUSTKA ?? 0)],
   ]
 
   for (const [re, replacement] of replacements) {
@@ -179,7 +241,30 @@ export function evaluateFormula(
     expr = expr.replace(m[0], String(val))
   }
 
+  // Root transforms often use =length / =width (no parent!) — substitute bare param names from config.
+  expr = substituteBareParamIdentifiers(expr, params)
+
   return safeEvalExpression(expr)
+}
+
+function escapeRegexChars(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+}
+
+/** Replaces identifiers like length, width, Noha_lenx with numeric values from params (longest keys first). */
+function substituteBareParamIdentifiers(expr: string, params: Record<string, number>): string {
+  let result = expr
+  const keys = Object.keys(params).sort((a, b) => b.length - a.length)
+  const seenLower = new Set<string>()
+  for (const key of keys) {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) continue
+    const lower = key.toLowerCase()
+    if (seenLower.has(lower)) continue
+    seenLower.add(lower)
+    const re = new RegExp(`\\b${escapeRegexChars(key)}\\b`, "gi")
+    result = result.replace(re, String(params[key] ?? 0))
+  }
+  return result
 }
 
 /** Safe evaluation of numeric expression (only numbers and + - * / ( )). */
@@ -282,6 +367,32 @@ export function getAttributeValueFromConfig(
   return typeof def === "number" ? def : 0
 }
 
+/** Maps Czech SketchUp dimension names to English keys used in formulas (length/width/height). */
+function applyCanonicalDimensionAliases(params: Record<string, number>): void {
+  const pick = (...keys: string[]): number | undefined => {
+    for (const k of keys) {
+      const v = params[k] ?? params[k.toUpperCase()] ?? params[k.toLowerCase()]
+      if (typeof v === "number" && Number.isFinite(v)) return v
+    }
+    return undefined
+  }
+  const L = pick("length", "delka", "DELKA")
+  const W = pick("width", "sirka", "SIRKA")
+  const H = pick("height", "vyska", "VYSKA")
+  if (L != null) {
+    params.length = params.length ?? L
+    params.LENGTH = params.LENGTH ?? L
+  }
+  if (W != null) {
+    params.width = params.width ?? W
+    params.WIDTH = params.WIDTH ?? W
+  }
+  if (H != null) {
+    params.height = params.height ?? H
+    params.HEIGHT = params.HEIGHT ?? H
+  }
+}
+
 /** Builds params map from config and parameterDefaults for formula evaluation. */
 function buildParamsForEvaluation(
   config: Model3dConfig | null,
@@ -293,7 +404,10 @@ function buildParamsForEvaluation(
       if (typeof v === "number") params[k] = v
     }
   }
-  if (!config) return params
+  if (!config) {
+    applyCanonicalDimensionAliases(params)
+    return params
+  }
   for (const comp of config.components) {
     const attrs = config.attributesByComponent[comp.id] ?? []
     for (const attr of attrs) {
@@ -307,10 +421,13 @@ function buildParamsForEvaluation(
       const value = typeof v === "number" ? v : fallback
       if (typeof value === "number") {
         params[attr.code] = value
-        params[attr.code.toUpperCase().replace(/[^A-Z0-9_]/g, "_")] = value
+        const up = attr.code.toUpperCase().replace(/[^A-Z0-9_]/g, "_")
+        params[up] = value
+        params[attr.code.toLowerCase()] = value
       }
     }
   }
+  applyCanonicalDimensionAliases(params)
   return params
 }
 
@@ -379,13 +496,44 @@ export function computeResolvedDimensions(
       lenz,
     }
     if (parentDims) {
-      selfDims.width = parentDims.width ?? parentDims.lenx
-      selfDims.height = parentDims.height ?? parentDims.lenz
-      selfDims.depth = parentDims.depth ?? parentDims.leny
-    } else if ("width" in t || "height" in t || "depth" in t) {
-      selfDims.width = resolveValue(t.width, t, undefined, params, lenx, leny, lenz)
-      selfDims.height = resolveValue(t.height, t, undefined, params, lenx, leny, lenz)
-      selfDims.depth = resolveValue(t.depth, t, undefined, params, lenx, leny, lenz)
+      selfDims.length = parentDims.length ?? parentDims.lenx
+      selfDims.width = parentDims.width ?? parentDims.lenz
+      selfDims.height = parentDims.height ?? parentDims.leny
+    } else if (
+      "length" in t ||
+      "width" in t ||
+      "height" in t ||
+      "delka" in t ||
+      "sirka" in t ||
+      "vyska" in t
+    ) {
+      selfDims.length = resolveValue(
+        pickTransformScalar(t, "length", "delka"),
+        t,
+        undefined,
+        params,
+        lenx,
+        leny,
+        lenz,
+      )
+      selfDims.width = resolveValue(
+        pickTransformScalar(t, "width", "sirka"),
+        t,
+        undefined,
+        params,
+        lenx,
+        leny,
+        lenz,
+      )
+      selfDims.height = resolveValue(
+        pickTransformScalar(t, "height", "vyska"),
+        t,
+        undefined,
+        params,
+        lenx,
+        leny,
+        lenz,
+      )
     }
     result[compName] = selfDims
     return selfDims
@@ -407,7 +555,7 @@ export function getParamKeysAffectingTransforms(
     for (const k of Object.keys(parameterDefaults)) keys.add(k)
   }
   const formulaPattern =
-    /\b(?:parent!\s*)?(?:width|height|depth|top_thickness|bottom_thickness|diameter_top|thickness_top)\b|\bparent!\s*[a-zA-Z_][a-zA-Z0-9_]*\b|\bLen[XYZ]\b|[\bwidth\b|\bheight\b|\bdepth\b]/gi
+    /\b(?:parent!\s*)?(?:length|width|height|delka|sirka|vyska|thickness|tloustka|top_thickness|bottom_thickness|diameter_top|thickness_top)\b|\bparent!\s*[a-zA-Z_][a-zA-Z0-9_]*\b|\bLen[XYZ]\b|\blength\b|\bwidth\b|\bheight\b|\bthickness\b|\btloustka\b/gi
   for (const t of Object.values(transforms)) {
     for (const v of Object.values(t)) {
       if (typeof v === "string" && v.startsWith("=")) {

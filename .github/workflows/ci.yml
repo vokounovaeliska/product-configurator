@@ -159,7 +159,6 @@ jobs:
       - name: Build frontend apps
         env:
           NEXT_PUBLIC_SITE_URL: http://localhost:3001
-          NEXT_PUBLIC_API_URL: http://localhost:8080
           NEXT_PUBLIC_BE_URL: http://localhost:8080
           NEXT_PUBLIC_REST_API_URL: http://localhost:8080
           ENV_NAME: local

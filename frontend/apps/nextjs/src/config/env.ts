@@ -6,7 +6,6 @@ export const env = createEnv({
     ENV_NAME: z.enum(["local", "staging", "production"]).optional().default("local"),
   },
   client: {
-    NEXT_PUBLIC_API_URL: z.string().url(),
     NEXT_PUBLIC_SITE_URL: z.string().url(),
     NEXT_PUBLIC_BE_URL: z.string().url(),
     NEXT_PUBLIC_REST_API_URL: z.string().url(),
@@ -15,7 +14,6 @@ export const env = createEnv({
   runtimeEnv: {
     ENV_NAME: process.env.ENV_NAME,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_BE_URL: process.env.NEXT_PUBLIC_BE_URL,
     NEXT_PUBLIC_REST_API_URL: process.env.NEXT_PUBLIC_REST_API_URL,
   },

@@ -1,8 +1,6 @@
-import { DownloadIcon } from "lucide-react"
 import type { Metadata } from "next"
 import { type Locale } from "next-intl"
 import { getTranslations } from "next-intl/server"
-import { Button } from "@workspace/ui/components/button"
 import { Typography } from "@workspace/ui/components/typography"
 
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
@@ -62,30 +60,36 @@ const SketchUpImportPage = async (props: Props) => {
         >
           {t("description")}
         </Typography>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-          >
-            <a
-              href={PLUGIN_DOWNLOAD_URL}
-              download="konfiguruj_export.rbz"
-            >
-              <DownloadIcon className="mr-2 size-4" />
-              {t("downloadPlugin")}
-            </a>
-          </Button>
-          <Typography
-            as="span"
-            variant="body-sm"
-            className="text-muted-foreground"
-          >
-            {t("downloadPluginHint")}
-          </Typography>
-        </div>
       </div>
       <SketchUpImportForm />
+      <section
+        aria-labelledby="sketchup-plugin-help-heading"
+        className="mt-6 max-w-2xl rounded-lg border border-dashed border-muted-foreground/30 bg-muted/30 p-4"
+      >
+        <Typography
+          id="sketchup-plugin-help-heading"
+          as="h2"
+          variant="body-md"
+          weight="semibold"
+          className="text-foreground"
+        >
+          {t("pluginHelpSectionTitle")}
+        </Typography>
+        <Typography
+          as="p"
+          variant="body-sm"
+          className="mt-2 text-muted-foreground"
+        >
+          {t("downloadPluginHint")}
+        </Typography>
+        <a
+          href={PLUGIN_DOWNLOAD_URL}
+          download="konfiguruj_export.rbz"
+          className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-4 hover:no-underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          {t("downloadPluginLink")}
+        </a>
+      </section>
     </div>
   )
 }
