@@ -6,7 +6,7 @@ import cz.vokounova.configurator.shared.exceptions.CommonErrorCode
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.users.application.configuration.UserDetailsService
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

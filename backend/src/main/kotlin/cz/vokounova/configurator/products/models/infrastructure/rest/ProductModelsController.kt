@@ -24,6 +24,8 @@ import cz.vokounova.configurator.shared.pagination.SortingUtils
 import cz.vokounova.configurator.shared.rest.response.PaginatedResponseMetaDto
 import cz.vokounova.configurator.shared.security.AuthFacade
 import cz.vokounova.configurator.users.api.dto.UserIdDto
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -37,6 +39,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Product models",
+    description =
+        "Configurable products: CRUD, paginated listing, and per-user configurator UI preferences " +
+            "(zoom, embed panels, background).",
+)
 @RestController
 @RequestMapping("/products/api/v1/product-models")
 class ProductModelsController(
@@ -47,6 +55,10 @@ class ProductModelsController(
     private val jsonPatchValidator: ProductModelJsonPatchParamsValidator,
     private val authFacade: AuthFacade,
 ) {
+    @Operation(
+        summary = "Create product model",
+        description = "Creates a product model owned by the current user.",
+    )
     @PostMapping
     fun productModelsCreate(
         @RequestBody productModelCreateRequestDto: ProductModelCreateRequestDto,
@@ -59,6 +71,7 @@ class ProductModelsController(
         return ResponseEntity.status(HttpStatus.CREATED).body(productModel.toDto())
     }
 
+    @Operation(summary = "Delete product model", description = "Removes a product model by id.")
     @DeleteMapping("/{productModelId}")
     fun productModelsDelete(
         @PathVariable productModelId: UUID,
@@ -67,6 +80,7 @@ class ProductModelsController(
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
+    @Operation(summary = "Get product model", description = "Returns one product model by id.")
     @GetMapping("/{productModelId}")
     fun productModelsGet(
         @PathVariable productModelId: UUID,
@@ -75,6 +89,10 @@ class ProductModelsController(
         return ResponseEntity.status(HttpStatus.OK).body(productModel.toDto())
     }
 
+    @Operation(
+        summary = "List product models",
+        description = "Cursor-based list with filters: ids, owner user ids, active flag, and sort order.",
+    )
     @GetMapping
     fun productModelsPaginatedList(
         @RequestParam(required = false) limit: Int?,
@@ -124,6 +142,10 @@ class ProductModelsController(
         )
     }
 
+    @Operation(
+        summary = "Patch product model",
+        description = "Applies JSON Patch operations to update product model fields.",
+    )
     @PatchMapping("/{productModelId}")
     fun productModelsPatch(
         @PathVariable productModelId: UUID,
@@ -137,6 +159,10 @@ class ProductModelsController(
         return ResponseEntity.status(HttpStatus.OK).body(productModel.toDto())
     }
 
+    @Operation(
+        summary = "Get configurator preferences",
+        description = "Returns saved viewer preferences for the current user and this product (defaults for app and embed).",
+    )
     @GetMapping("/{productModelId}/configurator-preferences")
     fun getConfiguratorPreferences(
         @PathVariable productModelId: UUID,
@@ -154,6 +180,10 @@ class ProductModelsController(
         )
     }
 
+    @Operation(
+        summary = "Update configurator preferences",
+        description = "Creates or updates configurator preferences for the current user (zoom, embed visibility, background).",
+    )
     @PatchMapping("/{productModelId}/configurator-preferences")
     fun patchConfiguratorPreferences(
         @PathVariable productModelId: UUID,

@@ -7,12 +7,11 @@ import cz.vokounova.configurator.generated.jooq.tables.references.USER
 import cz.vokounova.configurator.mocks.AuthMocks
 import cz.vokounova.configurator.mocks.ProductModelMocks
 import cz.vokounova.configurator.mocks.UserMocks
-import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.products.pricing.infrastructure.rest.mapper.request.AttributePricingRuleCreateRequestDto
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,9 +33,6 @@ class PricingRulesControllerErrorsTest : BaseIntegrationTest() {
 
     @Autowired
     lateinit var productModelAPI: ProductModelAPI
-
-    @Autowired
-    lateinit var componentAPI: ComponentAPI
 
     @Autowired
     lateinit var userRepository: UserRepository

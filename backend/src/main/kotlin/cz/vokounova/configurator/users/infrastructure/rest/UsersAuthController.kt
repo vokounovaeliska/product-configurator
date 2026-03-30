@@ -15,6 +15,8 @@ import cz.vokounova.configurator.users.infrastructure.rest.validation.UserCreate
 import cz.vokounova.configurator.users.ports.inbound.UserAPI
 import cz.vokounova.configurator.users.ports.inbound.UserGetRefreshToken
 import cz.vokounova.configurator.users.ports.inbound.UserLoginWithPassword
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
@@ -27,6 +29,10 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(
+    name = "Authentication",
+    description = "Login, registration, and token refresh. Public login/register paths; refresh accepts Bearer header or httpOnly cookie.",
+)
 @RestController
 @RequestMapping("/users/api/v1/auth")
 class UsersAuthController(
@@ -39,6 +45,10 @@ class UsersAuthController(
         const val REFRESH_TOKEN_COOKIE = "refresh_token"
     }
 
+    @Operation(
+        summary = "Refresh access token",
+        description = "Issues a new access token using refresh token from Authorization: Bearer … or the refresh_token cookie.",
+    )
     @GetMapping("/refresh")
     fun getUserRefreshToken(
         @RequestHeader(HttpHeaders.AUTHORIZATION, required = false) authorization: String?,
@@ -53,6 +63,10 @@ class UsersAuthController(
             .body(JwtTokenDto(userRefreshToken.run(refreshToken).token))
     }
 
+    @Operation(
+        summary = "Login",
+        description = "Authenticates with email and password; returns JWT access token and sets httpOnly refresh cookie.",
+    )
     @PostMapping("/public/login")
     fun userAuthLogin(
         @RequestBody loginCredentialsDto: LoginCredentialsDto,
@@ -78,6 +92,10 @@ class UsersAuthController(
             .body(JwtTokenDto(authResult.accessToken))
     }
 
+    @Operation(
+        summary = "Register",
+        description = "Creates a new user account (public sign-up).",
+    )
     @PostMapping("/public/register")
     fun userRegistration(
         @RequestBody userCreateRequestDto: UserCreateRequestDto,

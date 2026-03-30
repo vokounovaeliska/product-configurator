@@ -1,7 +1,7 @@
 package cz.vokounova.configurator.users.infrastructure.jobs
 
 import cz.vokounova.configurator.shared.utils.logger
-import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRefreshTokenRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime

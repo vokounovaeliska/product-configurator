@@ -13,7 +13,7 @@ import cz.vokounova.configurator.products.models.domain.ProductModelJsonPatchPar
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.shared.rest.jsonpatch.JsonPatchOperation
 import cz.vokounova.configurator.users.api.dto.UserIdDto
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -50,7 +50,12 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Create - creates customer request for published product`() {
-        val user = UserMocks.getUser(id = cz.vokounova.configurator.users.domain.UserId(userId))
+        val user =
+            UserMocks.getUser(
+                id =
+                    cz.vokounova.configurator.users.domain
+                        .UserId(userId),
+            )
         userRepository.create(user)
 
         val createParams = ProductModelMocks.getProductModelCreateParams(userId = UserIdDto(userId))
@@ -95,8 +100,7 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
                     post(CUSTOMER_REQUESTS_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload),
-                )
-                .andExpect(status().isCreated)
+                ).andExpect(status().isCreated)
                 .andReturn()
 
         val parsed = readResponse<CustomerRequestResultDto>(result)
@@ -107,7 +111,12 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
 
     @Test
     fun `Create - accepts snapshotImageBase64`() {
-        val user = UserMocks.getUser(id = cz.vokounova.configurator.users.domain.UserId(userId))
+        val user =
+            UserMocks.getUser(
+                id =
+                    cz.vokounova.configurator.users.domain
+                        .UserId(userId),
+            )
         userRepository.create(user)
 
         val createParams = ProductModelMocks.getProductModelCreateParams(userId = UserIdDto(userId))
@@ -157,8 +166,7 @@ class CustomerRequestEmbedControllerTest : BaseIntegrationTest() {
                     post(CUSTOMER_REQUESTS_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload),
-                )
-                .andExpect(status().isCreated)
+                ).andExpect(status().isCreated)
                 .andReturn()
 
         val parsed = readResponse<CustomerRequestResultDto>(result)

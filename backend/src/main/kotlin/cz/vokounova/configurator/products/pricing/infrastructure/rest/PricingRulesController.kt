@@ -8,6 +8,8 @@ import cz.vokounova.configurator.products.pricing.infrastructure.rest.mapper.req
 import cz.vokounova.configurator.products.pricing.infrastructure.rest.mapper.response.AttributePricingRuleDto
 import cz.vokounova.configurator.products.pricing.infrastructure.rest.mapper.toDto
 import cz.vokounova.configurator.products.pricing.ports.outbound.AttributePricingRuleRepository
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -22,12 +24,20 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.OffsetDateTime
 import java.util.UUID
 
+@Tag(
+    name = "Pricing rules",
+    description = "Attribute-based pricing rules per product model (e.g. price by option value or ranges). Scoped under a product model.",
+)
 @RestController
 @RequestMapping("/products/api/v1/product-models/{productModelId}/pricing-rules")
 class PricingRulesController(
     private val attributePricingRuleRepository: AttributePricingRuleRepository,
     private val pricingRuleValidator: PricingRuleValidator,
 ) {
+    @Operation(
+        summary = "List pricing rules",
+        description = "Returns rules for the product model, optionally filtered by component id and/or attribute code.",
+    )
     @GetMapping
     fun list(
         @PathVariable productModelId: UUID,
@@ -43,6 +53,10 @@ class PricingRulesController(
         return ResponseEntity.ok(rules.map { it.toDto() })
     }
 
+    @Operation(
+        summary = "Create pricing rule",
+        description = "Adds a rule; EQ operator is validated for duplicate option rules.",
+    )
     @PostMapping
     fun create(
         @PathVariable productModelId: UUID,
@@ -77,6 +91,7 @@ class PricingRulesController(
         return ResponseEntity.status(HttpStatus.CREATED).body(created.toDto())
     }
 
+    @Operation(summary = "Update pricing rule", description = "Replaces fields of an existing rule.")
     @PutMapping("/{ruleId}")
     fun update(
         @PathVariable productModelId: UUID,
@@ -104,6 +119,7 @@ class PricingRulesController(
         return ResponseEntity.ok(saved.toDto())
     }
 
+    @Operation(summary = "Delete pricing rule", description = "Removes a rule by id.")
     @DeleteMapping("/{ruleId}")
     fun delete(
         @PathVariable productModelId: UUID,

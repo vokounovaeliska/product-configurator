@@ -4,7 +4,7 @@ import cz.vokounova.configurator.configuration.BaseIntegrationTest
 import cz.vokounova.configurator.generated.jooq.tables.references.USER
 import cz.vokounova.configurator.mocks.UserMocks
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

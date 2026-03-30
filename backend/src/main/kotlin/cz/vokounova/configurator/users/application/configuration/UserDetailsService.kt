@@ -3,7 +3,7 @@ package cz.vokounova.configurator.users.application.configuration
 import cz.vokounova.configurator.shared.security.AuthDetails
 import cz.vokounova.configurator.shared.security.AuthId
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 

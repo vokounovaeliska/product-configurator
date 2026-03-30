@@ -8,7 +8,7 @@ import cz.vokounova.configurator.shared.utils.logger
 import cz.vokounova.configurator.users.application.configuration.UserDetailsService
 import cz.vokounova.configurator.users.application.configuration.UserJwtService
 import cz.vokounova.configurator.users.ports.inbound.UserGetRefreshToken
-import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRefreshTokenRepository
 import org.springframework.stereotype.Component
 
 @Component

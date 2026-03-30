@@ -9,7 +9,7 @@ import cz.vokounova.configurator.mocks.ProductModelMocks
 import cz.vokounova.configurator.mocks.UserMocks
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.users.api.dto.UserIdDto
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +23,10 @@ import java.util.UUID
 
 class EmbedControllerTest : BaseIntegrationTest() {
     companion object {
-        private const val EMBED_URL = "/embed/api/v1/products/by-url"
+        private fun embedByUserUrl(
+            userId: UUID,
+            url: String,
+        ): String = "/embed/api/v1/products/by-user/$userId/url/$url"
     }
 
     @Autowired
@@ -47,13 +50,19 @@ class EmbedControllerTest : BaseIntegrationTest() {
     @Test
     fun `Get by url - returns 404 when product not found`() {
         mockMvc
-            .perform(get("$EMBED_URL/non-existent-url").contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound)
+            .perform(
+                get(embedByUserUrl(userId, "non-existent-url")).contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isNotFound)
     }
 
     @Test
     fun `Get by url - returns 404 when product not published`() {
-        val user = UserMocks.getUser(id = cz.vokounova.configurator.users.domain.UserId(userId))
+        val user =
+            UserMocks.getUser(
+                id =
+                    cz.vokounova.configurator.users.domain
+                        .UserId(userId),
+            )
         userRepository.create(user)
 
         val createParams = ProductModelMocks.getProductModelCreateParams(userId = UserIdDto(userId))
@@ -70,13 +79,18 @@ class EmbedControllerTest : BaseIntegrationTest() {
         )
 
         mockMvc
-            .perform(get("$EMBED_URL/test-table").contentType(MediaType.APPLICATION_JSON))
+            .perform(get(embedByUserUrl(userId, "/test-table")).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound)
     }
 
     @Test
     fun `Get by url - returns product when published`() {
-        val user = UserMocks.getUser(id = cz.vokounova.configurator.users.domain.UserId(userId))
+        val user =
+            UserMocks.getUser(
+                id =
+                    cz.vokounova.configurator.users.domain
+                        .UserId(userId),
+            )
         userRepository.create(user)
 
         val createParams = ProductModelMocks.getProductModelCreateParams(userId = UserIdDto(userId))
@@ -99,7 +113,7 @@ class EmbedControllerTest : BaseIntegrationTest() {
 
         val result =
             mockMvc
-                .perform(get("$EMBED_URL/test-table").contentType(MediaType.APPLICATION_JSON))
+                .perform(get(embedByUserUrl(userId, "test-table")).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andReturn()
 

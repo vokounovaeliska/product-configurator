@@ -7,11 +7,12 @@ import { useEmbedProductConfig } from "@/features/embed/api/embedQueries"
 import { EmbedConfigurator } from "@/features/embed/components/EmbedConfigurator"
 
 type Props = {
+  userId: string
   url: string
 }
 
-export const EmbedConfiguratorWrapper = ({ url }: Props) => {
-  const { data: config, isLoading, error } = useEmbedProductConfig(url)
+export const EmbedConfiguratorWrapper = ({ userId, url }: Props) => {
+  const { data: config, isLoading, error } = useEmbedProductConfig(userId, url)
 
   if (error) {
     return (

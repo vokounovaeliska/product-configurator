@@ -11,6 +11,8 @@ import cz.vokounova.configurator.products.attributes.infrastructure.rest.validat
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.validation.AttributeOptionJsonPatchParamsValidator
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeOptionAPI
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,6 +25,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Attribute options",
+    description = "Discrete choices for select-style attributes (e.g. wood finish, color name).",
+)
 @RestController
 @RequestMapping("/products/api/v1/product-models/{productModelId}/components/{componentId}/attributes/{attributeId}/options")
 class AttributeOptionsController(
@@ -30,6 +36,7 @@ class AttributeOptionsController(
     private val createParamsValidator: AttributeOptionCreateParamsValidator,
     private val jsonPatchValidator: AttributeOptionJsonPatchParamsValidator,
 ) {
+    @Operation(summary = "Create attribute option", description = "Adds an option value under the attribute.")
     @PostMapping
     fun attributeOptionsCreate(
         @PathVariable productModelId: UUID,
@@ -55,6 +62,7 @@ class AttributeOptionsController(
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
+    @Operation(summary = "Get attribute option", description = "Returns one option by id.")
     @GetMapping("/{optionId}")
     fun attributeOptionsGet(
         @PathVariable productModelId: UUID,
@@ -66,6 +74,10 @@ class AttributeOptionsController(
         return ResponseEntity.status(HttpStatus.OK).body(option.toDto())
     }
 
+    @Operation(
+        summary = "List attribute options",
+        description = "Returns all options for the attribute (non-paginated).",
+    )
     @GetMapping
     fun attributeOptionsList(
         @PathVariable productModelId: UUID,
@@ -76,6 +88,10 @@ class AttributeOptionsController(
         return ResponseEntity.ok().body(options.map { it.toDto() })
     }
 
+    @Operation(
+        summary = "Patch attribute option",
+        description = "Applies JSON Patch operations to update option fields.",
+    )
     @PatchMapping("/{optionId}")
     fun attributeOptionsPatch(
         @PathVariable productModelId: UUID,

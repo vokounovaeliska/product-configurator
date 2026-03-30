@@ -16,6 +16,7 @@ import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Component
 class ProductModelAPIManager(
@@ -38,7 +39,10 @@ class ProductModelAPIManager(
 
     override fun getOne(id: ProductModelId): ProductModel = findProductModel(id)
 
-    override fun getPublishedByUrl(url: String): ProductModel? = productModelRepository.findPublishedByUrl(url)
+    override fun getPublishedByUserIdAndUrl(
+        userId: UUID,
+        url: String,
+    ): ProductModel? = productModelRepository.findPublishedByUserIdAndUrl(userId, url)
 
     override fun getList(): List<ProductModel> = productModelRepository.findByFilter()
 

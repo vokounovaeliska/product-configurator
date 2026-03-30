@@ -26,16 +26,21 @@ import org.jooq.Condition
 import org.jooq.DSLContext
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
+import java.util.UUID
 
 @Component
 class ProductModelRepositoryDB(
     private val dslContext: DSLContext,
     private val cursorCodec: CursorCodec<ProductModelPagination>,
 ) : ProductModelRepository {
-    override fun findPublishedByUrl(url: String): ProductModel? =
+    override fun findPublishedByUserIdAndUrl(
+        userId: UUID,
+        url: String,
+    ): ProductModel? =
         dslContext
             .selectFrom(PRODUCT_MODEL)
-            .where(PRODUCT_MODEL.URL.eq(url))
+            .where(PRODUCT_MODEL.USER_ID.eq(userId))
+            .and(PRODUCT_MODEL.URL.eq(url))
             .and(PRODUCT_MODEL.IS_PUBLISHED.eq(true))
             .fetchOne()
             ?.toDomain()

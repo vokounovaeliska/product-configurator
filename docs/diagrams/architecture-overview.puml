@@ -1,0 +1,74 @@
+@startuml
+!theme plain
+skinparam shadowing false
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam nodesep 50
+skinparam ranksep 60
+
+top to bottom direction
+
+skinparam package {
+  BorderColor #94A3B8
+  FontColor #0F172A
+  BackgroundColor #F8FAFC
+}
+
+skinparam rectangle {
+  BorderColor #64748B
+  FontColor #0F172A
+  BackgroundColor #FFFFFF
+  RoundCorner 10
+}
+
+skinparam database {
+  BorderColor #2563EB
+  FontColor #0F172A
+  BackgroundColor #DBEAFE
+}
+
+skinparam artifact {
+  BorderColor #D97706
+  FontColor #0F172A
+  BackgroundColor #FEF3C7
+}
+
+title Architektura aplikace Konfiguruj
+
+package "Externí prostředí" #F8FAFC {
+  left to right direction
+
+  package "SketchUp" #F1F5F9 {
+    top to bottom direction
+    rectangle "Exportní plugin" as skp #FFFFFF
+    artifact "ZIP podklady" as zip
+  }
+
+  package "Web výrobce" #F1F5F9 {
+    rectangle "Vložený konfigurátor" as embed #FFFFFF
+  }
+
+  rectangle "Resend\n(e-mailová služba)" as resend #DCFCE7
+}
+
+package "Konfiguruj" #EFF6FF {
+  left to right direction
+  rectangle "Administrační rozhraní" as admin #FFFFFF
+  rectangle "Backend" as backend #DBEAFE
+  database "PostgreSQL" as db
+}
+
+skp --> zip
+zip --> admin
+embed <--> backend
+admin <--> backend
+backend <--> db
+backend --> resend
+
+zip -[hidden]down-> admin
+embed -[hidden]down-> backend
+resend -[hidden]down-> db
+admin -[hidden]right-> backend
+backend -[hidden]right-> db
+@enduml

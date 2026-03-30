@@ -25,10 +25,17 @@ If the plugin doesn't export anything:
 2. In SketchUp: **Window → Extension Manager → Install Extension**
 3. Select `konfiguruj_export.rbz`
 
+After installation, **Konfiguruj Export** appears in the Extension Manager (Manage tab), with version, author, and description:
+
+![Konfiguruj Export in Extension Manager](docs/extension-manager-konfiguruj-export.png)
+
 ## Usage
 
 1. Open a SketchUp model with Dynamic Components
-2. **Plugins → Konfiguruj Export → Export for Konfiguruj**
+2. **Plugins → Konfiguruj Export → Export for Konfiguruj** (menu labels match your SketchUp language; Czech UI below)
+
+   ![Plugins menu: Konfiguruj Export → Export for Konfiguruj](docs/menu-export-for-konfiguruj.png)
+
 3. Choose save location (default: `modelname_configurator.zip`)
 4. The plugin creates a **single zip** containing:
    - **`model.glb`** – 3D model for the configurator
@@ -40,7 +47,7 @@ If the plugin doesn't export anything:
 
 ```json
 {
-  "parameters": [...],
+  "parameters": ["..."],
   "components": ["Top", "Bottom", "Legs", "Legs2"],
   "materials": {
     "oak": { "texturePath": "materials/oak.png" }

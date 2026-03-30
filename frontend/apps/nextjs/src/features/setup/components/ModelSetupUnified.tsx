@@ -45,6 +45,8 @@ type Props = {
   productModelId: string
   /** When true (e.g. in tabbed layout), hides the quick actions bar. */
   isQuickActionsHidden?: boolean
+  /** When true, hides the per-option image editor (scissors) in ENUM option lists; replace/upload image stays available. */
+  shouldHideOptionImageEditor?: boolean
 }
 
 const CollapsibleSection = ({
@@ -93,7 +95,11 @@ const CollapsibleSection = ({
   </div>
 )
 
-export const ModelSetupUnified = ({ productModelId, isQuickActionsHidden = false }: Props) => {
+export const ModelSetupUnified = ({
+  productModelId,
+  isQuickActionsHidden = false,
+  shouldHideOptionImageEditor = false,
+}: Props) => {
   const t = useTranslations("Setup")
   const tComponents = useTranslations("Components")
   const tProductModels = useTranslations("ProductModels")
@@ -242,7 +248,7 @@ export const ModelSetupUnified = ({ productModelId, isQuickActionsHidden = false
                 asChild
               >
                 <a
-                  href={`${getEmbedBaseUrl(env.NEXT_PUBLIC_SITE_URL)}${ROUTES.embed(productModel.url)}`}
+                  href={`${getEmbedBaseUrl(env.NEXT_PUBLIC_SITE_URL)}${ROUTES.embed(productModel.userId, productModel.url)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -342,6 +348,7 @@ export const ModelSetupUnified = ({ productModelId, isQuickActionsHidden = false
                 onMoveComponentUp={() => handleMoveComponentUp(component)}
                 onMoveComponentDown={() => handleMoveComponentDown(component)}
                 onDeleteAttribute={setDeletingAttribute}
+                shouldHideOptionImageEditor={shouldHideOptionImageEditor}
               />
             ))}
           </div>
@@ -416,6 +423,7 @@ type ComponentSectionProps = {
   onMoveComponentUp: () => void
   onMoveComponentDown: () => void
   onDeleteAttribute: (attr: AttributeDto) => void
+  shouldHideOptionImageEditor?: boolean
 }
 
 const ComponentSection = ({
@@ -433,6 +441,7 @@ const ComponentSection = ({
   onMoveComponentUp,
   onMoveComponentDown,
   onDeleteAttribute,
+  shouldHideOptionImageEditor = false,
 }: ComponentSectionProps) => {
   const t = useTranslations("Components")
   const tAttributes = useTranslations("Attributes")
@@ -601,6 +610,7 @@ const ComponentSection = ({
               onDelete={() => onDeleteAttribute(attribute)}
               onMoveUp={() => handleMoveAttributeUp(attribute)}
               onMoveDown={() => handleMoveAttributeDown(attribute)}
+              shouldHideOptionImageEditor={shouldHideOptionImageEditor}
             />
           ))}
         </div>
@@ -620,6 +630,7 @@ type AttributeSectionProps = {
   onDelete: () => void
   onMoveUp: () => void
   onMoveDown: () => void
+  shouldHideOptionImageEditor?: boolean
 }
 
 const AttributeSection = ({
@@ -633,6 +644,7 @@ const AttributeSection = ({
   onDelete,
   onMoveUp,
   onMoveDown,
+  shouldHideOptionImageEditor = false,
 }: AttributeSectionProps) => {
   const t = useTranslations("Attributes")
 
@@ -700,6 +712,7 @@ const AttributeSection = ({
                 productModelId={productModelId}
                 componentId={componentId}
                 attributeId={attribute.id}
+                shouldHideImageEditor={shouldHideOptionImageEditor}
               />
             </div>
           </div>

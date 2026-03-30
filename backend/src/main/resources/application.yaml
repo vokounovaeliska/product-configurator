@@ -5,6 +5,9 @@ resend:
 app:
   files:
     upload-dir: ${UPLOAD_DIR:uploads/images}
+  # Public API base URL for OpenAPI/Swagger "Try it out" (scheme + host, no path). Empty = let Springdoc infer (e.g. localhost).
+  swagger:
+    server-url: ${SWAGGER_SERVER_URL:}
   mail:
     from-address: ${MAIL_FROM:info@konfiguruj.com}
     from-name: ${MAIL_FROM_NAME:Konfiguruj}

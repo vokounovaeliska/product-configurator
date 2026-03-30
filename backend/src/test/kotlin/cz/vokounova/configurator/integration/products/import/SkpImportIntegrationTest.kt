@@ -11,7 +11,7 @@ import cz.vokounova.configurator.products.components.domain.ComponentFilter
 import cz.vokounova.configurator.products.components.ports.outbound.ComponentRepository
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

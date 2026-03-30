@@ -2,6 +2,7 @@ import { BookOpenIcon, DownloadIcon } from "lucide-react"
 import type { Metadata } from "next"
 import type { Locale } from "next-intl"
 import { getTranslations, setRequestLocale } from "next-intl/server"
+import Image from "next/image"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
@@ -109,6 +110,21 @@ const TutorialPage = async (props: Props) => {
             <li>{t("installation.step2")}</li>
             <li>{t("installation.step3")}</li>
           </ol>
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="mt-4 text-muted-foreground"
+          >
+            {t("installation.extensionManagerCaption")}
+          </Typography>
+          <Image
+            src="/tutorial/sketchup-extension-manager.png"
+            alt={t("installation.extensionManagerAlt")}
+            width={1024}
+            height={617}
+            className="mt-2 w-full rounded-md border border-border"
+            sizes="(max-width: 768px) 100vw, 672px"
+          />
         </Card>
 
         <Card className="p-6">
@@ -131,6 +147,21 @@ const TutorialPage = async (props: Props) => {
             <li>{t("supportedEntities.groups")}</li>
             <li>{t("supportedEntities.components")}</li>
           </ul>
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="mt-4 text-muted-foreground"
+          >
+            {t("supportedEntities.componentsFigureCaption")}
+          </Typography>
+          <Image
+            src="/tutorial/sketchup-components-hierarchy.png"
+            alt={t("supportedEntities.componentsFigureAlt")}
+            width={1024}
+            height={535}
+            className="mt-2 w-full rounded-md border border-border"
+            sizes="(max-width: 768px) 100vw, 672px"
+          />
         </Card>
 
         <Card className="p-6">
@@ -166,6 +197,21 @@ const TutorialPage = async (props: Props) => {
             <li>{t("parameters.formulaParent")}</li>
             <li>{t("parameters.formulaComponent")}</li>
           </ul>
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="mt-4 text-muted-foreground"
+          >
+            {t("parameters.definitionFigureCaption")}
+          </Typography>
+          <Image
+            src="/tutorial/sketchup-parameters-definition.png"
+            alt={t("parameters.definitionFigureAlt")}
+            width={610}
+            height={1024}
+            className="mx-auto mt-2 w-full max-w-[610px] rounded-md border border-border"
+            sizes="(max-width: 768px) 100vw, 610px"
+          />
         </Card>
 
         <Card className="p-6">
@@ -200,6 +246,51 @@ const TutorialPage = async (props: Props) => {
             <li>{t("workflow.step4")}</li>
             <li>{t("workflow.step5")}</li>
           </ol>
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="mt-4 text-muted-foreground"
+          >
+            {t("workflow.exportMenuCaption")}
+          </Typography>
+          <Image
+            src="/tutorial/sketchup-export-menu.png"
+            alt={t("workflow.exportMenuAlt")}
+            width={744}
+            height={428}
+            className="mt-2 w-full rounded-md border border-border"
+            sizes="(max-width: 768px) 100vw, 672px"
+          />
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="mt-4 text-muted-foreground"
+          >
+            {t("workflow.outputFigureCaption")}
+          </Typography>
+          <Image
+            src="/tutorial/sketchup-export-output-folder.png"
+            alt={t("workflow.outputFigureAlt")}
+            width={1024}
+            height={342}
+            className="mt-2 w-full rounded-md border border-border"
+            sizes="(max-width: 768px) 100vw, 672px"
+          />
+          <Typography
+            as="h3"
+            variant="body-md"
+            weight="semibold"
+            className="mt-6 mb-2"
+          >
+            {t("materials.title")}
+          </Typography>
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="text-muted-foreground"
+          >
+            {t("materials.description")}
+          </Typography>
         </Card>
 
         <Card className="p-6">
@@ -222,24 +313,21 @@ const TutorialPage = async (props: Props) => {
             <li>{t("troubleshooting.debug")}</li>
             <li>{t("troubleshooting.selectRoot")}</li>
           </ul>
-        </Card>
-
-        <Card className="p-6">
-          <Typography
-            as="h2"
-            variant="display-sm"
-            weight="semibold"
-            className="mb-3"
-          >
-            {t("materials.title")}
-          </Typography>
           <Typography
             as="p"
             variant="body-sm"
-            className="text-muted-foreground"
+            className="mt-4 text-muted-foreground"
           >
-            {t("materials.description")}
+            {t("troubleshooting.debugFigureCaption")}
           </Typography>
+          <Image
+            src="/tutorial/sketchup-debug-console.png"
+            alt={t("troubleshooting.debugFigureAlt")}
+            width={1024}
+            height={777}
+            className="mt-2 w-full rounded-md border border-border"
+            sizes="(max-width: 768px) 100vw, 672px"
+          />
         </Card>
       </div>
     </div>

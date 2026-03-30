@@ -9,7 +9,10 @@ import java.util.UUID
 class EmbedService(
     private val productConfigQueryFacade: ProductConfigQueryFacade,
 ) {
-    fun getPublishedProductConfigByUrl(url: String): FullProductConfigDto = productConfigQueryFacade.getFullConfigByProductUrl(url)
+    fun getPublishedProductConfigByUserIdAndUrl(
+        userId: UUID,
+        url: String,
+    ): FullProductConfigDto = productConfigQueryFacade.getFullConfigByProductUrl(userId, url)
 
     /** Returns full config for published product, null if not found or not published. */
     fun getPublishedProductConfigById(productModelId: UUID): FullProductConfigDto? =

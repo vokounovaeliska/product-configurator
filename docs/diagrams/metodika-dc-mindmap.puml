@@ -1,0 +1,90 @@
+' Kořen = hlavní cíl dle UVOD. Rámec DSRM (Peffers et al.) je popsán v úvodu kapitoly 2 metodiky, ne v listu DC3. Pod DC: Výsledek (kam jde výstup v textu), Metody (postupy), nakonec Metodika (kapitola 2).
+' Export: PlantUML náhled nebo plantuml.com
+
+@startmindmap
+
+' Orientace: DC3 a DC4 vpravo od kořene, DC1 a DC2 vlevo (syntax PlantUML: nejdřív pravá strana, pak řádek „left side“, pak levá strana).
+left to right direction
+
+' Zalamování a úzké uzly: výška obrázku roste, šířka klesá (viz dokumentace MindMap Word Wrap).
+<style>
+node {
+  MaximumWidth 200
+  Padding 10
+  Margin 4
+  HorizontalAlignment center
+}
+rootNode {
+  MaximumWidth 320
+  Padding 14
+}
+leafNode {
+  MaximumWidth 180
+}
+arrow {
+  LineThickness 1
+}
+</style>
+<style>
+mindmapDiagram {
+  .dc {
+    BackgroundColor #FFF4E6
+    LineColor #C0392B
+  }
+  .vystup {
+    BackgroundColor #E8F4FC
+    LineColor #1A5276
+    RoundCorner 2
+  }
+  .metody {
+    BackgroundColor #FFF9E6
+    LineColor #B8860B
+    RoundCorner 18
+    FontStyle bold
+  }
+  .metodika {
+    BackgroundColor #E8F8E8
+    LineColor #1E8449
+    RoundCorner 2
+  }
+}
+</style>
+
+* Navrhnout a implementovat funkční prototyp webového konfigurátoru s integrovaným poptávkovým systémem pro zakázkovou výrobu
+
+' Pravá strana (v souboru uvedeno první): DC3, DC4
+** DC3: Návrh a implementace řešení <<dc>>
+*** Metody <<metody>>
+**** Iterativní vývoj a agilní řízení (Scrum, backlog, user stories)
+**** Návrh architektury a uživatelských toků, dokumentace dle MMSP
+**** Technická realizace a průběžné ověřování funkčnosti
+**** Metodika: kapitola 2.4 a 2.5 <<metodika>>
+*** Výsledek: kapitola 3 <<vystup>>
+
+** DC4: Ověření řešení <<dc>>
+*** Metody <<metody>>
+**** Demonstrace ve firmě a zpětná vazba od spolupracující firmy
+**** Uživatelské testování a vyhodnocení přínosu a použitelnosti
+**** Metodika: kapitola 2.6 <<metodika>>
+*** Výsledek: kapitola 4 <<vystup>>
+
+left side
+
+' Levá strana: DC1, DC2
+** DC1: Analýza současného procesu poptávky <<dc>>
+*** Metody <<metody>>
+**** Rozhovory, pozorování a konzultace ve firmě
+**** Analýza e-shopu a ostatních podkladů
+**** UML Activity diagram a identifikace slabých míst
+**** Metodika: kapitola 2.3 <<metodika>>
+*** Výsledek: kapitola 1.2 <<vystup>>
+
+** DC2: Stav poznání a rešerše řešení <<dc>>
+*** Metody <<metody>>
+**** Rešerše odborné literatury
+**** Desk research a screening nástrojů podle kritérií
+**** Kvalitativní srovnání vybraných řešení
+**** Metodika: kapitola 2.1 a 2.2 <<metodika>>
+*** Výsledek: kapitola 1.3 a 1.4 <<vystup>>
+
+@endmindmap

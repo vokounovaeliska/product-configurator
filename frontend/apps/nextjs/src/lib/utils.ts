@@ -2,38 +2,71 @@ export const raiseError = (message?: string): never => {
   throw new Error(message ?? "Unhandled uknown error")
 }
 
+export type ApiErrorDetail = {
+  message: string
+  field?: string | null
+  code?: string | null
+}
+
+/**
+ * Reads validation/API error body from a ky HTTPError (uses clone so the response body can still be read elsewhere).
+ */
+export async function parseApiErrorDetail(error: unknown): Promise<ApiErrorDetail | null> {
+  if (!(error instanceof Error) || !("response" in error)) return null
+  const httpError = error as { response: Response }
+  try {
+    const errorData = (await httpError.response.clone().json()) as
+      | {
+          errors?: { message?: string; field?: string | null; code?: string | null }[]
+          message?: string
+        }
+      | null
+      | undefined
+
+    if (errorData) {
+      if (errorData.errors && errorData.errors.length > 0) {
+        const firstError = errorData.errors[0]
+        if (firstError?.message) {
+          return {
+            message: firstError.message,
+            field: firstError.field,
+            code: firstError.code,
+          }
+        }
+      }
+      if (errorData.message) {
+        return { message: errorData.message }
+      }
+    }
+  } catch {
+    // fall through
+  }
+  return null
+}
+
+/**
+ * Attaches optional API `field` / `code` for UI that maps errors to inputs (e.g. duplicate embed URL).
+ */
+export function errorWithApiDetail(detail: ApiErrorDetail): Error & {
+  field?: string | null
+  code?: string | null
+} {
+  const err = new Error(detail.message) as Error & { field?: string | null; code?: string | null }
+  err.field = detail.field
+  err.code = detail.code
+  return err
+}
+
 /**
  * Extracts a user-friendly error message from a ky HTTPError
  */
 export const extractErrorMessage = async (error: unknown): Promise<string> => {
+  const fromBody = await parseApiErrorDetail(error)
+  if (fromBody) return fromBody.message
+
   if (error instanceof Error && "response" in error) {
     const httpError = error as { response: Response }
     const status = httpError.response.status
-
-    try {
-      const errorData = (await httpError.response.json()) as
-        | { errors?: { message?: string }[]; message?: string }
-        | null
-        | undefined
-
-      if (errorData) {
-        // Try to get message from errors array (validation errors)
-        if (errorData.errors && errorData.errors.length > 0) {
-          const firstError = errorData.errors[0]
-          if (firstError?.message) {
-            return firstError.message
-          }
-        }
-
-        // Try to get message from top level
-        if (errorData.message) {
-          return errorData.message
-        }
-      }
-    } catch {
-      // If JSON parsing fails, fall back to status-based messages
-      // Don't return raw status text or technical error messages
-    }
 
     // Return user-friendly messages based on HTTP status codes
     switch (status) {

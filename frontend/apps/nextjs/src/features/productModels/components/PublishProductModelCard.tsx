@@ -45,6 +45,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const [url, setUrl] = useState(productModel.url ?? toUrlPath(productModel.name))
   const [isCopied, setIsCopied] = useState(false)
   const [embedDisplaySaveError, setEmbedDisplaySaveError] = useState<string | null>(null)
+  const [urlSaveError, setUrlSaveError] = useState<string | null>(null)
 
   const updateProductModel = useUpdateProductModel()
   const { data: preferences } = useConfiguratorPreferences(productModel.id)
@@ -71,6 +72,10 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   }, [productModel.url, productModel.name])
 
   useEffect(() => {
+    setUrlSaveError(null)
+  }, [url])
+
+  useEffect(() => {
     setShouldShowProductNameInEmbed(preferences?.embedShowProductName ?? isEmbedDisplayDefault)
     setShouldShowDescriptionInEmbed(preferences?.embedShowDescription ?? isEmbedDisplayDefault)
     setShouldShowComponentsInEmbed(preferences?.embedShowComponents ?? isEmbedDisplayDefault)
@@ -85,7 +90,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const canPublish = isUrlValid && url.trim().length > 0
   const displayUrl = url.trim() ?? productModel.url ?? toUrlPath(productModel.name)
   const embedBaseUrl = getEmbedBaseUrl(env.NEXT_PUBLIC_SITE_URL)
-  const embedUrl = `${embedBaseUrl}${ROUTES.embed(displayUrl)}`
+  const embedUrl = `${embedBaseUrl}${ROUTES.embed(productModel.userId, displayUrl)}`
   const embedCode = `<iframe
   src="${embedUrl}"
   width="100%"
@@ -98,8 +103,20 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     setUrl(toUrlPath(productModel.name))
   }
 
+  const mapUrlMutationError = (err: unknown): string => {
+    if (
+      err instanceof Error &&
+      "field" in err &&
+      (err as { field?: string | null }).field === "url"
+    ) {
+      return t("urlAlreadyTaken")
+    }
+    return err instanceof Error ? err.message : t("urlSaveFailed")
+  }
+
   const handlePublishToggle = async (isChecked: boolean) => {
     if (!canPublish && isChecked) return
+    setUrlSaveError(null)
     const patches: {
       path: "SlashUrl" | "SlashIsPublished"
       value: string | boolean
@@ -114,8 +131,11 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     } else {
       patches.push({ path: "SlashIsPublished", value: false, op: "Replace" })
     }
-    if (patches.length > 0) {
+    if (patches.length === 0) return
+    try {
       await updateProductModel.mutateAsync({ id: productModel.id, patches })
+    } catch (err) {
+      setUrlSaveError(mapUrlMutationError(err))
     }
   }
 
@@ -123,6 +143,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     if (!isUrlValid || url.trim() === "") return
     const trimmedUrl = url.trim()
     if (trimmedUrl === productModel.url) return
+    setUrlSaveError(null)
     const patches: {
       path: "SlashUrl" | "SlashIsPublished"
       value: string | boolean
@@ -131,7 +152,11 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     if (productModel.isPublished) {
       patches.push({ path: "SlashIsPublished", value: true, op: "Replace" })
     }
-    await updateProductModel.mutateAsync({ id: productModel.id, patches })
+    try {
+      await updateProductModel.mutateAsync({ id: productModel.id, patches })
+    } catch (err) {
+      setUrlSaveError(mapUrlMutationError(err))
+    }
   }
 
   const handleCopyEmbed = async () => {
@@ -230,7 +255,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                 placeholder={t("urlPlaceholder")}
                 className={cn(
                   "min-w-0 flex-1 font-mono sm:min-w-[200px] sm:flex-initial",
-                  isUrlError && "border-destructive",
+                  (isUrlError || Boolean(urlSaveError)) && "border-destructive",
                 )}
                 disabled={updateProductModel.isPending}
               />
@@ -262,6 +287,15 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                 className="text-destructive"
               >
                 {t("urlError")}
+              </Typography>
+            )}
+            {urlSaveError && (
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="text-destructive"
+              >
+                {urlSaveError}
               </Typography>
             )}
             <Typography

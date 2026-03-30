@@ -1,4 +1,4 @@
-package cz.vokounova.configurator.users.ports.outboud
+package cz.vokounova.configurator.users.ports.outbound
 
 import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest

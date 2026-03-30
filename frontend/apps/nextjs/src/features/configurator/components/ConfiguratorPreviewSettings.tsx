@@ -54,7 +54,7 @@ export const ConfiguratorPreviewSettings = ({
   const patchPreferences = usePatchConfiguratorPreferences(productModelId)
 
   const savedZoom = preferences?.zoomDistanceDefault ?? null
-  const savedBackground = (preferences?.backgroundPreset as BackgroundPresetKey) ?? "lightGray"
+  const savedBackground = (preferences?.backgroundPreset as BackgroundPresetKey) ?? "white"
   const initialZoom =
     savedZoom != null ? Math.min(Math.max(savedZoom, ZOOM_MIN), ZOOM_MAX) : ZOOM_DEFAULT
 

@@ -34,7 +34,10 @@ class ProductConfigQueryService(
     private val attributePricingRuleRepository: AttributePricingRuleRepository,
     private val configuratorPreferencesRepository: ProductModelConfiguratorPreferencesRepository,
 ) : ProductConfigQueryFacade {
-    override fun getPublishedProductByUrl(url: String): ProductModelExternalDto? = productModelAPI.getPublishedByUrl(url)?.toExternalDto()
+    override fun getPublishedProductByUserIdAndUrl(
+        userId: UUID,
+        url: String,
+    ): ProductModelExternalDto? = productModelAPI.getPublishedByUserIdAndUrl(userId, url)?.toExternalDto()
 
     override fun isProductPublished(productModelId: UUID): Boolean {
         val model = productModelAPI.getOne(ProductModelId(productModelId))
@@ -46,9 +49,12 @@ class ProductConfigQueryService(
         return model.userId.value
     }
 
-    override fun getFullConfigByProductUrl(url: String): FullProductConfigDto {
+    override fun getFullConfigByProductUrl(
+        userId: UUID,
+        url: String,
+    ): FullProductConfigDto {
         val product =
-            productModelAPI.getPublishedByUrl(url)
+            productModelAPI.getPublishedByUserIdAndUrl(userId, url)
                 ?: throw ResourceNotFoundException("Product not found or not published")
         val productId = ProductModelId(product.id.value)
         val components = componentRepository.findByFilter(ComponentFilter(productModelIds = listOf(productId)))

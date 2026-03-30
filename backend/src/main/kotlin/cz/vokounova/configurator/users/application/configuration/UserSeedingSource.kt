@@ -5,7 +5,7 @@ import cz.vokounova.configurator.shared.seeding.SeedingSource
 import cz.vokounova.configurator.shared.utils.logger
 import cz.vokounova.configurator.users.domain.User
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.springframework.context.annotation.Configuration
 import java.time.OffsetDateTime
 import java.util.UUID

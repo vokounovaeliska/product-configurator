@@ -8,21 +8,22 @@ import { env } from "@/config/env"
 import { EmbedConfiguratorWrapper } from "@/features/embed/components/EmbedConfiguratorWrapper"
 
 type Props = {
-  params: Promise<{ locale: Locale; url: string }>
+  params: Promise<{ locale: Locale; userId: string; url: string }>
 }
 
 export async function generateMetadata(props: Omit<Props, "children">) {
-  const { locale, url } = await props.params
+  const { locale, userId, url } = await props.params
   const t = await getTranslations({ locale, namespace: "Embed" })
   const title = t("title")
+  const path = `/e/${userId}/${url}`
 
   return {
     title,
     alternates: {
-      canonical: `${env.NEXT_PUBLIC_SITE_URL}/e/${url}`,
+      canonical: `${env.NEXT_PUBLIC_SITE_URL}${path}`,
       languages: {
-        en: `${env.NEXT_PUBLIC_SITE_URL}/en/e/${url}`,
-        cs: `${env.NEXT_PUBLIC_SITE_URL}/cs/e/${url}`,
+        en: `${env.NEXT_PUBLIC_SITE_URL}/en${path}`,
+        cs: `${env.NEXT_PUBLIC_SITE_URL}/cs${path}`,
       },
     },
     robots: "index, follow",
@@ -30,15 +31,18 @@ export async function generateMetadata(props: Omit<Props, "children">) {
 }
 
 const EmbedPage = async (props: Props) => {
-  const { url } = await props.params
+  const { userId, url } = await props.params
 
-  if (!url?.trim()) {
+  if (!userId?.trim() || !url?.trim()) {
     notFound()
   }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <EmbedConfiguratorWrapper url={url} />
+      <EmbedConfiguratorWrapper
+        userId={userId}
+        url={url}
+      />
     </div>
   )
 }

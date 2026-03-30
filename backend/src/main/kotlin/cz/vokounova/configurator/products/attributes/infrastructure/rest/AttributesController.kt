@@ -24,6 +24,8 @@ import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.pagination.PaginationUtils
 import cz.vokounova.configurator.shared.pagination.SortingUtils
 import cz.vokounova.configurator.shared.rest.response.PaginatedResponseMetaDto
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -37,6 +39,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Attributes",
+    description =
+        "Configurable attributes on a component (dimensions, materials, etc.). " +
+            "Numeric attributes may auto-create default pricing rules.",
+)
 @RestController
 @RequestMapping("/products/api/v1/product-models/{productModelId}/components/{componentId}/attributes")
 class AttributesController(
@@ -47,6 +55,11 @@ class AttributesController(
     private val jsonPatchValidator: AttributeJsonPatchParamsValidator,
     private val defaultPricingRulesService: DefaultPricingRulesService,
 ) {
+    @Operation(
+        summary = "Create attribute",
+        description =
+            "Adds an attribute to the component; may seed pricing rules for bounded numeric types.",
+    )
     @PostMapping
     fun attributesCreate(
         @PathVariable productModelId: UUID,
@@ -83,6 +96,10 @@ class AttributesController(
         return ResponseEntity.status(HttpStatus.CREATED).body(attribute.toDto())
     }
 
+    @Operation(
+        summary = "Delete attribute",
+        description = "Removes an attribute after validating it belongs to the component and product model.",
+    )
     @DeleteMapping("/{attributeId}")
     fun attributesDelete(
         @PathVariable productModelId: UUID,
@@ -105,6 +122,7 @@ class AttributesController(
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
+    @Operation(summary = "Get attribute", description = "Returns one attribute by id (with hierarchy checks).")
     @GetMapping("/{attributeId}")
     fun attributesGet(
         @PathVariable productModelId: UUID,
@@ -126,6 +144,10 @@ class AttributesController(
         return ResponseEntity.status(HttpStatus.OK).body(attribute.toDto())
     }
 
+    @Operation(
+        summary = "List attributes",
+        description = "Cursor-based list for this component; optional filters by ids and attribute types.",
+    )
     @GetMapping
     fun attributesPaginatedList(
         @PathVariable productModelId: UUID,
@@ -176,6 +198,10 @@ class AttributesController(
         )
     }
 
+    @Operation(
+        summary = "Patch attribute",
+        description = "Applies JSON Patch operations to update attribute fields.",
+    )
     @PatchMapping("/{attributeId}")
     fun attributesPatch(
         @PathVariable productModelId: UUID,

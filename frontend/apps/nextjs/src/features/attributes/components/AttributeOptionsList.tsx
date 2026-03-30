@@ -27,6 +27,8 @@ type Props = {
   productModelId: string
   componentId: string
   attributeId: string
+  /** When true, hides the per-row image editor (scissors) column. Replace image remains available. */
+  shouldHideImageEditor?: boolean
 }
 
 type RowEditState = {
@@ -62,7 +64,12 @@ const buildPatches = (
   return patches
 }
 
-export const AttributeOptionsList = ({ productModelId, componentId, attributeId }: Props) => {
+export const AttributeOptionsList = ({
+  productModelId,
+  componentId,
+  attributeId,
+  shouldHideImageEditor = false,
+}: Props) => {
   const t = useTranslations("AttributeOptions")
   const tEditor = useTranslations("OptionImageEditor")
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -247,7 +254,9 @@ export const AttributeOptionsList = ({ productModelId, componentId, attributeId 
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-[650px] caption-bottom text-sm">
+          <table
+            className={`w-full caption-bottom text-sm ${shouldHideImageEditor ? "min-w-[600px]" : "min-w-[650px]"}`}
+          >
             <thead>
               <tr className="border-b border-border bg-muted/40">
                 <th
@@ -281,11 +290,13 @@ export const AttributeOptionsList = ({ productModelId, componentId, attributeId 
                   scope="col"
                   title={t("list.replaceImageButton")}
                 />
-                <th
-                  className="h-9 w-9 px-2"
-                  scope="col"
-                  title={t("list.editorButton")}
-                />
+                {!shouldHideImageEditor && (
+                  <th
+                    className="h-9 w-9 px-2"
+                    scope="col"
+                    title={t("list.editorButton")}
+                  />
+                )}
                 <th
                   className="h-9 px-3"
                   scope="col"
@@ -415,20 +426,22 @@ export const AttributeOptionsList = ({ productModelId, componentId, attributeId 
                         <ImageIcon className="size-3.5" />
                       </Button>
                     </td>
-                    <td className="px-2 py-2 align-middle">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0"
-                        onClick={() => {
-                          setEditingOption(option)
-                          setIsImageEditorOpen(true)
-                        }}
-                        title={t("list.editorButton")}
-                      >
-                        <ScissorsIcon className="size-3.5" />
-                      </Button>
-                    </td>
+                    {!shouldHideImageEditor && (
+                      <td className="px-2 py-2 align-middle">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          onClick={() => {
+                            setEditingOption(option)
+                            setIsImageEditorOpen(true)
+                          }}
+                          title={t("list.editorButton")}
+                        >
+                          <ScissorsIcon className="size-3.5" />
+                        </Button>
+                      </td>
+                    )}
                     <td className="px-3 py-2 align-middle">
                       <Button
                         size="sm"

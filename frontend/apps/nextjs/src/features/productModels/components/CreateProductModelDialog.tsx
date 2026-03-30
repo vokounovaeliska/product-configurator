@@ -18,6 +18,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Typography } from "@workspace/ui/components/typography"
 
+import { shouldShowManualEmptyProductModelOption } from "@/config/featureFlags"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
@@ -98,98 +99,115 @@ export const CreateProductModelDialog = ({ isOpen, onOpenChange }: Props) => {
             </Link>
           </Button>
 
-          <div
-            className="relative py-1"
-            role="separator"
-          >
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                {t("create.orDivider")}
-              </span>
-            </div>
-          </div>
+          {shouldShowManualEmptyProductModelOption && (
+            <>
+              <div
+                className="relative py-1"
+                role="separator"
+              >
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    {t("create.orDivider")}
+                  </span>
+                </div>
+              </div>
 
-          <Typography
-            as="p"
-            variant="body-sm"
-            weight="medium"
-            className="text-muted-foreground"
-          >
-            {t("create.manualSectionTitle")}
-          </Typography>
+              <Typography
+                as="p"
+                variant="body-sm"
+                weight="medium"
+                className="text-muted-foreground"
+              >
+                {t("create.manualSectionTitle")}
+              </Typography>
+            </>
+          )}
         </div>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="mt-4 min-w-0 space-y-4"
-          >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("create.name")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t("create.namePlaceholder")}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+        {shouldShowManualEmptyProductModelOption ? (
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="mt-4 min-w-0 space-y-4"
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("create.name")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t("create.namePlaceholder")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("create.description")}</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder={t("create.descriptionPlaceholder")}
+                        rows={4}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {createProductModel.isError && (
+                <div className="rounded-lg bg-destructive/10 p-4 text-destructive">
+                  {createProductModel.error instanceof Error
+                    ? createProductModel.error.message
+                    : t("create.errorMessages.generalError")}
+                </div>
               )}
-            />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("create.description")}</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder={t("create.descriptionPlaceholder")}
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {createProductModel.isError && (
-              <div className="rounded-lg bg-destructive/10 p-4 text-destructive">
-                {createProductModel.error instanceof Error
-                  ? createProductModel.error.message
-                  : t("create.errorMessages.generalError")}
-              </div>
-            )}
-
-            <Dialog.Content.Footer className="min-w-0 shrink-0 gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={createProductModel.isPending}
-                className="w-full min-w-0 sm:w-auto"
-              >
-                {t("create.cancelButton")}
-              </Button>
-              <Button
-                type="submit"
-                disabled={createProductModel.isPending}
-                className="w-full min-w-0 sm:w-auto"
-              >
-                {t("create.submitButton")}
-              </Button>
-            </Dialog.Content.Footer>
-          </form>
-        </Form>
+              <Dialog.Content.Footer className="min-w-0 shrink-0 gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={createProductModel.isPending}
+                  className="w-full min-w-0 sm:w-auto"
+                >
+                  {t("create.cancelButton")}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createProductModel.isPending}
+                  className="w-full min-w-0 sm:w-auto"
+                >
+                  {t("create.submitButton")}
+                </Button>
+              </Dialog.Content.Footer>
+            </form>
+          </Form>
+        ) : (
+          <Dialog.Content.Footer className="min-w-0 shrink-0 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="w-full min-w-0 sm:w-auto"
+            >
+              {t("create.cancelButton")}
+            </Button>
+          </Dialog.Content.Footer>
+        )}
       </Dialog.Content>
     </Dialog>
   )

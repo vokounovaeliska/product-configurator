@@ -5,8 +5,8 @@ package cz.vokounova.configurator.generated.jooq.tables
 
 
 import cz.vokounova.configurator.generated.jooq.Public
-import cz.vokounova.configurator.generated.jooq.indexes.IDX_PRODUCT_MODEL_URL
 import cz.vokounova.configurator.generated.jooq.indexes.IDX_PRODUCT_MODEL_USER_ID
+import cz.vokounova.configurator.generated.jooq.indexes.IDX_PRODUCT_MODEL_USER_URL
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_PRICING_RULE__ATTRIBUTE_PRICING_RULE_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION__COMPONENT_DEFINITION_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST__CUSTOMER_REQUEST_PRODUCT_MODEL_ID_FKEY
@@ -186,7 +186,7 @@ open class ProductModel(
         override fun `as`(alias: Table<*>): ProductModelPath = ProductModelPath(alias.qualifiedName, this)
     }
     override fun getSchema(): Schema? = if (aliased()) null else Public.PUBLIC
-    override fun getIndexes(): List<Index> = listOf(IDX_PRODUCT_MODEL_URL, IDX_PRODUCT_MODEL_USER_ID)
+    override fun getIndexes(): List<Index> = listOf(IDX_PRODUCT_MODEL_USER_ID, IDX_PRODUCT_MODEL_USER_URL)
     override fun getPrimaryKey(): UniqueKey<ProductModelRecord> = PRODUCT_MODEL_PKEY
     override fun getReferences(): List<ForeignKey<ProductModelRecord, *>> = listOf(PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY)
 

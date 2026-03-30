@@ -23,6 +23,8 @@ import cz.vokounova.configurator.users.infrastructure.rest.validation.UserJsonPa
 import cz.vokounova.configurator.users.infrastructure.rest.validation.UserListQueryParamsValidator
 import cz.vokounova.configurator.users.infrastructure.rest.validation.UserMeChangePasswordParamsValidator
 import cz.vokounova.configurator.users.ports.inbound.UserAPI
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -37,6 +39,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Users",
+    description = "User accounts: create, list, update (JSON Patch), delete, and password changes. Requires authentication.",
+)
 @RestController
 @RequestMapping("/users/api/v1")
 class UsersController(
@@ -47,6 +53,10 @@ class UsersController(
     private val changePasswordValidator: UserChangePasswordParamsValidator,
     private val meChangePasswordValidator: UserMeChangePasswordParamsValidator,
 ) {
+    @Operation(
+        summary = "Create user",
+        description = "Creates a new user account. Typically restricted to administrators.",
+    )
     @PostMapping("/users")
     fun usersCreate(
         @RequestBody userCreateRequestDto: UserCreateRequestDto,
@@ -58,6 +68,7 @@ class UsersController(
         return ResponseEntity.status(HttpStatus.CREATED).body(user.toDto())
     }
 
+    @Operation(summary = "Delete user", description = "Permanently removes a user by id.")
     @DeleteMapping("/users/{userId}")
     fun usersDelete(
         @PathVariable userId: UUID,
@@ -66,6 +77,7 @@ class UsersController(
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
+    @Operation(summary = "Get user by id", description = "Returns a single user profile.")
     @GetMapping("/users/{userId}")
     fun usersGet(
         @PathVariable userId: UUID,
@@ -74,6 +86,10 @@ class UsersController(
         return ResponseEntity.status(HttpStatus.OK).body(user.toDto())
     }
 
+    @Operation(
+        summary = "Current user profile",
+        description = "Returns the authenticated user's profile (from the access token).",
+    )
     @GetMapping("/users/me")
     fun usersMe(): ResponseEntity<UserDto> {
         val currentUser = userAPI.getCurrentUser()
@@ -85,6 +101,10 @@ class UsersController(
             )
     }
 
+    @Operation(
+        summary = "List users (paginated)",
+        description = "Cursor-based list with optional filtering by ids, search text, and sort order.",
+    )
     @GetMapping("/users")
     fun usersPaginatedList(
         @RequestParam(required = false) limit: Int?,
@@ -132,6 +152,10 @@ class UsersController(
         )
     }
 
+    @Operation(
+        summary = "Patch user",
+        description = "Applies JSON Patch operations to update user fields.",
+    )
     @PatchMapping("/users/{userId}")
     fun usersPatch(
         @PathVariable userId: UUID,
@@ -145,6 +169,10 @@ class UsersController(
         return ResponseEntity.status(HttpStatus.OK).body(user.toDto())
     }
 
+    @Operation(
+        summary = "Change user password (admin)",
+        description = "Sets a new password for the given user id (administrative flow).",
+    )
     @PutMapping("/users/{userId}/password")
     fun usersChangePassword(
         @PathVariable userId: UUID,
@@ -157,6 +185,10 @@ class UsersController(
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
+    @Operation(
+        summary = "Change own password",
+        description = "Authenticated user changes their password using current and new credentials.",
+    )
     @PutMapping("/users/me/password")
     fun usersMeChangePassword(
         @RequestBody userMeChangePasswordRequestDto: UserMeChangePasswordRequestDto,

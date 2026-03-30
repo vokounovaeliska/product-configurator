@@ -1,6 +1,8 @@
 app:
   files:
     upload-dir: ${UPLOAD_DIR:/data/uploads/images}
+  swagger:
+    server-url: ${SWAGGER_SERVER_URL:https://api.konfiguruj.com}
   # Sender identity (your domain). Base values in application.yaml; override in prod:
   # mail:
   #   from-address: ${MAIL_FROM}   # e.g. noreply@yourdomain.com

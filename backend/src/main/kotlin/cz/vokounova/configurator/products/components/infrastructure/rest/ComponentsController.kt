@@ -20,6 +20,8 @@ import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.pagination.PaginationUtils
 import cz.vokounova.configurator.shared.pagination.SortingUtils
 import cz.vokounova.configurator.shared.rest.response.PaginatedResponseMetaDto
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -33,6 +35,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(
+    name = "Components",
+    description = "Mesh or logical parts of a product model (e.g. frame, legs). Components hold attributes and options.",
+)
 @RestController
 @RequestMapping("/products/api/v1/product-models/{productModelId}/components")
 class ComponentsController(
@@ -41,6 +47,7 @@ class ComponentsController(
     private val createParamsValidator: ComponentCreateParamsValidator,
     private val jsonPatchValidator: ComponentJsonPatchParamsValidator,
 ) {
+    @Operation(summary = "Create component", description = "Adds a component under the given product model.")
     @PostMapping
     fun componentsCreate(
         @PathVariable productModelId: UUID,
@@ -53,6 +60,7 @@ class ComponentsController(
         return ResponseEntity.status(HttpStatus.CREATED).body(component.toDto())
     }
 
+    @Operation(summary = "Delete component", description = "Removes a component by id.")
     @DeleteMapping("/{componentId}")
     fun componentsDelete(
         @PathVariable productModelId: UUID,
@@ -62,6 +70,7 @@ class ComponentsController(
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
+    @Operation(summary = "Get component", description = "Returns one component by id.")
     @GetMapping("/{componentId}")
     fun componentsGet(
         @PathVariable productModelId: UUID,
@@ -71,6 +80,10 @@ class ComponentsController(
         return ResponseEntity.status(HttpStatus.OK).body(component.toDto())
     }
 
+    @Operation(
+        summary = "List components",
+        description = "Cursor-based list of components for this product model, with optional id filter.",
+    )
     @GetMapping
     fun componentsPaginatedList(
         @PathVariable productModelId: UUID,
@@ -118,6 +131,10 @@ class ComponentsController(
         )
     }
 
+    @Operation(
+        summary = "Patch component",
+        description = "Applies JSON Patch operations to update component fields.",
+    )
     @PatchMapping("/{componentId}")
     fun componentsPatch(
         @PathVariable productModelId: UUID,

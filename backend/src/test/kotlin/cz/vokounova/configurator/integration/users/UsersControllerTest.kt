@@ -11,7 +11,7 @@ import cz.vokounova.configurator.users.infrastructure.rest.mapper.request.UserMe
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.request.UserPatchRequestDto
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.response.UserDto
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.response.UserPaginatedResponseDto
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

@@ -32,7 +32,8 @@ export type CustomerRequestEmbedDto = {
 
 export const embedKeys = {
   all: ["embed"] as const,
-  productConfig: (url: string) => [...embedKeys.all, "config", url] as const,
+  productConfig: (userId: string, url: string) =>
+    [...embedKeys.all, "config", userId, url] as const,
   productConfigById: (id: string) => [...embedKeys.all, "config-by-id", id] as const,
 } as const
 
@@ -57,20 +58,22 @@ export const useEmbedProductConfigById = (
     enabled: options?.enabled !== false && Boolean(productModelId),
   })
 
-export const getEmbedProductConfigQueryOptions = (url: string) =>
+export const getEmbedProductConfigQueryOptions = (userId: string, url: string) =>
   queryOptions({
-    queryKey: embedKeys.productConfig(url),
+    queryKey: embedKeys.productConfig(userId, url),
     queryFn: async (): Promise<ProductEmbedFullDto> => {
       const res = await publicApi
-        .get(`embed/api/v1/products/by-url/${encodeURIComponent(url)}/config`)
+        .get(
+          `embed/api/v1/products/by-user/${encodeURIComponent(userId)}/url/${encodeURIComponent(url)}/config`,
+        )
         .json<ProductEmbedFullDto>()
       return res
     },
-    enabled: Boolean(url),
+    enabled: Boolean(userId) && Boolean(url),
   })
 
-export const useEmbedProductConfig = (url: string) =>
-  useQuery(getEmbedProductConfigQueryOptions(url))
+export const useEmbedProductConfig = (userId: string, url: string) =>
+  useQuery(getEmbedProductConfigQueryOptions(userId, url))
 
 export const useCreateCustomerRequest = () =>
   useMutation({

@@ -1,0 +1,31 @@
+# RuboCop + rubocop-sketchup — https://github.com/SketchUp/rubocop-sketchup
+# Spuštění: cd tools/sketchup-plugin && bundle exec rubocop
+# Volitelné styly SketchUp týmu jsou v upstream repu jako sketchup-style.yml (můžeš zkopírovat úryvky).
+
+plugins:
+  - rubocop-sketchup
+
+AllCops:
+  DisabledByDefault: true
+  DisplayStyleGuide: true
+  NewCops: enable
+  SketchUp:
+    # Loader is konfiguruj_export.rb at project root; konfiguruj_export/ is the single support folder.
+    SourcePath: .
+    EncryptedExtension: false
+    TargetSketchUpVersion: 2022
+
+SketchupDeprecations:
+  Enabled: true
+
+SketchupPerformance:
+  Enabled: true
+
+SketchupRequirements:
+  Enabled: true
+
+SketchupSuggestions:
+  Enabled: true
+
+SketchupBugs:
+  Enabled: true
