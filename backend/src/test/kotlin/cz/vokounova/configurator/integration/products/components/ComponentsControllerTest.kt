@@ -16,12 +16,11 @@ import cz.vokounova.configurator.products.components.infrastructure.rest.mapper.
 import cz.vokounova.configurator.products.components.infrastructure.rest.mapper.response.ComponentDto
 import cz.vokounova.configurator.products.components.infrastructure.rest.mapper.response.ComponentPaginatedResponseDto
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
-import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.ports.inbound.ProductModelAPI
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import cz.vokounova.configurator.users.domain.User
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -55,10 +54,6 @@ class ComponentsControllerTest : BaseIntegrationTest() {
 
     private val userId0: UserId = UserId(UUID.fromString("00000000-0000-0000-0000-000000000000"))
     private val userId0Dto: UserIdDto = UserIdDto.fromDomain(userId0)
-    private val productModelId0 = ProductModelId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
-    private val productModelId1 = ProductModelId(UUID.fromString("22222222-2222-2222-2222-222222222222"))
-    private val componentId1 = ComponentId(UUID.fromString("33333333-3333-3333-3333-333333333333"))
-    private val componentId2 = ComponentId(UUID.fromString("44444444-4444-4444-4444-444444444444"))
 
     private lateinit var user: User
 

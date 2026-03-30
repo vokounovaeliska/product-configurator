@@ -1,5 +1,7 @@
 package cz.vokounova.configurator.shared.files
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -16,6 +18,10 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.UUID
 
+@Tag(
+    name = "Files",
+    description = "Upload and download user assets (images, GLB) stored server-side; returned URLs work with the download endpoint.",
+)
 @RestController
 @RequestMapping("/api/v1/files")
 class FileUploadController(
@@ -49,6 +55,10 @@ class FileUploadController(
         }
     }
 
+    @Operation(
+        summary = "Upload file",
+        description = "Multipart upload; allowed extensions: jpg, png, gif, webp, svg, glb. Max size 10 MB. Returns a relative URL for use in the app.",
+    )
     @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadFile(
         @RequestParam("file") file: MultipartFile,

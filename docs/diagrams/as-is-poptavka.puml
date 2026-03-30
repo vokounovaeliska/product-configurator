@@ -1,0 +1,41 @@
+' UML Activity Diagram (diagram aktivit) – současný (as-is) proces poptávky.
+' Náhled: rozšíření PlantUML v IDE, nebo https://www.plantuml.com/plantuml
+' Export do PNG/SVG pro vložení do práce.
+
+@startuml as-is-poptavka
+title Současný stav zadávání poptávky (zjednodušený model)
+
+skinparam shadowing false
+skinparam activityShape roundbox
+skinparam defaultTextAlignment center
+skinparam ArrowColor #333333
+skinparam activityBorderColor #333333
+skinparam activityBackgroundColor #F5F5F5
+
+|Zákazník|
+start
+:Zájem o produkt;
+:Prohlídka nabídky e-shopu;
+if (Předpřipravené varianty stačí?) then (ano)
+  :Objednávka v e-shopu;
+  :Dokončení objednávky online;
+  stop
+else (ne)
+  :Kontakt s firmou\n(telefon, e-mail, osobně);
+  |Firma|
+  :Přijetí a upřesnění poptávky;
+  :Příprava kalkulace a nabídky;
+  :Odeslání nabídky zákazníkovi;
+  |Zákazník|
+  :Obdržení nabídky;
+  if (Nabídka přijatelná?) then (ano)
+    :Potvrzení zakázky;
+    :Zahájení zakázkové výroby;
+    stop
+  else (ne)
+    :Ukončení nebo další jednání;
+    stop
+  endif
+endif
+
+@enduml

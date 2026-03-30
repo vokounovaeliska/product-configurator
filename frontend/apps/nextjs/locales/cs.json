@@ -264,13 +264,17 @@
       "title": "Instalace",
       "step1": "Stáhněte .rbz soubor pomocí tlačítka výše.",
       "step2": "Ve SketchUp: Okno → Manager pluginu → Instalace rozšíření.",
-      "step3": "Vyberte konfiguruj_export.rbz. Plugin se objeví v Pluginy → Konfiguruj Export."
+      "step3": "Vyberte konfiguruj_export.rbz. Plugin se objeví v Pluginy → Konfiguruj Export.",
+      "extensionManagerCaption": "Po instalaci se Konfiguruj Export zobrazí v Manažeru pluginů (záložka Spravovat).",
+      "extensionManagerAlt": "Manažer pluginů s rozšířením Konfiguruj Export, verzí a stavem podepsáno"
     },
     "supportedEntities": {
       "title": "Podporované entity",
       "intro": "Plugin čte atributy Dynamic Components z:",
       "groups": "Skupin – s atributy Dynamic Components ve slovníku dynamic_attributes",
-      "components": "Instancí komponent – s atributy Dynamic Components"
+      "components": "Instancí komponent – s atributy Dynamic Components",
+      "componentsFigureCaption": "Příklad: nadřazená komponenta s vnořenými částmi (např. top, legs) ve stromu komponent a vlastní atributy nadřazené komponenty v okně Atributy komponenty.",
+      "componentsFigureAlt": "Prostředí SketchUp s okny Atributy komponenty a Stromové okno komponent – hierarchie modelu a atributy Dynamic Components"
     },
     "parameters": {
       "title": "Parametry",
@@ -280,7 +284,9 @@
       "options": "Možnosti: avariant, variant, typ",
       "formulasTitle": "Syntaxe formulí",
       "formulaParent": "Parent!param – odkazuje na parametr z nadřazené skupiny/komponenty",
-      "formulaComponent": "ComponentName!param – odkazuje na parametr z jiné komponenty (např. stul!leny)"
+      "formulaComponent": "ComponentName!param – odkazuje na parametr z jiné komponenty (např. stul!leny)",
+      "definitionFigureCaption": "Vlastní atributy na nadřazené komponentě; vnořené části je odkazují pomocí formulí typu =parent!název_parametru (rozměry, materiál atd.).",
+      "definitionFigureAlt": "Dialog Atributy komponenty – vlastní parametry u rodiče a podkomponenty s odkazy parent! na LenX, LenY, LenZ a materiály"
     },
     "effects": {
       "title": "Typy efektů",
@@ -294,13 +300,19 @@
       "step2": "Vyberte kořenovou skupinu nebo komponentu s parametry.",
       "step3": "Pluginy → Konfiguruj Export → Export for Konfiguruj.",
       "step4": "Zvolte umístění uložení (výchozí: modelname_configurator.zip).",
-      "step5": "Nahrajte zip do konfigurátoru přes Import ze SketchUp."
+      "step5": "Nahrajte zip do konfigurátoru přes Import ze SketchUp.",
+      "exportMenuCaption": "Export spusťte v menu Pluginy (popisky podle jazyka SketchUp).",
+      "exportMenuAlt": "Menu Pluginy s podmenu Konfiguruj Export a položkou Export for Konfiguruj",
+      "outputFigureCaption": "Uložený zip po rozbalení obsahuje model.glb, parameters.json a složku materials/ s PNG texturami (pokud je model používá).",
+      "outputFigureAlt": "Prohlížeč souborů s exportovanou složkou: model.glb, parameters.json a podsložka materials s texturami PNG"
     },
     "troubleshooting": {
       "title": "Řešení problémů",
       "intro": "Pokud plugin nic neexportuje:",
       "debug": "Spusťte Pluginy → Konfiguruj Export → Debug a zkontrolujte Ruby Console (Okno → Ruby Console) pro nalezené entity a parametry.",
-      "selectRoot": "Před exportem vyberte kořenovou skupinu/komponentu s parametry."
+      "selectRoot": "Před exportem vyberte kořenovou skupinu/komponentu s parametry.",
+      "debugFigureCaption": "Spusťte Pluginy → Konfiguruj Export → Debug; v Ruby Console uvidíte, jaké komponenty a parametry plugin vidí (např. klíče Dynamic Components a seznam parametrů).",
+      "debugFigureAlt": "SketchUp s menu Pluginy, zvýrazněné Debug, a Ruby Console s výstupem ladění Konfiguruj Export"
     },
     "materials": {
       "title": "Materiály",
@@ -393,8 +405,10 @@
       "publishToggle": "Publikováno",
       "urlLabel": "Embed URL",
       "urlPlaceholder": "např. kulaty-stul",
-      "urlHint": "Pouze malá písmena, číslice a pomlčky. Globálně unikátní. Embed URL: /e/vase-url",
+      "urlHint": "Pouze malá písmena, číslice a pomlčky. Unikátní mezi vašimi produkty. Veřejný embed: /e/id-účtu/vase-url",
       "urlError": "Použijte pouze malá písmena, číslice a pomlčky (např. muj-produkt)",
+      "urlAlreadyTaken": "Tuto cestu pro embed už používá váš jiný produkt. Zvolte jinou.",
+      "urlSaveFailed": "URL se nepodařilo uložit. Zkuste to znovu.",
       "suggestUrl": "Vygenerovat URL z názvu produktu",
       "saveUrl": "Uložit URL",
       "ordersEmail": {

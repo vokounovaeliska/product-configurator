@@ -9,7 +9,7 @@ import cz.vokounova.configurator.users.domain.User
 import cz.vokounova.configurator.users.domain.UserCreateParams
 import cz.vokounova.configurator.users.domain.UserJsonPatchParams
 import cz.vokounova.configurator.users.domain.UserJsonPatchParamsPath
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock

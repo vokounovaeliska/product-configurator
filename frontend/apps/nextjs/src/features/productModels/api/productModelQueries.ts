@@ -8,7 +8,7 @@ import type {
   ProductModelPatchRequestDto,
 } from "@/api/productModelTypes"
 import { api } from "@/lib/api/restClient"
-import { extractErrorMessage } from "@/lib/utils"
+import { errorWithApiDetail, extractErrorMessage, parseApiErrorDetail } from "@/lib/utils"
 
 /**
  * Query key factory for product model queries
@@ -137,7 +137,8 @@ export const useUpdateProductModel = () => {
           })
           .json<ProductModelDto>()
       } catch (error) {
-        // Re-throw with a more user-friendly error message
+        const detail = await parseApiErrorDetail(error)
+        if (detail) throw errorWithApiDetail(detail)
         const message = await extractErrorMessage(error)
         throw new Error(message)
       }

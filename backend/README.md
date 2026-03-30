@@ -32,3 +32,5 @@ Required variables: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `SPRING_MAIL_PASSWOR
 
 - Swagger UI: http://localhost:8080/swagger/ui-docs
 - OpenAPI JSON: http://localhost:8080/swagger/api-docs
+
+Protected endpoints need a JWT. In Swagger UI use **Authorize**, then paste the access token from **POST /users/api/v1/auth/public/login** (JSON field `token`). Public routes (login, register, embed product GET, etc.) stay without auth.

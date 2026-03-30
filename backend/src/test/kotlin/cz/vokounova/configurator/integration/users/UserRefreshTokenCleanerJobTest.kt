@@ -6,7 +6,7 @@ import cz.vokounova.configurator.shared.jwt.JwtTokenId
 import cz.vokounova.configurator.users.domain.UserId
 import cz.vokounova.configurator.users.domain.UserRefreshToken
 import cz.vokounova.configurator.users.infrastructure.jobs.UserRefreshTokenCleanerJob
-import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRefreshTokenRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

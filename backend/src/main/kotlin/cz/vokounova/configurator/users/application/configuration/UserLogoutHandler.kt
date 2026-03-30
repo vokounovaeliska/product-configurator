@@ -2,7 +2,7 @@ package cz.vokounova.configurator.users.application.configuration
 
 import cz.vokounova.configurator.shared.utils.logger
 import cz.vokounova.configurator.users.infrastructure.rest.UsersAuthController.Companion.REFRESH_TOKEN_COOKIE
-import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRefreshTokenRepository
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.Authentication

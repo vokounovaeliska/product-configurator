@@ -87,6 +87,7 @@ export const ProductModelSetupTabs = ({ productModelId }: Props) => {
         <ModelSetupUnified
           productModelId={productModelId}
           isQuickActionsHidden
+          shouldHideOptionImageEditor
         />
       </TabsContent>
 

@@ -8,7 +8,7 @@ import cz.vokounova.configurator.users.domain.UserCreateParams
 import cz.vokounova.configurator.users.domain.UserId
 import cz.vokounova.configurator.users.domain.UserJsonPatchParams
 import cz.vokounova.configurator.users.domain.UserJsonPatchParamsPath
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.springframework.stereotype.Component
 
 data class UserEmailValidatorParams(

@@ -66,6 +66,7 @@ module ConfiguratorDcExport
 
     def debug_run
       model = Sketchup.active_model
+      mdl = model
       unless model
         UI.messagebox("No active model.", MB_OK)
         return
@@ -81,8 +82,8 @@ module ConfiguratorDcExport
       log.call("Selection: #{sel.count} item(s)")
       sel.each_with_index { |e, i| log.call("  [#{i}] #{e.class} #{e.respond_to?(:definition) ? "def=#{e.definition&.name}" : ""}") }
 
-      log.call("Top-level entities: #{model.entities.count}")
-      model.entities.each_with_index do |e, i|
+      log.call("Top-level entities: #{mdl.entities.count}")
+      mdl.entities.each_with_index do |e, i|
         defn = e.respond_to?(:definition) ? e.definition : nil
         dict = defn ? merge_dc_dicts(defn, e) : nil
         key_count = dict ? dict.each_pair.count : 0
@@ -112,7 +113,7 @@ module ConfiguratorDcExport
         "Open: Window → Ruby Console\n\n" \
         "Summary:\n" \
         "- Selection: #{sel.count} item(s)\n" \
-        "- Top entities: #{model.entities.count}\n" \
+        "- Top entities: #{mdl.entities.count}\n" \
         "- Parameters found: #{params.length}\n" \
         "- Materials to export: #{mat_names.length}",
         MB_OK
@@ -120,13 +121,14 @@ module ConfiguratorDcExport
     end
 
     def collect_parameters(model)
+      mdl = model
       params_by_name = {}
       component_names = []
       seen_defn_ids = {}
 
       # Instance attributes often live only on the placed group/component; the definition dict can be
       # sparse. Process the model tree first (merge instance + definition), then definitions not in the tree.
-      collect_from_entities(model.entities, model, params_by_name, component_names, seen_defn_ids)
+      collect_from_entities(mdl.entities, model, params_by_name, component_names, seen_defn_ids)
       collect_from_definitions(model, params_by_name, component_names, seen_defn_ids)
       collect_from_selection(model, params_by_name, component_names, seen_defn_ids)
       add_params_referenced_in_formulas(model, params_by_name, component_names, seen_defn_ids)
@@ -192,6 +194,7 @@ module ConfiguratorDcExport
 
     # Per-component: x, y, z, lenx, leny, lenz, material. Each is either a value or a formula string.
     def collect_component_transforms(model)
+      mdl = model
       transforms = {}
       seen_defn_ids = {}
       parent_map = {}
@@ -218,7 +221,7 @@ module ConfiguratorDcExport
         end
       end
 
-      model.entities.each do |ent|
+      mdl.entities.each do |ent|
         defn = ent.respond_to?(:definition) ? ent.definition : nil
         next unless defn
         dict = merge_dc_dicts(defn, ent)
@@ -526,6 +529,7 @@ module ConfiguratorDcExport
     end
 
     def collect_formula_references(model)
+      mdl = model
       refs = []
       scan_formulas = lambda do |entities, parent_defn|
         return unless entities
@@ -545,7 +549,7 @@ module ConfiguratorDcExport
           scan_formulas.call(defn.entities, parent_defn)
         end
       end
-      model.entities.each do |ent|
+      mdl.entities.each do |ent|
         defn = ent.respond_to?(:definition) ? ent.definition : nil
         next unless defn
         scan_formulas.call(defn.entities, defn)

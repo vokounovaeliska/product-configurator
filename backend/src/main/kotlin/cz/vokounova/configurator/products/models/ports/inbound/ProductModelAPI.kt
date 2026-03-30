@@ -8,6 +8,7 @@ import cz.vokounova.configurator.products.models.domain.ProductModelJsonPatchPar
 import cz.vokounova.configurator.products.models.domain.ProductModelSortableField
 import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest
+import java.util.UUID
 
 interface ProductModelAPI {
     fun create(params: ProductModelCreateParams): ProductModel
@@ -16,8 +17,11 @@ interface ProductModelAPI {
 
     fun getOne(id: ProductModelId): ProductModel
 
-    /** Get published product model by URL (for embed, no auth). Globally unique when published. */
-    fun getPublishedByUrl(url: String): ProductModel?
+    /** Get published product model by owner embed path (for embed, no auth). Unique per user when published. */
+    fun getPublishedByUserIdAndUrl(
+        userId: UUID,
+        url: String,
+    ): ProductModel?
 
     fun getList(): List<ProductModel>
 

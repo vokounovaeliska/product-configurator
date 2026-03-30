@@ -6,7 +6,7 @@ import cz.vokounova.configurator.users.api.dto.UserDto
 import cz.vokounova.configurator.users.api.dto.UserIdDto
 import cz.vokounova.configurator.users.domain.UserFilter
 import cz.vokounova.configurator.users.domain.UserId
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.springframework.stereotype.Component
 
 @Component

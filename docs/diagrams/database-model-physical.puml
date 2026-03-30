@@ -1,0 +1,159 @@
+@startuml database-model-physical
+!theme plain
+skinparam linetype ortho
+skinparam backgroundColor #FEFEFE
+
+' Prefer horizontal layout: diagram wider than tall
+left to right direction
+skinparam nodesep 28
+skinparam ranksep 40
+
+title Fyzický datový model – PostgreSQL (schéma tabulek)
+
+' Tables as physical structures (class diagram style)
+class "user" as user <<table>> {
+  **id** : UUID <<PK>>
+  --
+  email : TEXT NOT NULL UNIQUE
+  first_name : TEXT NOT NULL
+  surname : TEXT NOT NULL
+  password : TEXT NOT NULL
+  check_sum : TEXT NOT NULL
+  search_vector : TEXT GENERATED
+  notification_email : TEXT
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+class "user_refresh_token" as user_refresh_token <<table>> {
+  **jwt_id** : UUID <<PK>>
+  --
+  user_id : UUID NOT NULL <<FK>>
+  created_at : TIMESTAMPTZ NOT NULL
+  expires_at : TIMESTAMPTZ NOT NULL
+}
+
+class "product_model" as product_model <<table>> {
+  **id** : UUID <<PK>>
+  --
+  user_id : UUID NOT NULL <<FK>>
+  name : TEXT NOT NULL
+  description : TEXT
+  price : NUMERIC NOT NULL
+  currency : TEXT NOT NULL
+  is_active : BOOLEAN NOT NULL
+  model_3d_url : TEXT
+  model_3d_effects : JSONB
+  url : TEXT
+  is_published : BOOLEAN NOT NULL
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+class "product_model_configurator_preferences" as configurator_prefs <<table>> {
+  **product_model_id** : UUID <<PK>> <<FK>>
+  --
+  zoom_distance_default : DECIMAL(5,2)
+  zoom_distance_embed : DECIMAL(5,2)
+  embed_show_product_name : BOOLEAN
+  embed_show_description : BOOLEAN
+  embed_show_components : BOOLEAN
+  background_preset : VARCHAR(32)
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+class "component_definition" as component_definition <<table>> {
+  **id** : UUID <<PK>>
+  --
+  product_model_id : UUID NOT NULL <<FK>>
+  code : TEXT NOT NULL
+  label : TEXT NOT NULL
+  description : TEXT
+  sort_order : INTEGER NOT NULL
+  image_z_index : INTEGER NOT NULL
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+class "attribute_definition" as attribute_definition <<table>> {
+  **id** : UUID <<PK>>
+  --
+  component_id : UUID NOT NULL <<FK>>
+  code : TEXT NOT NULL
+  label : TEXT NOT NULL
+  type : attribute_type NOT NULL
+  is_required : BOOLEAN NOT NULL
+  min_int : INTEGER
+  max_int : INTEGER
+  min_decimal : NUMERIC
+  max_decimal : NUMERIC
+  default_int : INTEGER
+  default_decimal : NUMERIC
+  unit : TEXT
+  sort_order : INTEGER NOT NULL
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+class "attribute_option" as attribute_option <<table>> {
+  **id** : UUID <<PK>>
+  --
+  attribute_id : UUID NOT NULL <<FK>>
+  value : TEXT NOT NULL
+  label : TEXT NOT NULL
+  image_url : TEXT
+  sort_order : INTEGER NOT NULL
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+class "attribute_pricing_rule" as attribute_pricing_rule <<table>> {
+  **id** : UUID <<PK>>
+  --
+  product_model_id : UUID NOT NULL <<FK>>
+  component_id : UUID <<FK>>
+  attribute_code : TEXT NOT NULL
+  operator : condition_operator NOT NULL
+  value : TEXT NOT NULL
+  to_value : TEXT
+  price : INTEGER NOT NULL
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+class "customer_request" as customer_request <<table>> {
+  **id** : UUID <<PK>>
+  --
+  status : request_status NOT NULL
+  customer_name : TEXT
+  customer_email : TEXT NOT NULL
+  customer_phone : TEXT
+  customer_note : TEXT
+  product_model_id : UUID <<FK>>
+  product_model_name : TEXT NOT NULL
+  product_model_description : TEXT
+  currency : TEXT NOT NULL
+  total_price : INTEGER NOT NULL
+  configuration_json : JSONB NOT NULL
+  pricing_breakdown_json : JSONB
+  snapshot_image_base64 : TEXT
+  created_at : TIMESTAMPTZ NOT NULL
+  modified_at : TIMESTAMPTZ NOT NULL
+}
+
+' Foreign key relationships
+user "1" -- "0..*" user_refresh_token : user_id
+user "1" -- "0..*" product_model : user_id
+
+product_model "1" -- "0..1" configurator_prefs : product_model_id
+product_model "1" -- "0..*" component_definition : product_model_id
+product_model "1" -- "0..*" attribute_pricing_rule : product_model_id
+product_model "1" -- "0..*" customer_request : product_model_id
+
+component_definition "1" -- "0..*" attribute_definition : component_id
+component_definition "0..1" -- "0..*" attribute_pricing_rule : component_id
+
+attribute_definition "1" -- "0..*" attribute_option : attribute_id
+
+@enduml

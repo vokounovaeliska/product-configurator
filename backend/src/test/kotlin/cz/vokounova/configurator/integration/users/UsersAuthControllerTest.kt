@@ -7,8 +7,8 @@ import cz.vokounova.configurator.mocks.UserMocks
 import cz.vokounova.configurator.users.application.configuration.UserJwtService
 import cz.vokounova.configurator.users.domain.UserRefreshToken
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.response.JwtTokenDto
-import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRefreshTokenRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import jakarta.servlet.http.Cookie
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -70,7 +70,7 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
 
         val parsedResult = readResponse<JwtTokenDto>(result)
         assertNotNull(parsedResult)
-        assertFalse(parsedResult.token.isNullOrBlank())
+        assertFalse(parsedResult.token.isBlank())
 
         val cookie = result.response.getCookie(REFRESH_TOKEN_COOKIE)
 
@@ -160,7 +160,7 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
 
         val parsedResult = readResponse<JwtTokenDto>(result)
         assertNotNull(parsedResult)
-        assertFalse(parsedResult.token.isNullOrBlank())
+        assertFalse(parsedResult.token.isBlank())
     }
 
     @Test
@@ -228,7 +228,7 @@ class UsersAuthControllerTest : BaseIntegrationTest() {
 
         val parsedLoginResult = readResponse<JwtTokenDto>(loginResult)
         assertNotNull(parsedLoginResult)
-        assertFalse(parsedLoginResult.token.isNullOrBlank())
+        assertFalse(parsedLoginResult.token.isBlank())
 
         val cookieAfterLogin = loginResult.response.getCookie(REFRESH_TOKEN_COOKIE)
         val refreshTokensCountAfterLogin = refreshTokenRepository.getTokens().size

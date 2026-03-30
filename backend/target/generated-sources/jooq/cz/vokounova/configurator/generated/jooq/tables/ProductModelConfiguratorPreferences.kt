@@ -130,7 +130,7 @@ open class ProductModelConfiguratorPreferences(
      * The column
      * <code>public.product_model_configurator_preferences.background_preset</code>.
      */
-    val BACKGROUND_PRESET: TableField<ProductModelConfiguratorPreferencesRecord, String?> = createField(DSL.name("background_preset"), SQLDataType.VARCHAR(32).defaultValue(DSL.field(DSL.raw("'lightGray'::character varying"), SQLDataType.VARCHAR)), this, "")
+    val BACKGROUND_PRESET: TableField<ProductModelConfiguratorPreferencesRecord, String?> = createField(DSL.name("background_preset"), SQLDataType.VARCHAR(32).defaultValue(DSL.field(DSL.raw("'white'::character varying"), SQLDataType.VARCHAR)), this, "")
 
     private constructor(alias: Name, aliased: Table<ProductModelConfiguratorPreferencesRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<ProductModelConfiguratorPreferencesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

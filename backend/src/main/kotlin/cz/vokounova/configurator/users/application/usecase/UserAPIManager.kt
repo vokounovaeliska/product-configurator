@@ -19,7 +19,7 @@ import cz.vokounova.configurator.users.domain.UserJsonPatchParams
 import cz.vokounova.configurator.users.domain.UserMeChangePasswordParams
 import cz.vokounova.configurator.users.domain.UserSortableField
 import cz.vokounova.configurator.users.ports.inbound.UserAPI
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

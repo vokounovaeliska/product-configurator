@@ -79,7 +79,9 @@ backend/.env.*
 logs/
 
 ### Thesis / internal docs (not for commit) ###
-docs/
+docs/sources
+docs/writing
+docs/prace/
 
 ### Temporary files ###
 tmp/
@@ -93,6 +95,11 @@ test_outputs/
 
 .cursor/
 .cursorrules
+
+### SketchUp plugin – Bundler (RuboCop) ###
+tools/sketchup-plugin/vendor/
+tools/sketchup-plugin/.bundle/
+tools/sketchup-plugin/.rubocop_cache/
 
 ### SketchUp plugin bundles (build with pnpm plugin:package; do not commit binaries) ###
 tools/sketchup-plugin/*.rbz

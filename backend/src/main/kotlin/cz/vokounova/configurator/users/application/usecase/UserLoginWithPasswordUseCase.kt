@@ -9,7 +9,7 @@ import cz.vokounova.configurator.users.domain.UserAuthenticationRequestLoginPass
 import cz.vokounova.configurator.users.domain.UserId
 import cz.vokounova.configurator.users.domain.UserRefreshToken
 import cz.vokounova.configurator.users.ports.inbound.UserLoginWithPassword
-import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRefreshTokenRepository
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Component

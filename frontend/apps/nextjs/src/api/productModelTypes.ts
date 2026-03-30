@@ -17,9 +17,9 @@ export type ProductModelDto = {
   model3dUrl?: string | null
   /** JSON: attribute code → effects (from SketchUp plugin parameters.json). */
   model3dEffects?: string | null
-  /** Embed URL path (e.g. my-product). Globally unique when published. */
+  /** Embed URL path segment (e.g. my-product). Unique per account (user) when published. */
   url?: string | null
-  /** When true, product is available at /e/{url} for embedding. */
+  /** When true, product is available at /e/{userId}/{url} for embedding. */
   isPublished?: boolean
   /** Format: date-time */
   createdAt: string

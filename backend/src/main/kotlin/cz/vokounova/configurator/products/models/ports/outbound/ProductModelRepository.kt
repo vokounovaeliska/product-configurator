@@ -6,10 +6,14 @@ import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.models.domain.ProductModelSortableField
 import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest
+import java.util.UUID
 
 interface ProductModelRepository {
-    /** Find published product model by URL (for embed). Globally unique when published. */
-    fun findPublishedByUrl(url: String): ProductModel?
+    /** Find published product model by owner and embed path (for embed). Unique per user when published. */
+    fun findPublishedByUserIdAndUrl(
+        userId: UUID,
+        url: String,
+    ): ProductModel?
 
     fun findById(
         id: ProductModelId,

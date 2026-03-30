@@ -11,7 +11,7 @@ import cz.vokounova.configurator.users.application.usecase.UserLoginWithPassword
 import cz.vokounova.configurator.users.domain.UserAuthenticationRequestLoginPassword
 import cz.vokounova.configurator.users.domain.UserId
 import cz.vokounova.configurator.users.domain.UserRefreshToken
-import cz.vokounova.configurator.users.ports.outboud.UserRefreshTokenRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRefreshTokenRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

@@ -1,0 +1,41 @@
+@startuml process-konfigurator-flow
+' Aktivitní diagram: nová syntaxe (viz https://plantuml.com/activity-diagram-beta)
+!theme plain
+skinparam shadowing false
+skinparam linetype ortho
+skinparam ActivityBorderColor #C4C9D4
+skinparam ActivityFontColor #000000
+skinparam activity {
+  FontColor #000000
+}
+skinparam TitleFontColor #000000
+skinparam ArrowColor #9CA3AF
+skinparam PartitionFontColor #000000
+skinparam PartitionBorderColor #D1D5DB
+
+title Proces od přípravy modelu po zpracování poptávky v systému Konfiguruj
+
+|Výrobce|
+start
+:Návrh výrobku ve SketchUpu\ns parametry a komponentami; <<#E8EDF4>>
+:Export podkladů do souboru ZIP\npomocí exportního pluginu; <<#E8EDF4>>
+:Nahrání ZIP do administrace\na import výrobku do systému; <<#E8EDF4>>
+:Nastavení parametrů, cen\na pravidel v administraci; <<#E8EDF4>>
+:Zveřejnění výrobku v konfigurátoru; <<#E8EDF4>>
+:Vložení kódu na web výrobce; <<#E8EDF4>>
+
+|Zákazník|
+:Návštěva webu výrobce; <<#E9F0EE>>
+:Konfigurace výrobku s průběžnou\ncenou a náhledem; <<#E9F0EE>>
+:Odeslání poptávky s kontaktem\na případnou poznámkou; <<#E9F0EE>>
+
+|Systém Konfiguruj|
+:Kontrola údajů a uložení\npoptávky do databáze; <<#F0EDEA>>
+:Odeslání potvrzení e-mailem\nzákazníkovi i výrobci; <<#F0EDEA>>
+:Zobrazení nové poptávky\nv administraci výrobce; <<#F0EDEA>>
+
+|Výrobce|
+:Zpracování poptávky\nv administraci; <<#E8EDF4>>
+stop
+
+@enduml

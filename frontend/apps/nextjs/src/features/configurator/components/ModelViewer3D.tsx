@@ -136,10 +136,10 @@ export type Model3dEffect = {
 export type { ComponentTransform } from "../utils/parametricTransformPipeline"
 export { getAttributeValueFromConfig } from "../utils/parametricTransformPipeline"
 
-/** Background presets: flat colors. previewColor used for selector swatch. */
+/** Background presets: flat colors. previewColor used for selector swatch. Default is white. */
 export const BACKGROUND_PRESETS = {
-  lightGray: { type: "color" as const, color: "#e8e8ec", previewColor: "#e8e8ec" },
   white: { type: "color" as const, color: "#ffffff", previewColor: "#ffffff" },
+  lightGray: { type: "color" as const, color: "#e8e8ec", previewColor: "#e8e8ec" },
   gray: { type: "color" as const, color: "#9ca3af", previewColor: "#9ca3af" },
   dark: { type: "color" as const, color: "#374151", previewColor: "#374151" },
   warm: { type: "color" as const, color: "#f5e6d3", previewColor: "#f5e6d3" },
@@ -147,7 +147,7 @@ export const BACKGROUND_PRESETS = {
 
 export type BackgroundPresetKey = keyof typeof BACKGROUND_PRESETS
 
-const DEFAULT_BACKGROUND: BackgroundPresetKey = "lightGray"
+const DEFAULT_BACKGROUND: BackgroundPresetKey = "white"
 
 function getBackgroundConfig(preset: string | null | undefined) {
   if (!preset) return BACKGROUND_PRESETS[DEFAULT_BACKGROUND]
@@ -337,10 +337,12 @@ function normalizeMaterialTargetBase(base: string): string | null {
 
 function getColorTargetFromCode(code: string): string | null {
   const lower = code.toLowerCase()
-  if (lower.startsWith("color_"))
-    {return normalizeMaterialTargetBase(lower.slice(6)) ?? lower.slice(6)}
-  if (lower.startsWith("barva_"))
-    {return normalizeMaterialTargetBase(lower.slice(6)) ?? lower.slice(6)}
+  if (lower.startsWith("color_")) {
+    return normalizeMaterialTargetBase(lower.slice(6)) ?? lower.slice(6)
+  }
+  if (lower.startsWith("barva_")) {
+    return normalizeMaterialTargetBase(lower.slice(6)) ?? lower.slice(6)
+  }
   if (lower.startsWith("material_")) {
     const rest = lower.slice(9)
     return normalizeMaterialTargetBase(rest) ?? rest

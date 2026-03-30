@@ -265,13 +265,17 @@
       "title": "Installation",
       "step1": "Download the .rbz file using the button above.",
       "step2": "In SketchUp: Window → Extension Manager → Install Extension.",
-      "step3": "Select konfiguruj_export.rbz. The plugin appears under Plugins → Konfiguruj Export."
+      "step3": "Select konfiguruj_export.rbz. The plugin appears under Plugins → Konfiguruj Export.",
+      "extensionManagerCaption": "After installation, Konfiguruj Export appears in Extension Manager (Manage tab).",
+      "extensionManagerAlt": "Extension Manager showing Konfiguruj Export with version, author, and signed status"
     },
     "supportedEntities": {
       "title": "Supported entities",
       "intro": "The plugin reads Dynamic Component attributes from:",
       "groups": "Groups – with Dynamic Component attributes in the dynamic_attributes dictionary",
-      "components": "Component instances – with Dynamic Component attributes"
+      "components": "Component instances – with Dynamic Component attributes",
+      "componentsFigureCaption": "Example setup: a parent component with nested parts (e.g. top, legs) in the Outliner / Component Tree, and custom attributes on the parent in Component Attributes.",
+      "componentsFigureAlt": "SketchUp workspace with Component Attributes and Component Tree showing a hierarchical model and dynamic component attributes"
     },
     "parameters": {
       "title": "Parameters",
@@ -281,7 +285,9 @@
       "options": "Options: avariant, variant, typ",
       "formulasTitle": "Formula syntax",
       "formulaParent": "Parent!param – references a parameter from the parent group/component",
-      "formulaComponent": "ComponentName!param – references a parameter from another component (e.g. stul!leny)"
+      "formulaComponent": "ComponentName!param – references a parameter from another component (e.g. stul!leny)",
+      "definitionFigureCaption": "Define custom attributes on the parent component; nested parts reference them with formulas such as =parent!param_name (dimensions, materials, etc.).",
+      "definitionFigureAlt": "Component Attributes dialog showing parent custom parameters and child components using parent! references for LenX, LenY, LenZ, and materials"
     },
     "effects": {
       "title": "Effect types",
@@ -295,13 +301,19 @@
       "step2": "Select the root group or component that contains your parameters.",
       "step3": "Plugins → Konfiguruj Export → Export for Konfiguruj.",
       "step4": "Choose save location (default: modelname_configurator.zip).",
-      "step5": "Upload the zip to the configurator via Import from SketchUp."
+      "step5": "Upload the zip to the configurator via Import from SketchUp.",
+      "exportMenuCaption": "Run export from the Plugins menu (labels match your SketchUp language).",
+      "exportMenuAlt": "Plugins menu with Konfiguruj Export submenu and Export for Konfiguruj highlighted",
+      "outputFigureCaption": "The saved zip unpacks to a folder with model.glb, parameters.json, and a materials/ folder with PNG textures (when the model uses them).",
+      "outputFigureAlt": "File browser showing exported folder: model.glb, parameters.json, and materials subfolder with texture PNGs"
     },
     "troubleshooting": {
       "title": "Troubleshooting",
       "intro": "If the plugin does not export anything:",
       "debug": "Run Plugins → Konfiguruj Export → Debug and check the Ruby Console (Window → Ruby Console) for entities and parameters found.",
-      "selectRoot": "Ensure the root group/component with parameters is selected before running Export."
+      "selectRoot": "Ensure the root group/component with parameters is selected before running Export.",
+      "debugFigureCaption": "Use Plugins → Konfiguruj Export → Debug; the Ruby Console shows which components and parameters the plugin sees (e.g. Dynamic Component keys and exported parameter names).",
+      "debugFigureAlt": "SketchUp Plugins menu with Debug selected and Ruby Console displaying Konfiguruj Export debug output"
     },
     "materials": {
       "title": "Materials",
@@ -394,8 +406,10 @@
       "publishToggle": "Published",
       "urlLabel": "Embed URL",
       "urlPlaceholder": "e.g. my-round-table",
-      "urlHint": "Lowercase letters, numbers and hyphens only. Globally unique. Embed URL: /e/your-url",
+      "urlHint": "Lowercase letters, numbers and hyphens only. Unique among your products. Public embed: /e/your-account-id/your-url",
       "urlError": "Use only lowercase letters, numbers and hyphens (e.g. my-product)",
+      "urlAlreadyTaken": "This embed path is already used by another of your products. Choose a different path.",
+      "urlSaveFailed": "Could not save the URL. Please try again.",
       "suggestUrl": "Generate URL from product name",
       "saveUrl": "Save URL",
       "ordersEmail": {

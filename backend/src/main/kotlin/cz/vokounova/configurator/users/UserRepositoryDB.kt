@@ -26,7 +26,7 @@ import cz.vokounova.configurator.users.domain.UserSortableField
 import cz.vokounova.configurator.users.domain.getChecksum
 import cz.vokounova.configurator.users.infrastructure.persistence.mapper.toDomain
 import cz.vokounova.configurator.users.infrastructure.persistence.mapper.toPersistence
-import cz.vokounova.configurator.users.ports.outboud.UserRepository
+import cz.vokounova.configurator.users.ports.outbound.UserRepository
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -65,8 +65,7 @@ class UserRepositoryDB(
                 filter?.let {
                     where(buildFilterConditions(filter))
                 }
-            }
-            .fetch()
+            }.fetch()
             .map { it.toDomain(objectMapper) }
 
     override fun create(user: User): User? {

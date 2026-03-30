@@ -4,6 +4,8 @@ import cz.vokounova.configurator.embed.application.EmbedService
 import cz.vokounova.configurator.embed.infrastructure.rest.mapper.toEmbedDto
 import cz.vokounova.configurator.products.api.ProductConfigQueryFacade
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -13,29 +15,43 @@ import java.util.UUID
 
 /**
  * Public embed API – no authentication required.
- * Embed URL: /e/{url} – globally unique when published.
+ * Embed URL: /e/{userId}/{url} – unique per vendor (user) when published.
  */
+@Tag(
+    name = "Public embed",
+    description = "Unauthenticated APIs for the embedded configurator: published product config and customer lead submission.",
+)
 @RestController
 @RequestMapping("/embed/api/v1")
 class EmbedController(
     private val productConfigQueryFacade: ProductConfigQueryFacade,
     private val embedService: EmbedService,
 ) {
-    @GetMapping("/products/by-url/{url}")
-    fun getPublishedProductByUrl(
+    @Operation(
+        summary = "Published product by embed URL",
+        description = "Lightweight product metadata for a published path (public embed). userId is the product owner's id.",
+    )
+    @GetMapping("/products/by-user/{userId}/url/{url}")
+    fun getPublishedProductByUserIdAndUrl(
+        @PathVariable userId: UUID,
         @PathVariable url: String,
     ): ResponseEntity<ProductModelEmbedDto> {
         val product =
-            productConfigQueryFacade.getPublishedProductByUrl(url)
+            productConfigQueryFacade.getPublishedProductByUserIdAndUrl(userId, url)
                 ?: throw ResourceNotFoundException("Product not found or not published")
         return ResponseEntity.ok(product.toEmbedDto())
     }
 
-    @GetMapping("/products/by-url/{url}/config")
-    fun getPublishedProductConfigByUrl(
+    @Operation(
+        summary = "Full config by embed URL",
+        description = "Components, attributes, options, pricing rules, and embed preferences for the published path.",
+    )
+    @GetMapping("/products/by-user/{userId}/url/{url}/config")
+    fun getPublishedProductConfigByUserIdAndUrl(
+        @PathVariable userId: UUID,
         @PathVariable url: String,
     ): ResponseEntity<ProductEmbedFullDto> {
-        val config = embedService.getPublishedProductConfigByUrl(url)
+        val config = embedService.getPublishedProductConfigByUserIdAndUrl(userId, url)
         val dto =
             ProductEmbedFullDto(
                 product = config.product.toEmbedDto(),
@@ -58,6 +74,10 @@ class EmbedController(
         return ResponseEntity.ok(dto)
     }
 
+    @Operation(
+        summary = "Full config by product id",
+        description = "Same as by-url config but keyed by product model id (must be published).",
+    )
     @GetMapping("/products/by-id/{id}/config")
     fun getPublishedProductConfigById(
         @PathVariable id: UUID,
