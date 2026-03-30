@@ -41,7 +41,9 @@ import java.util.UUID
 
 @Tag(
     name = "Attributes",
-    description = "Configurable attributes on a component (dimensions, materials, etc.). Numeric attributes may auto-create default pricing rules.",
+    description =
+        "Configurable attributes on a component (dimensions, materials, etc.). " +
+            "Numeric attributes may auto-create default pricing rules.",
 )
 @RestController
 @RequestMapping("/products/api/v1/product-models/{productModelId}/components/{componentId}/attributes")
@@ -53,7 +55,11 @@ class AttributesController(
     private val jsonPatchValidator: AttributeJsonPatchParamsValidator,
     private val defaultPricingRulesService: DefaultPricingRulesService,
 ) {
-    @Operation(summary = "Create attribute", description = "Adds an attribute to the component; may seed pricing rules for bounded numeric types.")
+    @Operation(
+        summary = "Create attribute",
+        description =
+            "Adds an attribute to the component; may seed pricing rules for bounded numeric types.",
+    )
     @PostMapping
     fun attributesCreate(
         @PathVariable productModelId: UUID,

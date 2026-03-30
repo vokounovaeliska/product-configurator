@@ -41,7 +41,9 @@ import java.util.UUID
 
 @Tag(
     name = "Product models",
-    description = "Configurable products: CRUD, paginated listing, and per-user configurator UI preferences (zoom, embed panels, background).",
+    description =
+        "Configurable products: CRUD, paginated listing, and per-user configurator UI preferences " +
+            "(zoom, embed panels, background).",
 )
 @RestController
 @RequestMapping("/products/api/v1/product-models")

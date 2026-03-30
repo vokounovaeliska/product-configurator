@@ -57,7 +57,9 @@ class FileUploadController(
 
     @Operation(
         summary = "Upload file",
-        description = "Multipart upload; allowed extensions: jpg, png, gif, webp, svg, glb. Max size 10 MB. Returns a relative URL for use in the app.",
+        description =
+            "Multipart upload; allowed extensions: jpg, png, gif, webp, svg, glb. " +
+                "Max size 10 MB. Returns a relative URL for use in the app.",
     )
     @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun uploadFile(

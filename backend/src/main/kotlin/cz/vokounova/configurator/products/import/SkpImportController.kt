@@ -25,7 +25,9 @@ class SkpImportController(
 ) {
     @Operation(
         summary = "Import from configurator zip",
-        description = "Multipart upload of .zip containing model.glb, parameters.json, and optional materials/. Returns new product model id on success.",
+        description =
+            "Multipart upload of .zip containing model.glb, parameters.json, and optional materials/. " +
+                "Returns new product model id on success.",
     )
     @PostMapping(
         "/sketchup",
