@@ -33,7 +33,10 @@ function formatNumericValue(value: number | boolean, unit?: string | null): stri
   if (typeof value === "boolean") return value ? "Yes" : "No"
   if (!Number.isFinite(value)) return "—"
   const formatted = Number.isInteger(value) ? String(value) : value.toFixed(2)
-  return unit ? `${formatted} ${unit}` : formatted
+  const u = unit?.trim()
+  // Default cm when unit unknown (e.g. list preview without loaded attributes) — matches configurator / hranol dimensions.
+  if (u) return `${formatted} ${u}`
+  return `${formatted} ${DEFAULT_UNIT}`
 }
 
 /**
@@ -117,7 +120,7 @@ export function isConfigEmpty(config: Record<string, unknown> | null): boolean {
 }
 
 /** Flat list of strings for badges/tags (e.g. list view). Uses "Label: value" when meaningful. */
-export function formatConfigSummary(config: Record<string, unknown>): string[] {
+export function formatConfigSummary(config: Record<string, unknown> | null): string[] {
   const items = extractUserChoices(config)
   return items.map((i) => {
     const isUuid = (s: string) => /^[0-9a-f-]{36}$/i.test(s)

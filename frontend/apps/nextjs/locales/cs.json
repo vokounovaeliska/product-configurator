@@ -169,6 +169,7 @@
       "filterToDate": "Do data",
       "clearFilters": "Vymazat filtry",
       "listHeaders": {
+        "preview": "Náhled",
         "product": "Produkt",
         "customer": "Zákazník",
         "email": "E-mail",
@@ -177,6 +178,8 @@
         "price": "Cena",
         "status": "Stav"
       },
+      "noPreview": "Bez náhledu",
+      "previewAlt": "Náhled konfigurace – {product}",
       "noMessage": "—",
       "status": {
         "NEW": "Nová",
@@ -194,6 +197,7 @@
       },
       "detail": {
         "title": "Detail poptávky",
+        "quickSummary": "Stručný přehled",
         "snapshot": "Snímek konfigurace",
         "configuration": "Konfigurace",
         "configurationEmpty": "Nevybrány žádné možnosti",
@@ -421,12 +425,16 @@
       },
       "embedCodeTitle": "Kód pro vložení",
       "embedPreviewTitle": "Náhled embedu",
+      "embedPreviewLiveHint": "Náhled se mění při posunu zoomu. Uložením nastavíte výchozí hodnotu pro skutečný embed.",
+      "embedPreviewLoadError": "Náhled se nepodařilo načíst.",
       "copyEmbed": "Kopírovat iframe",
       "copied": "Zkopírováno!",
       "previewEmbed": "Náhled vložení",
       "embedDisplay": {
         "title": "Možnosti zobrazení v embedu",
         "description": "Vyberte, co se zobrazí ve vloženém konfigurátoru.",
+        "defaultZoomLabel": "Výchozí 3D přiblížení (co uvidí zákazník)",
+        "defaultZoomHint": "Nižší hodnota = blíž k produktu; vyšší = dál. Platí při prvním načtení embedu.",
         "showProductName": "Název produktu",
         "showDescription": "Popis",
         "showComponents": "Výběr komponent",

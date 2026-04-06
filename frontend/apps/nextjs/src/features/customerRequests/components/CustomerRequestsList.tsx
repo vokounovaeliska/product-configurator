@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ChevronDownIcon, ExternalLinkIcon, SearchIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
@@ -22,6 +22,11 @@ import {
 } from "../api/customerRequestQueries"
 import type { CustomerRequestDto } from "../api/customerRequestQueries"
 import { useRequestConfigurationData } from "../hooks/useRequestConfigurationData"
+import { customerRequestStatusBadgeClasses } from "../utils/customerRequestStatusStyles"
+import {
+  CustomerRequestSummaryText,
+  CustomerRequestThumbnail,
+} from "./CustomerRequestInquiryPreview"
 import { RequestConfigurationDisplay } from "./RequestConfigurationDisplay"
 
 const REQUEST_STATUSES = ["NEW", "IN_PROGRESS", "OFFER_SENT", "CLOSED"] as const
@@ -48,21 +53,6 @@ function formatPrice(cents: number, currency: string): string {
     currency,
     minimumFractionDigits: 2,
   }).format(cents / 100)
-}
-
-function getStatusBadgeClasses(status: string): string {
-  switch (status) {
-    case "NEW":
-      return "bg-primary/15 text-primary ring-1 ring-primary/30"
-    case "IN_PROGRESS":
-      return "bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-500/30"
-    case "OFFER_SENT":
-      return "bg-blue-500/15 text-blue-700 dark:text-blue-400 ring-1 ring-blue-500/30"
-    case "CLOSED":
-      return "bg-muted text-muted-foreground"
-    default:
-      return "bg-muted text-muted-foreground"
-  }
 }
 
 function matchesSearch(req: CustomerRequestDto, query: string): boolean {
@@ -92,7 +82,8 @@ export const CustomerRequestsList = () => {
   const { data: productModels } = useCustomerRequestProductModels(100)
   const {
     data: requests,
-    isLoading,
+    isPending,
+    isFetching,
     error,
   } = useCustomerRequestsList({
     limit: 50,
@@ -110,6 +101,15 @@ export const CustomerRequestsList = () => {
     productFilter !== "all" ||
     fromDate !== "" ||
     toDate !== ""
+
+  useEffect(() => {
+    if (productFilter === "all") return
+    const items = productModels?.items
+    if (items === undefined) return
+    if (!items.some((pm) => pm.id === productFilter)) {
+      setProductFilter("all")
+    }
+  }, [productModels?.items, productFilter])
 
   const handleClearFilters = () => {
     setSearchQuery("")
@@ -139,7 +139,11 @@ export const CustomerRequestsList = () => {
     })
   }, [requests, searchQuery, statusFilter])
 
-  if (isLoading) {
+  const requestsList = requests ?? []
+  const isServerListEmpty = requestsList.length === 0
+
+  /** Full skeleton only on first load; filter changes keep UI mounted (see placeholderData on query). */
+  if (isPending && requests === undefined) {
     return (
       <div className="space-y-3">
         <Skeleton className="h-24 w-full" />
@@ -158,20 +162,6 @@ export const CustomerRequestsList = () => {
           className="text-destructive"
         >
           {error instanceof Error ? error.message : t("errorLoading")}
-        </Typography>
-      </Card>
-    )
-  }
-
-  if (!requests || requests.length === 0) {
-    return (
-      <Card className="p-10 text-center">
-        <Typography
-          as="p"
-          variant="body-md"
-          className="text-muted-foreground"
-        >
-          {t("emptyState")}
         </Typography>
       </Card>
     )
@@ -297,7 +287,17 @@ export const CustomerRequestsList = () => {
         </div>
       </div>
 
-      {filteredRequests.length === 0 ? (
+      {isServerListEmpty ? (
+        <Card className="p-10 text-center">
+          <Typography
+            as="p"
+            variant="body-md"
+            className="text-muted-foreground"
+          >
+            {hasActiveFilters ? t("noMatchingResults") : t("emptyState")}
+          </Typography>
+        </Card>
+      ) : filteredRequests.length === 0 ? (
         <Card className="p-10 text-center">
           <Typography
             as="p"
@@ -310,7 +310,10 @@ export const CustomerRequestsList = () => {
       ) : (
         <>
           {/* Mobile: card list */}
-          <div className="space-y-3 md:hidden">
+          <div
+            className={cn("space-y-3 transition-opacity md:hidden", isFetching && "opacity-60")}
+            aria-busy={isFetching}
+          >
             {filteredRequests.map((req) => (
               <RequestCard
                 key={req.id}
@@ -325,74 +328,83 @@ export const CustomerRequestsList = () => {
           </div>
 
           {/* Desktop: table */}
-          <Card className="hidden md:block">
+          <Card
+            className={cn("hidden transition-opacity md:block", isFetching && "opacity-60")}
+            aria-busy={isFetching}
+          >
             <div className="overflow-x-auto">
               <table className="w-full caption-bottom text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/30">
-                  <th
-                    className="h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground"
-                    scope="col"
-                  >
-                    {t("listHeaders.product")}
-                  </th>
-                  <th
-                    className="h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground"
-                    scope="col"
-                  >
-                    {t("listHeaders.customer")}
-                  </th>
-                  <th
-                    className="hidden h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground md:table-cell"
-                    scope="col"
-                  >
-                    {t("listHeaders.email")}
-                  </th>
-                  <th
-                    className="hidden h-12 max-w-[220px] min-w-[140px] px-4 py-3 text-left align-middle font-semibold text-muted-foreground lg:table-cell"
-                    scope="col"
-                  >
-                    {t("listHeaders.message")}
-                  </th>
-                  <th
-                    className="hidden h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground xl:table-cell"
-                    scope="col"
-                  >
-                    {t("listHeaders.date")}
-                  </th>
-                  <th
-                    className="h-12 px-4 py-3 text-right align-middle font-semibold text-muted-foreground"
-                    scope="col"
-                  >
-                    {t("listHeaders.price")}
-                  </th>
-                  <th
-                    className="h-12 w-[140px] px-4 py-3 text-left align-middle font-semibold text-muted-foreground"
-                    scope="col"
-                  >
-                    {t("listHeaders.status")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRequests.map((req) => {
-                  const isExpanded = selectedId === req.id
-                  return (
-                    <RequestRow
-                      key={req.id}
-                      request={req}
-                      isExpanded={isExpanded}
-                      onToggle={() => handleToggleExpand(req.id)}
-                      onStatusChange={(newStatus) => handleStatusChange(req.id, newStatus)}
-                      isStatusUpdating={updateStatus.isPending}
-                      t={t}
-                    />
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                <thead>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th
+                      className="h-12 w-[72px] px-3 py-3 text-left align-middle font-semibold text-muted-foreground"
+                      scope="col"
+                    >
+                      {t("listHeaders.preview")}
+                    </th>
+                    <th
+                      className="h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground"
+                      scope="col"
+                    >
+                      {t("listHeaders.product")}
+                    </th>
+                    <th
+                      className="h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground"
+                      scope="col"
+                    >
+                      {t("listHeaders.customer")}
+                    </th>
+                    <th
+                      className="hidden h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground md:table-cell"
+                      scope="col"
+                    >
+                      {t("listHeaders.email")}
+                    </th>
+                    <th
+                      className="hidden h-12 max-w-[220px] min-w-[140px] px-4 py-3 text-left align-middle font-semibold text-muted-foreground lg:table-cell"
+                      scope="col"
+                    >
+                      {t("listHeaders.message")}
+                    </th>
+                    <th
+                      className="hidden h-12 px-4 py-3 text-left align-middle font-semibold text-muted-foreground xl:table-cell"
+                      scope="col"
+                    >
+                      {t("listHeaders.date")}
+                    </th>
+                    <th
+                      className="h-12 px-4 py-3 text-right align-middle font-semibold text-muted-foreground"
+                      scope="col"
+                    >
+                      {t("listHeaders.price")}
+                    </th>
+                    <th
+                      className="h-12 w-[140px] px-4 py-3 text-left align-middle font-semibold text-muted-foreground"
+                      scope="col"
+                    >
+                      {t("listHeaders.status")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRequests.map((req) => {
+                    const isExpanded = selectedId === req.id
+                    return (
+                      <RequestRow
+                        key={req.id}
+                        request={req}
+                        isExpanded={isExpanded}
+                        onToggle={() => handleToggleExpand(req.id)}
+                        onStatusChange={(newStatus) => handleStatusChange(req.id, newStatus)}
+                        isStatusUpdating={updateStatus.isPending}
+                        t={t}
+                      />
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
           {updateStatus.isError && (
             <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2">
               <Typography
@@ -435,81 +447,93 @@ const RequestCard = ({
 
   return (
     <Card
-      className={cn(
-        "overflow-hidden transition-colors",
-        isExpanded && "ring-2 ring-primary/30",
-      )}
+      className={cn("overflow-hidden transition-colors", isExpanded && "ring-2 ring-primary/30")}
     >
-      <div
-        role="button"
-        tabIndex={0}
-        className="flex w-full flex-col gap-2 p-4 text-left cursor-pointer"
-        onClick={onToggle}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault()
-            onToggle()
-          }
-        }}
-      >
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <Typography
-            as="span"
-            variant="body-md"
-            weight="medium"
-            className="line-clamp-2 flex-1 min-w-0"
-          >
-            {req.productModelName}
-          </Typography>
-          <Typography
-            as="span"
-            variant="body-md"
-            weight="semibold"
-            className="shrink-0 tabular-nums"
-          >
-            {formatPrice(req.totalPrice, req.currency)}
-          </Typography>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Typography
-            as="span"
-            variant="body-sm"
-            className="text-muted-foreground"
-          >
-            {req.customerName ?? req.customerEmail}
-          </Typography>
-          <Select
-            value={req.status}
-            onValueChange={onStatusChange}
-            disabled={isStatusUpdating}
-          >
-            <Select.Trigger
-              className={cn(
-                "h-8 min-w-[90px] border-0 bg-transparent shadow-none hover:bg-muted/50",
-                getStatusBadgeClasses(req.status),
-              )}
-              onClick={(e) => e.stopPropagation()}
+      <div className="flex gap-3 p-4">
+        <Link
+          href={ROUTES.setupCustomerRequestDetail(req.id)}
+          className="shrink-0 self-start pt-0.5"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CustomerRequestThumbnail
+            snapshotImageBase64={req.snapshotImageBase64}
+            alt={t("previewAlt", { product: req.productModelName })}
+            noPreviewLabel={t("noPreview")}
+            size="md"
+          />
+        </Link>
+        <div
+          role="button"
+          tabIndex={0}
+          className="flex min-w-0 flex-1 cursor-pointer flex-col gap-2 text-left"
+          onClick={onToggle}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              onToggle()
+            }
+          }}
+        >
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <Typography
+              as="span"
+              variant="body-md"
+              weight="medium"
+              className="line-clamp-2 min-w-0 flex-1"
             >
-              <Select.Trigger.Value />
-            </Select.Trigger>
-            <Select.Content align="start">
-              {REQUEST_STATUSES.map((s) => (
-                <Select.Content.Item
-                  key={s}
-                  value={s}
-                >
-                  {t(STATUS_KEYS[s])}
-                </Select.Content.Item>
-              ))}
-            </Select.Content>
-          </Select>
+              {req.productModelName}
+            </Typography>
+            <Typography
+              as="span"
+              variant="body-md"
+              weight="semibold"
+              className="shrink-0 tabular-nums"
+            >
+              {formatPrice(req.totalPrice, req.currency)}
+            </Typography>
+          </div>
+          <CustomerRequestSummaryText config={config} />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Typography
+              as="span"
+              variant="body-sm"
+              className="text-muted-foreground"
+            >
+              {req.customerName ?? req.customerEmail}
+            </Typography>
+            <Select
+              value={req.status}
+              onValueChange={onStatusChange}
+              disabled={isStatusUpdating}
+            >
+              <Select.Trigger
+                className={cn(
+                  "h-8 min-w-[90px] border-0 bg-transparent shadow-none hover:bg-muted/50",
+                  customerRequestStatusBadgeClasses(req.status),
+                )}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Select.Trigger.Value />
+              </Select.Trigger>
+              <Select.Content align="start">
+                {REQUEST_STATUSES.map((s) => (
+                  <Select.Content.Item
+                    key={s}
+                    value={s}
+                  >
+                    {t(STATUS_KEYS[s])}
+                  </Select.Content.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          </div>
+          <ChevronDownIcon
+            className={cn(
+              "size-4 shrink-0 self-center text-muted-foreground transition-transform",
+              isExpanded && "rotate-180",
+            )}
+          />
         </div>
-        <ChevronDownIcon
-          className={cn(
-            "size-4 shrink-0 self-center text-muted-foreground transition-transform",
-            isExpanded && "rotate-180",
-          )}
-        />
       </div>
       {isExpanded && (
         <div className="border-t border-border bg-muted/20 px-4 py-4">
@@ -691,7 +715,7 @@ const RequestRow = ({
   const configurationData = useRequestConfigurationData(config, req.productModelId, {
     enabled: isExpanded,
   })
-  const colCount = 7
+  const colCount = 8
 
   return (
     <>
@@ -703,15 +727,42 @@ const RequestRow = ({
         )}
         onClick={onToggle}
       >
-        <td className="px-4 py-3 align-middle">
-          <Typography
-            as="span"
-            variant="body-md"
-            weight="medium"
-            className="line-clamp-2"
+        <td
+          className="px-3 py-3 align-middle"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Link
+            href={ROUTES.setupCustomerRequestDetail(req.id)}
+            className="inline-block"
           >
-            {req.productModelName}
-          </Typography>
+            <CustomerRequestThumbnail
+              snapshotImageBase64={req.snapshotImageBase64}
+              alt={t("previewAlt", { product: req.productModelName })}
+              noPreviewLabel={t("noPreview")}
+            />
+          </Link>
+        </td>
+        <td className="max-w-[min(100vw,280px)] px-4 py-3 align-middle">
+          <div className="space-y-1">
+            <Link
+              href={ROUTES.setupCustomerRequestDetail(req.id)}
+              className="text-primary hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Typography
+                as="span"
+                variant="body-md"
+                weight="medium"
+                className="line-clamp-2"
+              >
+                {req.productModelName}
+              </Typography>
+            </Link>
+            <CustomerRequestSummaryText
+              config={config}
+              lineClamp={2}
+            />
+          </div>
         </td>
         <td className="px-4 py-3 align-middle">
           <Typography
@@ -767,7 +818,7 @@ const RequestRow = ({
               <Select.Trigger
                 className={cn(
                   "h-8 min-w-[100px] border-0 bg-transparent shadow-none hover:bg-muted/50",
-                  getStatusBadgeClasses(req.status),
+                  customerRequestStatusBadgeClasses(req.status),
                 )}
               >
                 <Select.Trigger.Value />

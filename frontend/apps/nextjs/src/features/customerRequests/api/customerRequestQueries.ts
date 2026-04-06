@@ -1,4 +1,10 @@
-import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  keepPreviousData,
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 
 import { api } from "@/lib/api/restClient"
 
@@ -72,6 +78,8 @@ export const getCustomerRequestsListQueryOptions = (params?: CustomerRequestsLis
       const url = `products/api/v1/customer-requests${query ? `?${query}` : ""}`
       return api.get(url).json<CustomerRequestDto[]>()
     },
+    /** Keeps previous list visible while dates/filters change so native date pickers are not unmounted. */
+    placeholderData: keepPreviousData,
   })
 
 export const getCustomerRequestQueryOptions = (id: string) =>
@@ -84,10 +92,12 @@ export const getCustomerRequestQueryOptions = (id: string) =>
 
 export const getCustomerRequestProductModelsQueryOptions = (limit = 100) =>
   queryOptions({
-    queryKey: [...customerRequestKeys.productModels(), limit],
+    queryKey: [...customerRequestKeys.productModels(), limit, "published"] as const,
     queryFn: async (): Promise<CustomerRequestProductModelsResponseDto> => {
       const searchParams = new URLSearchParams()
       searchParams.set("limit", String(limit))
+      /** Inquiries come from embed; only published products can receive quote requests. */
+      searchParams.set("isPublished", "true")
       const query = searchParams.toString()
       return api
         .get(`products/api/v1/product-models${query ? `?${query}` : ""}`)

@@ -14,6 +14,8 @@ import { ROUTES } from "@/lib/routes"
 
 import { useCustomerRequest, useUpdateCustomerRequestStatus } from "../api/customerRequestQueries"
 import { useRequestConfigurationData } from "../hooks/useRequestConfigurationData"
+import { customerRequestStatusBadgeClasses } from "../utils/customerRequestStatusStyles"
+import { CustomerRequestSummaryChips } from "./CustomerRequestInquiryPreview"
 import { RequestConfigurationDisplay } from "./RequestConfigurationDisplay"
 
 const REQUEST_STATUSES = ["NEW", "IN_PROGRESS", "OFFER_SENT", "CLOSED"] as const
@@ -118,119 +120,74 @@ export const CustomerRequestDetail = ({ id }: Props) => {
         </Typography>
       </div>
 
-      <Card className="p-4 sm:p-6">
-        <div className="space-y-5 sm:space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+      {request.snapshotImageBase64 ? (
+        <div className="mb-6 grid gap-6 lg:grid-cols-2 lg:items-start">
+          <div className="min-w-0">
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="semibold"
+              className="mb-2 text-muted-foreground"
+            >
+              {t("detail.snapshot")}
+            </Typography>
+            <div className="overflow-hidden rounded-xl border bg-background shadow-sm">
+              <Image
+                src={request.snapshotImageBase64}
+                alt={t("previewAlt", { product: request.productModelName })}
+                width={960}
+                height={480}
+                className="max-h-[min(55vh,480px)] w-full object-contain"
+                unoptimized
+              />
+            </div>
+          </div>
+          <div className="min-w-0 space-y-4">
             <div>
               <Typography
                 as="p"
                 variant="body-sm"
                 weight="semibold"
-                className="mb-1 text-muted-foreground"
+                className="mb-2 text-muted-foreground"
               >
-                {t("table.status")}
+                {t("detail.quickSummary")}
               </Typography>
-              <Select
-                value={request.status}
-                onValueChange={handleStatusChange}
-                disabled={updateStatus.isPending}
-              >
-                <Select.Trigger className="w-full sm:w-[180px]">
-                  <Select.Trigger.Value />
-                </Select.Trigger>
-                <Select.Content>
-                  {REQUEST_STATUSES.map((s) => (
-                    <Select.Content.Item
-                      key={s}
-                      value={s}
-                    >
-                      {t(STATUS_KEYS[s])}
-                    </Select.Content.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-              {updateStatus.isError && (
+              <CustomerRequestSummaryChips config={config} />
+            </div>
+            {request.customerNote && (
+              <div>
                 <Typography
                   as="p"
                   variant="body-sm"
-                  className="mt-1 text-destructive"
+                  weight="semibold"
+                  className="mb-1.5 text-muted-foreground"
                 >
-                  {t("statusUpdateError")}
+                  {t("detail.message")}
                 </Typography>
-              )}
-            </div>
-            <div>
-              <Typography
-                as="p"
-                variant="body-sm"
-                weight="semibold"
-                className="mb-1 text-muted-foreground"
-              >
-                {t("table.customer")}
-              </Typography>
-              <Typography
-                as="p"
-                variant="body-md"
-              >
-                {request.customerName ?? "—"}
-              </Typography>
-            </div>
-            <div>
-              <Typography
-                as="p"
-                variant="body-sm"
-                weight="semibold"
-                className="mb-1 text-muted-foreground"
-              >
-                {t("table.email")}
-              </Typography>
-              <Typography
-                as="p"
-                variant="body-md"
-              >
-                <a
-                  href={`mailto:${request.customerEmail}`}
-                  className="text-primary hover:underline"
+                <Typography
+                  as="p"
+                  variant="body-md"
+                  className="rounded-lg border bg-background p-4 whitespace-pre-wrap shadow-sm"
                 >
-                  {request.customerEmail}
-                </a>
-              </Typography>
-            </div>
-            <div>
-              <Typography
-                as="p"
-                variant="body-sm"
-                weight="semibold"
-                className="mb-1 text-muted-foreground"
-              >
-                {t("table.price")}
-              </Typography>
-              <Typography
-                as="p"
-                variant="body-md"
-                weight="semibold"
-              >
-                {formatPrice(request.totalPrice, request.currency)}
-              </Typography>
-            </div>
-            <div>
-              <Typography
-                as="p"
-                variant="body-sm"
-                weight="semibold"
-                className="mb-1 text-muted-foreground"
-              >
-                {t("table.date")}
-              </Typography>
-              <Typography
-                as="p"
-                variant="body-md"
-              >
-                {formatDate(request.createdAt)}
-              </Typography>
-            </div>
+                  {request.customerNote}
+                </Typography>
+              </div>
+            )}
           </div>
-
+        </div>
+      ) : (
+        <div className="mb-6 space-y-4">
+          <div>
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="semibold"
+              className="mb-2 text-muted-foreground"
+            >
+              {t("detail.quickSummary")}
+            </Typography>
+            <CustomerRequestSummaryChips config={config} />
+          </div>
           {request.customerNote && (
             <div>
               <Typography
@@ -244,50 +201,146 @@ export const CustomerRequestDetail = ({ id }: Props) => {
               <Typography
                 as="p"
                 variant="body-md"
-                className="rounded-lg border bg-muted/30 p-4 whitespace-pre-wrap"
+                className="rounded-lg border bg-background p-4 whitespace-pre-wrap shadow-sm"
               >
                 {request.customerNote}
               </Typography>
             </div>
           )}
+        </div>
+      )}
 
-          {request.snapshotImageBase64 && (
-            <div>
-              <Typography
-                as="p"
-                variant="body-sm"
-                weight="semibold"
-                className="mb-2 text-muted-foreground"
-              >
-                {t("detail.snapshot")}
-              </Typography>
-              <Image
-                src={request.snapshotImageBase64}
-                alt="Configuration snapshot"
-                width={800}
-                height={384}
-                className="max-h-96 w-full rounded-lg border bg-muted/30 object-contain sm:max-w-lg"
-                unoptimized
-              />
-            </div>
-          )}
-
+      <Card className="mb-6 p-4 sm:p-6">
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           <div>
             <Typography
               as="p"
               variant="body-sm"
               weight="semibold"
-              className="mb-2 text-muted-foreground"
+              className="mb-1 text-muted-foreground"
             >
-              {t("detail.configuration")}
+              {t("table.status")}
             </Typography>
-            <RequestConfigurationDisplay
-              config={config}
-              configStr={configStr}
-              configurationData={configurationData}
-              variant="full"
-            />
+            <Select
+              value={request.status}
+              onValueChange={handleStatusChange}
+              disabled={updateStatus.isPending}
+            >
+              <Select.Trigger
+                className={`w-full border-0 shadow-none sm:w-[180px] ${customerRequestStatusBadgeClasses(request.status)}`}
+              >
+                <Select.Trigger.Value />
+              </Select.Trigger>
+              <Select.Content>
+                {REQUEST_STATUSES.map((s) => (
+                  <Select.Content.Item
+                    key={s}
+                    value={s}
+                  >
+                    {t(STATUS_KEYS[s])}
+                  </Select.Content.Item>
+                ))}
+              </Select.Content>
+            </Select>
+            {updateStatus.isError && (
+              <Typography
+                as="p"
+                variant="body-sm"
+                className="mt-1 text-destructive"
+              >
+                {t("statusUpdateError")}
+              </Typography>
+            )}
           </div>
+          <div>
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="semibold"
+              className="mb-1 text-muted-foreground"
+            >
+              {t("table.customer")}
+            </Typography>
+            <Typography
+              as="p"
+              variant="body-md"
+            >
+              {request.customerName ?? "—"}
+            </Typography>
+          </div>
+          <div>
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="semibold"
+              className="mb-1 text-muted-foreground"
+            >
+              {t("table.email")}
+            </Typography>
+            <Typography
+              as="p"
+              variant="body-md"
+            >
+              <a
+                href={`mailto:${request.customerEmail}`}
+                className="text-primary hover:underline"
+              >
+                {request.customerEmail}
+              </a>
+            </Typography>
+          </div>
+          <div>
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="semibold"
+              className="mb-1 text-muted-foreground"
+            >
+              {t("table.price")}
+            </Typography>
+            <Typography
+              as="p"
+              variant="body-md"
+              weight="semibold"
+            >
+              {formatPrice(request.totalPrice, request.currency)}
+            </Typography>
+          </div>
+          <div>
+            <Typography
+              as="p"
+              variant="body-sm"
+              weight="semibold"
+              className="mb-1 text-muted-foreground"
+            >
+              {t("table.date")}
+            </Typography>
+            <Typography
+              as="p"
+              variant="body-md"
+            >
+              {formatDate(request.createdAt)}
+            </Typography>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-4 sm:p-6">
+        <div className="space-y-4">
+          <Typography
+            as="p"
+            variant="body-sm"
+            weight="semibold"
+            className="text-muted-foreground"
+          >
+            {t("detail.configuration")}
+          </Typography>
+          <RequestConfigurationDisplay
+            config={config}
+            configStr={configStr}
+            configurationData={configurationData}
+            variant="full"
+          />
         </div>
       </Card>
     </div>

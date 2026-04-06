@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import * as SliderPrimitive from "@radix-ui/react-slider"
 import { CheckIcon, ChevronDownIcon, CopyIcon, ExternalLinkIcon, SparklesIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
@@ -19,9 +20,23 @@ import type { ProductModelDto } from "@/api/productModelTypes"
 import { env } from "@/config/env"
 import { ROUTES } from "@/lib/routes"
 import { extractErrorMessage } from "@/lib/utils"
+ 
 import { getEmbedBaseUrl } from "@/utils/embedUrl"
 
+/* eslint-disable import/no-restricted-paths -- shared orbit zoom range for embed (same as ModelViewer3D) */
+import { EMBED_CAMERA_DISTANCE } from "@/features/configurator/constants/embedCameraDistance"
+
 import { useUpdateProductModel } from "../api/productModelQueries"
+import { PublishEmbedLivePreview } from "./PublishEmbedLivePreview"
+
+function clampEmbedZoom(value: number): number {
+  return Math.min(Math.max(value, EMBED_CAMERA_DISTANCE.min), EMBED_CAMERA_DISTANCE.max)
+}
+
+function embedZoomFromPreference(pref: number | null | undefined): number {
+  if (pref == null) return EMBED_CAMERA_DISTANCE.default
+  return clampEmbedZoom(pref)
+}
 
 const isEmbedDisplayDefault = false
 
@@ -67,6 +82,9 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     isEmbedComponentsShownFromServer,
   )
 
+  const savedEmbedZoomEffective = embedZoomFromPreference(preferences?.zoomDistanceEmbed)
+  const [embedZoom, setEmbedZoom] = useState(savedEmbedZoomEffective)
+
   useEffect(() => {
     setUrl(productModel.url ?? toUrlPath(productModel.name))
   }, [productModel.url, productModel.name])
@@ -79,10 +97,12 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     setShouldShowProductNameInEmbed(preferences?.embedShowProductName ?? isEmbedDisplayDefault)
     setShouldShowDescriptionInEmbed(preferences?.embedShowDescription ?? isEmbedDisplayDefault)
     setShouldShowComponentsInEmbed(preferences?.embedShowComponents ?? isEmbedDisplayDefault)
+    setEmbedZoom(embedZoomFromPreference(preferences?.zoomDistanceEmbed))
   }, [
     preferences?.embedShowProductName,
     preferences?.embedShowDescription,
     preferences?.embedShowComponents,
+    preferences?.zoomDistanceEmbed,
   ])
 
   const isUrlValid = url === "" || URL_PATTERN.test(url)
@@ -165,10 +185,13 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     setTimeout(() => setIsCopied(false), 2000)
   }
 
+  const hasEmbedZoomChanged = Math.abs(embedZoom - savedEmbedZoomEffective) > 0.01
+
   const hasEmbedDisplayChanged =
     shouldShowProductNameInEmbed !== isEmbedProductNameShownFromServer ||
     shouldShowDescriptionInEmbed !== isEmbedDescriptionShownFromServer ||
-    shouldShowComponentsInEmbed !== isEmbedComponentsShownFromServer
+    shouldShowComponentsInEmbed !== isEmbedComponentsShownFromServer ||
+    hasEmbedZoomChanged
 
   const handleSaveEmbedDisplay = useCallback(() => {
     if (!hasEmbedDisplayChanged) return
@@ -178,6 +201,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
         embedShowProductName: shouldShowProductNameInEmbed,
         embedShowDescription: shouldShowDescriptionInEmbed,
         embedShowComponents: shouldShowComponentsInEmbed,
+        zoomDistanceEmbed: Math.round(clampEmbedZoom(embedZoom) * 100) / 100,
       },
       {
         onSuccess: () => setEmbedDisplaySaveError(null),
@@ -191,6 +215,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     shouldShowProductNameInEmbed,
     shouldShowDescriptionInEmbed,
     shouldShowComponentsInEmbed,
+    embedZoom,
     patchPreferences,
   ])
 
@@ -353,25 +378,6 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                 <code>{embedCode}</code>
               </pre>
 
-              <div className="mt-4 space-y-2">
-                <Typography
-                  as="h4"
-                  variant="display-sm"
-                  weight="semibold"
-                >
-                  {t("embedPreviewTitle")}
-                </Typography>
-                <div className="overflow-hidden rounded-lg border bg-muted/30">
-                  <iframe
-                    key={`embed-preview-${isEmbedProductNameShownFromServer}-${isEmbedDescriptionShownFromServer}-${isEmbedComponentsShownFromServer}`}
-                    src={embedUrl}
-                    title={t("embedPreviewTitle")}
-                    className="h-[60vh] min-h-[400px] w-full border-0 sm:h-[70vh] sm:min-h-[500px]"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
-
               <details
                 className="group mt-4"
                 open
@@ -388,6 +394,44 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                   >
                     {t("embedDisplay.description")}
                   </Typography>
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <Label
+                        htmlFor="publish-embed-default-zoom"
+                        className="text-sm font-medium"
+                      >
+                        {t("embedDisplay.defaultZoomLabel")}
+                      </Label>
+                      <span className="text-sm text-muted-foreground tabular-nums">
+                        {clampEmbedZoom(embedZoom).toFixed(1)}
+                      </span>
+                    </div>
+                    <SliderPrimitive.Root
+                      id="publish-embed-default-zoom"
+                      className="relative flex w-full max-w-md touch-none items-center select-none"
+                      min={EMBED_CAMERA_DISTANCE.min}
+                      max={EMBED_CAMERA_DISTANCE.max}
+                      step={EMBED_CAMERA_DISTANCE.step}
+                      value={[clampEmbedZoom(embedZoom)]}
+                      onValueChange={(values) => {
+                        const v = values[0] ?? EMBED_CAMERA_DISTANCE.default
+                        setEmbedZoom(clampEmbedZoom(v))
+                      }}
+                      aria-label={t("embedDisplay.defaultZoomLabel")}
+                    >
+                      <SliderPrimitive.Track className="relative h-1.5 w-full grow rounded-full bg-muted">
+                        <SliderPrimitive.Range className="absolute h-full rounded-full bg-primary/30" />
+                      </SliderPrimitive.Track>
+                      <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-primary bg-background shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
+                    </SliderPrimitive.Root>
+                    <Typography
+                      as="p"
+                      variant="body-sm"
+                      className="text-muted-foreground"
+                    >
+                      {t("embedDisplay.defaultZoomHint")}
+                    </Typography>
+                  </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <Checkbox
@@ -451,6 +495,28 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                   )}
                 </div>
               </details>
+
+              <div className="mt-6 space-y-2">
+                <Typography
+                  as="h4"
+                  variant="display-sm"
+                  weight="semibold"
+                >
+                  {t("embedPreviewTitle")}
+                </Typography>
+                <Typography
+                  as="p"
+                  variant="body-sm"
+                  className="text-muted-foreground"
+                >
+                  {t("embedPreviewLiveHint")}
+                </Typography>
+                <PublishEmbedLivePreview
+                  key={`${isEmbedProductNameShownFromServer}-${isEmbedDescriptionShownFromServer}-${isEmbedComponentsShownFromServer}-${String(preferences?.zoomDistanceEmbed ?? "d")}`}
+                  productModel={productModel}
+                  liveCameraDistance={clampEmbedZoom(embedZoom)}
+                />
+              </div>
             </div>
           )}
         </div>

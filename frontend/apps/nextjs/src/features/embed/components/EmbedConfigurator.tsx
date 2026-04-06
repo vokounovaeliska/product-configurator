@@ -9,7 +9,6 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
- 
 import type { ConfiguratorPreferencesEmbedDto, ProductModelEmbedDto } from "@/api/embedTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
@@ -56,6 +55,11 @@ type Props = {
   optionsByAttribute: Record<string, AttributeOptionDto[]>
   pricingRules: AttributePricingRuleDto[]
   configuratorPreferences?: ConfiguratorPreferencesEmbedDto | null
+  /**
+   * Live camera distance for embed (e.g. publish tab slider). Syncs 3D without saving.
+   * When set, overrides saved embed zoom until cleared.
+   */
+  publishLiveCameraDistance?: number | null
 }
 
 export const EmbedConfigurator = ({
@@ -65,6 +69,7 @@ export const EmbedConfigurator = ({
   optionsByAttribute: _optionsByAttribute,
   pricingRules,
   configuratorPreferences,
+  publishLiveCameraDistance,
 }: Props) => {
   const t = useTranslations("Embed")
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null)
@@ -236,6 +241,7 @@ export const EmbedConfigurator = ({
             model3dConfig={model3dConfig}
             model3dEffects={product.model3dEffects}
             configuratorPreferencesFromServer={configuratorPreferences}
+            cameraDistanceOverride={publishLiveCameraDistance ?? undefined}
             canCapture
             onCaptureReady={product.model3dUrl ? handleCaptureReady : undefined}
             embedPreview
