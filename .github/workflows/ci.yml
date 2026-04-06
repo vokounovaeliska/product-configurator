@@ -10,7 +10,8 @@ env:
   JAVA_VERSION: '21'
   MAVEN_OPTS: '-Dmaven.repo.local=.m2/repository'
 
-# Order: compile → ktlint → then frontend-build, unit-test, integration-test in parallel.
+# Backend: compile → ktlint → unit + integration tests (parallel).
+# Frontend: lint & typecheck → build (independent from backend).
 jobs:
   compile:
     name: Compile
@@ -128,10 +129,41 @@ jobs:
           path: '**/target/test-logs/integration-test.log'
           retention-days: 1
 
-  frontend-build:
-    name: Frontend Build
+  frontend-lint:
+    name: Frontend lint & typecheck
     runs-on: ubuntu-22.04
-    needs: ktlint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.6.5'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Remove Railway-specific files (not needed for CI)
+        run: |
+          rm -f frontend/package.json frontend/pnpm-lock.yaml frontend/turbo.json
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint check frontend
+        run: pnpm turbo lint:check --filter=nextjs --filter=storybook --output-logs=errors-only
+
+      - name: Type check frontend
+        run: pnpm turbo type-check --filter=nextjs --filter=storybook --output-logs=errors-only
+
+  frontend-build:
+    name: Frontend build
+    runs-on: ubuntu-22.04
+    needs: frontend-lint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -161,10 +193,4 @@ jobs:
           NEXT_PUBLIC_REST_API_URL: http://localhost:8080
           ENV_NAME: local
         run: pnpm turbo build --filter=nextjs --filter=storybook --output-logs=errors-only
-
-      - name: Type check frontend
-        run: pnpm turbo type-check --filter=nextjs --filter=storybook --output-logs=errors-only
-
-      - name: Lint check frontend
-        run: pnpm turbo lint:check --filter=nextjs --filter=storybook --output-logs=errors-only
 
