@@ -287,7 +287,7 @@
                         <configuration>
                             <testSourceDirectory>src/test/kotlin</testSourceDirectory>
                             <includes>
-                                <include>**/integraton/**/*</include>
+                                <include>**/integration/**/*</include>
                             </includes>
                             <skipTests>${skipITs}</skipTests>
                             <trimStackTrace>true</trimStackTrace>
