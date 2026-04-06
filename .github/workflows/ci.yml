@@ -1,20 +1,16 @@
 name: CI Pipeline
 
+# Run on every branch (push + PR) so feature branches get the same checks as main/develop.
 on:
   push:
-    branches:
-      - main
-      - develop
   pull_request:
-    branches:
-      - main
-      - develop
   workflow_dispatch:
 
 env:
   JAVA_VERSION: '21'
   MAVEN_OPTS: '-Dmaven.repo.local=.m2/repository'
 
+# Order: compile → ktlint → then frontend-build, unit-test, integration-test in parallel.
 jobs:
   compile:
     name: Compile
@@ -43,6 +39,7 @@ jobs:
   ktlint:
     name: ktlint Check
     runs-on: ubuntu-22.04
+    needs: compile
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -67,7 +64,7 @@ jobs:
   unit-test:
     name: Unit Tests
     runs-on: ubuntu-22.04
-    needs: compile
+    needs: ktlint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -92,7 +89,7 @@ jobs:
   integration-test:
     name: Integration Tests
     runs-on: ubuntu-22.04
-    needs: compile
+    needs: ktlint
     services:
       docker:
         image: docker:20-dind
@@ -134,6 +131,7 @@ jobs:
   frontend-build:
     name: Frontend Build
     runs-on: ubuntu-22.04
+    needs: ktlint
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
