@@ -14,6 +14,7 @@ import {
 import { env } from "@/config/env"
 import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
+import { EMBED_CAMERA_DISTANCE } from "../constants/embedCameraDistance"
 import type { Model3dConfig } from "../types/model3dConfig"
 import {
   addDebugVisualization,
@@ -117,10 +118,11 @@ function CameraPositionSync({ position }: { position: [number, number, number] }
 const ZOOM_MIN_DEFAULT = 1
 const ZOOM_MAX_DEFAULT = 10
 const ZOOM_DEFAULT_DISTANCE = 2
-const ZOOM_MIN_EMBED = 3
-const ZOOM_MAX_EMBED = 11
+
+const ZOOM_MIN_EMBED = EMBED_CAMERA_DISTANCE.min
+const ZOOM_MAX_EMBED = EMBED_CAMERA_DISTANCE.max
 /** Default zoom for embed when no preference saved – more zoomed in than configurator. */
-const ZOOM_DEFAULT_EMBED = 4
+const ZOOM_DEFAULT_EMBED = EMBED_CAMERA_DISTANCE.default
 
 export type Model3dEffect = {
   meshNode: string

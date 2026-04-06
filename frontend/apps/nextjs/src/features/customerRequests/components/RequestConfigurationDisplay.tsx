@@ -68,7 +68,7 @@ export const RequestConfigurationDisplay = ({
 
   return (
     <div className="space-y-4">
-      {/* User choices – grouped by component when we have labels */}
+      {/* User choices – attribute + value only (component name omitted for readability) */}
       {userChoices.length > 0 && (
         <div className="space-y-3">
           <Typography
@@ -86,9 +86,7 @@ export const RequestConfigurationDisplay = ({
                   key={i}
                   className="flex flex-wrap items-baseline gap-x-2 gap-y-1"
                 >
-                  <dt className="text-muted-foreground">
-                    {item.componentLabel} · {item.attributeLabel}:
-                  </dt>
+                  <dt className="text-muted-foreground">{item.attributeLabel}:</dt>
                   <dd className="font-medium tabular-nums">{item.displayValue}</dd>
                 </div>
               ))}

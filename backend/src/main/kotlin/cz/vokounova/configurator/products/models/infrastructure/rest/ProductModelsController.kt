@@ -102,6 +102,7 @@ class ProductModelsController(
         @RequestParam(required = false) ids: List<UUID>?,
         @RequestParam(required = false) userIds: List<UUID>?,
         @RequestParam(required = false) isActive: Boolean?,
+        @RequestParam(required = false) isPublished: Boolean?,
     ): ResponseEntity<ProductModelPaginatedResponseDto> {
         val queryParamsDto =
             ProductModelListQueryParams(
@@ -110,6 +111,7 @@ class ProductModelsController(
                 ids = ids,
                 userIds = userIds,
                 isActive = isActive,
+                isPublished = isPublished,
             )
 
         queryParamsValidator.validate(queryParamsDto).throwIfNotEmpty()

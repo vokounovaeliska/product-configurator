@@ -170,6 +170,7 @@
       "filterToDate": "To date",
       "clearFilters": "Clear filters",
       "listHeaders": {
+        "preview": "Preview",
         "product": "Product",
         "customer": "Customer",
         "email": "Email",
@@ -178,6 +179,8 @@
         "price": "Price",
         "status": "Status"
       },
+      "noPreview": "No preview image",
+      "previewAlt": "Configuration preview for {product}",
       "noMessage": "—",
       "status": {
         "NEW": "New",
@@ -195,6 +198,7 @@
       },
       "detail": {
         "title": "Inquiry details",
+        "quickSummary": "Quick summary",
         "snapshot": "Configuration snapshot",
         "configuration": "Configuration",
         "configurationEmpty": "No options selected",
@@ -422,12 +426,16 @@
       },
       "embedCodeTitle": "Embed code",
       "embedPreviewTitle": "Embed preview",
+      "embedPreviewLiveHint": "Updates live as you move the zoom slider. Save to apply the default for real embeds.",
+      "embedPreviewLoadError": "Could not load the preview.",
       "copyEmbed": "Copy iframe",
       "copied": "Copied!",
       "previewEmbed": "Preview embed",
       "embedDisplay": {
         "title": "Embed display options",
         "description": "Choose what to show in the embedded configurator.",
+        "defaultZoomLabel": "Default 3D zoom (what customers see)",
+        "defaultZoomHint": "Lower = closer to the product; higher = farther away. Applies when the embed first loads.",
         "showProductName": "Product name",
         "showDescription": "Description",
         "showComponents": "Component selector",

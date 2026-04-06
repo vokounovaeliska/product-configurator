@@ -6,4 +6,5 @@ data class ProductModelFilter(
     val ids: List<ProductModelId>? = null,
     val userIds: List<UserIdDto>? = null,
     val isActive: Boolean? = null,
+    val isPublished: Boolean? = null,
 )

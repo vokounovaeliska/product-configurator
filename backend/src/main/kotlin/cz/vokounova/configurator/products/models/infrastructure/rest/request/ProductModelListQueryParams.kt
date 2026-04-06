@@ -8,4 +8,5 @@ data class ProductModelListQueryParams(
     val ids: List<UUID>? = null,
     val userIds: List<UUID>? = null,
     val isActive: Boolean? = null,
+    val isPublished: Boolean? = null,
 )
