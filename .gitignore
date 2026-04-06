@@ -101,7 +101,6 @@ tools/sketchup-plugin/vendor/
 tools/sketchup-plugin/.bundle/
 tools/sketchup-plugin/.rubocop_cache/
 
-### SketchUp plugin bundles (build with pnpm plugin:package; do not commit binaries) ###
+### SketchUp plugin bundles (local build artifacts under tools/ only) ###
 tools/sketchup-plugin/*.rbz
 tools/sketchup-plugin/configurator_dc_export.rbz
-frontend/apps/nextjs/public/downloads/konfiguruj_export.rbz
