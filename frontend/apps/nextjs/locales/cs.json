@@ -132,7 +132,7 @@
       "pricingRules": "Cenová pravidla",
       "productModels": "Modely produktů",
       "importSketchup": "Import ze SketchUp",
-      "publish": "Publikování a vložení",
+      "publish": "E-mail a notifikace",
       "title": "Nastavení"
     },
     "quickActions": "Rychlé akce",
@@ -143,7 +143,7 @@
       "configure": "Konfigurovat"
     },
     "Publish": {
-      "title": "Publikování a vložení",
+      "title": "E-mail a notifikace",
       "description": "Nakonfigurujte šablony e-mailů a nastavení oznámení jednou. Platí pro všechny vaše modely produktů.",
       "emailTemplateTitle": "Šablona e-mailu pro cenové poptávky",
       "emailTemplateDescription": "Přizpůsobte potvrzovací e-mail odesílaný zákazníkům při odeslání cenové poptávky. Tato šablona se používá pro všechny vaše publikované konfigurátory.",

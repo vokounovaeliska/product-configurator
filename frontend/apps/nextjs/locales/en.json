@@ -133,7 +133,7 @@
       "pricingRules": "Pricing rules",
       "productModels": "Product Models",
       "importSketchup": "Import from SketchUp",
-      "publish": "Publish & Embed",
+      "publish": "Email & notifications",
       "title": "Setup"
     },
     "quickActions": "Quick actions",
@@ -144,7 +144,7 @@
       "configure": "Configure"
     },
     "Publish": {
-      "title": "Publish & Embed",
+      "title": "Email & notifications",
       "description": "Configure email templates and notification settings once. These apply to all your product models.",
       "emailTemplateTitle": "Quote request email template",
       "emailTemplateDescription": "Customize the confirmation email sent to customers when they submit a quote request. This template is used for all your published configurators.",
