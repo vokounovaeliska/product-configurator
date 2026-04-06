@@ -1,7 +1,7 @@
 /**
  * Parametric transform pipeline for SketchUp-derived GLB models.
  * Resolves formulas (parent!length, parent!width, LenX, etc.) and computes position/scale deltas.
- * SketchUp Z-up: X = length, Z = width (second horizontal), Y = height.
+ * DC `x,y,z` and Len* are treated in the same axis order as the glTF scene (see SketchUp export).
  */
 
 import type { Model3dConfig } from "../types/model3dConfig"
@@ -53,7 +53,6 @@ export type DeltaTransformFromUserParams = {
   scale: [number, number, number]
 }
 
-/** Identity axis mapping: SketchUp Z-up (X=length, Y=height, Z=width). */
 export type AxisMapping = "x" | "y" | "z"
 
 /** Maps JSON axis string to scene axis (identity). */
@@ -272,7 +271,9 @@ function safeEvalExpression(expr: string): number {
   const trimmed = expr.trim()
   if (!trimmed) return 0
   const sanitized = trimmed.replace(/[^\d.\s+\-*/()]/g, "")
-  if (sanitized !== trimmed.replace(/\s/g, "")) return 0
+  // Reject only when disallowed characters were stripped (not when spaces differ).
+  const withoutSpaces = (s: string) => s.replace(/\s/g, "")
+  if (withoutSpaces(sanitized) !== withoutSpaces(trimmed)) return 0
   try {
     return evaluateNumericExpression(sanitized)
   } catch {
@@ -599,9 +600,13 @@ export function areParamsAtDefaults(
   return true
 }
 
+/** Returns true if the transform has explicit position (x, y, or z). */
+function hasPositionFormula(t: ComponentTransform): boolean {
+  return "x" in t || "y" in t || "z" in t
+}
+
 /**
- * Computes target transforms (position in GLB units, scale as ratio for delta).
- * Scale in result is targetLen/baseLen per axis (used only when defaultResolved missing).
+ * Computes target transforms (position in GLB units, scale as ratio vs default-resolved Len*).
  */
 export function computeTargetTransforms(
   transforms: Record<string, ComponentTransform>,
@@ -632,11 +637,6 @@ export function computeTargetTransforms(
     }
   }
   return result
-}
-
-/** Returns true if the transform has explicit position (x, y, or z). */
-function hasPositionFormula(t: ComponentTransform): boolean {
-  return "x" in t || "y" in t || "z" in t
 }
 
 /** Computes delta transforms from baseline (position delta, scale ratio). */

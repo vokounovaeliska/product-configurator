@@ -188,6 +188,12 @@ class ProductModelRepositoryDB(
             )
         }
 
+        filter.isPublished?.let { isPublished ->
+            conditions.add(
+                PRODUCT_MODEL.IS_PUBLISHED.eq(isPublished),
+            )
+        }
+
         return conditions
     }
 }

@@ -46,4 +46,5 @@ fun ProductModelListQueryParams.toFilter(): ProductModelFilter =
         ids = ids?.map { ProductModelId(it) },
         userIds = userIds?.map { UserIdDto(it) },
         isActive = isActive,
+        isPublished = isPublished,
     )
