@@ -11,6 +11,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Typography } from "@workspace/ui/components/typography"
 
 import type { ProductModelDto } from "@/api/productModelTypes"
+import { formatMoneyMainAndCurrency, parseWholeCurrencyInput } from "@/lib/moneyFormat"
 
 import { useUpdateProductModel } from "../api/productModelQueries"
 
@@ -19,7 +20,8 @@ const CURRENCIES = ["CZK", "EUR", "USD", "GBP"] as const
 type RowState = {
   name: string
   description: string
-  price: number
+  /** Major currency units while editing (allows empty field without forcing 0). */
+  priceInput: string
   currency: string
   isActive: boolean
 }
@@ -27,7 +29,7 @@ type RowState = {
 const toRowState = (p: ProductModelDto): RowState => ({
   name: p.name,
   description: p.description ?? "",
-  price: p.price,
+  priceInput: String(Math.round(p.price)),
   currency: p.currency,
   isActive: p.isActive,
 })
@@ -47,10 +49,12 @@ export const ProductModelInlineForm = ({ productModel }: Props) => {
   }, [productModel])
 
   const isSaving = updateProductModel.isPending
+  const parsedPrice = parseWholeCurrencyInput(state.priceInput)
+  const effectivePrice = parsedPrice ?? 0
   const hasChanges =
     state.name !== productModel.name ||
     state.description !== (productModel.description ?? "") ||
-    state.price !== productModel.price ||
+    effectivePrice !== productModel.price ||
     state.currency !== productModel.currency ||
     state.isActive !== productModel.isActive
 
@@ -71,8 +75,8 @@ export const ProductModelInlineForm = ({ productModel }: Props) => {
     if (state.description !== (productModel.description ?? "")) {
       patches.push({ path: "SlashDescription", value: state.description || null, op: "Replace" })
     }
-    if (state.price !== productModel.price) {
-      patches.push({ path: "SlashPrice", value: state.price, op: "Replace" })
+    if (effectivePrice !== productModel.price) {
+      patches.push({ path: "SlashPrice", value: effectivePrice, op: "Replace" })
     }
     if (state.currency !== productModel.currency) {
       patches.push({ path: "SlashCurrency", value: state.currency, op: "Replace" })
@@ -113,7 +117,7 @@ export const ProductModelInlineForm = ({ productModel }: Props) => {
               {t("edit.price.label")}
             </Typography>
             <p className="text-sm font-medium">
-              {productModel.price} {productModel.currency}
+              {formatMoneyMainAndCurrency(productModel.price, productModel.currency)}
             </p>
           </div>
           <div className="space-y-1">
@@ -172,13 +176,23 @@ export const ProductModelInlineForm = ({ productModel }: Props) => {
           <Label htmlFor="pm-price">{t("edit.price.label")}</Label>
           <Input
             id="pm-price"
-            type="number"
-            step="0.01"
-            min="0"
-            value={state.price}
-            onChange={(e) =>
-              setState((p) => ({ ...p, price: Number.parseFloat(e.target.value) || 0 }))
-            }
+            inputMode="numeric"
+            autoComplete="off"
+            value={state.priceInput}
+            onChange={(e) => setState((p) => ({ ...p, priceInput: e.target.value }))}
+            onBlur={() => {
+              const p = parseWholeCurrencyInput(state.priceInput)
+              if (p !== null) {
+                setState((s) => ({ ...s, priceInput: String(p) }))
+              } else if (state.priceInput.trim() === "") {
+                setState((s) => ({ ...s, priceInput: "0" }))
+              } else {
+                setState((s) => ({
+                  ...s,
+                  priceInput: String(Math.round(productModel.price)),
+                }))
+              }
+            }}
             placeholder={t("edit.price.placeholder")}
             className="h-8"
           />

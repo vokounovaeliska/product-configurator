@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CheckIcon, ChevronDownIcon, ImageIcon, XIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -27,12 +27,17 @@ import { useAttributeOptionsList } from "@/api/attributeOptionQueries"
 import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
 import { DualRangeSlider } from "@/components/DualRangeSlider"
+import { parseMajorUnitsToCents } from "@/lib/moneyFormat"
 import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing dialog needs components list */
 import { useComponentsList } from "@/features/components/api/componentQueries"
 
 import { pricingRuleFormSchema, type PricingRuleFormSchema } from "../schemas/pricingRuleFormSchema"
+import {
+  getMaxUpperBoundForAttributeRules,
+  suggestNextBetweenLowerBound,
+} from "../utils/suggestNextBetweenLowerBound"
 
 const NO_COMPONENT_VALUE = "__none__"
 
@@ -73,6 +78,7 @@ export const CreatePricingRuleDialog = ({
 }: Props) => {
   const t = useTranslations("Pricing")
   const hasPreset = Boolean(presetComponentId && presetAttributeCode)
+  const [priceMainInput, setPriceMainInput] = useState("0")
 
   const { data: componentsData } = useComponentsList(productModelId, { limit: 100 })
   const components = componentsData?.items ?? []
@@ -113,18 +119,21 @@ export const CreatePricingRuleDialog = ({
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- boolean OR intent
     (selectedAttribute && isNumericType(selectedAttribute.type)) ||
     (hasPreset && presetNumericRange != null)
-  const numericRange: { min: number; max: number } | undefined =
-    selectedAttribute && isNumericAttribute
-      ? selectedAttribute.type === "INTEGER"
-        ? {
-            min: selectedAttribute.minInt ?? 0,
-            max: selectedAttribute.maxInt ?? 100,
-          }
-        : {
-            min: selectedAttribute.minDecimal ?? 0,
-            max: selectedAttribute.maxDecimal ?? 100,
-          }
-      : presetNumericRange
+  const numericRange = useMemo((): { min: number; max: number } | undefined => {
+    if (selectedAttribute && isNumericAttribute) {
+      if (selectedAttribute.type === "INTEGER") {
+        return {
+          min: selectedAttribute.minInt ?? 0,
+          max: selectedAttribute.maxInt ?? 100,
+        }
+      }
+      return {
+        min: selectedAttribute.minDecimal ?? 0,
+        max: selectedAttribute.maxDecimal ?? 100,
+      }
+    }
+    return presetNumericRange
+  }, [isNumericAttribute, selectedAttribute, presetNumericRange])
   const numericUnit = selectedAttribute?.unit?.trim() ?? presetNumericUnit?.trim() ?? null
   const isDecimal = selectedAttribute?.type === "DECIMAL"
   const rangeStep =
@@ -132,13 +141,46 @@ export const CreatePricingRuleDialog = ({
 
   const defaultOperatorForNumeric = presetNumericRange ? "BETWEEN" : "EQ"
 
+  const effectiveComponentId =
+    hasPreset && presetComponentId ? presetComponentId : selectedComponentId
+  const effectiveAttributeCode =
+    hasPreset && presetAttributeCode ? presetAttributeCode : selectedAttributeCode
+
+  const suggestedBetweenLower = useMemo(() => {
+    if (!isNumericAttribute || !numericRange) return null
+    if (!effectiveComponentId || !effectiveAttributeCode) return null
+    const maxUpper = getMaxUpperBoundForAttributeRules(
+      existingRules,
+      effectiveComponentId,
+      effectiveAttributeCode,
+    )
+    return suggestNextBetweenLowerBound({
+      maxUpper,
+      isDecimal,
+      numericMax: numericRange.max,
+    })
+  }, [
+    isNumericAttribute,
+    numericRange,
+    effectiveComponentId,
+    effectiveAttributeCode,
+    existingRules,
+    isDecimal,
+  ])
+
+  const watchedOperator = form.watch("operator")
+
   useEffect(() => {
+    if (isOpen) {
+      setPriceMainInput("0")
+    }
     if (isOpen && hasPreset && presetComponentId && presetAttributeCode) {
+      const op = presetOperator ?? defaultOperatorForNumeric
       form.reset({
         componentId: presetComponentId,
         attributeCode: presetAttributeCode,
-        operator: presetOperator ?? defaultOperatorForNumeric,
-        value: "",
+        operator: op,
+        value: op === "BETWEEN" && suggestedBetweenLower != null ? suggestedBetweenLower : "",
         toValue: null,
         price: 0,
       })
@@ -157,8 +199,18 @@ export const CreatePricingRuleDialog = ({
     presetOperator,
     presetNumericRange,
     defaultOperatorForNumeric,
+    suggestedBetweenLower,
     form,
   ])
+
+  useEffect(() => {
+    if (!isOpen || !isNumericAttribute || numericRange == null) return
+    if (watchedOperator !== "BETWEEN") return
+    if (suggestedBetweenLower == null) return
+    const current = form.getValues("value")
+    if (current != null && String(current).trim() !== "") return
+    form.setValue("value", suggestedBetweenLower)
+  }, [isOpen, isNumericAttribute, numericRange, watchedOperator, suggestedBetweenLower, form])
 
   const { data: optionsData } = useAttributeOptionsList(
     productModelId,
@@ -168,10 +220,6 @@ export const CreatePricingRuleDialog = ({
   )
   const enumOptions = [...(optionsData ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
 
-  const effectiveComponentId =
-    hasPreset && presetComponentId ? presetComponentId : selectedComponentId
-  const effectiveAttributeCode =
-    hasPreset && presetAttributeCode ? presetAttributeCode : selectedAttributeCode
   const optionValuesWithExistingRules = (
     effectiveComponentId && effectiveAttributeCode
       ? existingRules.filter(
@@ -184,6 +232,10 @@ export const CreatePricingRuleDialog = ({
   ).map((r) => r.value)
 
   const handleSubmit: SubmitHandler<PricingRuleFormSchema> = async (values) => {
+    const priceCents = parseMajorUnitsToCents(priceMainInput.trim())
+    if (priceCents === null) {
+      return
+    }
     const componentId =
       values.componentId === NO_COMPONENT_VALUE || values.componentId == null
         ? undefined
@@ -192,7 +244,7 @@ export const CreatePricingRuleDialog = ({
       componentId,
       attributeCode: values.attributeCode,
       operator: values.operator,
-      price: values.price,
+      price: priceCents,
     }
     const valuesForSubmit =
       isEnumAttribute && values.operator === "EQ" && values.value.includes(",")
@@ -226,7 +278,12 @@ export const CreatePricingRuleDialog = ({
         </Dialog.Content.Header>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              const pc = parseMajorUnitsToCents(priceMainInput.trim()) ?? 0
+              form.setValue("price", pc, { shouldValidate: true })
+              void form.handleSubmit(handleSubmit)(e)
+            }}
             className="space-y-4"
           >
             {hasPreset ? (
@@ -695,13 +752,24 @@ export const CreatePricingRuleDialog = ({
                   <FormLabel>{t("create.price")}</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      step="0.01"
+                      inputMode="numeric"
+                      autoComplete="off"
                       placeholder="0"
-                      value={field.value != null ? field.value / 100 : ""}
-                      onChange={(e) => {
-                        const v = e.target.value
-                        field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
+                      value={priceMainInput}
+                      onChange={(e) => setPriceMainInput(e.target.value)}
+                      onBlur={() => {
+                        const p = parseMajorUnitsToCents(priceMainInput.trim())
+                        if (p !== null) {
+                          setPriceMainInput(String(Math.round(p / 100)))
+                          field.onChange(p)
+                        } else if (priceMainInput.trim() === "") {
+                          setPriceMainInput("0")
+                          field.onChange(0)
+                        } else {
+                          setPriceMainInput("0")
+                          field.onChange(0)
+                        }
+                        field.onBlur()
                       }}
                     />
                   </FormControl>

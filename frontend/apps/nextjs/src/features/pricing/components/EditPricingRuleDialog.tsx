@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
@@ -24,6 +24,7 @@ import type { AttributeDto, AttributeType } from "@/api/attributeTypes"
 import type { AttributePricingRuleDto, AttributePricingRuleUpdateDto } from "@/api/pricingTypes"
 import { DualRangeSlider } from "@/components/DualRangeSlider"
 import { api } from "@/lib/api/restClient"
+import { parseMajorUnitsToCents } from "@/lib/moneyFormat"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing dialog needs components list */
 import { useComponentsList } from "@/features/components/api/componentQueries"
@@ -68,6 +69,7 @@ export const EditPricingRuleDialog = ({
   attributeUnit: attributeUnitProp,
 }: Props) => {
   const t = useTranslations("Pricing")
+  const [priceMainInput, setPriceMainInput] = useState(() => String(Math.round(rule.price / 100)))
   const { data: componentsData } = useComponentsList(rule.productModelId, {
     limit: 100,
   })
@@ -195,10 +197,15 @@ export const EditPricingRuleDialog = ({
         toValue: rule.toValue ?? null,
         price: rule.price,
       })
+      setPriceMainInput(String(Math.round(rule.price / 100)))
     }
   }, [isOpen, rule, form])
 
   const handleSubmit = async (values: PricingRuleFormSchema) => {
+    const priceCents = parseMajorUnitsToCents(priceMainInput.trim())
+    if (priceCents === null) {
+      return
+    }
     await onSubmit({
       componentId:
         values.componentId === NO_COMPONENT_VALUE || values.componentId == null
@@ -208,7 +215,7 @@ export const EditPricingRuleDialog = ({
       operator: values.operator,
       value: values.value,
       toValue: values.toValue ?? undefined,
-      price: values.price,
+      price: priceCents,
     })
   }
 
@@ -224,7 +231,12 @@ export const EditPricingRuleDialog = ({
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              const pc = parseMajorUnitsToCents(priceMainInput.trim()) ?? 0
+              form.setValue("price", pc, { shouldValidate: true })
+              void form.handleSubmit(handleSubmit)(e)
+            }}
             className="space-y-4"
           >
             <div className="space-y-1">
@@ -479,13 +491,24 @@ export const EditPricingRuleDialog = ({
                   <FormLabel>{t("create.price")}</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      step="0.01"
+                      inputMode="numeric"
+                      autoComplete="off"
                       placeholder="0"
-                      value={field.value != null ? field.value / 100 : ""}
-                      onChange={(e) => {
-                        const v = e.target.value
-                        field.onChange(v === "" ? 0 : Math.round(Number(v) * 100))
+                      value={priceMainInput}
+                      onChange={(e) => setPriceMainInput(e.target.value)}
+                      onBlur={() => {
+                        const p = parseMajorUnitsToCents(priceMainInput.trim())
+                        if (p !== null) {
+                          setPriceMainInput(String(Math.round(p / 100)))
+                          field.onChange(p)
+                        } else if (priceMainInput.trim() === "") {
+                          setPriceMainInput("0")
+                          field.onChange(0)
+                        } else {
+                          setPriceMainInput(String(Math.round(rule.price / 100)))
+                          field.onChange(rule.price)
+                        }
+                        field.onBlur()
                       }}
                     />
                   </FormControl>

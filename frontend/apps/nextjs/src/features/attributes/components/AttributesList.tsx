@@ -24,6 +24,7 @@ import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 import { useAttributesList, useUpdateAttribute } from "../api/attributeQueries"
+import { canConvertLengthUnits, convertLengthNullable } from "../utils/lengthUnitConversion"
 import { CreateAttributeDialog } from "./CreateAttributeDialog"
 import { DeleteAttributeDialog } from "./DeleteAttributeDialog"
 
@@ -589,12 +590,67 @@ export const AttributesList = ({ productModelId, componentId }: Props) => {
                       {isNumeric ? (
                         <Input
                           value={state.unit ?? ""}
-                          onChange={(e) =>
-                            setRowState(attribute, (p) => ({
-                              ...p,
-                              unit: e.target.value || null,
-                            }))
-                          }
+                          onChange={(e) => {
+                            const newUnit = e.target.value || null
+                            setRowState(attribute, (p) => {
+                              const oldUnit = p.unit
+                              if (
+                                attribute.type === "INTEGER" &&
+                                canConvertLengthUnits(oldUnit, newUnit)
+                              ) {
+                                return {
+                                  ...p,
+                                  unit: newUnit,
+                                  minInt: convertLengthNullable(
+                                    p.minInt,
+                                    oldUnit,
+                                    newUnit,
+                                    "INTEGER",
+                                  ),
+                                  maxInt: convertLengthNullable(
+                                    p.maxInt,
+                                    oldUnit,
+                                    newUnit,
+                                    "INTEGER",
+                                  ),
+                                  defaultInt: convertLengthNullable(
+                                    p.defaultInt,
+                                    oldUnit,
+                                    newUnit,
+                                    "INTEGER",
+                                  ),
+                                }
+                              }
+                              if (
+                                attribute.type === "DECIMAL" &&
+                                canConvertLengthUnits(oldUnit, newUnit)
+                              ) {
+                                return {
+                                  ...p,
+                                  unit: newUnit,
+                                  minDecimal: convertLengthNullable(
+                                    p.minDecimal,
+                                    oldUnit,
+                                    newUnit,
+                                    "DECIMAL",
+                                  ),
+                                  maxDecimal: convertLengthNullable(
+                                    p.maxDecimal,
+                                    oldUnit,
+                                    newUnit,
+                                    "DECIMAL",
+                                  ),
+                                  defaultDecimal: convertLengthNullable(
+                                    p.defaultDecimal,
+                                    oldUnit,
+                                    newUnit,
+                                    "DECIMAL",
+                                  ),
+                                }
+                              }
+                              return { ...p, unit: newUnit }
+                            })
+                          }}
                           className="h-8 w-16"
                           placeholder="mm"
                           aria-label={t("list.columnUnit")}

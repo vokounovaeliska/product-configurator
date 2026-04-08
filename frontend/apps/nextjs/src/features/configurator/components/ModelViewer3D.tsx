@@ -3,9 +3,11 @@
 import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Center, OrbitControls, useGLTF } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { Move } from "lucide-react"
 import { useTranslations } from "next-intl"
 import * as THREE from "three"
 import { Button } from "@workspace/ui/components/button"
+import { cn } from "@workspace/ui/lib/utils"
 
 import {
   useConfiguratorPreferences,
@@ -124,6 +126,35 @@ const ZOOM_MAX_EMBED = EMBED_CAMERA_DISTANCE.max
 /** Default zoom for embed when no preference saved – more zoomed in than configurator. */
 const ZOOM_DEFAULT_EMBED = EMBED_CAMERA_DISTANCE.default
 
+/**
+ * Default direction from orbit target toward camera. Main configurator uses a slightly elevated
+ * angle (Y=2) for a “looking down” product shot; embed uses a flatter angle so the model sits
+ * nearer the vertical center of tall preview areas instead of hugging the top.
+ */
+const VIEW_DIR_DEFAULT: [number, number, number] = [0, 2, 5]
+/** Nearly level with the product so it sits near the vertical middle of the embed canvas. */
+const VIEW_DIR_EMBED: [number, number, number] = [0, 0.18, 5]
+/** World-space Y shift (negative = model lower in frame) — pairs with flat VIEW_DIR_EMBED. */
+const EMBED_SCENE_VERTICAL_BIAS = -0.22
+
+/**
+ * Extra Y (scene units) for orbit target + model group so framing tracks embed viewport size.
+ * Taller/shorter iframes and non–16:9 aspects otherwise leave the model visually high or low.
+ */
+function computeEmbedViewportYOffset(heightPx: number, widthPx: number): number {
+  if (!Number.isFinite(heightPx) || !Number.isFinite(widthPx) || heightPx < 64 || widthPx < 64) {
+    return 0
+  }
+  const heightRefPx = 360
+  const aspectRef = 16 / 9
+  const heightNorm = heightPx / heightRefPx
+  const aspect = widthPx / heightPx
+  // Taller canvas → nudge framing so the product stays visually centered
+  const fromHeight = (heightNorm - 1) * -0.12
+  const fromAspect = (aspect - aspectRef) * 0.05
+  return fromHeight + fromAspect
+}
+
 export type Model3dEffect = {
   meshNode: string
   type: "scale" | "position" | "material"
@@ -138,23 +169,65 @@ export type Model3dEffect = {
 export type { ComponentTransform } from "../utils/parametricTransformPipeline"
 export { getAttributeValueFromConfig } from "../utils/parametricTransformPipeline"
 
-/** Background presets: flat colors. previewColor used for selector swatch. Default is white. */
+/**
+ * Flat background colors for the 3D scene (no gradients / geometry).
+ * previewColor matches color — used for UI swatches.
+ */
 export const BACKGROUND_PRESETS = {
   white: { type: "color" as const, color: "#ffffff", previewColor: "#ffffff" },
+  offWhite: { type: "color" as const, color: "#f7f7f8", previewColor: "#f7f7f8" },
   lightGray: { type: "color" as const, color: "#e8e8ec", previewColor: "#e8e8ec" },
+  coolGray: { type: "color" as const, color: "#d1d5db", previewColor: "#d1d5db" },
   gray: { type: "color" as const, color: "#9ca3af", previewColor: "#9ca3af" },
+  slate: { type: "color" as const, color: "#64748b", previewColor: "#64748b" },
   dark: { type: "color" as const, color: "#374151", previewColor: "#374151" },
+  black: { type: "color" as const, color: "#0f172a", previewColor: "#0f172a" },
   warm: { type: "color" as const, color: "#f5e6d3", previewColor: "#f5e6d3" },
+  sand: { type: "color" as const, color: "#ebe4d8", previewColor: "#ebe4d8" },
+  cream: { type: "color" as const, color: "#faf8f5", previewColor: "#faf8f5" },
+  softBlue: { type: "color" as const, color: "#e3edf7", previewColor: "#e3edf7" },
+  softGreen: { type: "color" as const, color: "#e8f2ec", previewColor: "#e8f2ec" },
+  softPeach: { type: "color" as const, color: "#faf0eb", previewColor: "#faf0eb" },
+  softLavender: { type: "color" as const, color: "#f0ecf5", previewColor: "#f0ecf5" },
 } as const
 
 export type BackgroundPresetKey = keyof typeof BACKGROUND_PRESETS
 
 const DEFAULT_BACKGROUND: BackgroundPresetKey = "white"
 
-function getBackgroundConfig(preset: string | null | undefined) {
+/** Maps removed gradient preset ids to a similar solid color so old saves still look reasonable. */
+const LEGACY_BACKGROUND_PRESETS: Partial<Record<string, BackgroundPresetKey>> = {
+  openSky: "softBlue",
+  softSky: "softBlue",
+  garden: "softGreen",
+  goldenHour: "warm",
+  overcast: "coolGray",
+  terrace: "sand",
+  coastal: "softBlue",
+  floorWall: "sand",
+}
+
+export type BackgroundPresetResolved = (typeof BACKGROUND_PRESETS)[BackgroundPresetKey]
+
+function getBackgroundConfig(preset: string | null | undefined): BackgroundPresetResolved {
   if (!preset) return BACKGROUND_PRESETS[DEFAULT_BACKGROUND]
-  const key = preset as BackgroundPresetKey
+  const mapped = LEGACY_BACKGROUND_PRESETS[preset]
+  const key = (mapped ?? preset) as BackgroundPresetKey
   return BACKGROUND_PRESETS[key] ?? BACKGROUND_PRESETS[DEFAULT_BACKGROUND]
+}
+
+/** Sets the Three.js scene background (inside Canvas). */
+function SceneBackground({ config }: { config: BackgroundPresetResolved }) {
+  const { scene } = useThree()
+
+  useLayoutEffect(() => {
+    scene.background = new THREE.Color(config.color)
+    return () => {
+      scene.background = null
+    }
+  }, [scene, config])
+
+  return null
 }
 
 type Props = {
@@ -224,6 +297,27 @@ function toCm(value: number, unit: string | null | undefined): number {
     default:
       return value
   }
+}
+
+/**
+ * Reference size in cm from parameters.json / DC defaults (if present).
+ * Falls back to SketchUp-style constants when a key is missing so scale matches the exported mesh.
+ */
+function pickReferenceCm(
+  parameterDefaults: Record<string, number> | null | undefined,
+  keys: string[],
+  fallbackCm: number,
+): number {
+  if (!parameterDefaults) return fallbackCm
+  for (const key of keys) {
+    for (const c of [key, key.toLowerCase(), key.toUpperCase()]) {
+      const raw = parameterDefaults[c]
+      if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
+        return raw
+      }
+    }
+  }
+  return fallbackCm
 }
 
 type MeshMatcher = string | RegExp
@@ -991,10 +1085,22 @@ function applyConfigToScene(
               appliedScale.add(key)
               const fallbackBase =
                 axis === "x" || axis === "xz"
-                  ? BASE_WIDTH_CM
+                  ? pickReferenceCm(
+                      parameterDefaults,
+                      ["delka", "length", "lenx", "LenX"],
+                      BASE_WIDTH_CM,
+                    )
                   : axis === "y"
-                    ? BASE_HEIGHT_CM
-                    : BASE_DEPTH_CM
+                    ? pickReferenceCm(
+                        parameterDefaults,
+                        ["vyska", "height", "leny", "LenY"],
+                        BASE_HEIGHT_CM,
+                      )
+                    : pickReferenceCm(
+                        parameterDefaults,
+                        ["sirka", "width", "lenz", "LenZ", "depth"],
+                        BASE_DEPTH_CM,
+                      )
               const baseVal = defaultCm > 0 ? defaultCm : fallbackBase
               const s = Math.max(0.01, valueCm / baseVal)
               if (axis === "xz") {
@@ -1045,28 +1151,56 @@ function applyConfigToScene(
         const thicknessCm =
           thicknessWithUnit != null && thicknessWithUnit.value > 0
             ? toCm(thicknessWithUnit.value, thicknessWithUnit.unit)
-            : BASE_TLOUSTKA_CM
-        const diamScale = Math.max(0.01, diameterCm / BASE_PRUMER_CM)
-        const thickScale = Math.max(0.01, thicknessCm / BASE_TLOUSTKA_CM)
+            : pickReferenceCm(
+                parameterDefaults,
+                ["tloustka", "thickness", "thickness_top", "top_thickness", "TLOUSTKA"],
+                BASE_TLOUSTKA_CM,
+              )
+        const refPrumer = pickReferenceCm(
+          parameterDefaults,
+          ["diameter_top", "diameter", "prumer", "DIAMETER"],
+          BASE_PRUMER_CM,
+        )
+        const refTloustka = pickReferenceCm(
+          parameterDefaults,
+          ["tloustka", "thickness", "thickness_top", "top_thickness", "TLOUSTKA"],
+          BASE_TLOUSTKA_CM,
+        )
+        const diamScale = Math.max(0.01, diameterCm / refPrumer)
+        const thickScale = Math.max(0.01, thicknessCm / refTloustka)
         scaleTargetNode.scale.set(diamScale, diamScale, thickScale)
       } else if (lengthWithUnit != null || widthWithUnit != null || heightWithUnit != null) {
-        // Rectangular: length→X, width→Z, height→Y
-        const lengthCm = lengthWithUnit
-          ? toCm(lengthWithUnit.value, lengthWithUnit.unit)
-          : BASE_WIDTH_CM
-        const widthCm = widthWithUnit
-          ? toCm(widthWithUnit.value, widthWithUnit.unit)
-          : BASE_DEPTH_CM
-        const heightCm = heightWithUnit
-          ? toCm(heightWithUnit.value, heightWithUnit.unit)
-          : BASE_HEIGHT_CM
-        const scaleX = Math.max(0.01, lengthCm / BASE_WIDTH_CM)
-        const scaleZ = Math.max(0.01, widthCm / BASE_DEPTH_CM)
-        const scaleY = Math.max(0.01, heightCm / BASE_HEIGHT_CM)
+        // Rectangular: length→X, width→Z, height→Y (reference cm from parameters.json when present)
+        const refLenCm = pickReferenceCm(
+          parameterDefaults,
+          ["delka", "length", "lenx", "LenX"],
+          BASE_WIDTH_CM,
+        )
+        const refWidCm = pickReferenceCm(
+          parameterDefaults,
+          ["sirka", "width", "lenz", "LenZ", "depth"],
+          BASE_DEPTH_CM,
+        )
+        const refHgtCm = pickReferenceCm(
+          parameterDefaults,
+          ["vyska", "height", "leny", "LenY"],
+          BASE_HEIGHT_CM,
+        )
+        const lengthCm = lengthWithUnit ? toCm(lengthWithUnit.value, lengthWithUnit.unit) : refLenCm
+        const widthCm = widthWithUnit ? toCm(widthWithUnit.value, widthWithUnit.unit) : refWidCm
+        const heightCm = heightWithUnit ? toCm(heightWithUnit.value, heightWithUnit.unit) : refHgtCm
+        const scaleX = Math.max(0.01, lengthCm / refLenCm)
+        const scaleZ = Math.max(0.01, widthCm / refWidCm)
+        const scaleY = Math.max(0.01, heightCm / refHgtCm)
         scaleTargetNode.scale.set(scaleX, scaleY, scaleZ)
       } else if (thicknessWithUnit != null && thicknessWithUnit.value > 0) {
         const thicknessCm = toCm(thicknessWithUnit.value, thicknessWithUnit.unit)
-        const thickScale = Math.max(0.01, thicknessCm / BASE_TLOUSTKA_CM)
+        const refTl = pickReferenceCm(
+          parameterDefaults,
+          ["tloustka", "thickness", "thickness_top", "top_thickness", "TLOUSTKA"],
+          BASE_TLOUSTKA_CM,
+        )
+        const thickScale = Math.max(0.01, thicknessCm / refTl)
         scaleTargetNode.scale.set(1, 1, thickScale)
       }
     }
@@ -1585,6 +1719,38 @@ function InitialZoomSync({
   return null
 }
 
+/** When embed viewport offset changes after mount, shift orbit target and camera together (preserves framing). */
+function EmbedCenterYOffsetSync({
+  controlsRef,
+  centerOffsetY,
+  modelUrl,
+}: {
+  controlsRef: React.RefObject<OrbitControlsRef | null>
+  centerOffsetY: number
+  modelUrl: string
+}) {
+  const prevYRef = useRef<number | undefined>(undefined)
+  useEffect(() => {
+    prevYRef.current = undefined
+  }, [modelUrl])
+  useFrame(() => {
+    const controls = controlsRef.current
+    if (!controls) return
+    const y = centerOffsetY
+    if (prevYRef.current === undefined) {
+      prevYRef.current = y
+      return
+    }
+    if (Math.abs(prevYRef.current - y) < 1e-5) return
+    const dy = y - prevYRef.current
+    prevYRef.current = y
+    controls.target.y += dy
+    controls.object.position.y += dy
+    if (typeof controls.update === "function") controls.update()
+  })
+  return null
+}
+
 /** Syncs cameraDistanceOverride to OrbitControls when slider changes. */
 function CameraDistanceOverrideSync({
   controlsRef,
@@ -1643,6 +1809,7 @@ function SceneWithCapture({
   savedZoomDistance,
   enableZoom: canZoom,
   centerOffsetY = 0,
+  isEmbedInteractionLocked = false,
 }: {
   modelUrl: string
   config?: Model3dConfig | null
@@ -1661,9 +1828,13 @@ function SceneWithCapture({
   /** When false, disables zoom. When undefined, uses zoomPreset !== "thumbnail". */
   enableZoom?: boolean
   centerOffsetY?: number
+  /** Embed: when true, orbit/zoom/pan disabled until user interacts (see parent overlay). */
+  isEmbedInteractionLocked?: boolean
 }) {
   const controlsRef = useRef<OrbitControlsRef>(null)
   const shouldUseCenter = !isRenderRawGlb
+  const isOrbitEnabled =
+    zoomPreset !== "thumbnail" && !(zoomPreset === "embed" && isEmbedInteractionLocked)
 
   const model = (
     <Model
@@ -1694,9 +1865,9 @@ function SceneWithCapture({
       )}
       <OrbitControls
         ref={controlsRef}
-        enablePan={zoomPreset !== "thumbnail"}
-        enableZoom={canZoom ?? zoomPreset !== "thumbnail"}
-        enableRotate={zoomPreset !== "thumbnail"}
+        enablePan={isOrbitEnabled}
+        enableZoom={isOrbitEnabled && (canZoom ?? true)}
+        enableRotate={isOrbitEnabled}
         {...(zoomPreset === "default" && {
           minDistance: ZOOM_MIN_DEFAULT,
           maxDistance: ZOOM_MAX_DEFAULT,
@@ -1713,6 +1884,13 @@ function SceneWithCapture({
         savedZoomDistance={savedZoomDistance}
         centerOffsetY={centerOffsetY}
       />
+      {zoomPreset === "embed" && (
+        <EmbedCenterYOffsetSync
+          controlsRef={controlsRef}
+          centerOffsetY={centerOffsetY}
+          modelUrl={modelUrl}
+        />
+      )}
       {zoomPreset !== "thumbnail" && (
         <>
           <CameraDistanceOverrideSync
@@ -1772,7 +1950,43 @@ export const ModelViewer3D = ({
 }: Props) => {
   const t = useTranslations("Configurator.preview")
   const [isContextLost, setIsContextLost] = useState(false)
+  const [isEmbedInteractionUnlocked, setIsEmbedInteractionUnlocked] = useState(false)
   const handleContextLost = useCallback(() => setIsContextLost(true), [])
+  const isEmbedInteractionLocked = zoomPreset === "embed" && !isEmbedInteractionUnlocked
+
+  useEffect(() => {
+    setIsEmbedInteractionUnlocked(false)
+  }, [modelUrl])
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [embedViewportSize, setEmbedViewportSize] = useState({ width: 0, height: 0 })
+
+  useLayoutEffect(() => {
+    if (zoomPreset !== "embed") {
+      setEmbedViewportSize({ width: 0, height: 0 })
+      return
+    }
+    const el = containerRef.current
+    if (!el) return
+    const ro = new ResizeObserver((entries) => {
+      const cr = entries[0]?.contentRect
+      if (!cr) return
+      setEmbedViewportSize({ width: cr.width, height: cr.height })
+    })
+    ro.observe(el)
+    setEmbedViewportSize({ width: el.clientWidth, height: el.clientHeight })
+    return () => ro.disconnect()
+  }, [zoomPreset, modelUrl])
+
+  const resolvedCenterOffsetY = useMemo(() => {
+    const base = centerOffsetY ?? 0
+    if (zoomPreset !== "embed") return base
+    return (
+      base +
+      EMBED_SCENE_VERTICAL_BIAS +
+      computeEmbedViewportYOffset(embedViewportSize.height, embedViewportSize.width)
+    )
+  }, [zoomPreset, centerOffsetY, embedViewportSize.height, embedViewportSize.width])
 
   const isRenderRawGlb = getRenderRawGlb(isRenderRawGlbProp)
   const { model3dEffectsMap, componentTransforms, parameterDefaults, materialsFromZip } =
@@ -1890,15 +2104,15 @@ export const ModelViewer3D = ({
     Boolean(productModelId) && zoomPreset !== "thumbnail" && zoomPreset !== "embed"
 
   const cameraPosition: [number, number, number] = useMemo(() => {
-    const defaultPos = zoomPreset === "embed" ? [0, 2, 5] : [0, 2, 5]
+    const defaultPos = zoomPreset === "embed" ? VIEW_DIR_EMBED : VIEW_DIR_DEFAULT
     const dir = new THREE.Vector3(defaultPos[0], defaultPos[1], defaultPos[2]).normalize()
     const defaultDistance = zoomPreset === "embed" ? ZOOM_DEFAULT_EMBED : ZOOM_DEFAULT_DISTANCE
     const distance =
       zoomPreset === "thumbnail" ? ZOOM_DEFAULT_DISTANCE : (savedZoomDistance ?? defaultDistance)
-    const targetY = centerOffsetY ?? 0
+    const targetY = resolvedCenterOffsetY
     const target = new THREE.Vector3(0, targetY, 0)
     return target.clone().add(dir.multiplyScalar(distance)).toArray() as [number, number, number]
-  }, [zoomPreset, savedZoomDistance, centerOffsetY])
+  }, [zoomPreset, savedZoomDistance, resolvedCenterOffsetY])
 
   if (isContextLost) {
     return (
@@ -1920,7 +2134,12 @@ export const ModelViewer3D = ({
 
   return (
     <div
-      className={`relative h-full min-h-[40vh] w-full ${className ?? ""}`}
+      ref={containerRef}
+      className={cn(
+        "relative h-full w-full",
+        zoomPreset === "embed" ? "min-h-0" : "min-h-[40vh]",
+        className,
+      )}
       style={{ touchAction: "none" }}
     >
       <Canvas
@@ -1928,10 +2147,7 @@ export const ModelViewer3D = ({
         gl={{ antialias: true, preserveDrawingBuffer: canCapture ?? false }}
       >
         {/* eslint-disable react/no-unknown-property -- R3F/Three.js: attach, args, intensity, position */}
-        <color
-          attach="background"
-          args={[backgroundConfig.color]}
-        />
+        <SceneBackground config={backgroundConfig} />
         <CameraPositionSync position={cameraPosition} />
         <WebGLContextLossHandler onContextLost={handleContextLost} />
         <ambientLight intensity={1.2} />
@@ -1961,10 +2177,40 @@ export const ModelViewer3D = ({
             onCameraDistanceChange={onCameraDistanceChange}
             savedZoomDistance={savedZoomDistance}
             enableZoom={canZoom}
-            centerOffsetY={centerOffsetY}
+            centerOffsetY={resolvedCenterOffsetY}
+            isEmbedInteractionLocked={isEmbedInteractionLocked}
           />
         </Suspense>
       </Canvas>
+      {zoomPreset === "embed" && (
+        <>
+          <div
+            className="pointer-events-none absolute top-3 right-3 z-[12] flex items-center justify-center rounded-md border border-border/80 bg-background/90 p-2 text-muted-foreground shadow-sm backdrop-blur-sm"
+            role="img"
+            aria-label={t("embedMoveHint")}
+          >
+            <Move
+              className="size-4 shrink-0 opacity-90"
+              aria-hidden
+            />
+          </div>
+          {isEmbedInteractionLocked && (
+            <button
+              type="button"
+              aria-label={t("embedClickToInteract")}
+              className="absolute inset-0 z-[11] cursor-pointer touch-manipulation bg-transparent"
+              onPointerDown={(e) => {
+                e.preventDefault()
+                setIsEmbedInteractionUnlocked(true)
+              }}
+              onWheel={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+            />
+          )}
+        </>
+      )}
     </div>
   )
 }

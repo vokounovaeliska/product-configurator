@@ -16,12 +16,22 @@ type Props = {
   productModel: ProductModelDto
   /** Clamped live camera distance; updates the 3D view as the user drags the slider. */
   liveCameraDistance: number
+  /** Draft embed chrome (publish tab) — applied immediately in preview without saving. */
+  embedUiOverrides: {
+    showProductName: boolean
+    showDescription: boolean
+    showComponents: boolean
+  }
 }
 
 /**
  * Same embed UI as the public iframe, loaded in-page so zoom reacts live to the publish-tab slider.
  */
-export function PublishEmbedLivePreview({ productModel, liveCameraDistance }: Props) {
+export function PublishEmbedLivePreview({
+  productModel,
+  liveCameraDistance,
+  embedUiOverrides,
+}: Props) {
   const t = useTranslations("ProductModels.Publish")
   const {
     data: config,
@@ -54,18 +64,17 @@ export function PublishEmbedLivePreview({ productModel, liveCameraDistance }: Pr
   }
 
   return (
-    <div className="flex max-h-[min(75vh,900px)] min-h-[400px] flex-col overflow-hidden rounded-lg border bg-muted/30">
-      <div className="min-h-0 flex-1 overflow-auto">
-        <EmbedConfigurator
-          product={config.product}
-          components={config.components}
-          attributesByComponent={config.attributesByComponent}
-          optionsByAttribute={config.optionsByAttribute}
-          pricingRules={config.pricingRules}
-          configuratorPreferences={config.configuratorPreferences}
-          publishLiveCameraDistance={liveCameraDistance}
-        />
-      </div>
+    <div className="flex w-full flex-col rounded-lg border bg-muted/30">
+      <EmbedConfigurator
+        product={config.product}
+        components={config.components}
+        attributesByComponent={config.attributesByComponent}
+        optionsByAttribute={config.optionsByAttribute}
+        pricingRules={config.pricingRules}
+        configuratorPreferences={config.configuratorPreferences}
+        publishLiveCameraDistance={liveCameraDistance}
+        embedUiOverrides={embedUiOverrides}
+      />
     </div>
   )
 }

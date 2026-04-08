@@ -11,6 +11,32 @@ import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
 import { AttributeConfiguration } from "./AttributeConfiguration"
 
+function ComponentConfiguratorHelp() {
+  const t = useTranslations("Configurator")
+
+  return (
+    <div className="space-y-2">
+      <Typography
+        as="p"
+        variant="body-sm"
+        className="leading-relaxed text-muted-foreground"
+      >
+        {t("components.intro")}
+      </Typography>
+      <details className="rounded-lg border border-border/80 bg-muted/20 text-sm">
+        <summary className="cursor-pointer list-none px-3 py-2.5 font-medium text-foreground transition-colors hover:bg-muted/40 [&::-webkit-details-marker]:hidden">
+          {t("components.helpTitle")}
+        </summary>
+        <ol className="list-decimal space-y-1.5 border-t border-border/60 px-3 py-3 pl-8 text-muted-foreground">
+          <li>{t("components.helpStep1")}</li>
+          <li>{t("components.helpStep2")}</li>
+          <li>{t("components.helpStep3")}</li>
+        </ol>
+      </details>
+    </div>
+  )
+}
+
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
 type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
 
@@ -34,6 +60,10 @@ type Props = {
   optionsByAttribute?: Record<string, AttributeOptionDto[]>
   /** When false, show attributes in flat list without component cards. Default true. */
   shouldShowComponents?: boolean
+  /** Intro + “how it works” under the section title. Default off — enable for onboarding-style help. */
+  shouldShowConfiguratorHelp?: boolean
+  /** When false with flat list, hide duplicate “Configuration” heading inside each block. Default true. */
+  shouldShowAttributeSectionHeading?: boolean
 }
 
 export const ComponentSelector = ({
@@ -50,6 +80,8 @@ export const ComponentSelector = ({
   attributesByComponent,
   optionsByAttribute,
   shouldShowComponents = true,
+  shouldShowConfiguratorHelp = false,
+  shouldShowAttributeSectionHeading = true,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -79,6 +111,7 @@ export const ComponentSelector = ({
         >
           {t("attributes.title")}
         </Typography>
+        {shouldShowConfiguratorHelp && <ComponentConfiguratorHelp />}
         <div className="space-y-3">
           {sortedComponents.map((component) => {
             const attrs = [...(attributesByComponent[component.id] ?? [])].sort(
@@ -109,6 +142,7 @@ export const ComponentSelector = ({
                   currency={currency}
                   attributes={attrs}
                   optionsByAttribute={optionsByAttribute}
+                  shouldShowSectionHeading={shouldShowAttributeSectionHeading}
                 />
               </Card>
             )
@@ -127,6 +161,7 @@ export const ComponentSelector = ({
       >
         {t("components.title")}
       </Typography>
+      {shouldShowConfiguratorHelp && <ComponentConfiguratorHelp />}
 
       <div className="space-y-3">
         {sortedComponents.map((component) => {
@@ -184,6 +219,7 @@ export const ComponentSelector = ({
                       currency={currency}
                       attributes={attributesByComponent?.[component.id]}
                       optionsByAttribute={optionsByAttribute}
+                      shouldShowSectionHeading={shouldShowAttributeSectionHeading}
                     />
                   </div>
                 )}

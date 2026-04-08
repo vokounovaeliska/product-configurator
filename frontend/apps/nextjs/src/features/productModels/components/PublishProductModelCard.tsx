@@ -20,7 +20,6 @@ import type { ProductModelDto } from "@/api/productModelTypes"
 import { env } from "@/config/env"
 import { ROUTES } from "@/lib/routes"
 import { extractErrorMessage } from "@/lib/utils"
- 
 import { getEmbedBaseUrl } from "@/utils/embedUrl"
 
 /* eslint-disable import/no-restricted-paths -- shared orbit zoom range for embed (same as ModelViewer3D) */
@@ -239,7 +238,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
               {t("description")}
             </Typography>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span
               className={cn(
                 "rounded-full px-3 py-1 text-sm font-medium",
@@ -250,22 +249,26 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
             >
               {productModel.isPublished ? t("status.published") : t("status.draft")}
             </span>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="publish-toggle"
-                checked={Boolean(productModel.isPublished)}
-                onCheckedChange={(value) => handlePublishToggle(Boolean(value))}
-                disabled={
-                  updateProductModel.isPending || (!productModel.isPublished && !canPublish)
-                }
-              />
-              <Label
-                htmlFor="publish-toggle"
-                className="cursor-pointer text-sm font-medium"
+            {productModel.isPublished ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => void handlePublishToggle(false)}
+                disabled={updateProductModel.isPending}
               >
-                {t("publishToggle")}
-              </Label>
-            </div>
+                {t("unpublishButton")}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => void handlePublishToggle(true)}
+                disabled={updateProductModel.isPending || !canPublish}
+              >
+                {t("publishButton")}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -512,9 +515,14 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                   {t("embedPreviewLiveHint")}
                 </Typography>
                 <PublishEmbedLivePreview
-                  key={`${isEmbedProductNameShownFromServer}-${isEmbedDescriptionShownFromServer}-${isEmbedComponentsShownFromServer}-${String(preferences?.zoomDistanceEmbed ?? "d")}`}
+                  key={productModel.id}
                   productModel={productModel}
                   liveCameraDistance={clampEmbedZoom(embedZoom)}
+                  embedUiOverrides={{
+                    showProductName: shouldShowProductNameInEmbed,
+                    showDescription: shouldShowDescriptionInEmbed,
+                    showComponents: shouldShowComponentsInEmbed,
+                  }}
                 />
               </div>
             </div>

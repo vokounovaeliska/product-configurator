@@ -141,7 +141,7 @@
       "general": "General",
       "pricing": "Pricing",
       "publish": "Publish",
-      "configure": "Configure"
+      "configure": "Preview"
     },
     "Publish": {
       "title": "Email & notifications",
@@ -327,7 +327,7 @@
   "ProductModels": {
     "card": {
       "active": "Active",
-      "configureButton": "Configure",
+      "configureButton": "Preview",
       "noPreview": "No 3D model",
       "deleteButton": "Delete",
       "editButton": "Edit",
@@ -408,6 +408,8 @@
         "draft": "Draft"
       },
       "publishToggle": "Published",
+      "publishButton": "Publish",
+      "unpublishButton": "Unpublish",
       "urlLabel": "Embed URL",
       "urlPlaceholder": "e.g. my-round-table",
       "urlHint": "Lowercase letters, numbers and hyphens only. Unique among your products. Public embed: /e/your-account-id/your-url",
@@ -528,7 +530,7 @@
   },
   "Embed": {
     "title": "Konfiguruj",
-    "requestQuote": "Request quote",
+    "requestQuote": "Order",
     "priceBreakdown": "Base {base} + options {modifier}",
     "resetConfiguration": "Reset configuration",
     "requestQuoteDialog": {
@@ -570,7 +572,12 @@
     "components": {
       "title": "Components",
       "emptyState": "No components available for this product model.",
-      "progress": "{current} of {total} configured"
+      "progress": "{current} of {total} configured",
+      "intro": "Components group related choices (for example material or size). Open one to set its attributes—the preview and price update as you go.",
+      "helpTitle": "How configuration works",
+      "helpStep1": "Click a component to expand it and see its attributes.",
+      "helpStep2": "Choose an option or enter a value for each attribute.",
+      "helpStep3": "The product preview and total price reflect your choices automatically."
     },
     "attributes": {
       "title": "Configuration",
@@ -592,7 +599,9 @@
       "loadError": "Failed to load preview.",
       "loading3d": "Loading 3D model…",
       "contextLost": "3D view unavailable. WebGL context was lost.",
-      "retry": "Retry"
+      "retry": "Retry",
+      "embedClickToInteract": "Click to enable 3D view — rotate, pan, and zoom",
+      "embedMoveHint": "Drag to rotate · scroll to zoom"
     },
     "previewSettings": {
       "title": "Preview settings",
@@ -600,12 +609,21 @@
       "zoomLabel": "Zoom level",
       "backgroundLabel": "Background",
       "backgroundPresets": {
-        "lightGray": "Light gray",
         "white": "White",
+        "offWhite": "Off-white",
+        "lightGray": "Light gray",
+        "coolGray": "Cool gray",
         "gray": "Gray",
-        "dark": "Dark",
-        "warm": "Warm",
-        "floorWall": "Floor & wall photo"
+        "slate": "Slate",
+        "dark": "Dark gray",
+        "black": "Near black",
+        "warm": "Warm beige",
+        "sand": "Sand",
+        "cream": "Cream",
+        "softBlue": "Soft blue",
+        "softGreen": "Soft green",
+        "softPeach": "Soft peach",
+        "softLavender": "Soft lavender"
       },
       "save": "Save",
       "saving": "Saving…",
@@ -708,6 +726,8 @@
     },
     "list": {
       "title": "Pricing rules",
+      "helpPricingRules": "Each rule adds an amount to the product base price when its condition matches the customer’s configuration. \"Equals\" applies to a single value; \"Range\" applies when the number falls between two bounds. Rules for different attributes add together: the final price is the base price plus the sum of all matching rule amounts.",
+      "helpComponentsAttributes": "Components are the main parts of your product (for example tabletop, legs, frame). Each component has attributes—what customers configure, such as size, material, or color. Pricing rules always target one attribute on one component, so the surcharge applies only when that part of the configuration matches.",
       "createButton": "Add rule",
       "emptyState": "No pricing rules yet. Add rules to adjust price by attribute values.",
       "errorMessage": "Failed to load pricing rules.",

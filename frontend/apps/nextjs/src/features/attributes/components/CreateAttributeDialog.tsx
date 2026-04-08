@@ -25,6 +25,7 @@ import { DualRangeSlider } from "@/components/DualRangeSlider"
 
 import { useCreateAttribute } from "../api/attributeQueries"
 import { getAttributeFormSchema, type AttributeFormSchema } from "../schemas/attributeFormSchema"
+import { canConvertLengthUnits, convertLengthValue } from "../utils/lengthUnitConversion"
 
 type Props = {
   productModelId: string
@@ -66,6 +67,43 @@ export const CreateAttributeDialog = ({
   })
 
   const selectedType = form.watch("type")
+
+  const applyLengthUnitChange = (previousUnit: string | null, newUnit: string | null) => {
+    if (!canConvertLengthUnits(previousUnit, newUnit)) return
+    if (selectedType === "INTEGER") {
+      const minI = form.getValues("minInt")
+      const maxI = form.getValues("maxInt")
+      const defI = form.getValues("defaultInt")
+      if (minI != null) {
+        const c = convertLengthValue(minI, previousUnit, newUnit, "INTEGER")
+        if (c != null) form.setValue("minInt", c)
+      }
+      if (maxI != null) {
+        const c = convertLengthValue(maxI, previousUnit, newUnit, "INTEGER")
+        if (c != null) form.setValue("maxInt", c)
+      }
+      if (defI != null) {
+        const c = convertLengthValue(defI, previousUnit, newUnit, "INTEGER")
+        if (c != null) form.setValue("defaultInt", c)
+      }
+    } else if (selectedType === "DECIMAL") {
+      const minD = form.getValues("minDecimal")
+      const maxD = form.getValues("maxDecimal")
+      const defD = form.getValues("defaultDecimal")
+      if (minD != null) {
+        const c = convertLengthValue(minD, previousUnit, newUnit, "DECIMAL")
+        if (c != null) form.setValue("minDecimal", c)
+      }
+      if (maxD != null) {
+        const c = convertLengthValue(maxD, previousUnit, newUnit, "DECIMAL")
+        if (c != null) form.setValue("maxDecimal", c)
+      }
+      if (defD != null) {
+        const c = convertLengthValue(defD, previousUnit, newUnit, "DECIMAL")
+        if (c != null) form.setValue("defaultDecimal", c)
+      }
+    }
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -283,9 +321,12 @@ export const CreateAttributeDialog = ({
                           placeholder={t("create.unitPlaceholder")}
                           {...field}
                           value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value === "" ? null : e.target.value)
-                          }
+                          onChange={(e) => {
+                            const prev = field.value ?? null
+                            const next = e.target.value === "" ? null : e.target.value
+                            field.onChange(next)
+                            applyLengthUnitChange(prev, next)
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -361,9 +402,12 @@ export const CreateAttributeDialog = ({
                           placeholder={t("create.unitPlaceholder")}
                           {...field}
                           value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value === "" ? null : e.target.value)
-                          }
+                          onChange={(e) => {
+                            const prev = field.value ?? null
+                            const next = e.target.value === "" ? null : e.target.value
+                            field.onChange(next)
+                            applyLengthUnitChange(prev, next)
+                          }}
                         />
                       </FormControl>
                       <FormMessage />

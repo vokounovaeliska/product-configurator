@@ -17,6 +17,17 @@ import { getAttributeOptionsListQueryOptions } from "@/api/attributeOptionQuerie
 import { useAllAttributesForProductModel } from "@/api/attributeQueries"
 import type { AttributeType } from "@/api/attributeTypes"
 import type { AttributePricingRuleCreateDto, AttributePricingRuleDto } from "@/api/pricingTypes"
+import {
+  formatDraftNumberCs,
+  formatIntegerCs,
+  normalizeConditionValueForApi,
+  parseMajorUnitsToCents,
+  parseWholeCurrencyInput,
+} from "@/lib/moneyFormat"
+import {
+  getMaxUpperBoundForAttributeRules,
+  suggestNextBetweenLowerBound,
+} from "../utils/suggestNextBetweenLowerBound"
 import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing needs product model for currency */
@@ -139,12 +150,6 @@ export const PricingRulesList = ({
   }
 
   const currency = productModel?.currency ?? "CZK"
-  const _formatPrice = (amountInMainUnit: number) =>
-    new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      minimumFractionDigits: 2,
-    }).format(amountInMainUnit)
 
   const {
     data: rules = [],
@@ -409,25 +414,42 @@ export const PricingRulesList = ({
     }
     const op =
       (isAttributeScoped ? undefined : createPresetFromFilters?.presetOperator) ?? "BETWEEN"
+    let conditionValue = ""
+    const conditionToValue = ""
+    if (op === "BETWEEN" && attr && (attr.type === "INTEGER" || attr.type === "DECIMAL")) {
+      const isDecimal = attr.type === "DECIMAL"
+      const numericMax = isDecimal ? (attr.maxDecimal ?? 100) : (attr.maxInt ?? 100)
+      const maxUpper = getMaxUpperBoundForAttributeRules(rules, compId, attrCode)
+      const suggested = suggestNextBetweenLowerBound({
+        maxUpper,
+        isDecimal,
+        numericMax,
+      })
+      if (suggested != null) {
+        const maxFd = isDecimal ? 2 : 0
+        conditionValue = formatDraftNumberCs(suggested, maxFd)
+      }
+    }
     setNewRowDraft({
       componentId: compId,
       attributeCode: attrCode,
       operator: op,
-      conditionValue: "",
-      conditionToValue: "",
-      price: "0",
+      conditionValue,
+      conditionToValue,
+      price: "",
     })
   }
 
   const handleSaveNewRow = () => {
     if (!newRowDraft) return
-    const valueTrimmed = newRowDraft.conditionValue.trim()
+    const valueTrimmed = normalizeConditionValueForApi(newRowDraft.conditionValue)
     const toValueTrimmed =
-      newRowDraft.operator === "BETWEEN" ? newRowDraft.conditionToValue.trim() : undefined
-    const parsed = Number.parseFloat(newRowDraft.price.replace(",", "."))
+      newRowDraft.operator === "BETWEEN"
+        ? normalizeConditionValueForApi(newRowDraft.conditionToValue)
+        : undefined
+    const priceCents = parseMajorUnitsToCents(newRowDraft.price)
     if (!valueTrimmed) return
-    if (Number.isNaN(parsed)) return
-    const priceCents = Math.round(parsed * 100)
+    if (priceCents === null) return
     createMutation.mutate(
       {
         componentId: newRowDraft.componentId,
@@ -506,24 +528,53 @@ export const PricingRulesList = ({
     }
   }
 
-  const getDraftForRule = (rule: AttributePricingRuleDto) =>
-    rowDrafts[rule.id] ?? {
-      conditionValue: rule.value,
-      conditionToValue: rule.toValue ?? "",
-      price: (rule.price / 100).toString(),
+  const getNumericMaxFractionDigitsForRule = (rule: AttributePricingRuleDto): number => {
+    const attr = allAttributes.find(
+      (a) =>
+        a.componentId === rule.componentId &&
+        a.code?.toLowerCase().trim() === rule.attributeCode?.toLowerCase().trim(),
+    )
+    const isDecimal =
+      presetAttributeContext?.attributeType === "DECIMAL" || attr?.type === "DECIMAL"
+    return isDecimal ? 2 : 0
+  }
+
+  const buildDefaultRowDraft = (rule: AttributePricingRuleDto) => {
+    const maxFd = getNumericMaxFractionDigitsForRule(rule)
+    const priceMajor = Math.round(rule.price / 100)
+    return {
+      conditionValue: isEnumRule(rule)
+        ? rule.value
+        : formatDraftNumberCs(rule.value, maxFd),
+      conditionToValue:
+        rule.toValue != null && rule.toValue !== ""
+          ? formatDraftNumberCs(rule.toValue, maxFd)
+          : "",
+      price: formatIntegerCs(priceMajor),
       operator: rule.operator as "EQ" | "BETWEEN",
     }
+  }
+
+  const getDraftForRule = (rule: AttributePricingRuleDto) =>
+    rowDrafts[rule.id] ?? buildDefaultRowDraft(rule)
 
   const hasRuleChanged = (rule: AttributePricingRuleDto): boolean => {
     const draft = getDraftForRule(rule)
-    const isPriceChanged =
-      Math.round(Number.parseFloat(draft.price.replace(",", ".")) * 100) !== rule.price
+    const isPriceChanged = (() => {
+      const c = parseMajorUnitsToCents(draft.price)
+      if (c !== null) return c !== rule.price
+      if (draft.price.trim() === "") return rule.price !== 0
+      return true
+    })()
     if (isEnumRule(rule)) return isPriceChanged
     const effectiveOp = draft.operator ?? rule.operator
     const hasOperatorChanged = effectiveOp !== rule.operator
     const hasConditionChanged =
-      draft.conditionValue.trim() !== rule.value ||
-      (effectiveOp === "BETWEEN" && draft.conditionToValue.trim() !== (rule.toValue ?? ""))
+      normalizeConditionValueForApi(draft.conditionValue) !==
+        normalizeConditionValueForApi(rule.value) ||
+      (effectiveOp === "BETWEEN" &&
+        normalizeConditionValueForApi(draft.conditionToValue) !==
+          normalizeConditionValueForApi(rule.toValue ?? ""))
     const isBetweenIncomplete = effectiveOp === "BETWEEN" && !draft.conditionToValue.trim()
     return !isBetweenIncomplete && (hasOperatorChanged || hasConditionChanged || isPriceChanged)
   }
@@ -538,12 +589,7 @@ export const PricingRulesList = ({
     }>,
   ) => {
     setRowDrafts((prev) => {
-      const current = prev[rule.id] ?? {
-        conditionValue: rule.value,
-        conditionToValue: rule.toValue ?? "",
-        price: (rule.price / 100).toString(),
-        operator: rule.operator as "EQ" | "BETWEEN",
-      }
+      const current = prev[rule.id] ?? buildDefaultRowDraft(rule)
       return { ...prev, [rule.id]: { ...current, ...patch } }
     })
   }
@@ -551,17 +597,18 @@ export const PricingRulesList = ({
   const handleSaveRow = (rule: AttributePricingRuleDto) => {
     const draft = getDraftForRule(rule)
     const effectiveOperator = (draft.operator ?? rule.operator) as "EQ" | "BETWEEN"
-    const valueTrimmed = isEnumRule(rule) ? rule.value : draft.conditionValue.trim()
+    const valueTrimmed = isEnumRule(rule)
+      ? rule.value
+      : normalizeConditionValueForApi(draft.conditionValue)
     const toValueTrimmed = isEnumRule(rule)
       ? (rule.toValue ?? undefined)
       : effectiveOperator === "BETWEEN"
-        ? draft.conditionToValue.trim()
+        ? normalizeConditionValueForApi(draft.conditionToValue)
         : undefined
-    const parsed = Number.parseFloat(draft.price.replace(",", "."))
+    const priceCents = parseMajorUnitsToCents(draft.price)
     if (!valueTrimmed) return
     if (effectiveOperator === "BETWEEN" && !toValueTrimmed) return
-    if (Number.isNaN(parsed)) return
-    const priceCents = Math.round(parsed * 100)
+    if (priceCents === null) return
     updateMutation.mutate(
       {
         ruleId: rule.id,
@@ -612,6 +659,23 @@ export const PricingRulesList = ({
 
   return (
     <div className="space-y-6">
+      <div className="space-y-2 rounded-lg border border-border bg-muted/30 px-4 py-3">
+        <Typography
+          as="p"
+          variant="body-sm"
+          className="text-muted-foreground leading-relaxed"
+        >
+          {t("list.helpPricingRules")}
+        </Typography>
+        <Typography
+          as="p"
+          variant="body-sm"
+          className="text-muted-foreground leading-relaxed"
+        >
+          {t("list.helpComponentsAttributes")}
+        </Typography>
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Typography
           as="h2"
@@ -839,20 +903,26 @@ export const PricingRulesList = ({
                             const isDecimal =
                               presetAttributeContext?.attributeType === "DECIMAL" ||
                               attr?.type === "DECIMAL"
-                            const step = isDecimal ? 0.01 : 1
+                            const maxFd = isDecimal ? 2 : 0
                             const unit = getUnitForRule(rule)
                             return (
                               <>
                                 <Input
-                                  type="number"
-                                  step={step}
+                                  inputMode="decimal"
+                                  autoComplete="off"
                                   value={draft.conditionValue}
                                   onChange={(e) =>
                                     setDraftForRule(rule, {
                                       conditionValue: e.target.value,
                                     })
                                   }
-                                  className="h-8 w-24"
+                                  onBlur={() => {
+                                    const formatted = formatDraftNumberCs(draft.conditionValue, maxFd)
+                                    if (formatted !== draft.conditionValue) {
+                                      setDraftForRule(rule, { conditionValue: formatted })
+                                    }
+                                  }}
+                                  className="h-8 min-w-[5.5rem] w-28"
                                   aria-label={t("list.value")}
                                 />
                                 {unit && op !== "BETWEEN" && (
@@ -868,15 +938,24 @@ export const PricingRulesList = ({
                                   <>
                                     <span className="text-muted-foreground">–</span>
                                     <Input
-                                      type="number"
-                                      step={step}
+                                      inputMode="decimal"
+                                      autoComplete="off"
                                       value={draft.conditionToValue}
                                       onChange={(e) =>
                                         setDraftForRule(rule, {
                                           conditionToValue: e.target.value,
                                         })
                                       }
-                                      className="h-8 w-24"
+                                      onBlur={() => {
+                                        const formatted = formatDraftNumberCs(
+                                          draft.conditionToValue,
+                                          maxFd,
+                                        )
+                                        if (formatted !== draft.conditionToValue) {
+                                          setDraftForRule(rule, { conditionToValue: formatted })
+                                        }
+                                      }}
+                                      className="h-8 min-w-[5.5rem] w-28"
                                       aria-label={t("list.toValue")}
                                     />
                                   </>
@@ -899,11 +978,21 @@ export const PricingRulesList = ({
                     <td className="px-4 py-3 text-right tabular-nums">
                       <div className="flex items-center justify-end gap-1.5">
                         <Input
-                          type="number"
-                          step="0.01"
+                          inputMode="numeric"
+                          autoComplete="off"
                           value={getDraftForRule(rule).price}
                           onChange={(e) => setDraftForRule(rule, { price: e.target.value })}
-                          className="h-8 w-24 text-right"
+                          onBlur={() => {
+                            const d = getDraftForRule(rule)
+                            const major = parseWholeCurrencyInput(d.price)
+                            if (major !== null) {
+                              const formatted = formatIntegerCs(major)
+                              if (formatted !== d.price) {
+                                setDraftForRule(rule, { price: formatted })
+                              }
+                            }
+                          }}
+                          className="h-8 min-w-[7rem] w-28 text-right"
                           aria-label={t("create.price")}
                         />
                         <Typography
@@ -999,12 +1088,12 @@ export const PricingRulesList = ({
                           const isDecimal =
                             presetAttributeContext?.attributeType === "DECIMAL" ||
                             newRowAttribute?.type === "DECIMAL"
-                          const step = isDecimal ? 0.01 : 1
+                          const maxFd = isDecimal ? 2 : 0
                           return (
                             <>
                               <Input
-                                type="number"
-                                step={step}
+                                inputMode="decimal"
+                                autoComplete="off"
                                 value={newRowDraft.conditionValue}
                                 onChange={(e) =>
                                   setNewRowDraft((prev) =>
@@ -1016,7 +1105,18 @@ export const PricingRulesList = ({
                                       : null,
                                   )
                                 }
-                                className="h-8 w-24"
+                                onBlur={() => {
+                                  const formatted = formatDraftNumberCs(
+                                    newRowDraft.conditionValue,
+                                    maxFd,
+                                  )
+                                  if (formatted !== newRowDraft.conditionValue) {
+                                    setNewRowDraft((prev) =>
+                                      prev ? { ...prev, conditionValue: formatted } : null,
+                                    )
+                                  }
+                                }}
+                                className="h-8 min-w-[5.5rem] w-28"
                                 aria-label={t("list.value")}
                               />
                               {unit && newRowDraft.operator !== "BETWEEN" && (
@@ -1032,8 +1132,8 @@ export const PricingRulesList = ({
                                 <>
                                   <span className="text-muted-foreground">–</span>
                                   <Input
-                                    type="number"
-                                    step={step}
+                                    inputMode="decimal"
+                                    autoComplete="off"
                                     value={newRowDraft.conditionToValue}
                                     onChange={(e) =>
                                       setNewRowDraft((prev) =>
@@ -1045,7 +1145,18 @@ export const PricingRulesList = ({
                                           : null,
                                       )
                                     }
-                                    className="h-8 w-24"
+                                    onBlur={() => {
+                                      const formatted = formatDraftNumberCs(
+                                        newRowDraft.conditionToValue,
+                                        maxFd,
+                                      )
+                                      if (formatted !== newRowDraft.conditionToValue) {
+                                        setNewRowDraft((prev) =>
+                                          prev ? { ...prev, conditionToValue: formatted } : null,
+                                        )
+                                      }
+                                    }}
+                                    className="h-8 min-w-[5.5rem] w-28"
                                     aria-label={t("list.toValue")}
                                   />
                                 </>
@@ -1067,15 +1178,26 @@ export const PricingRulesList = ({
                     <td className="px-4 py-3 text-right tabular-nums">
                       <div className="flex items-center justify-end gap-1.5">
                         <Input
-                          type="number"
-                          step="0.01"
+                          inputMode="numeric"
+                          autoComplete="off"
                           value={newRowDraft.price}
                           onChange={(e) =>
                             setNewRowDraft((prev) =>
                               prev ? { ...prev, price: e.target.value } : null,
                             )
                           }
-                          className="h-8 w-24 text-right"
+                          onBlur={() => {
+                            const major = parseWholeCurrencyInput(newRowDraft.price)
+                            if (major !== null) {
+                              const formatted = formatIntegerCs(major)
+                              if (formatted !== newRowDraft.price) {
+                                setNewRowDraft((prev) =>
+                                  prev ? { ...prev, price: formatted } : null,
+                                )
+                              }
+                            }
+                          }}
+                          className="h-8 min-w-[7rem] w-28 text-right"
                           aria-label={t("create.price")}
                         />
                         <Typography
