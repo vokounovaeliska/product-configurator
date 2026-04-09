@@ -6,7 +6,6 @@ import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
 import { SmartImageComposer } from "@/components/SmartImageComposer"
-import { useMediaQuery } from "@/hooks/useMediaQuery"
 
 import type { Model3dConfig } from "@/features/configurator/types/model3dConfig"
 
@@ -70,7 +69,6 @@ export const VisualPreview = ({
   embedPreview: isEmbedPreview = false,
 }: Props) => {
   const t = useTranslations("Configurator")
-  const isMobile = useMediaQuery("(max-width: 1023px)")
 
   const layerItems = selectedOptionLayers
   const has3dModel = Boolean(model3dUrl?.trim())
@@ -80,19 +78,26 @@ export const VisualPreview = ({
     return (
       <Card
         className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden",
-          isCompactLayout ? "p-2 sm:p-3" : "p-4 md:p-6",
+          "flex flex-col overflow-hidden",
+          isCompactLayout
+            ? "min-h-0 flex-1 p-2 sm:p-3"
+            : isEmbedPreview
+              ? "w-full border-0 bg-transparent p-0 shadow-none"
+              : "min-h-0 flex-1 p-4 md:p-6",
         )}
         data-embed-preview
       >
         <div
           className={cn(
-            "flex flex-1 items-center justify-center rounded-lg border bg-muted/30",
-            isCompactLayout
-              ? "max-h-[55vh] min-h-[30vh] sm:max-h-[60vh] sm:min-h-[40vh] md:min-h-[50vh]"
-              : isEmbedPreview
-                ? "max-h-[55vh] min-h-[40vh] sm:max-h-[75vh] sm:min-h-[50vh]"
-                : "max-h-[60vh] min-h-[40vh]",
+            "rounded-lg",
+            isEmbedPreview
+              ? "relative flex aspect-video min-h-0 w-full flex-col overflow-hidden bg-transparent"
+              : cn(
+                  "flex min-h-0 flex-1 items-center justify-center border bg-muted/30",
+                  isCompactLayout
+                    ? "max-h-[55vh] min-h-[30vh] sm:max-h-[60vh] sm:min-h-[40vh] md:min-h-[50vh]"
+                    : "max-h-[60vh] min-h-[40vh]",
+                ),
           )}
         >
           <ModelViewer3D
@@ -102,13 +107,12 @@ export const VisualPreview = ({
             cameraDistanceOverride={cameraDistanceOverride}
             backgroundPresetOverride={backgroundPresetOverride}
             onCameraDistanceChange={onCameraDistanceChange}
-            className="rounded-lg"
+            className={cn(isEmbedPreview ? "min-h-0 flex-1 rounded-xl" : "rounded-lg")}
             config={model3dConfig}
             model3dEffects={model3dEffects}
             zoomPreset={isEmbedPreview ? "embed" : isCompact ? "embed" : "default"}
             canCapture={canCapture}
             onCaptureReady={onCaptureReady}
-            centerOffsetY={isEmbedPreview && isMobile ? -0.08 : undefined}
           />
         </div>
       </Card>

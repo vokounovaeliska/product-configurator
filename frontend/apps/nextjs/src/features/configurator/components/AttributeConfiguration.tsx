@@ -7,6 +7,7 @@ import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Skeleton } from "@workspace/ui/components/skeleton"
+import { Tooltip } from "@workspace/ui/components/tooltip"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -15,6 +16,8 @@ import { useAttributesList } from "@/api/attributeQueries"
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 import { getImageUrlForDisplay } from "@/utils/imageUrl"
+
+import { getPriceForOption } from "@/features/configurator/utils/computePriceFromRules"
 
 type Props = {
   componentId: string
@@ -29,6 +32,8 @@ type Props = {
   /** When provided, use these instead of fetching (e.g. for embed with pre-fetched data). */
   attributes?: AttributeDto[]
   optionsByAttribute?: Record<string, AttributeOptionDto[]>
+  /** When false, omit the section title (parent already shows it). Default true. */
+  shouldShowSectionHeading?: boolean
 }
 
 export const AttributeConfiguration = ({
@@ -42,6 +47,7 @@ export const AttributeConfiguration = ({
   currency,
   attributes: attributesProp,
   optionsByAttribute: optionsByAttributeProp,
+  shouldShowSectionHeading = true,
 }: Props) => {
   const t = useTranslations("Configurator")
   const [localOtherValues, setLocalOtherValues] = useState<Record<string, number | boolean>>({})
@@ -71,13 +77,15 @@ export const AttributeConfiguration = ({
   if (attributesProp == null && isAttributesLoading) {
     return (
       <div className="space-y-3">
-        <Typography
-          as="h4"
-          variant="body-md"
-          weight="semibold"
-        >
-          {t("attributes.title")}
-        </Typography>
+        {shouldShowSectionHeading && (
+          <Typography
+            as="h4"
+            variant="body-md"
+            weight="semibold"
+          >
+            {t("attributes.title")}
+          </Typography>
+        )}
         <div className="space-y-2">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-8 w-full" />
@@ -89,13 +97,15 @@ export const AttributeConfiguration = ({
   if (attributes.length === 0) {
     return (
       <div className="space-y-3">
-        <Typography
-          as="h4"
-          variant="body-md"
-          weight="semibold"
-        >
-          {t("attributes.title")}
-        </Typography>
+        {shouldShowSectionHeading && (
+          <Typography
+            as="h4"
+            variant="body-md"
+            weight="semibold"
+          >
+            {t("attributes.title")}
+          </Typography>
+        )}
         <Typography
           as="p"
           variant="body-sm"
@@ -109,13 +119,15 @@ export const AttributeConfiguration = ({
 
   return (
     <div className="space-y-3">
-      <Typography
-        as="h4"
-        variant="body-md"
-        weight="semibold"
-      >
-        {t("attributes.title")}
-      </Typography>
+      {shouldShowSectionHeading && (
+        <Typography
+          as="h4"
+          variant="body-md"
+          weight="semibold"
+        >
+          {t("attributes.title")}
+        </Typography>
+      )}
       <div className="space-y-3">
         {attributes.map((attr) => (
           <AttributeField
@@ -184,10 +196,13 @@ const AttributeField = ({
         productModelId={productModelId}
         componentId={componentId}
         attributeId={attribute.id}
+        attributeCode={attribute.code}
         attributeLabel={attribute.label}
         selectedOption={selectedOption}
         onSelectOption={onSelectOption}
         options={options}
+        pricingRules={pricingRules}
+        currency={currency}
       />
     )
   }
@@ -367,11 +382,14 @@ type AttributeSelectProps = {
   productModelId: string
   componentId: string
   attributeId: string
+  attributeCode: string
   attributeLabel: string
   selectedOption: AttributeOptionDto | null
   onSelectOption: (option: AttributeOptionDto | null) => void
   /** When provided (e.g. embed), use these instead of fetching. */
   options?: AttributeOptionDto[]
+  pricingRules?: AttributePricingRuleDto[]
+  currency?: string
 }
 
 /** Find the pricing rule that applies to the current numeric value (EQ or BETWEEN). */
@@ -399,11 +417,15 @@ const AttributeSelect = ({
   productModelId,
   componentId,
   attributeId,
+  attributeCode,
   attributeLabel,
   selectedOption,
   onSelectOption,
   options: optionsProp,
+  pricingRules = [],
+  currency = "CZK",
 }: AttributeSelectProps) => {
+  const t = useTranslations("Configurator")
   const { data: optionsFetched, isLoading } = useAttributeOptionsList(
     productModelId,
     componentId,
@@ -436,11 +458,30 @@ const AttributeSelect = ({
 
   const hasImages = sortedOptions.some((o) => o.imageUrl)
 
+  const optionDisplayName = (opt: AttributeOptionDto) => opt.label.trim() || opt.value
+
+  const formatPrice = (cents: number) =>
+    new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 2,
+    }).format(cents / 100)
+
+  const optionPriceSuffix = (opt: AttributeOptionDto): string | null => {
+    const cents = getPriceForOption(pricingRules, componentId, attributeCode, opt.value)
+    if (cents == null || cents === 0) return null
+    const amount = formatPrice(Math.abs(cents))
+    if (cents > 0) return t("attributes.optionPrice", { amount })
+    return formatPrice(cents)
+  }
+
+  const selectedPriceSuffix = selectedOption != null ? optionPriceSuffix(selectedOption) : null
+
   return (
     <div className="space-y-1.5">
       <Label
         id={`attr-${attributeId}-label`}
-        className="text-sm"
+        className="text-sm text-muted-foreground"
       >
         {attributeLabel}
       </Label>
@@ -449,46 +490,97 @@ const AttributeSelect = ({
         aria-labelledby={`attr-${attributeId}-label`}
         aria-label={attributeLabel}
         className={cn(
-          "flex flex-wrap gap-1.5",
-          hasImages && "grid grid-cols-4 gap-1.5 sm:grid-cols-5 md:grid-cols-6",
+          "flex flex-wrap gap-2",
+          hasImages && "grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5",
         )}
       >
-        {sortedOptions.map((opt) => {
+        {sortedOptions.map((opt, optIndex) => {
           const isSelected = selectedOption?.id === opt.id
+          const name = optionDisplayName(opt)
+          const priceSuffix = optionPriceSuffix(opt)
+          const ariaLabel = priceSuffix ? `${name}, ${priceSuffix}` : name
+
           return (
-            <button
-              key={opt.id}
-              type="button"
-              role="option"
-              aria-selected={isSelected}
-              title={opt.label}
-              onClick={() => onSelectOption(opt)}
-              className={cn(
-                "flex min-w-0 flex-col items-center gap-0.5 rounded transition-colors",
-                isSelected
-                  ? "bg-primary/10 ring-2 ring-primary ring-offset-2 ring-offset-background"
-                  : "bg-muted/50 hover:bg-muted",
-                hasImages ? "overflow-hidden p-0.5" : "px-2 py-1 text-xs font-medium",
-              )}
-            >
-              {hasImages && opt.imageUrl ? (
-                <div className="relative aspect-square w-8 shrink-0 overflow-hidden rounded-sm bg-muted">
-                  <Image
-                    src={getImageUrlForDisplay(opt.imageUrl)}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    unoptimized
-                    sizes="32px"
-                  />
-                </div>
-              ) : (
-                <span className="truncate text-xs font-medium">{opt.label}</span>
-              )}
-            </button>
+            <Tooltip key={opt.id}>
+              <Tooltip.Trigger asChild>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  aria-label={ariaLabel}
+                  onClick={() => onSelectOption(opt)}
+                  className={cn(
+                    "flex min-w-0 flex-col rounded-md transition-colors",
+                    isSelected
+                      ? "bg-primary/10 ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "bg-muted/50 hover:bg-muted",
+                    hasImages ? "items-center p-1.5" : "items-center justify-center px-2 py-2",
+                  )}
+                >
+                  {hasImages ? (
+                    <div
+                      className={cn(
+                        "relative mx-auto aspect-square w-full max-w-[3.5rem] shrink-0 overflow-hidden rounded-md bg-muted",
+                        !opt.imageUrl && "flex items-center justify-center",
+                      )}
+                    >
+                      {opt.imageUrl ? (
+                        <Image
+                          src={getImageUrlForDisplay(opt.imageUrl)}
+                          alt=""
+                          fill
+                          className="object-cover"
+                          unoptimized
+                          sizes="56px"
+                        />
+                      ) : (
+                        <span
+                          className="text-[10px] text-muted-foreground select-none"
+                          aria-hidden
+                        >
+                          ···
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span
+                      className="flex min-h-10 min-w-10 items-center justify-center text-xs font-semibold text-muted-foreground tabular-nums"
+                      aria-hidden
+                    >
+                      {optIndex + 1}
+                    </span>
+                  )}
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Content
+                side="top"
+                className="max-w-xs"
+              >
+                <span className="block font-medium">{name}</span>
+                {priceSuffix && (
+                  <span className="mt-0.5 block text-muted-foreground">{priceSuffix}</span>
+                )}
+              </Tooltip.Content>
+            </Tooltip>
           )
         })}
       </div>
+      {selectedOption && (
+        <Typography
+          as="p"
+          variant="body-sm"
+          className="text-muted-foreground"
+        >
+          {optionDisplayName(selectedOption)}
+          {selectedPriceSuffix && (
+            <span className="whitespace-nowrap text-muted-foreground">
+              {" ("}
+              {selectedPriceSuffix}
+              {")"}
+            </span>
+          )}
+        </Typography>
+      )}
     </div>
   )
 }

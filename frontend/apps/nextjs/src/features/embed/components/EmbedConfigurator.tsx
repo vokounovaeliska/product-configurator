@@ -60,6 +60,14 @@ type Props = {
    * When set, overrides saved embed zoom until cleared.
    */
   publishLiveCameraDistance?: number | null
+  /**
+   * When set (e.g. publish tab live preview), overrides saved preferences for title/description/components visibility.
+   */
+  embedUiOverrides?: {
+    showProductName: boolean
+    showDescription: boolean
+    showComponents: boolean
+  }
 }
 
 export const EmbedConfigurator = ({
@@ -70,6 +78,7 @@ export const EmbedConfigurator = ({
   pricingRules,
   configuratorPreferences,
   publishLiveCameraDistance,
+  embedUiOverrides,
 }: Props) => {
   const t = useTranslations("Embed")
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null)
@@ -196,25 +205,31 @@ export const EmbedConfigurator = ({
     Object.keys(selectedOptionsByComponent).length > 0 ||
     Object.keys(selectedOtherValuesByComponent).length > 0
 
-  const isProductNameShownInEmbed = configuratorPreferences?.embedShowProductName ?? false
-  const isDescriptionShownInEmbed = configuratorPreferences?.embedShowDescription ?? false
-  const isComponentsShownInEmbed = configuratorPreferences?.embedShowComponents ?? false
+  const isProductNameShownInEmbed = embedUiOverrides
+    ? embedUiOverrides.showProductName
+    : (configuratorPreferences?.embedShowProductName ?? false)
+  const isDescriptionShownInEmbed = embedUiOverrides
+    ? embedUiOverrides.showDescription
+    : (configuratorPreferences?.embedShowDescription ?? false)
+  const isComponentsShownInEmbed = embedUiOverrides
+    ? embedUiOverrides.showComponents
+    : (configuratorPreferences?.embedShowComponents ?? false)
 
   return (
     <div
-      className="flex min-h-0 flex-1 flex-col gap-3 bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6 lg:overflow-hidden"
+      className="flex w-full flex-col gap-3 bg-muted/30 p-3 sm:gap-4 sm:p-4 md:p-6"
       style={{
         paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))",
       }}
     >
       {(isProductNameShownInEmbed || isDescriptionShownInEmbed) && (
-        <div className="shrink-0 space-y-0.5 sm:space-y-1">
+        <div className="shrink-0 space-y-0.5 border-b border-border/40 pb-2 sm:space-y-1 sm:pb-2.5">
           {isProductNameShownInEmbed && (
             <Typography
               as="h1"
-              variant="display-lg"
-              weight="bold"
-              className="text-xl sm:text-2xl"
+              variant="body-md"
+              weight="semibold"
+              className="leading-snug text-foreground"
             >
               {product.name}
             </Typography>
@@ -223,7 +238,7 @@ export const EmbedConfigurator = ({
             <Typography
               as="p"
               variant="body-sm"
-              className="line-clamp-2 text-muted-foreground"
+              className="line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:text-sm"
             >
               {product.description}
             </Typography>
@@ -231,8 +246,8 @@ export const EmbedConfigurator = ({
         </div>
       )}
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 lg:grid lg:min-h-0 lg:grid-cols-3 lg:grid-rows-none">
-        <div className="relative z-0 order-2 flex min-h-0 flex-1 flex-col lg:order-none lg:col-span-2">
+      <div className="flex w-full flex-col gap-4 lg:grid lg:grid-cols-3 lg:items-stretch lg:gap-4">
+        <div className="relative z-0 order-2 flex min-h-0 w-full flex-col items-center justify-center lg:order-none lg:col-span-2">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
@@ -248,7 +263,7 @@ export const EmbedConfigurator = ({
           />
         </div>
 
-        <div className="order-1 flex min-h-0 flex-1 flex-col gap-3 lg:order-none lg:max-h-full">
+        <div className="order-1 flex min-h-0 flex-1 flex-col gap-3 overflow-hidden lg:order-none lg:max-h-full">
           <div className="flex shrink-0 flex-col gap-2">
             <Card className="p-3 shadow-sm">
               <div className="flex items-baseline justify-between gap-2">
@@ -283,7 +298,7 @@ export const EmbedConfigurator = ({
             )}
           </div>
 
-          <div className="min-h-0 flex-1 overflow-visible lg:overflow-y-auto">
+          <div className="w-full">
             <ComponentSelector
               components={components}
               selectedComponentId={activeComponentId}
@@ -298,6 +313,7 @@ export const EmbedConfigurator = ({
               attributesByComponent={attributesByComponent}
               optionsByAttribute={_optionsByAttribute}
               shouldShowComponents={isComponentsShownInEmbed}
+              shouldShowAttributeSectionHeading={isComponentsShownInEmbed}
             />
           </div>
 

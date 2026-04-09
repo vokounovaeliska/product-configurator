@@ -140,7 +140,7 @@
       "general": "Obecné",
       "pricing": "Ceny",
       "publish": "Publikování",
-      "configure": "Konfigurovat"
+      "configure": "Náhled"
     },
     "Publish": {
       "title": "E-mail a notifikace",
@@ -326,7 +326,7 @@
   "ProductModels": {
     "card": {
       "active": "Aktivní",
-      "configureButton": "Konfigurovat",
+      "configureButton": "Náhled",
       "noPreview": "Bez 3D modelu",
       "deleteButton": "Smazat",
       "editButton": "Upravit",
@@ -407,6 +407,8 @@
         "draft": "Koncept"
       },
       "publishToggle": "Publikováno",
+      "publishButton": "Publikovat",
+      "unpublishButton": "Zrušit publikování",
       "urlLabel": "Embed URL",
       "urlPlaceholder": "např. kulaty-stul",
       "urlHint": "Pouze malá písmena, číslice a pomlčky. Unikátní mezi vašimi produkty. Veřejný embed: /e/id-účtu/vase-url",
@@ -527,7 +529,7 @@
   },
   "Embed": {
     "title": "Konfiguruj",
-    "requestQuote": "Požádat o cenovou nabídku",
+    "requestQuote": "Objednat",
     "priceBreakdown": "Základ {base} + doplňky {modifier}",
     "resetConfiguration": "Obnovit konfiguraci",
     "requestQuoteDialog": {
@@ -569,7 +571,12 @@
     "components": {
       "title": "Komponenty",
       "emptyState": "Pro tento model produktu nejsou k dispozici žádné komponenty.",
-      "progress": "{current} z {total} nakonfigurováno"
+      "progress": "{current} z {total} nakonfigurováno",
+      "intro": "Komponenty sdružují související volby (např. materiál nebo rozměr). Klikněte na komponentu a nastavte její atributy—náhled i cena se průběžně aktualizují.",
+      "helpTitle": "Jak konfigurace funguje",
+      "helpStep1": "Kliknutím na komponentu ji rozbalíte a zobrazí se její atributy.",
+      "helpStep2": "U každého atributu vyberte možnost nebo zadejte hodnotu.",
+      "helpStep3": "Náhled produktu a celková cena se mění podle vašich voleb."
     },
     "attributes": {
       "title": "Konfigurace",
@@ -591,16 +598,28 @@
       "loadError": "Nepodařilo se načíst náhled.",
       "loading3d": "Načítání 3D modelu…",
       "contextLost": "3D náhled není k dispozici. WebGL kontext byl ztracen.",
-      "retry": "Zkusit znovu"
+      "retry": "Zkusit znovu",
+      "embedClickToInteract": "Klikněte pro zapnutí 3D zobrazení — otáčení, posun a zoom",
+      "embedMoveHint": "Tažením otočíte · kolečkem zoom"
     },
     "previewSettings": {
       "backgroundLabel": "Pozadí",
       "backgroundPresets": {
-        "lightGray": "Světle šedá",
         "white": "Bílá",
+        "offWhite": "Špinavá bílá",
+        "lightGray": "Světle šedá",
+        "coolGray": "Studená šedá",
         "gray": "Šedá",
-        "dark": "Tmavá",
-        "warm": "Teplá"
+        "slate": "Břidlicová",
+        "dark": "Tmavě šedá",
+        "black": "Téměř černá",
+        "warm": "Teplá béžová",
+        "sand": "Písková",
+        "cream": "Krémová",
+        "softBlue": "Jemná modrá",
+        "softGreen": "Jemná zelená",
+        "softPeach": "Jemná broskvová",
+        "softLavender": "Jemná levandulová"
       },
       "title": "Nastavení náhledu",
       "description": "Nastavte výchozí úroveň přiblížení a pozadí pro 3D náhled. Platí pro konfigurátor i vložený iframe.",
@@ -706,6 +725,8 @@
     },
     "list": {
       "title": "Cenová pravidla",
+      "helpPricingRules": "Každé pravidlo přičte částku k základní ceně produktu, když jeho podmínka odpovídá konfiguraci zákazníka. „Rovná se“ platí pro jednu hodnotu; „Rozsah“ platí, když číslo leží mezi dvěma mezemi. Pravidla pro různé atributy se sčítají: výsledná cena je základní cena plus součet částek ze všech platných pravidel.",
+      "helpComponentsAttributes": "Komponenty jsou hlavní části produktu (např. deska stolu, nohy, rám). Každý komponent má atributy—co zákazník nastavuje, např. rozměr, materiál nebo barvu. Cenová pravidla se vždy vztahují k jednomu atributu u jednoho komponentu, takže přirážka platí jen tehdy, když odpovídá daná část konfigurace.",
       "createButton": "Přidat pravidlo",
       "emptyState": "Zatím žádná cenová pravidla. Přidejte pravidla pro úpravu ceny podle hodnot atributů.",
       "errorMessage": "Nepodařilo se načíst cenová pravidla.",

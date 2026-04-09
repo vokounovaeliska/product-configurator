@@ -38,7 +38,7 @@ const EmbedPage = async (props: Props) => {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex w-full flex-col">
       <EmbedConfiguratorWrapper
         userId={userId}
         url={url}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
@@ -20,6 +20,7 @@ import { Select } from "@workspace/ui/components/select"
 import { Textarea } from "@workspace/ui/components/textarea"
 
 import type { ProductModelDto } from "@/api/productModelTypes"
+import { parseWholeCurrencyInput } from "@/lib/moneyFormat"
 
 import {
   getProductModelEditFormSchema,
@@ -39,6 +40,7 @@ const CURRENCIES = ["CZK", "EUR", "USD", "GBP"] as const
 export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: Props) => {
   const t = useTranslations("ProductModels")
   const updateProductModel = useUpdateProductModel()
+  const [priceInput, setPriceInput] = useState(() => String(Math.round(productModel.price)))
 
   const productModelEditFormSchema = getProductModelEditFormSchema(t)
 
@@ -63,6 +65,7 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
         currency: productModel.currency,
         isActive: productModel.isActive,
       })
+      setPriceInput(String(Math.round(productModel.price)))
     }
   }, [productModel, isOpen, form])
 
@@ -142,7 +145,12 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
 
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={(e) => {
+              e.preventDefault()
+              const effectivePrice = parseWholeCurrencyInput(priceInput.trim()) ?? 0
+              form.setValue("price", effectivePrice, { shouldValidate: true })
+              void form.handleSubmit(onSubmit)(e)
+            }}
             className="space-y-4"
           >
             <FormField
@@ -189,13 +197,22 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
                     <FormLabel>{t("edit.price.label")}</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
+                        inputMode="numeric"
+                        autoComplete="off"
                         placeholder={t("edit.price.placeholder")}
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        value={field.value ?? ""}
+                        value={priceInput}
+                        onChange={(e) => setPriceInput(e.target.value)}
+                        onBlur={() => {
+                          const p = parseWholeCurrencyInput(priceInput)
+                          if (p !== null) {
+                            setPriceInput(String(p))
+                          } else if (priceInput.trim() === "") {
+                            setPriceInput("0")
+                          } else {
+                            setPriceInput(String(Math.round(productModel.price)))
+                          }
+                          field.onBlur()
+                        }}
                       />
                     </FormControl>
                     <FormMessage />

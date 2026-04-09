@@ -15,7 +15,8 @@ type AttributesByComponent = Record<string, AttributeForPrice[]>
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
 type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
 
-function getPriceForOption(
+/** Modifier in cents for an ENUM option (EQ rule on option `value`). Exported for configurator UI. */
+export function getPriceForOption(
   rules: AttributePricingRuleDto[],
   componentId: string,
   attributeCode: string,
