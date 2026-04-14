@@ -132,6 +132,22 @@ open class ProductModelConfiguratorPreferences(
      */
     val BACKGROUND_PRESET: TableField<ProductModelConfiguratorPreferencesRecord, String?> = createField(DSL.name("background_preset"), SQLDataType.VARCHAR(32).defaultValue(DSL.field(DSL.raw("'white'::character varying"), SQLDataType.VARCHAR)), this, "")
 
+    /**
+     * The column
+     * <code>public.product_model_configurator_preferences.camera_horizontal_angle_rad</code>.
+     * Horizontal camera angle around Y through target (rad), spherical.theta.
+     * NULL = automatic.
+     */
+    val CAMERA_HORIZONTAL_ANGLE_RAD: TableField<ProductModelConfiguratorPreferencesRecord, Double?> = createField(DSL.name("camera_horizontal_angle_rad"), SQLDataType.DOUBLE, this, "Horizontal camera angle around Y through target (rad), spherical.theta. NULL = automatic.")
+
+    /**
+     * The column
+     * <code>public.product_model_configurator_preferences.camera_vertical_angle_rad</code>.
+     * Vertical camera angle from +Y toward horizontal (rad), spherical.phi.
+     * NULL = automatic.
+     */
+    val CAMERA_VERTICAL_ANGLE_RAD: TableField<ProductModelConfiguratorPreferencesRecord, Double?> = createField(DSL.name("camera_vertical_angle_rad"), SQLDataType.DOUBLE, this, "Vertical camera angle from +Y toward horizontal (rad), spherical.phi. NULL = automatic.")
+
     private constructor(alias: Name, aliased: Table<ProductModelConfiguratorPreferencesRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<ProductModelConfiguratorPreferencesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<ProductModelConfiguratorPreferencesRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

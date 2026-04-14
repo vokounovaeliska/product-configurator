@@ -11,6 +11,9 @@ data class ProductModelConfiguratorPreferences(
     val embedShowDescription: Boolean?,
     val embedShowComponents: Boolean?,
     val backgroundPreset: String?,
+    /** Default camera angles (horizontal θ, vertical φ). Both null = automatic framing. */
+    val cameraHorizontalAngleRad: Double?,
+    val cameraVerticalAngleRad: Double?,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,
 )

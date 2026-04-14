@@ -12,6 +12,7 @@ import cz.vokounova.configurator.users.api.dto.UserIdDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -85,5 +86,18 @@ class CustomerRequestsController(
         val userId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
         val updated = customerRequestAPI.updateStatus(userId, CustomerRequestId(id), status)
         return ResponseEntity.ok(updated.toDto())
+    }
+
+    @Operation(
+        summary = "Delete customer request",
+        description = "Permanently removes a quote request that belongs to one of the seller’s product models.",
+    )
+    @DeleteMapping("/{id}")
+    fun delete(
+        @PathVariable id: UUID,
+    ): ResponseEntity<Void> {
+        val userId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
+        customerRequestAPI.delete(userId, CustomerRequestId(id))
+        return ResponseEntity.noContent().build()
     }
 }

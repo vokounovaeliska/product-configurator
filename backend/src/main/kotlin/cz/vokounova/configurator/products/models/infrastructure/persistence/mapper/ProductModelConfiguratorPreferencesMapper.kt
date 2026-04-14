@@ -19,6 +19,8 @@ fun ProductModelConfiguratorPreferences.toPersistence(
         embedShowDescription = embedShowDescription,
         embedShowComponents = embedShowComponents,
         backgroundPreset = backgroundPreset,
+        cameraHorizontalAngleRad = cameraHorizontalAngleRad,
+        cameraVerticalAngleRad = cameraVerticalAngleRad,
     )
 
 fun ProductModelConfiguratorPreferencesRecord.toDomain(): ProductModelConfiguratorPreferences =
@@ -30,6 +32,8 @@ fun ProductModelConfiguratorPreferencesRecord.toDomain(): ProductModelConfigurat
         embedShowDescription = embedShowDescription,
         embedShowComponents = embedShowComponents,
         backgroundPreset = backgroundPreset,
+        cameraHorizontalAngleRad = cameraHorizontalAngleRad,
+        cameraVerticalAngleRad = cameraVerticalAngleRad,
         createdAt = createdAt,
         modifiedAt = modifiedAt,
     )

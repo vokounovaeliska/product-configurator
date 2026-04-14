@@ -24,6 +24,8 @@ export type ConfiguratorPreferencesEmbedDto = {
   embedShowDescription: boolean | null
   embedShowComponents: boolean | null
   backgroundPreset: string | null
+  cameraHorizontalAngleRad: number | null
+  cameraVerticalAngleRad: number | null
 }
 
 export type ProductEmbedFullDto = {

@@ -10,4 +10,7 @@ data class ConfiguratorPreferencesPatchRequestDto(
     val embedShowDescription: Boolean? = null,
     val embedShowComponents: Boolean? = null,
     val backgroundPreset: String? = null,
+    val cameraHorizontalAngleRad: Double? = null,
+    val cameraVerticalAngleRad: Double? = null,
+    val clearSavedCameraAngles: Boolean? = null,
 )

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState, type MutableRefObject } from "react"
 import { RotateCcwIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
@@ -9,6 +9,7 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import type { ConfiguratorPreferencesEmbedDto, ProductModelEmbedDto } from "@/api/embedTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
 
@@ -68,6 +69,8 @@ type Props = {
     showDescription: boolean
     showComponents: boolean
   }
+  cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
+  onEmbedCameraDistanceChange?: (distance: number) => void
 }
 
 export const EmbedConfigurator = ({
@@ -79,6 +82,8 @@ export const EmbedConfigurator = ({
   configuratorPreferences,
   publishLiveCameraDistance,
   embedUiOverrides,
+  cameraAnglesGetterRef,
+  onEmbedCameraDistanceChange,
 }: Props) => {
   const t = useTranslations("Embed")
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null)
@@ -260,6 +265,8 @@ export const EmbedConfigurator = ({
             canCapture
             onCaptureReady={product.model3dUrl ? handleCaptureReady : undefined}
             embedPreview
+            cameraAnglesGetterRef={cameraAnglesGetterRef}
+            onCameraDistanceChange={onEmbedCameraDistanceChange}
           />
         </div>
 
@@ -314,6 +321,8 @@ export const EmbedConfigurator = ({
               optionsByAttribute={_optionsByAttribute}
               shouldShowComponents={isComponentsShownInEmbed}
               shouldShowAttributeSectionHeading={isComponentsShownInEmbed}
+              productModelName={isProductNameShownInEmbed ? null : product.name}
+              shouldOmitSectionHeading={isProductNameShownInEmbed}
             />
           </div>
 

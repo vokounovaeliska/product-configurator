@@ -129,7 +129,7 @@ class AttributeOptionsControllerErrorsTest : BaseIntegrationTest() {
                         "components/${component.id.value}/attributes/${attribute.id.value}/" +
                         "options/$nonExistentId",
                 ).contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNotFound)
     }
 

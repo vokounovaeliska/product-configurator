@@ -1,10 +1,12 @@
 "use client"
 
+import type { MutableRefObject } from "react"
 import { useTranslations } from "next-intl"
 import { Card } from "@workspace/ui/components/card"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
+import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import { SmartImageComposer } from "@/components/SmartImageComposer"
 
 import type { Model3dConfig } from "@/features/configurator/types/model3dConfig"
@@ -20,36 +22,25 @@ export type PreviewLayer = {
 type Props = {
   productModelId: string
   selectedComponentId: string | null
-  /** Layers from selected attribute options (configurator) */
   selectedOptionLayers?: PreviewLayer[]
-  /** URL to 3D model (GLB) – when set, shows 3D viewer instead of image layers */
   model3dUrl?: string | null
-  /** Config to apply to 3D model (materials, scale) when options change */
   model3dConfig?: Model3dConfig | null
-  /** JSON: attribute code → effects (from parameters.json). When set, used for scale/position. */
   model3dEffects?: string | null
-  /** Zoom preferences from server (embed). When set, used for initial camera. */
   configuratorPreferencesFromServer?: {
     zoomDistanceDefault?: number | null
     zoomDistanceEmbed?: number | null
+    backgroundPreset?: string | null
+    cameraHorizontalAngleRad?: number | null
+    cameraVerticalAngleRad?: number | null
   } | null
-  /** Override camera distance (e.g. from preview settings slider). Syncs 3D view to this value. */
   cameraDistanceOverride?: number | null
-  /** Override background preset (e.g. from preview settings dropdown). Updates 3D view live. */
   backgroundPresetOverride?: string | null
-  /** Called when user zooms in 3D view (live updates for slider sync). */
   onCameraDistanceChange?: (distance: number) => void
-  /** When true, enables canvas capture for embed snapshot (preserveDrawingBuffer). */
   canCapture?: boolean
-  /** Called when 3D capture at fixed angle is ready (embed only). */
   onCaptureReady?: (capture: () => Promise<string | null>) => void
-  /** When true, uses compact padding and maximizes 3D area (embed layout). */
   isCompact?: boolean
-  /**
-   * When true, embed preview matches configurator layout and applies configurator zoom.
-   * Zoom controls (scroll/pinch) are enabled using the default from configurator preferences.
-   */
   embedPreview?: boolean
+  cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
 }
 
 export const VisualPreview = ({
@@ -67,6 +58,7 @@ export const VisualPreview = ({
   onCaptureReady,
   isCompact = false,
   embedPreview: isEmbedPreview = false,
+  cameraAnglesGetterRef,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -113,6 +105,7 @@ export const VisualPreview = ({
             zoomPreset={isEmbedPreview ? "embed" : isCompact ? "embed" : "default"}
             canCapture={canCapture}
             onCaptureReady={onCaptureReady}
+            cameraAnglesGetterRef={cameraAnglesGetterRef}
           />
         </div>
       </Card>

@@ -8,6 +8,7 @@ import cz.vokounova.configurator.products.models.domain.ProductModelJsonPatchPar
 import cz.vokounova.configurator.products.models.domain.ProductModelSortableField
 import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest
+import cz.vokounova.configurator.users.api.dto.UserIdDto
 import java.util.UUID
 
 interface ProductModelAPI {
@@ -16,6 +17,23 @@ interface ProductModelAPI {
     fun delete(id: ProductModelId)
 
     fun getOne(id: ProductModelId): ProductModel
+
+    /** Returns the model only if [userId] owns it; otherwise throws not found (no cross-tenant leakage). */
+    fun getOneForUser(
+        id: ProductModelId,
+        userId: UserIdDto,
+    ): ProductModel
+
+    fun deleteForUser(
+        id: ProductModelId,
+        userId: UserIdDto,
+    )
+
+    fun patchForUser(
+        id: ProductModelId,
+        userId: UserIdDto,
+        jsonPatchParams: List<ProductModelJsonPatchParams>,
+    ): ProductModel
 
     /** Get published product model by owner embed path (for embed, no auth). Unique per user when published. */
     fun getPublishedByUserIdAndUrl(

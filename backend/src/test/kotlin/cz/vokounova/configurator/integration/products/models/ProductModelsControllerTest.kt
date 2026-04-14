@@ -66,7 +66,7 @@ class ProductModelsControllerTest : BaseIntegrationTest() {
                 .perform(
                     get("$PRODUCT_MODELS_URL/${created.id.value}")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -252,7 +252,7 @@ class ProductModelsControllerTest : BaseIntegrationTest() {
                     get(PRODUCT_MODELS_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("limit", "10")
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -265,7 +265,7 @@ class ProductModelsControllerTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `Get - Filters product models by userId`() {
+    fun `Get - Returns only the authenticated user's product models`() {
         val user1 = UserMocks.getUser(id = userId0, email = "user1@email.com")
         val user2 = UserMocks.getUser(id = userId1, email = "user2@email.com")
         userRepository.create(user1)
@@ -283,8 +283,7 @@ class ProductModelsControllerTest : BaseIntegrationTest() {
                     get(PRODUCT_MODELS_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("limit", "10")
-                        .param("userIds", userId0Dto.value.toString())
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user2.id, email = user2.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -292,7 +291,7 @@ class ProductModelsControllerTest : BaseIntegrationTest() {
 
         assertNotNull(parsedResult)
         assertEquals(1, parsedResult.items.size)
-        assertEquals(userId0Dto.value, parsedResult.items.first().userId)
+        assertEquals(userId1Dto.value, parsedResult.items.first().userId)
     }
 
     @Test
@@ -313,7 +312,7 @@ class ProductModelsControllerTest : BaseIntegrationTest() {
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("limit", "10")
                         .param("isActive", "true")
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 

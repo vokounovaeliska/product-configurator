@@ -33,6 +33,8 @@ type Props = {
   currency: string
   /** When false, show attributes in a flat list without component selector. Default true. */
   shouldShowComponents?: boolean
+  productModelName?: string | null
+  shouldOmitSectionHeading?: boolean
 }
 
 export const EmbedAttributeConfiguration = ({
@@ -48,6 +50,8 @@ export const EmbedAttributeConfiguration = ({
   pricingRules,
   currency,
   shouldShowComponents = true,
+  productModelName = null,
+  shouldOmitSectionHeading = false,
 }: Props) => {
   const t = useTranslations("Configurator")
   const sortedComponents = [...components].sort((a, b) => a.sortOrder - b.sortOrder)
@@ -79,6 +83,13 @@ export const EmbedAttributeConfiguration = ({
   const totalComponents = sortedComponents.length
   const shouldShowProgress = shouldShowComponents && totalComponents > 1 && configuredCount > 0
 
+  const flatHeading = (() => {
+    const name = productModelName?.trim()
+    if (name) return name
+    if (shouldOmitSectionHeading) return null
+    return t("attributes.title")
+  })()
+
   if (!shouldShowComponents) {
     const flatAttributes = sortedComponents.flatMap((c) => {
       const attrs = [...(attributesByComponent[c.id] ?? [])].sort(
@@ -88,13 +99,15 @@ export const EmbedAttributeConfiguration = ({
     })
     return (
       <div className="space-y-3">
-        <Typography
-          as="h2"
-          variant="display-sm"
-          weight="semibold"
-        >
-          {t("attributes.title")}
-        </Typography>
+        {flatHeading != null && flatHeading !== "" && (
+          <Typography
+            as="h2"
+            variant="display-sm"
+            weight="semibold"
+          >
+            {flatHeading}
+          </Typography>
+        )}
         <div className="space-y-3">
           {flatAttributes.map(({ component, attribute }) => (
             <Card
@@ -119,18 +132,32 @@ export const EmbedAttributeConfiguration = ({
     )
   }
 
+  const componentsHeading = (() => {
+    const name = productModelName?.trim()
+    if (name) return name
+    if (shouldOmitSectionHeading) return null
+    return t("components.title")
+  })()
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <Typography
-          as="h2"
-          variant="display-sm"
-          weight="semibold"
-        >
-          {t("components.title")}
-        </Typography>
+        {componentsHeading != null && componentsHeading !== "" && (
+          <Typography
+            as="h2"
+            variant="display-sm"
+            weight="semibold"
+          >
+            {componentsHeading}
+          </Typography>
+        )}
         {shouldShowProgress && (
-          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+          <span
+            className={cn(
+              "rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary",
+              (componentsHeading == null || componentsHeading === "") && "ml-auto",
+            )}
+          >
             {t("components.progress", { current: configuredCount, total: totalComponents })}
           </span>
         )}

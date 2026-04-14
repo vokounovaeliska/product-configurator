@@ -78,6 +78,21 @@ class CustomerRequestAPIManager(
             ?: throw ResourceNotFoundException("Customer request not found")
     }
 
+    @Transactional
+    override fun delete(
+        userId: UserIdDto,
+        id: CustomerRequestId,
+    ) {
+        val userRequests =
+            customerRequestRepository.findByProductModelOwnerId(userId, 1000, null, CustomerRequestFilter())
+        if (!userRequests.any { it.id.value == id.value }) {
+            throw ResourceNotFoundException("Customer request not found")
+        }
+        if (!customerRequestRepository.deleteById(id)) {
+            throw ResourceNotFoundException("Customer request not found")
+        }
+    }
+
     override fun listByProductModelOwner(
         userId: UserIdDto,
         limit: Int,

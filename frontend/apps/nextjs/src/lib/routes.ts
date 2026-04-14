@@ -1,6 +1,8 @@
 export const ROUTES = {
   home: "/",
   contact: "/contact",
+  privacy: "/privacy",
+  cookies: "/cookies",
   tutorial: "/tutorial",
   login: "/login",
   registration: "/registration",

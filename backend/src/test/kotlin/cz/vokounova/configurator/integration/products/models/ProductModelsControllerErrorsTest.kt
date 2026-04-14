@@ -73,7 +73,7 @@ class ProductModelsControllerErrorsTest : BaseIntegrationTest() {
             .perform(
                 get("$PRODUCT_MODELS_URL/$nonExistentId")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNotFound)
     }
 
@@ -427,7 +427,7 @@ class ProductModelsControllerErrorsTest : BaseIntegrationTest() {
                     get(PRODUCT_MODELS_URL)
                         .param("limit", "0")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isBadRequest)
                 .andReturn()
 
@@ -447,7 +447,7 @@ class ProductModelsControllerErrorsTest : BaseIntegrationTest() {
                     get(PRODUCT_MODELS_URL)
                         .param("orderBy", "invalidField")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isBadRequest)
                 .andReturn()
 
@@ -473,7 +473,7 @@ class ProductModelsControllerErrorsTest : BaseIntegrationTest() {
                     .param("orderBy", "name,price")
                     .param("after", encodedCursor)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isBadRequest)
     }
 
@@ -496,7 +496,7 @@ class ProductModelsControllerErrorsTest : BaseIntegrationTest() {
                     .param("orderBy", "name")
                     .param("after", encodedCursor)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isBadRequest)
     }
 
@@ -518,7 +518,7 @@ class ProductModelsControllerErrorsTest : BaseIntegrationTest() {
                     .param("orderBy", "price,currency")
                     .param("after", encodedCursor)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isBadRequest)
     }
 }

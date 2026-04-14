@@ -38,6 +38,9 @@ class ProductModelConfiguratorPreferencesAPIManager(
         embedShowDescription: Boolean?,
         embedShowComponents: Boolean?,
         backgroundPreset: String?,
+        cameraHorizontalAngleRad: Double?,
+        cameraVerticalAngleRad: Double?,
+        clearSavedCameraAngles: Boolean?,
     ): ProductModelConfiguratorPreferences {
         val productModel =
             productModelRepository.findById(productModelId, lock = false)
@@ -50,6 +53,14 @@ class ProductModelConfiguratorPreferencesAPIManager(
 
         val existing = repository.findByProductModelId(productModelId)
         val now = OffsetDateTime.now()
+        val (mergedHorizontal, mergedVertical) =
+            when {
+                clearSavedCameraAngles == true -> Pair(null, null)
+                cameraHorizontalAngleRad != null && cameraVerticalAngleRad != null ->
+                    Pair(cameraHorizontalAngleRad, cameraVerticalAngleRad)
+                else ->
+                    Pair(existing?.cameraHorizontalAngleRad, existing?.cameraVerticalAngleRad)
+            }
         val preferences =
             ProductModelConfiguratorPreferences(
                 productModelId = productModelId,
@@ -63,6 +74,8 @@ class ProductModelConfiguratorPreferencesAPIManager(
                 embedShowDescription = embedShowDescription ?: existing?.embedShowDescription,
                 embedShowComponents = embedShowComponents ?: existing?.embedShowComponents,
                 backgroundPreset = backgroundPreset ?: existing?.backgroundPreset,
+                cameraHorizontalAngleRad = mergedHorizontal,
+                cameraVerticalAngleRad = mergedVertical,
                 createdAt = existing?.createdAt ?: now,
                 modifiedAt = now,
             )

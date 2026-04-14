@@ -34,17 +34,21 @@ const RegistrationPage = async (props: Props) => {
   const t = await getTranslations({ locale, namespace: "Registration" })
 
   return (
-    <div className="flex-1 rounded-2xl bg-muted/50 p-10">
-      <Typography
-        as="h1"
-        variant="display-3xl"
-        weight="bold"
-        className="text-center"
-      >
-        {t("title")}
-      </Typography>
+    <div className="flex flex-1 flex-col items-center rounded-2xl bg-muted/50 p-6 sm:p-10">
+      <div className="flex w-full max-w-lg flex-col gap-6 sm:gap-8">
+        <Typography
+          as="h1"
+          variant="display-3xl"
+          weight="bold"
+          className="text-center"
+        >
+          {t("title")}
+        </Typography>
 
-      <RegistrationForm />
+        <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm sm:p-8">
+          <RegistrationForm />
+        </div>
+      </div>
     </div>
   )
 }

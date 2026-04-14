@@ -7,4 +7,6 @@ data class ConfiguratorPreferencesDto(
     val embedShowDescription: Boolean?,
     val embedShowComponents: Boolean?,
     val backgroundPreset: String?,
+    val cameraHorizontalAngleRad: Double?,
+    val cameraVerticalAngleRad: Double?,
 )

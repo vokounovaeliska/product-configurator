@@ -1,5 +1,6 @@
 package cz.vokounova.configurator.products.pricing.infrastructure.rest
 
+import cz.vokounova.configurator.products.models.application.ProductModelAccessGuard
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.products.pricing.application.validation.PricingRuleValidator
 import cz.vokounova.configurator.products.pricing.domain.AttributePricingRule
@@ -32,6 +33,7 @@ import java.util.UUID
 @RequestMapping("/products/api/v1/product-models/{productModelId}/pricing-rules")
 class PricingRulesController(
     private val attributePricingRuleRepository: AttributePricingRuleRepository,
+    private val productModelAccessGuard: ProductModelAccessGuard,
     private val pricingRuleValidator: PricingRuleValidator,
 ) {
     @Operation(
@@ -44,6 +46,7 @@ class PricingRulesController(
         @RequestParam(required = false) componentId: UUID? = null,
         @RequestParam(required = false) attributeCode: String? = null,
     ): ResponseEntity<List<AttributePricingRuleDto>> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val rules =
             attributePricingRuleRepository.findByProductModelId(
                 ProductModelId(productModelId),
@@ -62,6 +65,7 @@ class PricingRulesController(
         @PathVariable productModelId: UUID,
         @RequestBody body: AttributePricingRuleCreateRequestDto,
     ): ResponseEntity<AttributePricingRuleDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val operator = body.operator ?: "EQ"
         if (operator == "EQ") {
             pricingRuleValidator.validateNoDuplicateOptionRule(
@@ -98,6 +102,7 @@ class PricingRulesController(
         @PathVariable ruleId: UUID,
         @RequestBody body: AttributePricingRuleCreateRequestDto,
     ): ResponseEntity<AttributePricingRuleDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val existing =
             attributePricingRuleRepository.findById(AttributePricingRuleId(ruleId))
                 ?: return ResponseEntity.notFound().build()
@@ -125,6 +130,7 @@ class PricingRulesController(
         @PathVariable productModelId: UUID,
         @PathVariable ruleId: UUID,
     ): ResponseEntity<Unit> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val existing =
             attributePricingRuleRepository.findById(AttributePricingRuleId(ruleId))
                 ?: return ResponseEntity.notFound().build()

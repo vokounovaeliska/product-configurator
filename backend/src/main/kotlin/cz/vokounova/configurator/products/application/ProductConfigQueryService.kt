@@ -90,6 +90,8 @@ class ProductConfigQueryService(
                         embedShowDescription = it.embedShowDescription,
                         embedShowComponents = it.embedShowComponents,
                         backgroundPreset = it.backgroundPreset,
+                        cameraHorizontalAngleRad = it.cameraHorizontalAngleRad,
+                        cameraVerticalAngleRad = it.cameraVerticalAngleRad,
                     )
                 },
         )
@@ -137,6 +139,8 @@ class ProductConfigQueryService(
                             embedShowDescription = it.embedShowDescription,
                             embedShowComponents = it.embedShowComponents,
                             backgroundPreset = it.backgroundPreset,
+                            cameraHorizontalAngleRad = it.cameraHorizontalAngleRad,
+                            cameraVerticalAngleRad = it.cameraVerticalAngleRad,
                         )
                     },
             )

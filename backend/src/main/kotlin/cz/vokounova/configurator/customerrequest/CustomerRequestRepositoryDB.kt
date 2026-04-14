@@ -48,6 +48,15 @@ class CustomerRequestRepositoryDB(
         return findById(id).takeIf { updated > 0 }
     }
 
+    override fun deleteById(id: CustomerRequestId): Boolean {
+        val deleted =
+            dslContext
+                .deleteFrom(CUSTOMER_REQUEST)
+                .where(CUSTOMER_REQUEST.ID.eq(id.value))
+                .execute()
+        return deleted > 0
+    }
+
     override fun findByProductModelOwnerId(
         userId: UserIdDto,
         limit: Int,

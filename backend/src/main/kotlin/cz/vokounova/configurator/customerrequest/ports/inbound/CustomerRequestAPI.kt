@@ -18,6 +18,11 @@ interface CustomerRequestAPI {
         status: RequestStatus,
     ): CustomerRequest
 
+    fun delete(
+        userId: UserIdDto,
+        id: CustomerRequestId,
+    )
+
     fun listByProductModelOwner(
         userId: UserIdDto,
         limit: Int,

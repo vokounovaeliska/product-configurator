@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -198,5 +199,38 @@ class CustomerRequestsControllerTest : BaseIntegrationTest() {
                 get("$CUSTOMER_REQUESTS_URL/$requestId")
                     .contentType(MediaType.APPLICATION_JSON),
             ).andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `Delete - Removes customer request and subsequent Get returns NotFound`() {
+        val requestId = createCustomerRequestViaEmbed()
+        val user = UserMocks.getUser(id = userId)
+
+        mockMvc
+            .perform(
+                delete("$CUSTOMER_REQUESTS_URL/$requestId")
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
+            ).andExpect(status().isNoContent)
+
+        mockMvc
+            .perform(
+                get("$CUSTOMER_REQUESTS_URL/$requestId")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
+            ).andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `Delete - NotFound - when request does not belong to user`() {
+        val requestId = createCustomerRequestViaEmbed()
+        val otherUserId = UserId(UUID.fromString("b2c27edc-c996-5894-c196-469b08f8f82f"))
+        val otherUser = UserMocks.getUser(id = otherUserId, email = "other2@example.com")
+        userRepository.create(otherUser)
+
+        mockMvc
+            .perform(
+                delete("$CUSTOMER_REQUESTS_URL/$requestId")
+                    .with(AuthMocks.mockUser(userId = otherUser.id, email = otherUser.email)),
+            ).andExpect(status().isNotFound)
     }
 }

@@ -6,6 +6,7 @@ import { AlertCircleIcon, CheckCircleIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
+import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Dialog } from "@workspace/ui/components/dialog"
 import {
   Form,
@@ -21,12 +22,14 @@ import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
 import type { ProductModelEmbedDto } from "@/api/embedTypes"
+import { Link } from "@/lib/i18n/navigation"
+import { ROUTES } from "@/lib/routes"
 
 import { useCreateCustomerRequest } from "@/features/embed/api/embedQueries"
 import { capture2DSnapshot } from "@/features/embed/utils/capture2DSnapshot"
 
 import {
-  requestQuoteFormSchema,
+  getRequestQuoteFormSchema,
   type RequestQuoteFormSchema,
 } from "../schemas/requestQuoteFormSchema"
 
@@ -78,6 +81,8 @@ export const RequestQuoteDialog = ({
   const [isSuccess, setIsSuccess] = useState(false)
   const createRequest = useCreateCustomerRequest()
 
+  const requestQuoteFormSchema = getRequestQuoteFormSchema(t)
+
   const form = useForm<RequestQuoteFormSchema>({
     resolver: zodResolver(requestQuoteFormSchema),
     defaultValues: {
@@ -85,6 +90,7 @@ export const RequestQuoteDialog = ({
       customerEmail: "",
       customerPhone: "",
       customerNote: "",
+      acceptDataProcessing: false,
     },
   })
 
@@ -138,26 +144,28 @@ export const RequestQuoteDialog = ({
         open={isOpen}
         onOpenChange={handleOpenChange}
       >
-        <Dialog.Content className="max-h-[90dvh] overflow-y-auto sm:max-w-md">
-          <Dialog.Content.Header>
-            <div className="flex items-center gap-3">
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                <CheckCircleIcon className="size-6 text-green-600 dark:text-green-400" />
+        <Dialog.Content className="max-h-[85dvh] gap-3 overflow-y-auto p-4 sm:max-w-[20rem]">
+          <Dialog.Content.Header className="gap-2 space-y-0">
+            <div className="flex items-start gap-2.5">
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+                <CheckCircleIcon className="size-4 text-green-600 dark:text-green-400" />
               </div>
-              <div>
-                <Dialog.Content.Header.Title>
+              <div className="min-w-0 space-y-1">
+                <Dialog.Content.Header.Title className="text-base leading-snug">
                   {t("requestQuoteDialog.success.title")}
                 </Dialog.Content.Header.Title>
-                <Dialog.Content.Header.Description>
+                <Dialog.Content.Header.Description className="text-xs leading-snug">
                   {t("requestQuoteDialog.success.description")}
                 </Dialog.Content.Header.Description>
               </div>
             </div>
           </Dialog.Content.Header>
-          <Dialog.Content.Footer>
+          <Dialog.Content.Footer className="gap-2 pt-0">
             <Button
               onClick={() => handleOpenChange(false)}
               variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
             >
               {t("requestQuoteDialog.success.close")}
             </Button>
@@ -167,15 +175,21 @@ export const RequestQuoteDialog = ({
     )
   }
 
+  const compactFieldClass = "gap-1.5 space-y-0"
+  const compactLabelClass = "text-xs font-medium leading-none"
+  const compactInputClass = "h-8 px-2.5 text-sm"
+
   return (
     <Dialog
       open={isOpen}
       onOpenChange={handleOpenChange}
     >
-      <Dialog.Content className="sm:max-w-md">
-        <Dialog.Content.Header>
-          <Dialog.Content.Header.Title>{t("requestQuoteDialog.title")}</Dialog.Content.Header.Title>
-          <Dialog.Content.Header.Description>
+      <Dialog.Content className="gap-3 p-4 sm:max-w-md">
+        <Dialog.Content.Header className="gap-1 space-y-0">
+          <Dialog.Content.Header.Title className="text-base leading-tight">
+            {t("requestQuoteDialog.title")}
+          </Dialog.Content.Header.Title>
+          <Dialog.Content.Header.Description className="text-xs leading-snug">
             {t("requestQuoteDialog.description")}
           </Dialog.Content.Header.Description>
         </Dialog.Content.Header>
@@ -183,21 +197,24 @@ export const RequestQuoteDialog = ({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
+            className="space-y-3"
           >
             <FormField
               control={form.control}
               name="customerName"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("requestQuoteDialog.fields.name")}</FormLabel>
+                <FormItem className={compactFieldClass}>
+                  <FormLabel className={compactLabelClass}>
+                    {t("requestQuoteDialog.fields.name")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={t("requestQuoteDialog.fields.namePlaceholder")}
+                      className={compactInputClass}
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -205,16 +222,19 @@ export const RequestQuoteDialog = ({
               control={form.control}
               name="customerEmail"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("requestQuoteDialog.fields.email")}</FormLabel>
+                <FormItem className={compactFieldClass}>
+                  <FormLabel className={compactLabelClass}>
+                    {t("requestQuoteDialog.fields.email")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder={t("requestQuoteDialog.fields.emailPlaceholder")}
+                      className={compactInputClass}
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -222,16 +242,19 @@ export const RequestQuoteDialog = ({
               control={form.control}
               name="customerPhone"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("requestQuoteDialog.fields.phone")}</FormLabel>
+                <FormItem className={compactFieldClass}>
+                  <FormLabel className={compactLabelClass}>
+                    {t("requestQuoteDialog.fields.phone")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="tel"
                       placeholder={t("requestQuoteDialog.fields.phonePlaceholder")}
+                      className={compactInputClass}
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -239,17 +262,52 @@ export const RequestQuoteDialog = ({
               control={form.control}
               name="customerNote"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("requestQuoteDialog.fields.message")}</FormLabel>
+                <FormItem className={compactFieldClass}>
+                  <FormLabel className={compactLabelClass}>
+                    {t("requestQuoteDialog.fields.message")}
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder={t("requestQuoteDialog.fields.messagePlaceholder")}
-                      rows={4}
-                      className="resize-none"
+                      rows={3}
+                      className="min-h-[4.5rem] resize-none text-sm leading-snug"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="acceptDataProcessing"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start gap-2 space-y-0 rounded-md border border-border/70 bg-muted/30 p-2.5 dark:bg-muted/20">
+                  <FormControl>
+                    <Checkbox
+                      className="mt-0.5"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="min-w-0 flex-1">
+                    <FormLabel className="!mt-0 !block w-full min-w-0 cursor-pointer text-left text-xs leading-snug !font-normal text-pretty text-foreground">
+                      {t.rich("requestQuoteDialog.dataProcessingConsentLabel", {
+                        privacy: (chunks) => (
+                          <Link
+                            href={ROUTES.privacy}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline font-medium text-primary underline decoration-primary/60 underline-offset-2"
+                          >
+                            {chunks}
+                          </Link>
+                        ),
+                      })}
+                    </FormLabel>
+                    <FormMessage className="text-xs" />
+                  </div>
                 </FormItem>
               )}
             />
@@ -257,30 +315,34 @@ export const RequestQuoteDialog = ({
             {submitError && (
               <div
                 className={cn(
-                  "flex items-start gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4",
+                  "flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-2.5",
                 )}
               >
-                <AlertCircleIcon className="mt-0.5 size-5 shrink-0 text-destructive" />
+                <AlertCircleIcon className="mt-0.5 size-4 shrink-0 text-destructive" />
                 <Typography
                   as="p"
                   variant="body-sm"
-                  className="text-destructive"
+                  className="text-xs text-destructive"
                 >
                   {submitError}
                 </Typography>
               </div>
             )}
 
-            <Dialog.Content.Footer>
+            <Dialog.Content.Footer className="gap-2 pt-1">
               <Button
                 type="button"
                 variant="outline"
+                size="sm"
+                className="h-8"
                 onClick={() => handleOpenChange(false)}
               >
                 {t("requestQuoteDialog.cancel")}
               </Button>
               <Button
                 type="submit"
+                size="sm"
+                className="h-8"
                 disabled={createRequest.isPending}
               >
                 {createRequest.isPending

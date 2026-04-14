@@ -114,7 +114,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
                             "attributes/${attribute.id.value}/options/${created.id.value}",
                     ).contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -238,7 +238,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
                             "attributes/${attribute.id.value}/options",
                     ).contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -260,7 +260,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                         "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
                             "attributes/${attribute.id.value}/options",
                     ).contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -538,7 +538,7 @@ class AttributeOptionsControllerTest : BaseIntegrationTest() {
                     "$ATTRIBUTE_OPTIONS_URL/${productModel.id.value}/components/${component.id.value}/" +
                         "attributes/${attribute.id.value}/options/${option.id.value}",
                 ).contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNotFound)
     }
 }

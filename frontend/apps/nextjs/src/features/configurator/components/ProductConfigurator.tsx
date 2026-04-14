@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { PencilIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
@@ -8,6 +8,7 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import type { ProductEmbedFullDto } from "@/api/embedTypes"
 import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
@@ -94,6 +95,8 @@ export const ProductConfigurator = ({
     setSliderOverride(null)
     setBackgroundOverride(null)
   }, [])
+
+  const cameraAnglesGetterRef = useRef<CameraAnglesGetter | null>(null)
 
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
 
@@ -235,6 +238,7 @@ export const ProductConfigurator = ({
             cameraDistanceOverride={sliderOverride}
             backgroundPresetOverride={backgroundOverride}
             onCameraDistanceChange={onCameraDistanceChange}
+            cameraAnglesGetterRef={cameraAnglesGetterRef}
           />
         </div>
 
@@ -246,6 +250,7 @@ export const ProductConfigurator = ({
               onSliderChange={onSliderChange}
               onBackgroundChange={onBackgroundChange}
               onSaveSuccess={onSaveSuccess}
+              cameraAnglesGetterRef={cameraAnglesGetterRef}
             />
           )}
           <PriceDisplay
@@ -269,6 +274,7 @@ export const ProductConfigurator = ({
             currency={productModel.currency}
             attributesByComponent={attributesByComponent}
             optionsByAttribute={optionsByAttribute}
+            shouldOmitSectionHeading
           />
         </div>
       </div>

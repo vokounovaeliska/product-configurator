@@ -10,6 +10,7 @@ import cz.vokounova.configurator.products.attributes.infrastructure.rest.mapper.
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.validation.AttributeOptionCreateParamsValidator
 import cz.vokounova.configurator.products.attributes.infrastructure.rest.validation.AttributeOptionJsonPatchParamsValidator
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeOptionAPI
+import cz.vokounova.configurator.products.models.application.ProductModelAccessGuard
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -33,6 +34,7 @@ import java.util.UUID
 @RequestMapping("/products/api/v1/product-models/{productModelId}/components/{componentId}/attributes/{attributeId}/options")
 class AttributeOptionsController(
     private val attributeOptionAPI: AttributeOptionAPI,
+    private val productModelAccessGuard: ProductModelAccessGuard,
     private val createParamsValidator: AttributeOptionCreateParamsValidator,
     private val jsonPatchValidator: AttributeOptionJsonPatchParamsValidator,
 ) {
@@ -44,6 +46,7 @@ class AttributeOptionsController(
         @PathVariable attributeId: UUID,
         @RequestBody attributeOptionCreateRequestDto: AttributeOptionCreateRequestDto,
     ): ResponseEntity<AttributeOptionDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val params = attributeOptionCreateRequestDto.toParams(AttributeId(attributeId))
         createParamsValidator.validate(params).throwIfNotEmpty()
         val option = attributeOptionAPI.create(params)
@@ -58,6 +61,7 @@ class AttributeOptionsController(
         @PathVariable attributeId: UUID,
         @PathVariable optionId: UUID,
     ): ResponseEntity<Unit> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         attributeOptionAPI.delete(AttributeOptionId(optionId))
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
@@ -70,6 +74,7 @@ class AttributeOptionsController(
         @PathVariable attributeId: UUID,
         @PathVariable optionId: UUID,
     ): ResponseEntity<AttributeOptionDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val option = attributeOptionAPI.getOne(AttributeOptionId(optionId))
         return ResponseEntity.status(HttpStatus.OK).body(option.toDto())
     }
@@ -84,6 +89,7 @@ class AttributeOptionsController(
         @PathVariable componentId: UUID,
         @PathVariable attributeId: UUID,
     ): ResponseEntity<List<AttributeOptionDto>> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val options = attributeOptionAPI.getByAttributeId(AttributeId(attributeId))
         return ResponseEntity.ok().body(options.map { it.toDto() })
     }
@@ -100,6 +106,7 @@ class AttributeOptionsController(
         @PathVariable optionId: UUID,
         @RequestBody attributeOptionPatchRequestDto: List<AttributeOptionPatchRequestDto>,
     ): ResponseEntity<AttributeOptionDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val params = attributeOptionPatchRequestDto.map { it.toParams() }
         jsonPatchValidator.validate(params).throwIfNotEmpty()
 

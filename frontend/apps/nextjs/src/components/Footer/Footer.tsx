@@ -28,6 +28,18 @@ export const Footer = () => {
           >
             {t("contact")}
           </Link>
+          <Link
+            href={ROUTES.privacy}
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {t("privacy")}
+          </Link>
+          <Link
+            href={ROUTES.cookies}
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {t("cookies")}
+          </Link>
         </div>
       </div>
     </footer>

@@ -1,6 +1,15 @@
 "use client"
 
-import { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from "react"
 import { Center, OrbitControls, useGLTF } from "@react-three/drei"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { Move } from "lucide-react"
@@ -13,9 +22,11 @@ import {
   useConfiguratorPreferences,
   usePatchConfiguratorPreferences,
 } from "@/api/configuratorPreferencesQueries"
+import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import { env } from "@/config/env"
 import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
+import { getViewDirectionForPreset } from "../constants/defaultViewPreset"
 import { EMBED_CAMERA_DISTANCE } from "../constants/embedCameraDistance"
 import type { Model3dConfig } from "../types/model3dConfig"
 import {
@@ -131,10 +142,10 @@ const ZOOM_DEFAULT_EMBED = EMBED_CAMERA_DISTANCE.default
  * angle (Y=2) for a “looking down” product shot; embed uses a flatter angle so the model sits
  * nearer the vertical center of tall preview areas instead of hugging the top.
  */
-const VIEW_DIR_DEFAULT: [number, number, number] = [0, 2, 5]
+const _VIEW_DIR_DEFAULT: [number, number, number] = [0, 2, 5]
 /** Nearly level with the product so it sits near the vertical middle of the embed canvas. */
-const VIEW_DIR_EMBED: [number, number, number] = [0, 0.18, 5]
-/** World-space Y shift (negative = model lower in frame) — pairs with flat VIEW_DIR_EMBED. */
+const _VIEW_DIR_EMBED: [number, number, number] = [0, 0.18, 5]
+/** World-space Y shift (negative = model lower in frame) — pairs with flat _VIEW_DIR_EMBED. */
 const EMBED_SCENE_VERTICAL_BIAS = -0.22
 
 /**
@@ -239,6 +250,8 @@ type Props = {
     zoomDistanceDefault?: number | null
     zoomDistanceEmbed?: number | null
     backgroundPreset?: string | null
+    cameraHorizontalAngleRad?: number | null
+    cameraVerticalAngleRad?: number | null
   } | null
   /** Override camera distance (e.g. from preview settings slider). When set, syncs 3D view to this value. */
   cameraDistanceOverride?: number | null
@@ -265,6 +278,11 @@ type Props = {
   renderRawGlb?: boolean
   /** Y offset for Center (scene units). Use on mobile embed to adjust model position in viewport. */
   centerOffsetY?: number
+  /**
+   * When set, assigns a function that reads current OrbitControls angles (radians).
+   * Cleared on unmount. Used by preview settings to persist default camera view.
+   */
+  cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
 }
 
 type OrbitControlsRef = React.ComponentRef<typeof OrbitControls>
@@ -1515,6 +1533,39 @@ function getSnapshotCameraDistance(
   return 12
 }
 
+function CameraAnglesGetterSync({
+  controlsRef,
+  getterRef,
+}: {
+  controlsRef: React.RefObject<OrbitControlsRef | null>
+  getterRef: MutableRefObject<CameraAnglesGetter | null>
+}) {
+  useEffect(() => {
+    getterRef.current = () => {
+      const raw = controlsRef.current
+      if (!raw) return null
+      const ctrl = raw as unknown as {
+        getAzimuthalAngle?: () => number
+        getPolarAngle?: () => number
+      }
+      if (
+        typeof ctrl.getAzimuthalAngle !== "function" ||
+        typeof ctrl.getPolarAngle !== "function"
+      ) {
+        return null
+      }
+      return {
+        cameraHorizontalAngleRad: ctrl.getAzimuthalAngle(),
+        cameraVerticalAngleRad: ctrl.getPolarAngle(),
+      }
+    }
+    return () => {
+      getterRef.current = null
+    }
+  }, [controlsRef, getterRef])
+  return null
+}
+
 function WebGLContextLossHandler({ onContextLost }: { onContextLost: () => void }) {
   const { gl } = useThree()
   useEffect(() => {
@@ -1642,6 +1693,7 @@ function ZoomPersistence({
   onDistanceChange?: (distance: number) => void
 }) {
   const lastSavedRef = useRef<number | null>(null)
+  const lastDistanceNotifyRef = useRef<number | null>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(
@@ -1661,7 +1713,13 @@ function ZoomPersistence({
     const maxDist = zoomPreset === "embed" ? ZOOM_MAX_EMBED : ZOOM_MAX_DEFAULT
     const clamped = Math.max(minDist, Math.min(maxDist, distance))
 
-    onDistanceChange?.(clamped)
+    if (onDistanceChange) {
+      const prev = lastDistanceNotifyRef.current
+      if (prev == null || Math.abs(clamped - prev) > 1e-4) {
+        lastDistanceNotifyRef.current = clamped
+        onDistanceChange(clamped)
+      }
+    }
 
     if (!onSaveZoom) return
     if (lastSavedRef.current !== null && Math.abs(lastSavedRef.current - clamped) < 0.01) return
@@ -1810,6 +1868,7 @@ function SceneWithCapture({
   enableZoom: canZoom,
   centerOffsetY = 0,
   isEmbedInteractionLocked = false,
+  cameraAnglesGetterRef,
 }: {
   modelUrl: string
   config?: Model3dConfig | null
@@ -1830,6 +1889,7 @@ function SceneWithCapture({
   centerOffsetY?: number
   /** Embed: when true, orbit/zoom/pan disabled until user interacts (see parent overlay). */
   isEmbedInteractionLocked?: boolean
+  cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
 }) {
   const controlsRef = useRef<OrbitControlsRef>(null)
   const shouldUseCenter = !isRenderRawGlb
@@ -1878,6 +1938,12 @@ function SceneWithCapture({
         })}
         target={[0, centerOffsetY, 0]}
       />
+      {cameraAnglesGetterRef != null && (
+        <CameraAnglesGetterSync
+          controlsRef={controlsRef}
+          getterRef={cameraAnglesGetterRef}
+        />
+      )}
       <InitialZoomSync
         controlsRef={controlsRef}
         zoomPreset={zoomPreset}
@@ -1947,6 +2013,7 @@ export const ModelViewer3D = ({
   renderRawGlb: isRenderRawGlbProp,
   enableZoom: canZoom,
   centerOffsetY,
+  cameraAnglesGetterRef,
 }: Props) => {
   const t = useTranslations("Configurator.preview")
   const [isContextLost, setIsContextLost] = useState(false)
@@ -2069,7 +2136,6 @@ export const ModelViewer3D = ({
   ])
 
   const savedZoomDistance = useMemo(() => {
-    if (zoomPreset === "thumbnail") return null
     const d =
       zoomPreset === "embed"
         ? (configuratorPreferencesFromServer?.zoomDistanceEmbed ??
@@ -2103,16 +2169,46 @@ export const ModelViewer3D = ({
   const shouldPersistZoom =
     Boolean(productModelId) && zoomPreset !== "thumbnail" && zoomPreset !== "embed"
 
+  const savedCameraHorizontalAngleRad =
+    preferencesFromApi?.cameraHorizontalAngleRad ??
+    configuratorPreferencesFromServer?.cameraHorizontalAngleRad ??
+    null
+  const savedCameraVerticalAngleRad =
+    preferencesFromApi?.cameraVerticalAngleRad ??
+    configuratorPreferencesFromServer?.cameraVerticalAngleRad ??
+    null
+
   const cameraPosition: [number, number, number] = useMemo(() => {
-    const defaultPos = zoomPreset === "embed" ? VIEW_DIR_EMBED : VIEW_DIR_DEFAULT
-    const dir = new THREE.Vector3(defaultPos[0], defaultPos[1], defaultPos[2]).normalize()
+    const dirPreset =
+      zoomPreset === "thumbnail" ? "default" : zoomPreset === "embed" ? "embed" : "default"
+    let dir: THREE.Vector3
+    if (
+      savedCameraHorizontalAngleRad != null &&
+      savedCameraVerticalAngleRad != null &&
+      Number.isFinite(savedCameraHorizontalAngleRad) &&
+      Number.isFinite(savedCameraVerticalAngleRad)
+    ) {
+      dir = new THREE.Vector3()
+        .setFromSpherical(
+          new THREE.Spherical(1, savedCameraVerticalAngleRad, savedCameraHorizontalAngleRad),
+        )
+        .normalize()
+    } else {
+      const [dx, dy, dz] = getViewDirectionForPreset("automatic", dirPreset)
+      dir = new THREE.Vector3(dx, dy, dz).normalize()
+    }
     const defaultDistance = zoomPreset === "embed" ? ZOOM_DEFAULT_EMBED : ZOOM_DEFAULT_DISTANCE
-    const distance =
-      zoomPreset === "thumbnail" ? ZOOM_DEFAULT_DISTANCE : (savedZoomDistance ?? defaultDistance)
+    const distance = savedZoomDistance ?? defaultDistance
     const targetY = resolvedCenterOffsetY
     const target = new THREE.Vector3(0, targetY, 0)
     return target.clone().add(dir.multiplyScalar(distance)).toArray() as [number, number, number]
-  }, [zoomPreset, savedZoomDistance, resolvedCenterOffsetY])
+  }, [
+    zoomPreset,
+    savedZoomDistance,
+    resolvedCenterOffsetY,
+    savedCameraHorizontalAngleRad,
+    savedCameraVerticalAngleRad,
+  ])
 
   if (isContextLost) {
     return (
@@ -2179,6 +2275,7 @@ export const ModelViewer3D = ({
             enableZoom={canZoom}
             centerOffsetY={resolvedCenterOffsetY}
             isEmbedInteractionLocked={isEmbedInteractionLocked}
+            cameraAnglesGetterRef={cameraAnglesGetterRef}
           />
         </Suspense>
       </Canvas>
