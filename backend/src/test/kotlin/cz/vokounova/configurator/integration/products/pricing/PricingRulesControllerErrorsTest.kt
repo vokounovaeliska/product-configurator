@@ -63,23 +63,18 @@ class PricingRulesControllerErrorsTest : BaseIntegrationTest() {
     }
 
     @Test
-    fun `Get - returns empty list for non-existent product model`() {
+    fun `Get - NotFound - when product model does not exist`() {
         val user = UserMocks.getUser(id = userId0)
         userRepository.create(user)
 
         val nonExistentProductModelId = UUID.randomUUID()
 
-        val result =
-            mockMvc
-                .perform(
-                    get("$PRICING_RULES_URL/$nonExistentProductModelId/pricing-rules")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
-                ).andExpect(status().isOk)
-                .andReturn()
-
-        val parsedResult = readResponseAsList<Map<String, Any>>(result)
-        assert(parsedResult.isEmpty())
+        mockMvc
+            .perform(
+                get("$PRICING_RULES_URL/$nonExistentProductModelId/pricing-rules")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
+            ).andExpect(status().isNotFound)
     }
 
     @Test
