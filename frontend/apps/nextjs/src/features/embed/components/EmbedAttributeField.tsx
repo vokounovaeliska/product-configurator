@@ -95,14 +95,20 @@ export const EmbedAttributeField = ({
 
     return (
       <div className="space-y-2">
-        <Label id={`attr-${attribute.id}-label`}>{attribute.label}</Label>
+        <Label
+          id={`attr-${attribute.id}-label`}
+          className="text-muted-foreground"
+        >
+          {attribute.label}
+        </Label>
         <div
           role="listbox"
           aria-labelledby={`attr-${attribute.id}-label`}
           aria-label={attribute.label}
           className={cn(
-            "flex flex-wrap gap-1.5",
-            hasImages && "grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6",
+            "flex flex-wrap content-start justify-start gap-2",
+            hasImages &&
+              "grid w-full [grid-auto-rows:auto] grid-cols-[repeat(auto-fill,2rem)] justify-start",
           )}
         >
           {sortedOptions.map((opt) => {
@@ -122,23 +128,25 @@ export const EmbedAttributeField = ({
                 aria-selected={isSelected}
                 onClick={() => onSelectOption(opt)}
                 className={cn(
-                  "flex min-h-[36px] min-w-0 touch-manipulation flex-col items-center justify-center gap-0.5 rounded border-2 transition-colors",
+                  "touch-manipulation rounded border-0 transition-colors",
                   isSelected
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-muted",
-                  hasImages ? "overflow-hidden p-0" : "px-2 py-1 text-xs font-medium",
+                    ? "bg-primary/10 text-primary"
+                    : "bg-neutral-50 text-muted-foreground hover:bg-neutral-100/90 dark:bg-muted/35 dark:hover:bg-muted/50",
+                  hasImages
+                    ? "flex w-8 shrink-0 flex-col items-center gap-0.5 overflow-hidden p-0"
+                    : "flex min-h-7 min-w-0 items-center px-1.5 py-0.5 text-[11px] font-medium",
                 )}
               >
                 {hasImages && opt.imageUrl ? (
                   <>
-                    <div className="relative mx-auto aspect-square w-10 shrink-0 overflow-hidden rounded-sm bg-muted">
+                    <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-sm bg-neutral-50 dark:bg-muted/35">
                       <Image
                         src={getImageUrlForDisplay(opt.imageUrl)}
                         alt={opt.label}
                         fill
                         className="object-cover"
                         unoptimized
-                        sizes="40px"
+                        sizes="32px"
                       />
                     </div>
                     {hasPrice && (
@@ -201,12 +209,7 @@ export const EmbedAttributeField = ({
     }
     return (
       <div className="space-y-2">
-        <Label htmlFor={`attr-${attribute.id}`}>
-          {attribute.label}
-          {attribute.unit?.trim() && (
-            <span className="ml-1 font-normal text-muted-foreground">({attribute.unit})</span>
-          )}
-        </Label>
+        <Label htmlFor={`attr-${attribute.id}`}>{attribute.label}</Label>
         <div className="flex items-center gap-2">
           <Input
             id={`attr-${attribute.id}`}
@@ -262,12 +265,7 @@ export const EmbedAttributeField = ({
     }
     return (
       <div className="space-y-2">
-        <Label htmlFor={`attr-${attribute.id}`}>
-          {attribute.label}
-          {attribute.unit?.trim() && (
-            <span className="ml-1 font-normal text-muted-foreground">({attribute.unit})</span>
-          )}
-        </Label>
+        <Label htmlFor={`attr-${attribute.id}`}>{attribute.label}</Label>
         <div className="flex items-center gap-2">
           <Input
             id={`attr-${attribute.id}`}

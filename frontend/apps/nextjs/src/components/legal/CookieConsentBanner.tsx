@@ -11,13 +11,26 @@ import { ROUTES } from "@/lib/routes"
 
 const STORAGE_KEY = "konfiguruj_cookie_notice_v1"
 
+function isEmbeddedInIframe(): boolean {
+  if (typeof window === "undefined") return false
+  try {
+    return window.self !== window.top
+  } catch {
+    return true
+  }
+}
+
 export const CookieConsentBanner = () => {
   const t = useTranslations("Legal.CookieBanner")
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     try {
-      setIsVisible(typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY) !== "1")
+      if (isEmbeddedInIframe()) {
+        setIsVisible(false)
+        return
+      }
+      setIsVisible(localStorage.getItem(STORAGE_KEY) !== "1")
     } catch {
       setIsVisible(true)
     }

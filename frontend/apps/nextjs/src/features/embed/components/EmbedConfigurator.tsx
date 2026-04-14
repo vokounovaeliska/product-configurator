@@ -251,8 +251,8 @@ export const EmbedConfigurator = ({
         </div>
       )}
 
-      <div className="flex w-full flex-col gap-4 lg:grid lg:grid-cols-3 lg:items-stretch lg:gap-4">
-        <div className="relative z-0 order-2 flex min-h-0 w-full flex-col items-center justify-center lg:order-none lg:col-span-2">
+      <div className="flex w-full flex-col gap-4 lg:grid lg:grid-cols-3 lg:items-start lg:gap-4">
+        <div className="relative z-0 order-2 flex w-full flex-col items-center justify-center lg:order-none lg:col-span-2">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
@@ -270,7 +270,7 @@ export const EmbedConfigurator = ({
           />
         </div>
 
-        <div className="order-1 flex min-h-0 flex-1 flex-col gap-3 overflow-hidden lg:order-none lg:max-h-full">
+        <div className="order-1 flex w-full flex-col gap-3 lg:order-none">
           <div className="flex shrink-0 flex-col gap-2">
             <Card className="p-3 shadow-sm">
               <div className="flex items-baseline justify-between gap-2">
