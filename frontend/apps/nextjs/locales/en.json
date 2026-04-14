@@ -320,7 +320,7 @@
       "requestsAction": "Inquiries",
       "requestsDescription": "View quote inquiries submitted through your embedded configurator.",
       "tipTitle": "Tip: 3D model preparation",
-      "tipBody": "Use the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The plugin exports model.glb, parameters.json, and materials into a single zip file. Use Dynamic Components for configurable parameters (colors, dimensions).",
+      "tipBody": "Use the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). It saves model.glb, parameters.json, and any texture images into one zip, depending on the model. Use Dynamic Components for configurable parameters (colors, dimensions).",
       "downloadPlugin": "Download SketchUp plugin",
       "downloadPluginShort": "Download plugin",
       "tutorial": "Tutorial"
@@ -328,7 +328,7 @@
   },
   "SketchUpImport": {
     "title": "Import from SketchUp",
-    "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The zip contains the 3D model, parameters, and materials. After import, set prices and preview in the configurator.",
+    "description": "Upload the configurator zip from the SketchUp plugin (Plugins → Konfiguruj Export → Export for Konfiguruj). The zip contains the 3D model and parameters; textures only when the export includes them. After import, set prices and preview in the configurator.",
     "downloadPlugin": "Download SketchUp plugin",
     "downloadPluginHint": "Don't have the plugin yet? Download the .rbz file and install it in SketchUp via Extensions → Extension Manager → Install Extension.",
     "pluginHelpSectionTitle": "Download the SketchUp plugin",
@@ -338,7 +338,7 @@
       "productNamePlaceholder": "Optional – defaults to zip filename",
       "productNameHint": "Leave empty to use the zip filename as the product name.",
       "configuratorZip": "Configurator zip",
-      "configuratorZipHint": "Zip from SketchUp plugin: model.glb + parameters.json + materials/. Export via Plugins → Konfiguruj Export → Export for Konfiguruj.",
+      "configuratorZipHint": "Plugin zip always includes model.glb and parameters.json; texture images only when the export includes textures (often under a materials folder, not required). Export: Plugins → Konfiguruj Export → Export for Konfiguruj.",
       "submit": "Import",
       "submitting": "Importing…"
     }
@@ -347,7 +347,7 @@
     "title": "SketchUp Plugin Tutorial",
     "subtitle": "How to export Dynamic Components for the Konfiguruj configurator",
     "metaDescription": "Step-by-step tutorial for using the Konfiguruj SketchUp plugin to export Dynamic Components to the web configurator.",
-    "intro": "The Konfiguruj Export plugin exports Dynamic Component parameters from SketchUp to a zip file (model.glb, parameters.json, materials) that you can upload to the configurator. Your model must use Dynamic Components with configurable parameters.",
+    "intro": "The Konfiguruj Export plugin writes a zip with model.glb, parameters.json, and any texture images as needed; upload that zip to the configurator. Your model must use Dynamic Components with configurable parameters.",
     "downloadPlugin": "Download SketchUp plugin",
     "goToImport": "Go to Import",
     "installation": {
@@ -393,8 +393,8 @@
       "step5": "Upload the zip to the configurator via Import from SketchUp.",
       "exportMenuCaption": "Run export from the Plugins menu (labels match your SketchUp language).",
       "exportMenuAlt": "Plugins menu with Konfiguruj Export submenu and Export for Konfiguruj highlighted",
-      "outputFigureCaption": "The saved zip unpacks to a folder with model.glb, parameters.json, and a materials/ folder with PNG textures (when the model uses them).",
-      "outputFigureAlt": "File browser showing exported folder: model.glb, parameters.json, and materials subfolder with texture PNGs"
+      "outputFigureCaption": "After unzipping you will always see model.glb and parameters.json; a textures folder (e.g. materials) and PNG files appear only when the export includes textured materials.",
+      "outputFigureAlt": "File browser: model.glb, parameters.json, and optionally a subfolder with texture PNGs"
     },
     "troubleshooting": {
       "title": "Troubleshooting",
@@ -738,7 +738,7 @@
   },
   "Components": {
     "title": "Components",
-    "titleWithProduct": "Components – {name}",
+    "titleWithProduct": "{name}",
     "description": "Manage components for this product model. Components are the building blocks that customers can configure.",
     "card": {
       "attributesButton": "Manage Attributes",

@@ -319,7 +319,7 @@
       "requestsAction": "Poptávky",
       "requestsDescription": "Prohlížejte cenové poptávky odeslané přes váš vložený konfigurátor.",
       "tipTitle": "Tip: Příprava 3D modelu",
-      "tipBody": "Použijte plugin SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Plugin exportuje model.glb, parameters.json a materiály do jednoho zip souboru. Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry).",
+      "tipBody": "Použijte plugin SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Do jednoho zipu uloží model.glb, parameters.json a případné obrázky textur podle modelu. Použijte dynamické komponenty pro konfigurovatelné parametry (barvy, rozměry).",
       "downloadPlugin": "Stáhnout plugin pro SketchUp",
       "downloadPluginShort": "Stáhnout plugin",
       "tutorial": "Návod"
@@ -327,7 +327,7 @@
   },
   "SketchUpImport": {
     "title": "Import ze SketchUp",
-    "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Zip obsahuje 3D model, parametry a materiály. Po importu nastavte ceny a náhled v konfigurátoru.",
+    "description": "Nahrajte configurator zip z pluginu SketchUp (Pluginy → Konfiguruj Export → Export for Konfiguruj). Zip obsahuje 3D model a parametry; textury jen pokud je export zahrnuje. Po importu nastavte ceny a náhled v konfigurátoru.",
     "downloadPlugin": "Stáhnout plugin pro SketchUp",
     "downloadPluginHint": "Nemáte ještě plugin? Stáhněte si .rbz soubor a nainstalujte ho v SketchUp přes Pluginy → Manager pluginu → Instalace rozšíření.",
     "pluginHelpSectionTitle": "Stažení pluginu pro SketchUp",
@@ -337,7 +337,7 @@
       "productNamePlaceholder": "Volitelné – výchozí je název zip souboru",
       "productNameHint": "Nechte prázdné pro použití názvu zip souboru jako názvu produktu.",
       "configuratorZip": "Configurator zip",
-      "configuratorZipHint": "Zip z pluginu SketchUp: model.glb + parameters.json + materials/. Export přes Pluginy → Konfiguruj Export → Export for Konfiguruj.",
+      "configuratorZipHint": "Zip z pluginu: vždy model.glb a parameters.json; obrázky textur jen pokud export obsahuje textury (často podsložka materials, není povinná). Export: Pluginy → Konfiguruj Export → Export for Konfiguruj.",
       "submit": "Importovat",
       "submitting": "Importuji…"
     }
@@ -346,7 +346,7 @@
     "title": "Návod k pluginu SketchUp",
     "subtitle": "Jak exportovat Dynamic Components pro konfigurátor Konfiguruj",
     "metaDescription": "Podrobný návod k použití pluginu Konfiguruj pro SketchUp – export Dynamic Components do webového konfigurátoru.",
-    "intro": "Plugin Konfiguruj Export exportuje parametry Dynamic Components ze SketchUp do zip souboru (model.glb, parameters.json, materiály), který můžete nahrát do konfigurátoru. Váš model musí používat Dynamic Components s konfigurovatelnými parametry.",
+    "intro": "Plugin Konfiguruj Export uloží do zip souboru model.glb, parameters.json a případné obrázky textur podle modelu; tento zip nahrajete do konfigurátoru. Váš model musí používat Dynamic Components s konfigurovatelnými parametry.",
     "downloadPlugin": "Stáhnout plugin pro SketchUp",
     "goToImport": "Přejít na Import",
     "installation": {
@@ -392,8 +392,8 @@
       "step5": "Nahrajte zip do konfigurátoru přes Import ze SketchUp.",
       "exportMenuCaption": "Export spusťte v menu Pluginy (popisky podle jazyka SketchUp).",
       "exportMenuAlt": "Menu Pluginy s podmenu Konfiguruj Export a položkou Export for Konfiguruj",
-      "outputFigureCaption": "Uložený zip po rozbalení obsahuje model.glb, parameters.json a složku materials/ s PNG texturami (pokud je model používá).",
-      "outputFigureAlt": "Prohlížeč souborů s exportovanou složkou: model.glb, parameters.json a podsložka materials s texturami PNG"
+      "outputFigureCaption": "Po rozbalení zipu typicky uvidíte model.glb a parameters.json; složka s texturami (např. materials) a PNG soubory tam jsou jen tehdy, když export obsahuje texturované materiály.",
+      "outputFigureAlt": "Prohlížeč souborů: model.glb, parameters.json a volitelně podsložka s texturami PNG"
     },
     "troubleshooting": {
       "title": "Řešení problémů",
@@ -737,7 +737,7 @@
   },
   "Components": {
     "title": "Komponenty",
-    "titleWithProduct": "Komponenty – {name}",
+    "titleWithProduct": "{name}",
     "description": "Spravujte komponenty pro tento model produktu. Komponenty jsou stavební bloky, které mohou zákazníci konfigurovat.",
     "card": {
       "attributesButton": "Spravovat atributy",

@@ -165,13 +165,15 @@ Při zakládání nového produktu je vhodné postupovat v tomto pořadí:
 
 ## Import ze SketchUp
 
-Podrobný návod k exportu modelu ze SketchUp, včetně pluginu, Dynamic Components a vytvoření ZIP souboru, je dostupný na stránce [**Návod k pluginu SketchUp**](/cs/tutorial). Anglická verze je dostupná jako [**SketchUp tutorial**](/en/tutorial).
+Do konfigurátoru nahráváte **zip z exportního pluginu** (menu SketchUp **Pluginy → Konfiguruj Export → Export for Konfiguruj**). V zipu jsou vždy soubory **model.glb** a **parameters.json**. Obrázky textur (PNG nebo JPEG) plugin přidá jen pokud je model potřebuje, často pod cestami typu `materials/…`, ale **pevná složka `materials` v zipu být nemusí**, pokud se žádné textury neexportují. Konfigurátor z zipu načte model, parametry a nalezené obrázky.
 
-Samotný import provedete po přihlášení v sekci **Nastavení** → [**Import ze SketchUp**](/cs/setup/import/sketchup). Na **Dashboardu** bývá současně dostupný i tip k přípravě 3D modelu a odkaz na stažení pluginu. Při otevírání uvedených odkazů doplňte před cestu doménu své instance, například `https://example.com/cs/tutorial` nebo v lokálním prostředí `http://localhost:3001/cs/tutorial`.
+Veřejný text **Návod k pluginu SketchUp** je v aplikaci na cestě `/cs/tutorial`, anglická verze na `/en/tutorial`. V běžící instanci na něj narazíte z menu nebo z Dashboardu, případně zadejte do prohlížeče úplnou adresu ve tvaru `https://<vaše-doména>/cs/tutorial` (na produkčním webu Konfiguruj například `https://www.konfiguruj.com/cs/tutorial`). Návod popisuje instalaci pluginu (soubor `.rbz`), práci s Dynamic Components a přípravu exportu. Obsah odpovídá logice aplikace, nemusí jít o doslovný přepis každého kroku ve vaší verzi SketchUp.
 
-Celostránkový návod v češtině může vypadat například takto:
+Po přihlášení spustíte import v **Nastavení** v položce **Import ze SketchUp** (cesta v aplikaci `/cs/setup/import/sketchup`). Vyberete configurator zip a případně doplníte název produktu, na stránce je i nápověda ke stažení pluginu. Úplná adresa je opět `https://<vaše-doména>/cs/setup/import/sketchup`.
 
-![Návod k pluginu SketchUp v aplikaci](images/prirucka/01-tutorial-sketchup.png)
+Na **Dashboardu** (úvod **Nastavení**) je rámeček **Tip: Příprava 3D modelu** s tlačítky na stažení pluginu a na stejný návod. Vše používá doménu vaší instance, při lokálním vývoji typicky `http://localhost:3001/cs/tutorial` a `http://localhost:3001/cs/setup/import/sketchup`.
+
+![Návod k pluginu SketchUp v aplikaci (příklad zobrazení)](images/prirucka/01-tutorial-sketchup.png)
 
 ---
 
