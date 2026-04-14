@@ -681,7 +681,9 @@
       "optionPrice": "+ {amount}",
       "priceTableOption": "Možnost",
       "priceTablePrice": "Cena",
-      "priceForRange": "Rozsah: + {amount}"
+      "enumSelectedPrefix": "Zvoleno:",
+      "enumPriceAdjustment": " · Příplatky: {adjustment}",
+      "priceForRange": "Příplatky: + {amount}"
     },
     "preview": {
       "placeholder": "Náhled produktu",

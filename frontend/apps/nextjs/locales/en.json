@@ -682,7 +682,9 @@
       "optionPrice": "+ {amount}",
       "priceTableOption": "Option",
       "priceTablePrice": "Price",
-      "priceForRange": "Range: + {amount}"
+      "enumSelectedPrefix": "Selected:",
+      "enumPriceAdjustment": " · Surcharge: {adjustment}",
+      "priceForRange": "Surcharge: + {amount}"
     },
     "preview": {
       "placeholder": "Product Preview",

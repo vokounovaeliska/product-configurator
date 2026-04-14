@@ -3,6 +3,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import { FooterOrNull } from "@/components/Footer/FooterOrNull"
 import { HeaderOrNull } from "@/components/Header/HeaderOrNull"
+import { MainContent } from "@/components/layout/MainContent"
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner"
 import { Providers } from "@/components/Providers"
 import { SidebarProvider } from "@/components/SetupNavigation/useSidebar"
@@ -77,15 +78,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Providers>
             <SidebarProvider>
               <HeaderOrNull />
-              <main
-                className={cn(
-                  "flex min-h-0 flex-1 flex-col px-4 py-4",
-                  "pt-[calc(4rem+env(safe-area-inset-top,0px))]",
-                  "sm:p-6 lg:p-12 lg:pt-30",
-                )}
-              >
-                {children}
-              </main>
+              <MainContent>{children}</MainContent>
               <FooterOrNull />
               <CookieConsentBanner />
             </SidebarProvider>

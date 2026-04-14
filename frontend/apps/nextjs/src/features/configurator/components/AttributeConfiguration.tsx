@@ -246,9 +246,6 @@ const AttributeField = ({
           className="text-sm"
         >
           {attribute.label}
-          {displayUnit?.trim() && (
-            <span className="ml-1 font-normal text-muted-foreground">({displayUnit})</span>
-          )}
         </Label>
         <div className="flex items-center gap-2">
           <Input
@@ -321,9 +318,6 @@ const AttributeField = ({
           className="text-sm"
         >
           {attribute.label}
-          {displayUnit?.trim() && (
-            <span className="ml-1 font-normal text-muted-foreground">({displayUnit})</span>
-          )}
         </Label>
         <div className="flex items-center gap-2">
           <Input
@@ -490,8 +484,10 @@ const AttributeSelect = ({
         aria-labelledby={`attr-${attributeId}-label`}
         aria-label={attributeLabel}
         className={cn(
-          "flex flex-wrap gap-2",
-          hasImages && "grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5",
+          "grid w-full justify-start gap-2",
+          hasImages
+            ? "auto-rows-[2.5rem] grid-cols-[repeat(auto-fill,2.5rem)]"
+            : "auto-rows-[1.75rem] grid-cols-[repeat(auto-fill,1.75rem)]",
         )}
       >
         {sortedOptions.map((opt, optIndex) => {
@@ -510,17 +506,19 @@ const AttributeSelect = ({
                   aria-label={ariaLabel}
                   onClick={() => onSelectOption(opt)}
                   className={cn(
-                    "flex min-w-0 flex-col rounded-md transition-colors",
+                    "size-full min-w-0 rounded-md border-0 transition-colors",
                     isSelected
-                      ? "bg-primary/10 ring-2 ring-primary ring-offset-2 ring-offset-background"
-                      : "bg-muted/50 hover:bg-muted",
-                    hasImages ? "items-center p-1.5" : "items-center justify-center px-2 py-2",
+                      ? "bg-primary/10"
+                      : "bg-neutral-50 hover:bg-neutral-100/90 dark:bg-muted/35 dark:hover:bg-muted/50",
+                    hasImages
+                      ? "flex items-center justify-center p-0.5"
+                      : "flex items-center justify-center p-0",
                   )}
                 >
                   {hasImages ? (
                     <div
                       className={cn(
-                        "relative mx-auto aspect-square w-full max-w-[3.5rem] shrink-0 overflow-hidden rounded-md bg-muted",
+                        "relative aspect-square w-full overflow-hidden rounded-[0.25rem] bg-neutral-50 dark:bg-muted/35",
                         !opt.imageUrl && "flex items-center justify-center",
                       )}
                     >
@@ -531,7 +529,7 @@ const AttributeSelect = ({
                           fill
                           className="object-cover"
                           unoptimized
-                          sizes="56px"
+                          sizes="40px"
                         />
                       ) : (
                         <span
@@ -544,7 +542,7 @@ const AttributeSelect = ({
                     </div>
                   ) : (
                     <span
-                      className="flex min-h-10 min-w-10 items-center justify-center text-xs font-semibold text-muted-foreground tabular-nums"
+                      className="flex size-full items-center justify-center text-[10px] font-semibold text-muted-foreground tabular-nums"
                       aria-hidden
                     >
                       {optIndex + 1}
@@ -571,12 +569,10 @@ const AttributeSelect = ({
           variant="body-sm"
           className="text-muted-foreground"
         >
-          {optionDisplayName(selectedOption)}
+          {t("attributes.enumSelectedPrefix")} {optionDisplayName(selectedOption)}
           {selectedPriceSuffix && (
-            <span className="whitespace-nowrap text-muted-foreground">
-              {" ("}
-              {selectedPriceSuffix}
-              {")"}
+            <span className="whitespace-nowrap">
+              {t("attributes.enumPriceAdjustment", { adjustment: selectedPriceSuffix })}
             </span>
           )}
         </Typography>
