@@ -6,6 +6,7 @@ import { AlertCircleIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useForm } from "react-hook-form"
 import { Button } from "@workspace/ui/components/button"
+import { Checkbox } from "@workspace/ui/components/checkbox"
 import {
   Form,
   FormControl,
@@ -21,6 +22,8 @@ import { cn } from "@workspace/ui/lib/utils"
 import { PasswordInput } from "@/components/PasswordInput"
 import { useAuth } from "@/hooks/useAuth"
 import { publicApi } from "@/lib/api/restClient"
+import { Link } from "@/lib/i18n/navigation"
+import { ROUTES } from "@/lib/routes"
 import { extractErrorMessage } from "@/lib/utils"
 
 import {
@@ -43,6 +46,7 @@ export const RegistrationForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      acceptPrivacy: false,
     },
     resolver: zodResolver(registrationFormSchema),
   })
@@ -77,7 +81,7 @@ export const RegistrationForm = () => {
   }
 
   return (
-    <div className="mx-auto max-w-md py-8">
+    <div className="mx-auto w-full max-w-md">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -154,6 +158,44 @@ export const RegistrationForm = () => {
                   <PasswordInput {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="acceptPrivacy"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start gap-2 rounded-lg border border-border/80 bg-muted/30 p-3 dark:bg-muted/20">
+                <FormControl>
+                  <Checkbox
+                    className="mt-0.5 shrink-0"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="min-w-0 flex-1">
+                  <FormLabel className="!mt-0 !block w-full min-w-0 cursor-pointer text-left leading-snug !font-normal">
+                    <span className="block text-xs leading-snug text-pretty sm:text-sm">
+                      {t.rich("privacyConsentLine1", {
+                        privacy: (chunks) => (
+                          <Link
+                            href={ROUTES.privacy}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline font-medium text-primary underline underline-offset-2"
+                          >
+                            {chunks}
+                          </Link>
+                        ),
+                      })}
+                    </span>
+                    <span className="mt-1 block text-xs leading-snug text-pretty text-muted-foreground sm:text-sm">
+                      {t("privacyConsentLine2")}
+                    </span>
+                  </FormLabel>
+                  <FormMessage className="pt-0.5" />
+                </div>
               </FormItem>
             )}
           />

@@ -83,7 +83,7 @@ class ComponentsControllerTest : BaseIntegrationTest() {
                 .perform(
                     get("$COMPONENTS_URL/${productModel.id.value}/components/${created.id.value}")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -275,7 +275,7 @@ class ComponentsControllerTest : BaseIntegrationTest() {
                     get("$COMPONENTS_URL/${productModel.id.value}/components")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("limit", "10")
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -307,7 +307,7 @@ class ComponentsControllerTest : BaseIntegrationTest() {
                     get("$COMPONENTS_URL/${productModel1.id.value}/components")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("limit", "10")
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 

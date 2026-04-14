@@ -98,7 +98,7 @@ class AttributesControllerTest : BaseIntegrationTest() {
                 .perform(
                     get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes/${created.id.value}")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -282,7 +282,7 @@ class AttributesControllerTest : BaseIntegrationTest() {
                 .perform(
                     get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -392,7 +392,7 @@ class AttributesControllerTest : BaseIntegrationTest() {
                         .param("ids", attribute1.id.value.toString())
                         .param("ids", attribute2.id.value.toString())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -441,7 +441,7 @@ class AttributesControllerTest : BaseIntegrationTest() {
                     get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes")
                         .param("types", AttributeType.DECIMAL.name)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -483,7 +483,7 @@ class AttributesControllerTest : BaseIntegrationTest() {
                     get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes")
                         .param("limit", "2")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -526,7 +526,7 @@ class AttributesControllerTest : BaseIntegrationTest() {
                     get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes")
                         .param("orderBy", "sortOrder")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -734,7 +734,7 @@ class AttributesControllerTest : BaseIntegrationTest() {
             .perform(
                 get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNotFound)
     }
 }

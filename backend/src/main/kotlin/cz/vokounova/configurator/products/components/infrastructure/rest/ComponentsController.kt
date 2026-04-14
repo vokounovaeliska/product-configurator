@@ -15,6 +15,7 @@ import cz.vokounova.configurator.products.components.infrastructure.rest.validat
 import cz.vokounova.configurator.products.components.infrastructure.rest.validation.ComponentJsonPatchParamsValidator
 import cz.vokounova.configurator.products.components.infrastructure.rest.validation.ComponentListQueryParamsValidator
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
+import cz.vokounova.configurator.products.models.application.ProductModelAccessGuard
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
 import cz.vokounova.configurator.shared.pagination.PaginationUtils
@@ -43,6 +44,7 @@ import java.util.UUID
 @RequestMapping("/products/api/v1/product-models/{productModelId}/components")
 class ComponentsController(
     private val componentAPI: ComponentAPI,
+    private val productModelAccessGuard: ProductModelAccessGuard,
     private val queryParamsValidator: ComponentListQueryParamsValidator,
     private val createParamsValidator: ComponentCreateParamsValidator,
     private val jsonPatchValidator: ComponentJsonPatchParamsValidator,
@@ -53,6 +55,7 @@ class ComponentsController(
         @PathVariable productModelId: UUID,
         @RequestBody componentCreateRequestDto: ComponentCreateRequestDto,
     ): ResponseEntity<ComponentDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val params = componentCreateRequestDto.toParams(ProductModelId(productModelId))
         createParamsValidator.validate(params).throwIfNotEmpty()
         val component = componentAPI.create(params)
@@ -66,6 +69,7 @@ class ComponentsController(
         @PathVariable productModelId: UUID,
         @PathVariable componentId: UUID,
     ): ResponseEntity<Unit> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         componentAPI.delete(ComponentId(componentId))
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
@@ -76,6 +80,7 @@ class ComponentsController(
         @PathVariable productModelId: UUID,
         @PathVariable componentId: UUID,
     ): ResponseEntity<ComponentDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val component = componentAPI.getOne(ComponentId(componentId))
         return ResponseEntity.status(HttpStatus.OK).body(component.toDto())
     }
@@ -93,6 +98,7 @@ class ComponentsController(
         @RequestParam(required = false) orderBy: List<String>?,
         @RequestParam(required = false) ids: List<UUID>?,
     ): ResponseEntity<ComponentPaginatedResponseDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val queryParamsDto =
             ComponentListQueryParams(
                 productModelIds = listOf(productModelId),
@@ -141,6 +147,7 @@ class ComponentsController(
         @PathVariable componentId: UUID,
         @RequestBody componentPatchRequestDto: List<ComponentPatchRequestDto>,
     ): ResponseEntity<ComponentDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val params = componentPatchRequestDto.map { it.toParams() }
         jsonPatchValidator.validate(params).throwIfNotEmpty()
 

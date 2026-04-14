@@ -108,7 +108,7 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
             .perform(
                 get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes/$nonExistentId")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNotFound)
     }
 
@@ -135,7 +135,7 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
             .perform(
                 get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes/${attribute.id.value}")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNotFound)
     }
 
@@ -168,7 +168,7 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
             .perform(
                 get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component2.id.value}/attributes/${attribute.id.value}")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .with(AuthMocks.mockAdmin()),
+                    .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
             ).andExpect(status().isNotFound)
     }
 
@@ -666,7 +666,7 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
                     get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes")
                         .param("limit", "0")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isBadRequest)
                 .andReturn()
 
@@ -683,7 +683,7 @@ class AttributesControllerErrorsTest : BaseIntegrationTest() {
                     get("$ATTRIBUTES_URL/${productModel.id.value}/components/${component.id.value}/attributes")
                         .param("orderBy", "invalidField")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isBadRequest)
                 .andReturn()
 

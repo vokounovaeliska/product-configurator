@@ -96,7 +96,7 @@ class PricingRulesControllerTest : BaseIntegrationTest() {
                 .perform(
                     get("$PRICING_RULES_URL/${productModel.id.value}/pricing-rules")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 
@@ -349,7 +349,7 @@ class PricingRulesControllerTest : BaseIntegrationTest() {
                         .param("componentId", component.id.value.toString())
                         .param("attributeCode", "COLOR")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { ChevronDownIcon, ExternalLinkIcon, SearchIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import Image from "next/image"
@@ -17,12 +17,13 @@ import { ROUTES } from "@/lib/routes"
 
 import {
   useCustomerRequestProductModels,
-  useCustomerRequestsList,
+  useCustomerRequestsInfiniteList,
   useUpdateCustomerRequestStatus,
 } from "../api/customerRequestQueries"
 import type { CustomerRequestDto } from "../api/customerRequestQueries"
 import { useRequestConfigurationData } from "../hooks/useRequestConfigurationData"
 import { customerRequestStatusBadgeClasses } from "../utils/customerRequestStatusStyles"
+import { CustomerRequestDeleteControl } from "./CustomerRequestDeleteControl"
 import {
   CustomerRequestSummaryText,
   CustomerRequestThumbnail,
@@ -74,6 +75,48 @@ function truncateMessage(text: string | null): string {
   return `${trimmed.slice(0, MESSAGE_PREVIEW_LENGTH)}…`
 }
 
+type RequestsListPaginationBarProps = {
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  fetchNextPage: () => void
+  loadedCount: number
+  t: ReturnType<typeof useTranslations<"Setup.customerRequests">>
+}
+
+function RequestsListPaginationBar({
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage,
+  loadedCount,
+  t,
+}: RequestsListPaginationBarProps) {
+  return (
+    <div className="flex flex-col items-center gap-2 pt-4">
+      {hasNextPage ? (
+        <Button
+          type="button"
+          variant="outline"
+          className="min-w-[200px]"
+          disabled={isFetchingNextPage}
+          onClick={() => fetchNextPage()}
+        >
+          {isFetchingNextPage ? t("loadingMore") : t("loadMore")}
+        </Button>
+      ) : (
+        loadedCount > 0 && (
+          <Typography
+            as="p"
+            variant="body-sm"
+            className="text-muted-foreground"
+          >
+            {t("allLoaded")}
+          </Typography>
+        )
+      )}
+    </div>
+  )
+}
+
 export const CustomerRequestsList = () => {
   const t = useTranslations("Setup.customerRequests")
   const [productFilter, setProductFilter] = useState<string>("all")
@@ -81,16 +124,24 @@ export const CustomerRequestsList = () => {
   const [toDate, setToDate] = useState<string>("")
   const { data: productModels } = useCustomerRequestProductModels(100)
   const {
-    data: requests,
+    data: requestsInfinite,
     isPending,
     isFetching,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
     error,
-  } = useCustomerRequestsList({
-    limit: 50,
+  } = useCustomerRequestsInfiniteList({
+    pageSize: 40,
     productModelId: productFilter === "all" ? null : productFilter,
     fromDate: fromDate || null,
     toDate: toDate || null,
   })
+  const requests = useMemo(
+    () => requestsInfinite?.pages.flatMap((p) => p) ?? [],
+    [requestsInfinite?.pages],
+  )
+  const isFilterRefetching = isFetching && !isFetchingNextPage
   const updateStatus = useUpdateCustomerRequestStatus()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -123,8 +174,12 @@ export const CustomerRequestsList = () => {
     setSelectedId((prev) => (prev === id ? null : id))
   }
 
+  const handleRequestDeleted = useCallback((deletedId: string) => {
+    setSelectedId((prev) => (prev === deletedId ? null : prev))
+  }, [])
+
   const handleStatusChange = (id: string, newStatus: string) => {
-    const req = requests?.find((r) => r.id === id)
+    const req = requests.find((r) => r.id === id)
     if (!req || req.status === newStatus) return
     updateStatus.reset()
     updateStatus.mutate({ id, status: newStatus })
@@ -139,11 +194,10 @@ export const CustomerRequestsList = () => {
     })
   }, [requests, searchQuery, statusFilter])
 
-  const requestsList = requests ?? []
-  const isServerListEmpty = requestsList.length === 0
+  const isServerListEmpty = requests.length === 0
 
   /** Full skeleton only on first load; filter changes keep UI mounted (see placeholderData on query). */
-  if (isPending && requests === undefined) {
+  if (isPending && requestsInfinite === undefined) {
     return (
       <div className="space-y-3">
         <Skeleton className="h-24 w-full" />
@@ -298,21 +352,33 @@ export const CustomerRequestsList = () => {
           </Typography>
         </Card>
       ) : filteredRequests.length === 0 ? (
-        <Card className="p-10 text-center">
-          <Typography
-            as="p"
-            variant="body-md"
-            className="text-muted-foreground"
-          >
-            {t("noMatchingResults")}
-          </Typography>
-        </Card>
+        <>
+          <Card className="p-10 text-center">
+            <Typography
+              as="p"
+              variant="body-md"
+              className="text-muted-foreground"
+            >
+              {t("noMatchingResults")}
+            </Typography>
+          </Card>
+          <RequestsListPaginationBar
+            hasNextPage={Boolean(hasNextPage)}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+            loadedCount={requests.length}
+            t={t}
+          />
+        </>
       ) : (
         <>
           {/* Mobile: card list */}
           <div
-            className={cn("space-y-3 transition-opacity md:hidden", isFetching && "opacity-60")}
-            aria-busy={isFetching}
+            className={cn(
+              "space-y-3 transition-opacity md:hidden",
+              isFilterRefetching && "opacity-60",
+            )}
+            aria-busy={isFilterRefetching}
           >
             {filteredRequests.map((req) => (
               <RequestCard
@@ -321,6 +387,7 @@ export const CustomerRequestsList = () => {
                 isExpanded={selectedId === req.id}
                 onToggle={() => handleToggleExpand(req.id)}
                 onStatusChange={(newStatus) => handleStatusChange(req.id, newStatus)}
+                onRequestDeleted={handleRequestDeleted}
                 isStatusUpdating={updateStatus.isPending}
                 t={t}
               />
@@ -329,8 +396,8 @@ export const CustomerRequestsList = () => {
 
           {/* Desktop: table */}
           <Card
-            className={cn("hidden transition-opacity md:block", isFetching && "opacity-60")}
-            aria-busy={isFetching}
+            className={cn("hidden transition-opacity md:block", isFilterRefetching && "opacity-60")}
+            aria-busy={isFilterRefetching}
           >
             <div className="overflow-x-auto">
               <table className="w-full caption-bottom text-sm">
@@ -384,6 +451,12 @@ export const CustomerRequestsList = () => {
                     >
                       {t("listHeaders.status")}
                     </th>
+                    <th
+                      className="h-12 w-12 px-2 py-3 text-center align-middle font-semibold text-muted-foreground"
+                      scope="col"
+                    >
+                      <span className="sr-only">{t("listHeaders.actions")}</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -396,6 +469,7 @@ export const CustomerRequestsList = () => {
                         isExpanded={isExpanded}
                         onToggle={() => handleToggleExpand(req.id)}
                         onStatusChange={(newStatus) => handleStatusChange(req.id, newStatus)}
+                        onRequestDeleted={handleRequestDeleted}
                         isStatusUpdating={updateStatus.isPending}
                         t={t}
                       />
@@ -405,6 +479,13 @@ export const CustomerRequestsList = () => {
               </table>
             </div>
           </Card>
+          <RequestsListPaginationBar
+            hasNextPage={Boolean(hasNextPage)}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+            loadedCount={requests.length}
+            t={t}
+          />
           {updateStatus.isError && (
             <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2">
               <Typography
@@ -427,6 +508,7 @@ type RequestCardProps = {
   isExpanded: boolean
   onToggle: () => void
   onStatusChange: (newStatus: string) => void
+  onRequestDeleted: (id: string) => void
   isStatusUpdating: boolean
   t: ReturnType<typeof useTranslations<"Setup.customerRequests">>
 }
@@ -436,6 +518,7 @@ const RequestCard = ({
   isExpanded,
   onToggle,
   onStatusChange,
+  onRequestDeleted,
   isStatusUpdating,
   t,
 }: RequestCardProps) => {
@@ -462,76 +545,84 @@ const RequestCard = ({
             size="md"
           />
         </Link>
-        <div
-          role="button"
-          tabIndex={0}
-          className="flex min-w-0 flex-1 cursor-pointer flex-col gap-2 text-left"
-          onClick={onToggle}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault()
-              onToggle()
-            }
-          }}
-        >
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <Typography
-              as="span"
-              variant="body-md"
-              weight="medium"
-              className="line-clamp-2 min-w-0 flex-1"
-            >
-              {req.productModelName}
-            </Typography>
-            <Typography
-              as="span"
-              variant="body-md"
-              weight="semibold"
-              className="shrink-0 tabular-nums"
-            >
-              {formatPrice(req.totalPrice, req.currency)}
-            </Typography>
-          </div>
-          <CustomerRequestSummaryText config={config} />
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <Typography
-              as="span"
-              variant="body-sm"
-              className="text-muted-foreground"
-            >
-              {req.customerName ?? req.customerEmail}
-            </Typography>
-            <Select
-              value={req.status}
-              onValueChange={onStatusChange}
-              disabled={isStatusUpdating}
-            >
-              <Select.Trigger
-                className={cn(
-                  "h-8 min-w-[90px] border-0 bg-transparent shadow-none hover:bg-muted/50",
-                  customerRequestStatusBadgeClasses(req.status),
-                )}
-                onClick={(e) => e.stopPropagation()}
+        <div className="flex min-w-0 flex-1 items-start gap-1">
+          <div
+            role="button"
+            tabIndex={0}
+            className="flex min-w-0 flex-1 cursor-pointer flex-col gap-2 text-left"
+            onClick={onToggle}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                onToggle()
+              }
+            }}
+          >
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <Typography
+                as="span"
+                variant="body-md"
+                weight="medium"
+                className="line-clamp-2 min-w-0 flex-1"
               >
-                <Select.Trigger.Value />
-              </Select.Trigger>
-              <Select.Content align="start">
-                {REQUEST_STATUSES.map((s) => (
-                  <Select.Content.Item
-                    key={s}
-                    value={s}
-                  >
-                    {t(STATUS_KEYS[s])}
-                  </Select.Content.Item>
-                ))}
-              </Select.Content>
-            </Select>
+                {req.productModelName}
+              </Typography>
+              <Typography
+                as="span"
+                variant="body-md"
+                weight="semibold"
+                className="shrink-0 tabular-nums"
+              >
+                {formatPrice(req.totalPrice, req.currency)}
+              </Typography>
+            </div>
+            <CustomerRequestSummaryText config={config} />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Typography
+                as="span"
+                variant="body-sm"
+                className="text-muted-foreground"
+              >
+                {req.customerName ?? req.customerEmail}
+              </Typography>
+              <Select
+                value={req.status}
+                onValueChange={onStatusChange}
+                disabled={isStatusUpdating}
+              >
+                <Select.Trigger
+                  className={cn(
+                    "h-8 min-w-[90px] border-0 bg-transparent shadow-none hover:bg-muted/50",
+                    customerRequestStatusBadgeClasses(req.status),
+                  )}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Select.Trigger.Value />
+                </Select.Trigger>
+                <Select.Content align="start">
+                  {REQUEST_STATUSES.map((s) => (
+                    <Select.Content.Item
+                      key={s}
+                      value={s}
+                    >
+                      {t(STATUS_KEYS[s])}
+                    </Select.Content.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            </div>
+            <ChevronDownIcon
+              className={cn(
+                "size-4 shrink-0 self-center text-muted-foreground transition-transform",
+                isExpanded && "rotate-180",
+              )}
+            />
           </div>
-          <ChevronDownIcon
-            className={cn(
-              "size-4 shrink-0 self-center text-muted-foreground transition-transform",
-              isExpanded && "rotate-180",
-            )}
+          <CustomerRequestDeleteControl
+            variant="icon"
+            requestId={req.id}
+            onDeleted={() => onRequestDeleted(req.id)}
+            className="self-start"
           />
         </div>
       </div>
@@ -698,6 +789,7 @@ type RequestRowProps = {
   isExpanded: boolean
   onToggle: () => void
   onStatusChange: (newStatus: string) => void
+  onRequestDeleted: (id: string) => void
   isStatusUpdating: boolean
   t: ReturnType<typeof useTranslations<"Setup.customerRequests">>
 }
@@ -707,6 +799,7 @@ const RequestRow = ({
   isExpanded,
   onToggle,
   onStatusChange,
+  onRequestDeleted,
   isStatusUpdating,
   t,
 }: RequestRowProps) => {
@@ -715,7 +808,7 @@ const RequestRow = ({
   const configurationData = useRequestConfigurationData(config, req.productModelId, {
     enabled: isExpanded,
   })
-  const colCount = 8
+  const colCount = 9
 
   return (
     <>
@@ -841,6 +934,16 @@ const RequestRow = ({
               )}
             />
           </div>
+        </td>
+        <td
+          className="px-2 py-3 align-middle"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CustomerRequestDeleteControl
+            variant="icon"
+            requestId={req.id}
+            onDeleted={() => onRequestDeleted(req.id)}
+          />
         </td>
       </tr>
       {isExpanded && (

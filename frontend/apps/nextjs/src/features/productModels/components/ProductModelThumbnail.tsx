@@ -53,6 +53,7 @@ export const ProductModelThumbnail = ({
       >
         <ModelViewer3D
           modelUrl={model3dUrl!}
+          productModelId={productModelId}
           model3dEffects={model3dEffects ?? undefined}
           zoomPreset="thumbnail"
           className="h-full !min-h-0 w-full"

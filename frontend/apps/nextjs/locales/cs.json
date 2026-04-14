@@ -36,7 +36,9 @@
       },
       "Footer": {
         "contact": "Kontaktuj mě",
-        "tutorial": "Návod SketchUp"
+        "tutorial": "Návod SketchUp",
+        "privacy": "Ochrana osobních údajů",
+        "cookies": "Cookies"
       }
     }
   },
@@ -48,6 +50,75 @@
     "secondaryCta": "Přihlásit se",
     "setupCta": "Přejít na nastavení modelů",
     "title": "Konfiguruj"
+  },
+  "Legal": {
+    "CookieBanner": {
+      "accept": "Rozumím",
+      "ariaLabel": "Informace o cookies a ochraně osobních údajů",
+      "message": "Používáme nezbytné cookies a podobné technologie k provozu služby (např. k udržení přihlášení). Pokračováním souhlasíte s našimi dokumenty: <privacy>Zásady ochrany osobních údajů</privacy> a <cookies>Zásady používání cookies</cookies>."
+    },
+    "Privacy": {
+      "title": "Zásady ochrany osobních údajů",
+      "intro": "Tímto dokumentem informujeme subjekty údajů (návštěvníky webu a uživatele služby Konfiguruj) o zpracování osobních údajů v rozsahu vyplývajícím z čl. 13 a 14 nařízení Evropského parlamentu a Rady (EU) 2016/679 (obecné nařízení o ochraně osobních údajů, dále jen „GDPR“) a z § 19 zákona č. 110/2019 Sb., o zpracování osobních údajů, ve znění pozdějších předpisů.\n\nOsobním údajem se rozumí jakákoli informace týkající se identifikované nebo identifikovatelné fyzické osoby. Zpracováním je každý operace nebo soubor operací s osobními údaji (shromažďování, zaznamenávání, uspořádání, strukturování, uchovávání, zpřístupnění, použití, sdělení, omezení, výmaz apod.).",
+      "sections": {
+        "controller": {
+          "title": "Správce osobních údajů",
+          "body": "Správcem osobních údajů je provozovatel internetové služby Konfiguruj, jehož identifikační a kontaktní údaje jsou uvedeny na stránce „Kontakt“ tohoto webu (dále jen „správce“). Pro účely komunikace ohledně ochrany osobních údajů použijte zejména kontaktní e-mail uvedený na téže stránce."
+        },
+        "categories": {
+          "title": "Kategorie zpracovávaných osobních údajů",
+          "body": "V závislosti na tom, jak službu využíváte, zpracováváme zejména:\n\n• identifikační a kontaktní údaje (např. jméno, příjmení, e-mailová adresa, telefonní číslo), které zadáte při registraci uživatelského účtu nebo při odeslání poptávky či konfigurace produktu včetně případné zprávy;\n\n• údaje související s obsahem poptávky (např. zvolená konfigurace produktu, souhrn ceny, případný náhled), pokud je součástí žádosti;\n\n• provozní a technické údaje nezbytné k provozu webu a zabezpečení služby (např. údaje související s relací, cookies v rozsahu popsaném v samostatném dokumentu o cookies).\n\nNepožadujeme zpravidla zvláštní kategorie osobních údajů ve smysnu čl. 9 GDPR; pokud by takové údaje dobrovolně vložili do textu zprávy, budou zpracovány pouze pro vyřízení vaší žádosti."
+        },
+        "purposes": {
+          "title": "Účely zpracování a právní základy",
+          "body": "Osobní údaje zpracováváme zejména k těmto účelům a na těchto právních základech:\n\n1) Poskytování služby Konfiguruj, založení a správa uživatelského účtu, plnění smlouvy nebo předsmluvních opatření na vaši žádost — právní základ: plnění smlouvy podle čl. 6 odst. 1 písm. b) GDPR.\n\n2) Vyřízení poptávky či žádosti o nabídku zaslané prostřednictvím služby — právní základ: plnění smlouvy nebo předsmluvní opatření podle čl. 6 odst. 1 písm. b) GDPR, případně oprávněný zájem správce na vyřízení obchodní komunikace podle čl. 6 odst. 1 písm. f) GDPR.\n\n3) Splnění právních povinností správce (účetnictví, daňové předpisy, spolupráce s orgány veřejné moci), pokud taková povinnost vznikne — právní základ: plnění právní povinnosti podle čl. 6 odst. 1 písm. c) GDPR.\n\n4) Zajištění bezpečnosti provozu, prevence podvodu a zneužití, vedení záznamů nutných k ochraně práv správce — právní základ: oprávněný zájem podle čl. 6 odst. 1 písm. f) GDPR (při zvážení vašich práv a oprávněných zájmů).\n\n5) Zpracování na základě vašeho souhlasu, kde jej výslovně vyžadujeme (např. marketing nad rámec nutný ke smlouvě) — právní základ: souhlas podle čl. 6 odst. 1 písm. a) GDPR; souhlas můžete kdykoli odvolat bez vlivu na zákonnost zpracování před jeho odvoláním.\n\nAutomatizované individuální rozhodování s právními účinky ve smyslu čl. 22 GDPR v souvislosti s běžným provozem popsané služby nerealizujeme."
+        },
+        "retention": {
+          "title": "Doba uchovávání osobních údajů",
+          "body": "Osobní údaje uchováváme pouze po dobu nezbytně nutnou k naplnění účelů, pro které jsou zpracovávány, popř. po dobu stanovenou zvláštním právním předpisem (např. archivace, účetní a daňové předpisy, promlčecí lhůty).\n\nÚdaje účtu obvykle uchováváme po dobu trvání smluvního vztahu a dále po dobu nutnou k výkonu práv a povinností vyplývajících ze smlouvy a z právních předpisů. Údaje z poptávek uchováváme po dobu nutnou k jejich vyřízení a následně po dobu odpovídající promlčecím lhůtám a případným sporům, není-li stanoveno jinak.\n\nPo uplynutí lhůty údaje vymažeme nebo anonymizujeme tak, aby již nešlo o osobní údaje."
+        },
+        "recipients": {
+          "title": "Příjemci a zpracovatelé osobních údajů",
+          "body": "Osobní údaje zpřístupňujeme v nezbytném rozsahu pouze osobám nebo subjektům, které pro nás zpracovávají osobní údaje jako zpracovatelé na základě smlouvy podle čl. 28 GDPR (typicky poskytovatel hostingu, provoz serverové infrastruktury, případně poskytovatel e-mailových služeb), a to pouze podle našich pokynů.\n\nKonkrétní kategorie příjemců nebo seznam zpracovatelů vám na žádost sdělíme prostřednictvím kontaktu u správce.\n\nOsobní údaje neprodáváme. Předání do třetí země mimo Evropský hospodářský prostor (EHP) se uskuteční jen pokud je zajištěna odpovídající úroveň ochrany ve smyslu čl. 44 a násl. GDPR (např. rozhodnutí o přiměřenosti, standardní smluvní doložky); v takovém případě vás na předání a záruky upozorníme."
+        },
+        "rights": {
+          "title": "Práva subjektu údajů",
+          "body": "V souvislosti se zpracováním osobních údajů máte zejména tato práva:\n\n• právo na přístup k osobním údajům a na poskytnutí kopie zpracovávaných údajů (čl. 15 GDPR);\n\n• právo na opravu nepřesných údajů a na doplnění neúplných údajů (čl. 16 GDPR);\n\n• právo na výmaz („právo být zapomenut“), pokud jsou splněny podmínky čl. 17 GDPR;\n\n• právo na omezení zpracování za podmínek čl. 18 GDPR;\n\n• právo na přenositelnost údajů u údajů zpracovávaných automatizovaně na základě smlouvy nebo souhlasu, pokud technicky možné (čl. 20 GDPR);\n\n• právo vznést námitku proti zpracování založenému na oprávněném zájmu správce (čl. 21 GDPR);\n\n• právo nebýt předmětem automatizovaného rozhodování včetně profilování s významnými právními účinky, pokud by k němu docházelo ve smyslu čl. 22 GDPR;\n\n• právo podat stížnost u dozorového úřadu, zejména u Úřadu pro ochranu osobních údajů, Pplk. Sochora 27, 170 00 Praha 7, www.uoou.cz, pokud se domníváte, že zpracováním bylo porušeno vaše právo.\n\nJe-li zpracování založeno na souhlasu, máte právo souhlas kdykoli odvolat; odvolání souhlasu nemá vliv na zákonnost zpracování před jeho odvoláním."
+        },
+        "contact": {
+          "title": "Uplatnění práv a dotazy",
+          "body": "Žádosti o uplatnění výše uvedených práv, dotazy k těmto zásadám nebo k zpracování osobních údajů směřujte na kontaktní e-mail správce uvedený na stránce kontaktu tohoto webu. Na vaši žádost odpovíme bez zbytečného odkladu, nejpozději však do jednoho měsíce ode dne jejího doručení; v odůvodněných případech lze lhůtu prodloužit podle čl. 12 odst. 3 GDPR.\n\nTyto zásady můžeme přiměřeně měnit; aktuální znění je vždy zveřejněno na této stránce. O podstatných změnách vás můžeme informovat vhodným způsobem, vyžadují-li to okolnosti."
+        }
+      },
+      "disclaimer": "Tento text slouží k obecné informaci; pro váš konkrétní případ doporučujeme ověření u právního zástupce."
+    },
+    "CookiesPage": {
+      "title": "Informace o používání cookies",
+      "intro": "Tento dokument popisuje způsob používání souborů cookies a obdobných technologií v souvislosti s webovou aplikací Konfiguruj.\n\nZpracování osobních údajů související s cookies se řídí zejména nařízením Evropského parlamentu a Rady (EU) 2016/679 (obecné nařízení o ochraně osobních údajů, dále jen „GDPR“), zákonem č. 110/2019 Sb., o zpracování osobních údajů, ve znění pozdějších předpisů, a v rozsahu ukládání cookies do koncového zařízení též zákonem č. 127/2005 Sb., o elektronických komunikacích, ve znění pozdějších předpisů.",
+      "sections": {
+        "definition": {
+          "title": "Co jsou cookies",
+          "body": "Cookies jsou malé textové soubory ukládané do vašeho prohlížeče nebo koncového zařízení při návštěvě webové stránky. Slouží například k rozpoznání vašeho zařízení, uchování stavu přihlášení nebo zajištění základních funkcí služby. Obdobný účel mohou plnit i jiné technologie ukládající informace v prohlížeči (např. úložiště typu local storage), pokud jsou použity k týmž účelům."
+        },
+        "necessary": {
+          "title": "Nezbytně nutné cookies",
+          "body": "Tyto cookies jsou nezbytné pro řádné zobrazení webu, jeho zabezpečení, provoz uživatelského účtu a plnění smlouvy o poskytování služby; bez nich by webová aplikace nemohla řádně fungovat. Jejich použití je upraveno § 89 odst. 3 zákona č. 127/2005 Sb. a nevyžaduje váš předchozí souhlas ve smyslu ustanovení o cookies podle téhož zákona.\n\nDo této kategorie patří zejména cookies související s přihlášením uživatele, uchováním relace, autentizačními tokeny a technické cookies zajišťující dostupnost, stabilitu a bezpečnost provozu služby. Tyto cookies nepoužíváme k cílené reklamě."
+        },
+        "optional": {
+          "title": "Cookies vyžadující souhlas",
+          "body": "Marketingové, analytické nebo jiné nepovinné cookies, které přesahují nezbytný rozsah, by byly ukládány pouze na základě vašeho předchozího svobodného souhlasu podle čl. 6 odst. 1 písm. a) GDPR ve spojení s příslušnými ustanoveními zákona č. 127/2005 Sb.\n\nV době zveřejnění tohoto textu tyto nepovinné cookies v rámci služby nenasazujeme. Pokud by byly doplněny, budete před jejich uložením informováni a bude vyžadován váš výslovný souhlas; souhlas můžete kdykoli odvolat bez vlivu na zákonnost zpracování před odvoláním."
+        },
+        "browser": {
+          "title": "Nastavení prohlížeče a odmítnutí cookies",
+          "body": "Většinu prohlížečů lze nastavit tak, aby cookies ukládaly jen omezeně, mazaly se po ukončení relace nebo byly zcela blokovány. Postup závisí na typu prohlížeče (obvykle nabídka „Nastavení“ / „Soukromí a zabezpečení“ / „Cookies“).\n\nUpozorňujeme, že úplné zablokování nebo odstranění všech cookies, včetně nezbytných, může vést k omezení nebo znemožnění některých funkcí služby, zejména přihlášení a práce s uživatelským účtem."
+        },
+        "controller": {
+          "title": "Správce, práva subjektů údajů a dozor",
+          "body": "Správcem osobních údajů v souvislosti s provozem služby je osoba nebo subjekt uvedený na stránce kontaktu tohoto webu. Dotazy ohledně zpracování údajů můžete směřovat na uvedený kontaktní e-mail.\n\nPodle GDPR máte mimo jiné právo na přístup k údajům, jejich opravu nebo výmaz, na omezení zpracování, vznést námitku proti zpracování, na přenositelnost údajů v případech stanovených zákonem a právo podat stížnost u dozorového úřadu.\n\nDozorovým úřadem v České republice je Úřad pro ochranu osobních údajů, Pplk. Sochora 27, 170 00 Praha 7, www.uoou.cz."
+        }
+      },
+      "disclaimer": "Tento text slouží k obecné informaci návštěvníků webu; pro váš konkrétní případ doporučujeme ověření u právního zástupce."
+    }
   },
   "Contact": {
     "title": "Kontaktuj mě",
@@ -81,8 +152,11 @@
       "passwordLengthMessage": "Heslo musí mít alespoň 8 znaků",
       "passwordRequiredMessage": "Zadejte heslo",
       "confirmPasswordRequiredMessage": "Potvrďte prosím své heslo",
-      "passwordsNotMatchMessage": "Hesla se neshodují"
+      "passwordsNotMatchMessage": "Hesla se neshodují",
+      "privacyRequiredMessage": "Potvrďte souhlas se zásadami a se zpracováním údajů pro registraci."
     },
+    "privacyConsentLine1": "Potvrzuji, že jsem se seznámil(a) s <privacy>zásadami ochrany osobních údajů</privacy>.",
+    "privacyConsentLine2": "Souhlasím se zpracováním osobních údajů potřebným k registraci účtu.",
     "loginButton": "Registrovat",
     "firstName": "Křestní jméno",
     "surname": "Příjmení",
@@ -168,6 +242,16 @@
       "filterFromDate": "Od data",
       "filterToDate": "Do data",
       "clearFilters": "Vymazat filtry",
+      "loadMore": "Načíst další",
+      "loadingMore": "Načítám…",
+      "allLoaded": "Všechny poptávky jsou načtené.",
+      "deleteRequest": "Smazat poptávku",
+      "deleteConfirmTitle": "Smazat tuto poptávku?",
+      "deleteConfirmDescription": "Poptávka včetně náhledu bude trvale odstraněna. Tento krok nelze vrátit zpět.",
+      "deleteConfirm": "Smazat",
+      "deleteCancel": "Zrušit",
+      "deleteInProgress": "Mazání…",
+      "deleteError": "Poptávku se nepodařilo smazat. Zkuste to prosím znovu.",
       "listHeaders": {
         "preview": "Náhled",
         "product": "Produkt",
@@ -176,7 +260,8 @@
         "message": "Zpráva",
         "date": "Datum",
         "price": "Cena",
-        "status": "Stav"
+        "status": "Stav",
+        "actions": "Akce"
       },
       "noPreview": "Bez náhledu",
       "previewAlt": "Náhled konfigurace – {product}",
@@ -426,8 +511,10 @@
         "saving": "Ukládám…"
       },
       "embedCodeTitle": "Kód pro vložení",
-      "embedPreviewTitle": "Náhled embedu",
-      "embedPreviewLiveHint": "Náhled se mění při posunu zoomu. Uložením nastavíte výchozí hodnotu pro skutečný embed.",
+      "embedPreviewTitle": "Náhled",
+      "embedPreviewHelp": "Natočte a přibližte model v náhledu. Úhly kamery uložte zvlášť; zoom posuvníkem nebo kolečkem a „Uložit výchozí zoom“. Celé zobrazení včetně textů pak hlavním Uložit. Detaily textů v rozbaleném nastavení.",
+      "embedSettingsTitle": "Nastavení náhledu",
+      "embedSettingsHelp": "Které texty se zobrazí ve vloženém konfigurátoru. Platí po uložení.",
       "embedPreviewLoadError": "Náhled se nepodařilo načíst.",
       "copyEmbed": "Kopírovat iframe",
       "copied": "Zkopírováno!",
@@ -435,8 +522,9 @@
       "embedDisplay": {
         "title": "Možnosti zobrazení v embedu",
         "description": "Vyberte, co se zobrazí ve vloženém konfigurátoru.",
-        "defaultZoomLabel": "Výchozí 3D přiblížení (co uvidí zákazník)",
-        "defaultZoomHint": "Nižší hodnota = blíž k produktu; vyšší = dál. Platí při prvním načtení embedu.",
+        "defaultZoomLabel": "Výchozí zoom",
+        "defaultZoomHint": "Nastavte kolečkem v náhledu nebo posuvníkem, pak uložte tlačítkem níže.",
+        "saveZoom": "Uložit výchozí zoom",
         "showProductName": "Název produktu",
         "showDescription": "Popis",
         "showComponents": "Výběr komponent",
@@ -533,8 +621,8 @@
     "priceBreakdown": "Základ {base} + doplňky {modifier}",
     "resetConfiguration": "Obnovit konfiguraci",
     "requestQuoteDialog": {
-      "title": "Požádat o cenovou nabídku",
-      "description": "Vyplňte své údaje a my se vám ozveme s personalizovanou nabídkou.",
+      "title": "Objednávka",
+      "description": "Vyplňte údaje pro odeslání objednávky s vámi zvolenou konfigurací a cenou.",
       "fields": {
         "name": "Jméno",
         "namePlaceholder": "Vaše jméno",
@@ -545,16 +633,20 @@
         "message": "Zpráva",
         "messagePlaceholder": "Popište své požadavky nebo dotazy…"
       },
-      "submit": "Odeslat žádost",
+      "submit": "Odeslat objednávku",
       "submitting": "Odesílám…",
       "cancel": "Zrušit",
       "success": {
-        "title": "Žádost odeslána",
-        "description": "Děkujeme! Vaše žádost byla přijata a brzy se vám ozveme.",
+        "title": "Objednávka odeslána",
+        "description": "Děkujeme! Vaši objednávku jsme přijali.",
         "close": "Zavřít"
       },
+      "dataProcessingConsentLabel": "Souhlasím se zpracováním kontaktních údajů pro vyřízení této objednávky podle <privacy>zásad ochrany osobních údajů</privacy>.",
       "errorMessages": {
-        "generalError": "Něco se pokazilo. Zkuste to prosím znovu."
+        "generalError": "Něco se pokazilo. Zkuste to prosím znovu.",
+        "emailRequired": "Zadejte e-mailovou adresu",
+        "emailInvalid": "Neplatný formát e-mailu",
+        "dataProcessingRequired": "Potvrďte prosím souhlas se zpracováním údajů pro tuto objednávku"
       }
     }
   },
@@ -622,7 +714,17 @@
         "softLavender": "Jemná levandulová"
       },
       "title": "Nastavení náhledu",
-      "description": "Nastavte výchozí úroveň přiblížení a pozadí pro 3D náhled. Platí pro konfigurátor i vložený iframe.",
+      "description": "Nastavte přiblížení, pozadí a výchozí pohled kamery pro 3D náhled. Platí pro konfigurátor i vložený iframe.",
+      "helpTooltip": "Platí pro konfigurátor i embed. Zoom nejlépe nastavíte přiblížením v 3D náhledu a uložením; posuvník je pro doladění. Pohled kamery uložte po otočení modelu.",
+      "cameraHelpTooltip": "Otočte model a uložte výchozí úhel pohledu. Zoom u embedu ukládejte zvlášť pod náhledem. Druhé tlačítko zruší uložený úhel a vrátí automatické rámování.",
+      "moreInfoAria": "Více informací",
+      "cameraLabel": "Pohled kamery",
+      "cameraHint": "Model otočte v náhledu vlevo a klikněte na uložení — tento úhel se použije jako výchozí pro zákazníky.",
+      "saveCameraAnglesSameTitle": "Pohled modelu už odpovídá uloženému — otočte náhled, pokud chcete uložit nový úhel.",
+      "saveCameraAngles": "Uložit pohled modelu jako výchozí",
+      "resetCameraAngles": "Vrátit automatické rámování",
+      "cameraNotReady": "3D náhled se ještě načítá. Zkuste to za chvíli znovu.",
+      "anglesBadgeSaved": "Vlastní pohled uložen",
       "zoomLabel": "Úroveň přiblížení",
       "save": "Uložit",
       "saving": "Ukládám…",

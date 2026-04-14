@@ -14,6 +14,7 @@ import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.shared.jsonpatch.JsonPatchUtils
 import cz.vokounova.configurator.shared.pagination.PaginatedResult
 import cz.vokounova.configurator.shared.pagination.PaginationRequest
+import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -38,6 +39,34 @@ class ProductModelAPIManager(
     }
 
     override fun getOne(id: ProductModelId): ProductModel = findProductModel(id)
+
+    override fun getOneForUser(
+        id: ProductModelId,
+        userId: UserIdDto,
+    ): ProductModel = findProductModelForUser(id, userId)
+
+    @Transactional
+    override fun deleteForUser(
+        id: ProductModelId,
+        userId: UserIdDto,
+    ) {
+        findProductModelForUser(id, userId)
+        val deletedCount = productModelRepository.delete(id)
+        if (deletedCount == 0) {
+            throw ResourceNotFoundException("Product model with id ${id.value} not found")
+        }
+    }
+
+    @Transactional
+    override fun patchForUser(
+        id: ProductModelId,
+        userId: UserIdDto,
+        jsonPatchParams: List<ProductModelJsonPatchParams>,
+    ): ProductModel {
+        val existingProductModel = findProductModelForUser(id, userId, lock = true)
+        val patched = jsonPatchUtils.applyAndMapJsonPatch(jsonPatchParams, existingProductModel)
+        return productModelRepository.update(patched) ?: throw ProductModelException(ProductModelErrorCode.UPDATE_PRODUCT_MODEL_FAILED)
+    }
 
     override fun getPublishedByUserIdAndUrl(
         userId: UUID,
@@ -69,4 +98,18 @@ class ProductModelAPIManager(
     ): ProductModel =
         productModelRepository.findById(id, lock)
             ?: throw ResourceNotFoundException("Product model with id ${id.value} is not found.")
+
+    private fun findProductModelForUser(
+        id: ProductModelId,
+        userId: UserIdDto,
+        lock: Boolean = false,
+    ): ProductModel {
+        val model =
+            productModelRepository.findById(id, lock)
+                ?: throw ResourceNotFoundException("Product model with id ${id.value} is not found.")
+        if (model.userId != userId) {
+            throw ResourceNotFoundException("Product model with id ${id.value} is not found.")
+        }
+        return model
+    }
 }

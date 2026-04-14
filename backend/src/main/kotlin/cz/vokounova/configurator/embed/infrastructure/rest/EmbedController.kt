@@ -68,6 +68,8 @@ class EmbedController(
                             embedShowDescription = it.embedShowDescription,
                             embedShowComponents = it.embedShowComponents,
                             backgroundPreset = it.backgroundPreset,
+                            cameraHorizontalAngleRad = it.cameraHorizontalAngleRad,
+                            cameraVerticalAngleRad = it.cameraVerticalAngleRad,
                         )
                     },
             )
@@ -101,6 +103,8 @@ class EmbedController(
                             embedShowDescription = it.embedShowDescription,
                             embedShowComponents = it.embedShowComponents,
                             backgroundPreset = it.backgroundPreset,
+                            cameraHorizontalAngleRad = it.cameraHorizontalAngleRad,
+                            cameraVerticalAngleRad = it.cameraVerticalAngleRad,
                         )
                     },
             )

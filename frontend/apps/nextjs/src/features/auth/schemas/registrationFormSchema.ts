@@ -20,6 +20,9 @@ export const getRegistrationFormSchema = (t: TFunction<"Registration">) =>
       confirmPassword: z.string({
         required_error: t("errorMessages.confirmPasswordRequiredMessage"),
       }),
+      acceptPrivacy: z.boolean().refine((isAccepted) => isAccepted === true, {
+        message: t("errorMessages.privacyRequiredMessage"),
+      }),
     })
     .refine((data) => data.password === data.confirmPassword, {
       message: t("errorMessages.passwordsNotMatchMessage"),

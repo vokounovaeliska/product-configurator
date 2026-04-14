@@ -9,12 +9,13 @@ import { Select } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
-import { Link } from "@/lib/i18n/navigation"
+import { Link, useRouter } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 import { useCustomerRequest, useUpdateCustomerRequestStatus } from "../api/customerRequestQueries"
 import { useRequestConfigurationData } from "../hooks/useRequestConfigurationData"
 import { customerRequestStatusBadgeClasses } from "../utils/customerRequestStatusStyles"
+import { CustomerRequestDeleteControl } from "./CustomerRequestDeleteControl"
 import { CustomerRequestSummaryChips } from "./CustomerRequestInquiryPreview"
 import { RequestConfigurationDisplay } from "./RequestConfigurationDisplay"
 
@@ -50,6 +51,7 @@ type Props = {
 
 export const CustomerRequestDetail = ({ id }: Props) => {
   const t = useTranslations("Setup.customerRequests")
+  const router = useRouter()
   const { data: request, isLoading, error } = useCustomerRequest(id)
   const updateStatus = useUpdateCustomerRequestStatus()
   const config = request?.configurationJson ?? null
@@ -103,21 +105,30 @@ export const CustomerRequestDetail = ({ id }: Props) => {
             {t("detail.backToList")}
           </Link>
         </Button>
-        <Typography
-          as="h1"
-          variant="display-lg"
-          weight="bold"
-          className="mb-1"
-        >
-          {t("detail.title")}
-        </Typography>
-        <Typography
-          as="p"
-          variant="body-md"
-          className="text-muted-foreground"
-        >
-          {request.productModelName}
-        </Typography>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <Typography
+              as="h1"
+              variant="display-lg"
+              weight="bold"
+              className="mb-1"
+            >
+              {t("detail.title")}
+            </Typography>
+            <Typography
+              as="p"
+              variant="body-md"
+              className="text-muted-foreground"
+            >
+              {request.productModelName}
+            </Typography>
+          </div>
+          <CustomerRequestDeleteControl
+            requestId={request.id}
+            variant="button"
+            onDeleted={() => router.push(ROUTES.setupCustomerRequests)}
+          />
+        </div>
       </div>
 
       {request.snapshotImageBase64 ? (

@@ -3,6 +3,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 import { FooterOrNull } from "@/components/Footer/FooterOrNull"
 import { HeaderOrNull } from "@/components/Header/HeaderOrNull"
+import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner"
 import { Providers } from "@/components/Providers"
 import { SidebarProvider } from "@/components/SetupNavigation/useSidebar"
 import { fontDisplay, fontSans } from "@/styles/fonts"
@@ -86,6 +87,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                 {children}
               </main>
               <FooterOrNull />
+              <CookieConsentBanner />
             </SidebarProvider>
           </Providers>
         </NextIntlClientProvider>

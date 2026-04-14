@@ -1,14 +1,22 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { CheckIcon, ChevronDownIcon, CopyIcon, ExternalLinkIcon, SparklesIcon } from "lucide-react"
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  CopyIcon,
+  ExternalLinkIcon,
+  InfoIcon,
+  SparklesIcon,
+} from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Checkbox } from "@workspace/ui/components/checkbox"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
+import { Tooltip } from "@workspace/ui/components/tooltip"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -16,13 +24,17 @@ import {
   useConfiguratorPreferences,
   usePatchConfiguratorPreferences,
 } from "@/api/configuratorPreferencesQueries"
+import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { env } from "@/config/env"
 import { ROUTES } from "@/lib/routes"
 import { extractErrorMessage } from "@/lib/utils"
 import { getEmbedBaseUrl } from "@/utils/embedUrl"
 
-/* eslint-disable import/no-restricted-paths -- shared orbit zoom range for embed (same as ModelViewer3D) */
+// eslint-disable-next-line import/no-restricted-paths -- same controls as configurator preview tab
+import { PreviewCameraAngleControls } from "@/features/configurator/components/PreviewCameraAngleControls"
+// Publish card intentionally reuses configurator embed limits and camera UI (cross-feature).
+// eslint-disable-next-line import/no-restricted-paths -- shared embed preset with ModelViewer3D embed mode
 import { EMBED_CAMERA_DISTANCE } from "@/features/configurator/constants/embedCameraDistance"
 
 import { useUpdateProductModel } from "../api/productModelQueries"
@@ -56,6 +68,7 @@ type Props = {
 
 export const PublishProductModelCard = ({ productModel }: Props) => {
   const t = useTranslations("ProductModels.Publish")
+  const tCfgPreview = useTranslations("Configurator.previewSettings")
   const [url, setUrl] = useState(productModel.url ?? toUrlPath(productModel.name))
   const [isCopied, setIsCopied] = useState(false)
   const [embedDisplaySaveError, setEmbedDisplaySaveError] = useState<string | null>(null)
@@ -64,6 +77,15 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const updateProductModel = useUpdateProductModel()
   const { data: preferences } = useConfiguratorPreferences(productModel.id)
   const patchPreferences = usePatchConfiguratorPreferences(productModel.id)
+  const cameraAnglesGetterRef = useRef<CameraAnglesGetter | null>(null)
+  const [liveZoomFrom3d, setLiveZoomFrom3d] = useState<number | null>(null)
+
+  const handleLiveEmbedZoom = useCallback((distance: number) => {
+    setLiveZoomFrom3d(clampEmbedZoom(distance))
+  }, [])
+
+  const hasSavedCameraAngles =
+    preferences?.cameraHorizontalAngleRad != null && preferences?.cameraVerticalAngleRad != null
 
   const isEmbedProductNameShownFromServer =
     preferences?.embedShowProductName ?? isEmbedDisplayDefault
@@ -184,7 +206,10 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     setTimeout(() => setIsCopied(false), 2000)
   }
 
-  const hasEmbedZoomChanged = Math.abs(embedZoom - savedEmbedZoomEffective) > 0.01
+  const effectiveEmbedZoom = liveZoomFrom3d ?? clampEmbedZoom(embedZoom)
+  /** Slider-only sync to 3D; omit while wheel-zooming so Canvas is not re-driven every frame (fixes UI lag). */
+  const embedCameraDistanceForPreview = liveZoomFrom3d != null ? null : clampEmbedZoom(embedZoom)
+  const hasEmbedZoomChanged = Math.abs(effectiveEmbedZoom - savedEmbedZoomEffective) > 0.01
 
   const hasEmbedDisplayChanged =
     shouldShowProductNameInEmbed !== isEmbedProductNameShownFromServer ||
@@ -200,10 +225,13 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
         embedShowProductName: shouldShowProductNameInEmbed,
         embedShowDescription: shouldShowDescriptionInEmbed,
         embedShowComponents: shouldShowComponentsInEmbed,
-        zoomDistanceEmbed: Math.round(clampEmbedZoom(embedZoom) * 100) / 100,
+        zoomDistanceEmbed: Math.round(effectiveEmbedZoom * 100) / 100,
       },
       {
-        onSuccess: () => setEmbedDisplaySaveError(null),
+        onSuccess: () => {
+          setEmbedDisplaySaveError(null)
+          setLiveZoomFrom3d(null)
+        },
         onError: (error) => {
           void extractErrorMessage(error).then(setEmbedDisplaySaveError)
         },
@@ -214,9 +242,28 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
     shouldShowProductNameInEmbed,
     shouldShowDescriptionInEmbed,
     shouldShowComponentsInEmbed,
-    embedZoom,
+    effectiveEmbedZoom,
     patchPreferences,
   ])
+
+  const handleSaveEmbedZoomOnly = useCallback(() => {
+    if (!hasEmbedZoomChanged) return
+    setEmbedDisplaySaveError(null)
+    patchPreferences.mutate(
+      {
+        zoomDistanceEmbed: Math.round(effectiveEmbedZoom * 100) / 100,
+      },
+      {
+        onSuccess: () => {
+          setEmbedDisplaySaveError(null)
+          setLiveZoomFrom3d(null)
+        },
+        onError: (error) => {
+          void extractErrorMessage(error).then(setEmbedDisplaySaveError)
+        },
+      },
+    )
+  }, [hasEmbedZoomChanged, effectiveEmbedZoom, patchPreferences])
 
   return (
     <Card className="p-4 sm:p-6">
@@ -336,106 +383,207 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
           </div>
 
           {productModel.isPublished && productModel.url && (
-            <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
-              <Typography
-                as="h4"
-                variant="display-sm"
-                weight="semibold"
-              >
-                {t("embedCodeTitle")}
-              </Typography>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyEmbed}
+            <div className="mx-auto w-full max-w-4xl space-y-4">
+              <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
+                <Typography
+                  as="h4"
+                  variant="display-sm"
+                  weight="semibold"
                 >
-                  {isCopied ? (
-                    <>
-                      <CheckIcon className="mr-2 size-4" />
-                      {t("copied")}
-                    </>
-                  ) : (
-                    <>
-                      <CopyIcon className="mr-2 size-4" />
-                      {t("copyEmbed")}
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  asChild
-                >
-                  <a
-                    href={embedUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  {t("embedCodeTitle")}
+                </Typography>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyEmbed}
                   >
-                    <ExternalLinkIcon className="mr-2 size-4" />
-                    {t("previewEmbed")}
-                  </a>
-                </Button>
-              </div>
-              <pre className="max-h-36 overflow-auto rounded bg-muted p-3 text-xs">
-                <code>{embedCode}</code>
-              </pre>
-
-              <details
-                className="group mt-4"
-                open
-              >
-                <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
-                  <ChevronDownIcon className="size-4 shrink-0 transition-transform group-open:rotate-180" />
-                  {t("embedDisplay.title")}
-                </summary>
-                <div className="mt-3 space-y-3 border-t border-border pt-3">
-                  <Typography
-                    as="p"
-                    variant="body-sm"
-                    className="text-muted-foreground"
+                    {isCopied ? (
+                      <>
+                        <CheckIcon className="mr-2 size-4" />
+                        {t("copied")}
+                      </>
+                    ) : (
+                      <>
+                        <CopyIcon className="mr-2 size-4" />
+                        {t("copyEmbed")}
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
                   >
-                    {t("embedDisplay.description")}
-                  </Typography>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <Label
-                        htmlFor="publish-embed-default-zoom"
-                        className="text-sm font-medium"
-                      >
-                        {t("embedDisplay.defaultZoomLabel")}
-                      </Label>
-                      <span className="text-sm text-muted-foreground tabular-nums">
-                        {clampEmbedZoom(embedZoom).toFixed(1)}
-                      </span>
-                    </div>
-                    <SliderPrimitive.Root
-                      id="publish-embed-default-zoom"
-                      className="relative flex w-full max-w-md touch-none items-center select-none"
-                      min={EMBED_CAMERA_DISTANCE.min}
-                      max={EMBED_CAMERA_DISTANCE.max}
-                      step={EMBED_CAMERA_DISTANCE.step}
-                      value={[clampEmbedZoom(embedZoom)]}
-                      onValueChange={(values) => {
-                        const v = values[0] ?? EMBED_CAMERA_DISTANCE.default
-                        setEmbedZoom(clampEmbedZoom(v))
-                      }}
-                      aria-label={t("embedDisplay.defaultZoomLabel")}
+                    <a
+                      href={embedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <SliderPrimitive.Track className="relative h-1.5 w-full grow rounded-full bg-muted">
-                        <SliderPrimitive.Range className="absolute h-full rounded-full bg-primary/30" />
-                      </SliderPrimitive.Track>
-                      <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-primary bg-background shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
-                    </SliderPrimitive.Root>
+                      <ExternalLinkIcon className="mr-2 size-4" />
+                      {t("previewEmbed")}
+                    </a>
+                  </Button>
+                </div>
+                <pre className="max-h-36 overflow-auto rounded bg-muted p-3 text-xs">
+                  <code>{embedCode}</code>
+                </pre>
+              </div>
+
+              <div className="space-y-2 rounded-lg border bg-muted/30 p-4">
+                <div className="flex items-center gap-2">
+                  <Typography
+                    as="h4"
+                    variant="display-sm"
+                    weight="semibold"
+                  >
+                    {t("embedPreviewTitle")}
+                  </Typography>
+                  <Tooltip>
+                    <Tooltip.Trigger asChild>
+                      <button
+                        type="button"
+                        className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+                        aria-label={tCfgPreview("moreInfoAria")}
+                      >
+                        <InfoIcon className="size-4" />
+                      </button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content
+                      side="top"
+                      className="max-w-sm text-left"
+                    >
+                      {t("embedPreviewHelp")}
+                    </Tooltip.Content>
+                  </Tooltip>
+                </div>
+                <PublishEmbedLivePreview
+                  key={productModel.id}
+                  productModel={productModel}
+                  liveCameraDistance={embedCameraDistanceForPreview}
+                  embedUiOverrides={{
+                    showProductName: shouldShowProductNameInEmbed,
+                    showDescription: shouldShowDescriptionInEmbed,
+                    showComponents: shouldShowComponentsInEmbed,
+                  }}
+                  cameraAnglesGetterRef={cameraAnglesGetterRef}
+                  onCameraDistanceChange={handleLiveEmbedZoom}
+                />
+                {Boolean(productModel.model3dUrl?.trim()) && (
+                  <>
+                    <PreviewCameraAngleControls
+                      productModelId={productModel.id}
+                      cameraAnglesGetterRef={cameraAnglesGetterRef}
+                      hasSavedCameraAngles={hasSavedCameraAngles}
+                      helpTooltip={tCfgPreview("cameraHelpTooltip")}
+                      className="rounded-md border border-border/60 bg-muted/20 p-3"
+                    />
+                    <div className="space-y-2 rounded-md border border-border/60 bg-muted/20 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Label
+                          htmlFor="publish-embed-default-zoom"
+                          className="text-sm font-medium"
+                        >
+                          {t("embedDisplay.defaultZoomLabel")}
+                        </Label>
+                        <span className="text-sm text-muted-foreground tabular-nums">
+                          {effectiveEmbedZoom.toFixed(1)}
+                        </span>
+                      </div>
+                      <SliderPrimitive.Root
+                        id="publish-embed-default-zoom"
+                        className="relative flex w-full max-w-md touch-none items-center select-none"
+                        min={EMBED_CAMERA_DISTANCE.min}
+                        max={EMBED_CAMERA_DISTANCE.max}
+                        step={EMBED_CAMERA_DISTANCE.step}
+                        value={[clampEmbedZoom(effectiveEmbedZoom)]}
+                        onValueChange={(values) => {
+                          const v = values[0] ?? EMBED_CAMERA_DISTANCE.default
+                          setEmbedZoom(clampEmbedZoom(v))
+                          setLiveZoomFrom3d(null)
+                        }}
+                        aria-label={t("embedDisplay.defaultZoomLabel")}
+                      >
+                        <SliderPrimitive.Track className="relative h-1.5 w-full grow rounded-full bg-muted">
+                          <SliderPrimitive.Range className="absolute h-full rounded-full bg-primary/30" />
+                        </SliderPrimitive.Track>
+                        <SliderPrimitive.Thumb className="block h-3 w-3 rounded-full border-2 border-primary bg-background shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
+                      </SliderPrimitive.Root>
+                      <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={handleSaveEmbedZoomOnly}
+                          disabled={!hasEmbedZoomChanged || patchPreferences.isPending}
+                        >
+                          {patchPreferences.isPending
+                            ? t("embedDisplay.saving")
+                            : t("embedDisplay.saveZoom")}
+                        </Button>
+                        <Typography
+                          as="p"
+                          variant="body-sm"
+                          className="text-muted-foreground"
+                        >
+                          {t("embedDisplay.defaultZoomHint")}
+                        </Typography>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {hasEmbedDisplayChanged && (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {embedDisplaySaveError && (
                     <Typography
                       as="p"
                       variant="body-sm"
-                      className="text-muted-foreground"
+                      className="mr-auto text-destructive"
                     >
-                      {t("embedDisplay.defaultZoomHint")}
+                      {embedDisplaySaveError}
                     </Typography>
-                  </div>
-                  <div className="flex flex-col gap-2">
+                  )}
+                  <Button
+                    size="sm"
+                    onClick={handleSaveEmbedDisplay}
+                    disabled={patchPreferences.isPending}
+                  >
+                    {patchPreferences.isPending ? t("embedDisplay.saving") : t("embedDisplay.save")}
+                  </Button>
+                </div>
+              )}
+
+              <details className="group rounded-lg border bg-muted/30">
+                <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
+                  <ChevronDownIcon className="size-4 shrink-0 transition-transform group-open:rotate-180" />
+                  <span className="flex-1 text-left">{t("embedSettingsTitle")}</span>
+                  <Tooltip>
+                    <Tooltip.Trigger asChild>
+                      <button
+                        type="button"
+                        className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+                        aria-label={tCfgPreview("moreInfoAria")}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
+                        <InfoIcon className="size-4" />
+                      </button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content
+                      side="left"
+                      className="max-w-sm text-left"
+                    >
+                      {t("embedSettingsHelp")}
+                    </Tooltip.Content>
+                  </Tooltip>
+                </summary>
+                <div className="space-y-3 border-t px-3 py-3">
+                  <div className="grid gap-2 sm:grid-cols-2">
                     <div className="flex items-center gap-2">
                       <Checkbox
                         id="publish-embed-show-product-name"
@@ -462,7 +610,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                         {t("embedDisplay.showDescription")}
                       </Label>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 sm:col-span-2">
                       <Checkbox
                         id="publish-embed-show-components"
                         checked={shouldShowComponentsInEmbed}
@@ -476,55 +624,8 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
                       </Label>
                     </div>
                   </div>
-                  {embedDisplaySaveError && (
-                    <Typography
-                      as="p"
-                      variant="body-sm"
-                      className="text-destructive"
-                    >
-                      {embedDisplaySaveError}
-                    </Typography>
-                  )}
-                  {hasEmbedDisplayChanged && (
-                    <Button
-                      size="sm"
-                      onClick={handleSaveEmbedDisplay}
-                      disabled={patchPreferences.isPending}
-                    >
-                      {patchPreferences.isPending
-                        ? t("embedDisplay.saving")
-                        : t("embedDisplay.save")}
-                    </Button>
-                  )}
                 </div>
               </details>
-
-              <div className="mt-6 space-y-2">
-                <Typography
-                  as="h4"
-                  variant="display-sm"
-                  weight="semibold"
-                >
-                  {t("embedPreviewTitle")}
-                </Typography>
-                <Typography
-                  as="p"
-                  variant="body-sm"
-                  className="text-muted-foreground"
-                >
-                  {t("embedPreviewLiveHint")}
-                </Typography>
-                <PublishEmbedLivePreview
-                  key={productModel.id}
-                  productModel={productModel}
-                  liveCameraDistance={clampEmbedZoom(embedZoom)}
-                  embedUiOverrides={{
-                    showProductName: shouldShowProductNameInEmbed,
-                    showDescription: shouldShowDescriptionInEmbed,
-                    showComponents: shouldShowComponentsInEmbed,
-                  }}
-                />
-              </div>
             </div>
           )}
         </div>

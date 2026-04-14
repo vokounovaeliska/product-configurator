@@ -1,9 +1,11 @@
 import {
   keepPreviousData,
   queryOptions,
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
+  type InfiniteData,
 } from "@tanstack/react-query"
 
 import { api } from "@/lib/api/restClient"
@@ -108,6 +110,57 @@ export const getCustomerRequestProductModelsQueryOptions = (limit = 100) =>
 export const useCustomerRequestsList = (params?: CustomerRequestsListParams) =>
   useQuery(getCustomerRequestsListQueryOptions(params))
 
+export type CustomerRequestsInfiniteListParams = Omit<
+  CustomerRequestsListParams,
+  "after" | "limit"
+> & {
+  pageSize?: number
+}
+
+const DEFAULT_PAGE_SIZE = 40
+
+export const useCustomerRequestsInfiniteList = (params?: CustomerRequestsInfiniteListParams) => {
+  const pageSize = params?.pageSize ?? DEFAULT_PAGE_SIZE
+  return useInfiniteQuery({
+    queryKey: [
+      ...customerRequestKeys.list(),
+      "infinite",
+      pageSize,
+      params?.productModelId,
+      params?.fromDate,
+      params?.toDate,
+    ],
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: string | undefined
+    }): Promise<CustomerRequestDto[]> => {
+      const searchParams = new URLSearchParams()
+      searchParams.set("limit", String(pageSize))
+      if (pageParam != null) searchParams.set("after", pageParam)
+      if (params?.productModelId != null && params.productModelId !== "") {
+        searchParams.set("productModelId", params.productModelId)
+      }
+      if (params?.fromDate != null && params.fromDate !== "") {
+        searchParams.set("fromDate", params.fromDate)
+      }
+      if (params?.toDate != null && params.toDate !== "") {
+        searchParams.set("toDate", params.toDate)
+      }
+      const query = searchParams.toString()
+      const url = `products/api/v1/customer-requests${query ? `?${query}` : ""}`
+      return api.get(url).json<CustomerRequestDto[]>()
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.length < pageSize) return undefined
+      const last = lastPage[lastPage.length - 1]
+      return last?.createdAt
+    },
+    placeholderData: keepPreviousData,
+  })
+}
+
 export const useCustomerRequest = (id: string) => useQuery(getCustomerRequestQueryOptions(id))
 
 export const useCustomerRequestProductModels = (limit?: number) =>
@@ -128,11 +181,37 @@ export const useUpdateCustomerRequestStatus = () => {
         .json<CustomerRequestDto>(),
     onSuccess: (data) => {
       queryClient.setQueryData(customerRequestKeys.detail(data.id), data)
-      queryClient.setQueriesData(
-        { queryKey: customerRequestKeys.list() },
-        (old: CustomerRequestDto[] | undefined) =>
-          old?.map((r) => (r.id === data.id ? data : r)) ?? old,
-      )
+      queryClient.setQueriesData({ queryKey: customerRequestKeys.list() }, (old: unknown) => {
+        if (
+          old &&
+          typeof old === "object" &&
+          "pages" in old &&
+          Array.isArray((old as InfiniteData<CustomerRequestDto[]>).pages)
+        ) {
+          const inf = old as InfiniteData<CustomerRequestDto[]>
+          return {
+            ...inf,
+            pages: inf.pages.map((page) => page.map((r) => (r.id === data.id ? data : r))),
+          }
+        }
+        if (Array.isArray(old)) {
+          return old.map((r: CustomerRequestDto) => (r.id === data.id ? data : r))
+        }
+        return old
+      })
+    },
+  })
+}
+
+export const useDeleteCustomerRequest = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.delete(`products/api/v1/customer-requests/${id}`)
+    },
+    onSuccess: (_, id) => {
+      queryClient.removeQueries({ queryKey: customerRequestKeys.detail(id) })
+      void queryClient.invalidateQueries({ queryKey: customerRequestKeys.list() })
     },
   })
 }

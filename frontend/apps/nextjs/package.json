@@ -12,7 +12,9 @@
     "lint:check": "eslint './src/**/*.{ts,tsx,js,cjs,mjs}'",
     "lint:fix": "eslint --fix './src/**/*.{ts,tsx,js,cjs,mjs}'",
     "type-check": "tsc --noEmit",
-    "generate:api": "openapi-typescript \"${NEXT_PUBLIC_BE_URL:-http://localhost:8080}/swagger/api-docs\" -o src/api/types.ts"
+    "generate:api": "openapi-typescript \"${NEXT_PUBLIC_BE_URL:-http://localhost:8080}/swagger/api-docs\" -o src/api/types.ts",
+    "capture-prirucka-docs": "node scripts/capture-prirucka-docs.mjs",
+    "capture-prirucka-docs-quick": "PRIRUCKA_QUICK=1 node scripts/capture-prirucka-docs.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "5.0.1",
@@ -60,6 +62,7 @@
     "eslint-plugin-turbo": "^2.5.3",
     "globals": "^16.1.0",
     "openapi-typescript": "^7.4.4",
+    "playwright": "1.49.1",
     "prettier": "^3.5.3",
     "prettier-plugin-sort-json": "^4.1.1",
     "prettier-plugin-tailwindcss": "^0.6.11",

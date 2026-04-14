@@ -74,7 +74,7 @@ class PricingRulesControllerErrorsTest : BaseIntegrationTest() {
                 .perform(
                     get("$PRICING_RULES_URL/$nonExistentProductModelId/pricing-rules")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(AuthMocks.mockAdmin()),
+                        .with(AuthMocks.mockUser(userId = user.id, email = user.email)),
                 ).andExpect(status().isOk)
                 .andReturn()
 

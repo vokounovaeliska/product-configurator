@@ -76,7 +76,8 @@ class ProductModelsController(
     fun productModelsDelete(
         @PathVariable productModelId: UUID,
     ): ResponseEntity<Unit> {
-        productModelAPI.delete(ProductModelId(productModelId))
+        val currentUserId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
+        productModelAPI.deleteForUser(ProductModelId(productModelId), currentUserId)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
@@ -85,13 +86,16 @@ class ProductModelsController(
     fun productModelsGet(
         @PathVariable productModelId: UUID,
     ): ResponseEntity<ProductModelDto> {
-        val productModel = productModelAPI.getOne(ProductModelId(productModelId))
+        val currentUserId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
+        val productModel = productModelAPI.getOneForUser(ProductModelId(productModelId), currentUserId)
         return ResponseEntity.status(HttpStatus.OK).body(productModel.toDto())
     }
 
     @Operation(
         summary = "List product models",
-        description = "Cursor-based list with filters: ids, owner user ids, active flag, and sort order.",
+        description =
+            "Cursor-based list for the authenticated user only (other users' models are never returned). " +
+                "Optional filters: ids, active flag, published flag, sort order. Query param userIds is ignored.",
     )
     @GetMapping
     fun productModelsPaginatedList(
@@ -130,7 +134,12 @@ class ProductModelsController(
                 before = before,
             )
 
-        val response = productModelAPI.getByFilterPaginated(queryParamsDto.toFilter(), paginatedRequest)
+        val currentUserId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
+        val filter =
+            queryParamsDto.toFilter().copy(
+                userIds = listOf(currentUserId),
+            )
+        val response = productModelAPI.getByFilterPaginated(filter, paginatedRequest)
         return ResponseEntity.ok().body(
             ProductModelPaginatedResponseDto(
                 items = response.data.map { it.toDto() },
@@ -156,7 +165,9 @@ class ProductModelsController(
         val params = productModelPatchRequestDto.map { it.toParams() }
         jsonPatchValidator.validate(params).throwIfNotEmpty()
 
-        val productModel = productModelAPI.patch(ProductModelId(productModelId), params)
+        val currentUserId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
+        val productModel =
+            productModelAPI.patchForUser(ProductModelId(productModelId), currentUserId, params)
 
         return ResponseEntity.status(HttpStatus.OK).body(productModel.toDto())
     }
@@ -178,6 +189,8 @@ class ProductModelsController(
                 embedShowDescription = prefs?.embedShowDescription,
                 embedShowComponents = prefs?.embedShowComponents,
                 backgroundPreset = prefs?.backgroundPreset,
+                cameraHorizontalAngleRad = prefs?.cameraHorizontalAngleRad,
+                cameraVerticalAngleRad = prefs?.cameraVerticalAngleRad,
             ),
         )
     }
@@ -200,6 +213,9 @@ class ProductModelsController(
                 embedShowDescription = request.embedShowDescription,
                 embedShowComponents = request.embedShowComponents,
                 backgroundPreset = request.backgroundPreset,
+                cameraHorizontalAngleRad = request.cameraHorizontalAngleRad,
+                cameraVerticalAngleRad = request.cameraVerticalAngleRad,
+                clearSavedCameraAngles = request.clearSavedCameraAngles,
             )
         return ResponseEntity.ok(
             ConfiguratorPreferencesDto(
@@ -209,6 +225,8 @@ class ProductModelsController(
                 embedShowDescription = prefs.embedShowDescription,
                 embedShowComponents = prefs.embedShowComponents,
                 backgroundPreset = prefs.backgroundPreset,
+                cameraHorizontalAngleRad = prefs.cameraHorizontalAngleRad,
+                cameraVerticalAngleRad = prefs.cameraVerticalAngleRad,
             ),
         )
     }

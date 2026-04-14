@@ -18,6 +18,7 @@ import cz.vokounova.configurator.products.attributes.infrastructure.rest.validat
 import cz.vokounova.configurator.products.attributes.ports.inbound.AttributeAPI
 import cz.vokounova.configurator.products.components.domain.ComponentId
 import cz.vokounova.configurator.products.components.ports.inbound.ComponentAPI
+import cz.vokounova.configurator.products.models.application.ProductModelAccessGuard
 import cz.vokounova.configurator.products.pricing.DefaultPricingRulesService
 import cz.vokounova.configurator.shared.exceptions.ResourceNotFoundException
 import cz.vokounova.configurator.shared.exceptions.throwIfNotEmpty
@@ -50,6 +51,7 @@ import java.util.UUID
 class AttributesController(
     private val attributeAPI: AttributeAPI,
     private val componentAPI: ComponentAPI,
+    private val productModelAccessGuard: ProductModelAccessGuard,
     private val queryParamsValidator: AttributeListQueryParamsValidator,
     private val createParamsValidator: AttributeCreateParamsValidator,
     private val jsonPatchValidator: AttributeJsonPatchParamsValidator,
@@ -66,6 +68,7 @@ class AttributesController(
         @PathVariable componentId: UUID,
         @RequestBody attributeCreateRequestDto: AttributeCreateRequestDto,
     ): ResponseEntity<AttributeDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val params = attributeCreateRequestDto.toParams(ComponentId(componentId))
         createParamsValidator.validate(params).throwIfNotEmpty()
         val attribute = attributeAPI.create(params)
@@ -106,6 +109,7 @@ class AttributesController(
         @PathVariable componentId: UUID,
         @PathVariable attributeId: UUID,
     ): ResponseEntity<Unit> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         // Validate that component belongs to product model
         val component = componentAPI.getOne(ComponentId(componentId))
         if (component.productModelId.value != productModelId) {
@@ -129,6 +133,7 @@ class AttributesController(
         @PathVariable componentId: UUID,
         @PathVariable attributeId: UUID,
     ): ResponseEntity<AttributeDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         // Validate that component belongs to product model
         val component = componentAPI.getOne(ComponentId(componentId))
         if (component.productModelId.value != productModelId) {
@@ -159,6 +164,7 @@ class AttributesController(
         @RequestParam(required = false) ids: List<UUID>?,
         @RequestParam(required = false) types: List<AttributeType>?,
     ): ResponseEntity<AttributePaginatedResponseDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         val queryParamsDto =
             AttributeListQueryParams(
                 componentIds = listOf(componentId),
@@ -209,6 +215,7 @@ class AttributesController(
         @PathVariable attributeId: UUID,
         @RequestBody attributePatchRequestDto: List<AttributePatchRequestDto>,
     ): ResponseEntity<AttributeDto> {
+        productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
         // Validate that component belongs to product model
         val component = componentAPI.getOne(ComponentId(componentId))
         if (component.productModelId.value != productModelId) {

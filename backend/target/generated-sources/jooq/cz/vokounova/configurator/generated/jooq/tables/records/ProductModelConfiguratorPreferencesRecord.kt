@@ -56,6 +56,14 @@ open class ProductModelConfiguratorPreferencesRecord private constructor() : Upd
         set(value): Unit = set(8, value)
         get(): String? = get(8) as String?
 
+    open var cameraHorizontalAngleRad: Double?
+        set(value): Unit = set(9, value)
+        get(): Double? = get(9) as Double?
+
+    open var cameraVerticalAngleRad: Double?
+        set(value): Unit = set(10, value)
+        get(): Double? = get(10) as Double?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -65,7 +73,7 @@ open class ProductModelConfiguratorPreferencesRecord private constructor() : Upd
     /**
      * Create a detached, initialised ProductModelConfiguratorPreferencesRecord
      */
-    constructor(productModelId: UUID, zoomDistanceDefault: BigDecimal? = null, zoomDistanceEmbed: BigDecimal? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, embedShowProductName: Boolean? = null, embedShowDescription: Boolean? = null, embedShowComponents: Boolean? = null, backgroundPreset: String? = null): this() {
+    constructor(productModelId: UUID, zoomDistanceDefault: BigDecimal? = null, zoomDistanceEmbed: BigDecimal? = null, createdAt: OffsetDateTime, modifiedAt: OffsetDateTime, embedShowProductName: Boolean? = null, embedShowDescription: Boolean? = null, embedShowComponents: Boolean? = null, backgroundPreset: String? = null, cameraHorizontalAngleRad: Double? = null, cameraVerticalAngleRad: Double? = null): this() {
         this.productModelId = productModelId
         this.zoomDistanceDefault = zoomDistanceDefault
         this.zoomDistanceEmbed = zoomDistanceEmbed
@@ -75,6 +83,8 @@ open class ProductModelConfiguratorPreferencesRecord private constructor() : Upd
         this.embedShowDescription = embedShowDescription
         this.embedShowComponents = embedShowComponents
         this.backgroundPreset = backgroundPreset
+        this.cameraHorizontalAngleRad = cameraHorizontalAngleRad
+        this.cameraVerticalAngleRad = cameraVerticalAngleRad
         resetChangedOnNotNull()
     }
 }

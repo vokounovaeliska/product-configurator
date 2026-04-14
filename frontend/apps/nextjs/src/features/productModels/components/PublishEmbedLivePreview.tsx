@@ -1,9 +1,11 @@
 "use client"
 
+import { memo, type MutableRefObject } from "react"
 import { useTranslations } from "next-intl"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Typography } from "@workspace/ui/components/typography"
 
+import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import type { ProductModelDto } from "@/api/productModelTypes"
 
 /* eslint-disable import/no-restricted-paths -- publish tab composes public embed UI in-page for live zoom */
@@ -14,23 +16,30 @@ import { EmbedConfigurator } from "@/features/embed/components/EmbedConfigurator
 
 type Props = {
   productModel: ProductModelDto
-  /** Clamped live camera distance; updates the 3D view as the user drags the slider. */
-  liveCameraDistance: number
+  /**
+   * Slider→camera distance override. `null` while the user zooms with the wheel in the preview
+   * so the embed tree is not re-driven every frame (camera follows OrbitControls only).
+   */
+  liveCameraDistance: number | null
   /** Draft embed chrome (publish tab) — applied immediately in preview without saving. */
   embedUiOverrides: {
     showProductName: boolean
     showDescription: boolean
     showComponents: boolean
   }
+  cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
+  onCameraDistanceChange?: (distance: number) => void
 }
 
 /**
  * Same embed UI as the public iframe, loaded in-page so zoom reacts live to the publish-tab slider.
  */
-export function PublishEmbedLivePreview({
+function PublishEmbedLivePreviewInner({
   productModel,
   liveCameraDistance,
   embedUiOverrides,
+  cameraAnglesGetterRef,
+  onCameraDistanceChange,
 }: Props) {
   const t = useTranslations("ProductModels.Publish")
   const {
@@ -74,7 +83,11 @@ export function PublishEmbedLivePreview({
         configuratorPreferences={config.configuratorPreferences}
         publishLiveCameraDistance={liveCameraDistance}
         embedUiOverrides={embedUiOverrides}
+        cameraAnglesGetterRef={cameraAnglesGetterRef}
+        onEmbedCameraDistanceChange={onCameraDistanceChange}
       />
     </div>
   )
 }
+
+export const PublishEmbedLivePreview = memo(PublishEmbedLivePreviewInner)

@@ -1,25 +1,29 @@
 "use client"
 
+import type { MutableRefObject } from "react"
 import { useCallback, useEffect, useState } from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import { ChevronDownIcon, ChevronUpIcon, InfoIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
 import { Card } from "@workspace/ui/components/card"
 import { Label } from "@workspace/ui/components/label"
 import { Select } from "@workspace/ui/components/select"
+import { Tooltip } from "@workspace/ui/components/tooltip"
 import { Typography } from "@workspace/ui/components/typography"
 
 import {
   useConfiguratorPreferences,
   usePatchConfiguratorPreferences,
 } from "@/api/configuratorPreferencesQueries"
+import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import { extractErrorMessage } from "@/lib/utils"
 
 import {
   BACKGROUND_PRESETS,
   type BackgroundPresetKey,
 } from "@/features/configurator/components/ModelViewer3D"
+import { PreviewCameraAngleControls } from "@/features/configurator/components/PreviewCameraAngleControls"
 
 const ZOOM_MIN = 1
 const ZOOM_MAX = 10
@@ -28,14 +32,11 @@ const ZOOM_DEFAULT = 2
 
 type Props = {
   productModelId: string
-  /** Live zoom from 3D viewer (updates when user zooms). When set, slider reflects current view. */
   liveZoomFromViewer?: number | null
-  /** Called when user drags slider – parent should pass value to 3D viewer for live sync. */
   onSliderChange?: (value: number) => void
-  /** Called when user selects background – parent should pass value to 3D viewer for live sync. */
   onBackgroundChange?: (value: string) => void
-  /** Called when save succeeds – parent can clear slider/background override. */
   onSaveSuccess?: () => void
+  cameraAnglesGetterRef: MutableRefObject<CameraAnglesGetter | null>
 }
 
 export const ConfiguratorPreviewSettings = ({
@@ -44,6 +45,7 @@ export const ConfiguratorPreviewSettings = ({
   onSliderChange,
   onBackgroundChange,
   onSaveSuccess,
+  cameraAnglesGetterRef,
 }: Props) => {
   const t = useTranslations("Configurator.previewSettings")
   const {
@@ -104,6 +106,9 @@ export const ConfiguratorPreviewSettings = ({
 
   const [saveError, setSaveError] = useState<string | null>(null)
 
+  const hasSavedCameraAngles =
+    preferences?.cameraHorizontalAngleRad != null && preferences?.cameraVerticalAngleRad != null
+
   const handleSave = useCallback(() => {
     if (!hasChanges) return
     setSaveError(null)
@@ -137,8 +142,28 @@ export const ConfiguratorPreviewSettings = ({
           className="flex w-full items-center justify-between gap-2 rounded-sm hover:bg-muted/50"
           aria-expanded={isOpen}
         >
-          <h3 className="text-sm font-semibold">{t("title")}</h3>
-          <span className="flex items-center gap-1">
+          <span className="flex min-w-0 items-center gap-1.5">
+            <h3 className="text-sm font-semibold">{t("title")}</h3>
+            <Tooltip>
+              <Tooltip.Trigger asChild>
+                <button
+                  type="button"
+                  className="shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+                  aria-label={t("moreInfoAria")}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <InfoIcon className="size-3.5" />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Content
+                side="top"
+                className="max-w-xs text-left"
+              >
+                {t("helpTooltip")}
+              </Tooltip.Content>
+            </Tooltip>
+          </span>
+          <span className="flex shrink-0 items-center gap-1">
             {isOpen ? (
               <ChevronUpIcon className="size-4 shrink-0 text-muted-foreground" />
             ) : (
@@ -227,6 +252,13 @@ export const ConfiguratorPreviewSettings = ({
                 </SliderPrimitive.Root>
               </div>
             </div>
+
+            <PreviewCameraAngleControls
+              productModelId={productModelId}
+              cameraAnglesGetterRef={cameraAnglesGetterRef}
+              hasSavedCameraAngles={hasSavedCameraAngles}
+              helpTooltip={t("cameraHelpTooltip")}
+            />
 
             {hasChanges && (
               <Button

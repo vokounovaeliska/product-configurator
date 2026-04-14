@@ -55,6 +55,8 @@ data class ConfiguratorPreferencesExternalDto(
     val embedShowDescription: Boolean?,
     val embedShowComponents: Boolean?,
     val backgroundPreset: String?,
+    val cameraHorizontalAngleRad: Double?,
+    val cameraVerticalAngleRad: Double?,
 )
 
 data class FullProductConfigDto(

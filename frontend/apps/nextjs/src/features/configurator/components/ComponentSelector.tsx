@@ -64,6 +64,10 @@ type Props = {
   shouldShowConfiguratorHelp?: boolean
   /** When false with flat list, hide duplicate “Configuration” heading inside each block. Default true. */
   shouldShowAttributeSectionHeading?: boolean
+  /** When set, used as the main section heading instead of the generic “Components” / “Configuration” label. */
+  productModelName?: string | null
+  /** When true, omit the large section heading (e.g. product title is already the page H1). */
+  shouldOmitSectionHeading?: boolean
 }
 
 export const ComponentSelector = ({
@@ -82,6 +86,8 @@ export const ComponentSelector = ({
   shouldShowComponents = true,
   shouldShowConfiguratorHelp = false,
   shouldShowAttributeSectionHeading = true,
+  productModelName = null,
+  shouldOmitSectionHeading = false,
 }: Props) => {
   const t = useTranslations("Configurator")
 
@@ -102,15 +108,23 @@ export const ComponentSelector = ({
   }
 
   if (!shouldShowComponents && attributesByComponent && optionsByAttribute) {
+    const flatHeading = (() => {
+      const name = productModelName?.trim()
+      if (name) return name
+      if (shouldOmitSectionHeading) return null
+      return t("attributes.title")
+    })()
     return (
       <div className="space-y-4">
-        <Typography
-          as="h2"
-          variant="display-sm"
-          weight="semibold"
-        >
-          {t("attributes.title")}
-        </Typography>
+        {flatHeading != null && flatHeading !== "" && (
+          <Typography
+            as="h2"
+            variant="display-sm"
+            weight="semibold"
+          >
+            {flatHeading}
+          </Typography>
+        )}
         {shouldShowConfiguratorHelp && <ComponentConfiguratorHelp />}
         <div className="space-y-3">
           {sortedComponents.map((component) => {
@@ -152,15 +166,24 @@ export const ComponentSelector = ({
     )
   }
 
+  const componentsHeading = (() => {
+    const name = productModelName?.trim()
+    if (name) return name
+    if (shouldOmitSectionHeading) return null
+    return t("components.title")
+  })()
+
   return (
     <div className="space-y-4">
-      <Typography
-        as="h2"
-        variant="display-sm"
-        weight="semibold"
-      >
-        {t("components.title")}
-      </Typography>
+      {componentsHeading != null && componentsHeading !== "" && (
+        <Typography
+          as="h2"
+          variant="display-sm"
+          weight="semibold"
+        >
+          {componentsHeading}
+        </Typography>
+      )}
       {shouldShowConfiguratorHelp && <ComponentConfiguratorHelp />}
 
       <div className="space-y-3">

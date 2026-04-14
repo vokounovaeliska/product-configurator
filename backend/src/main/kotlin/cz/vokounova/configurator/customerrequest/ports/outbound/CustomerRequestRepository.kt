@@ -16,6 +16,9 @@ interface CustomerRequestRepository {
         status: RequestStatus,
     ): CustomerRequest?
 
+    /** @return true if a row was deleted */
+    fun deleteById(id: CustomerRequestId): Boolean
+
     fun findByProductModelOwnerId(
         userId: UserIdDto,
         limit: Int,

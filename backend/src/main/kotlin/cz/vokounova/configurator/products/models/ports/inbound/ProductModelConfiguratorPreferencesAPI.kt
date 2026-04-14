@@ -18,5 +18,8 @@ interface ProductModelConfiguratorPreferencesAPI {
         embedShowDescription: Boolean?,
         embedShowComponents: Boolean?,
         backgroundPreset: String?,
+        cameraHorizontalAngleRad: Double?,
+        cameraVerticalAngleRad: Double?,
+        clearSavedCameraAngles: Boolean?,
     ): ProductModelConfiguratorPreferences
 }
