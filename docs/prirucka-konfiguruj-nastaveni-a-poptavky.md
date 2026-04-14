@@ -2,13 +2,23 @@
 
 Tato příručka je určena uživatelům, kteří v aplikaci **Konfiguruj** připravují konfigurovatelné produkty, publikují je na webu a zpracovávají **cenové poptávky** od zákazníků. Text předpokládá, že máte vytvořený uživatelský účet a po přihlášení přístup do sekce **Nastavení**.
 
+### Veřejná úvodní stránka
+
 Veřejná úvodní stránka aplikace shrnuje základní princip práce: připravit model produktu, nastavit jeho konfiguraci, zveřejnit jej a následně přijímat poptávky z vloženého konfigurátoru na webu.
 
 ![Úvodní stránka Konfiguruj s přehledem „Jak to funguje“](images/prirucka/04-domovska-stranka.png)
 
+### Přihlášení
+
 Do administrace vstoupíte přes volbu **Přihlásit** v hlavičce nebo prostřednictvím odkazu z úvodní stránky. Po úspěšném přihlášení se zobrazí interní část aplikace se sekcí **Nastavení**.
 
 ![Obrazovka přihlášení](images/prirucka/02-prihlaseni.png)
+
+### Registrace účtu
+
+Nový účet založíte přes **Registrovat** v hlavičce. Ve formuláři vyplníte údaje a odsouhlasíte zpracování osobních údajů podle znění stránky.
+
+![Registrace se souhlasem se zpracováním údajů](images/prirucka/09-registrace-souhlas.png)
 
 ---
 
@@ -28,25 +38,19 @@ Po přihlášení otevřete sekci **Nastavení**. Levé menu slouží jako hlavn
 - **Poptávky** zobrazují žádosti, které zákazníci odeslali z vloženého konfigurátoru. K dispozici je seznam, filtrování i detail jednotlivých záznamů.
 - **E-mail a notifikace** slouží ke správě šablon a adres používaných při komunikaci se zákazníkem i se správcem konfigurátoru.
 
+### Dashboard (úvod Nastavení)
+
+Úvodní obrazovka **Nastavení** zobrazí přehled, rychlé akce a tip k přípravě 3D modelu včetně odkazů na návod a stažení pluginu.
+
+![Dashboard v sekci Nastavení](images/prirucka/05-dashboard.png)
+
 Po otevření konkrétního modelu produktu dále pracujete s jeho vlastními obrazovkami a záložkami, typicky **Obecné**, **Ceny**, **Publikování** a **Náhled**. V rámci správy modelu také vstupujete do struktury produktu, kde se nastavují **Komponenty**, **Atributy**, **Možnosti** a jejich ceny.
-
-Na následujícím obrázku je příklad seznamu modelů produktů v administraci:
-
-![Seznam modelů produktů v Nastavení](images/prirucka/06-modely-produktu.png)
-
-Po stisku tlačítka **Spravovat** se otevře detail zvoleného modelu. Ten je rozdělen do několika záložek, které odpovídají různým oblastem nastavení.
-
-![Záložka Obecné: struktura modelu a základní nastavení](images/prirucka/10-detail-modelu-obecne.png)
-
-![Záložka Ceny: cenová pravidla a finanční logika modelu](images/prirucka/10-detail-modelu-ceny.png)
-
-![Záložka Publikování: veřejný embed a související nastavení](images/prirucka/10-detail-modelu-publikovani.png)
-
-![Záložka Náhled: kontrola chování konfigurátoru](images/prirucka/10-detail-modelu-nahled.png)
 
 ---
 
 ## Obrazovka Modely produktů
+
+![Seznam modelů produktů v Nastavení](images/prirucka/06-modely-produktu.png)
 
 Obrazovka **Modely produktů** slouží jako centrální seznam všech výrobků, které chcete v systému nabízet. Každá položka představuje jeden konfigurovatelný produkt, například konkrétní typ stolu, postele nebo jiného výrobku na míru.
 
@@ -78,29 +82,39 @@ Po importu ze SketchUp bývá tato struktura předvyplněná výchozí podobou m
 
 ## Detail modelu produktu
 
-Po otevření detailu modelu pracujete s několika záložkami, z nichž každá pokrývá jinou část správy produktu.
+Po otevření detailu modelu (například přes **Spravovat** u modelu) pracujete s několika záložkami, z nichž každá pokrývá jinou část správy produktu. Následující snímky ukazují stejný model v jednotlivých záložkách.
+
+![Přehled obrazovky detailu modelu se záložkami](images/prirucka/10-detail-modelu.png)
 
 ### Obecné
 
 Záložka **Obecné** slouží ke správě struktury modelu a jeho základních prvků. Z této části zpravidla vstupujete do komponent, atributů a možností. Je to hlavní pracovní obrazovka pro sestavení logiky konfigurace.
 
+![Záložka Obecné: struktura modelu a základní nastavení](images/prirucka/10-detail-modelu-obecne.png)
+
 ### Ceny
 
 Záložka **Ceny** slouží ke správě cenové logiky modelu. Kromě základních cen jednotlivých položek zde mohou být dostupná i **cenová pravidla**, pokud produkt vyžaduje složitější výpočty nebo podmínky.
+
+![Záložka Ceny: cenová pravidla a finanční logika modelu](images/prirucka/10-detail-modelu-ceny.png)
 
 ### Publikování
 
 Záložka **Publikování** slouží k přípravě modelu pro veřejné použití. Právě zde určujete, zda bude model zveřejněn, jakou bude mít veřejnou URL adresu pro embed a jaký kód vložíte do vlastního webu.
 
+![Záložka Publikování: veřejný embed a související nastavení](images/prirucka/10-detail-modelu-publikovani.png)
+
 ### Náhled
 
 Záložka **Náhled** umožňuje ověřit finální chování konfigurátoru. Před publikováním je vhodné zde zkontrolovat, zda se správně zobrazují komponenty, zda mají atributy očekávané pořadí a zda výsledná cena odpovídá nastavení.
+
+![Záložka Náhled: kontrola chování konfigurátoru](images/prirucka/10-detail-modelu-nahled.png)
 
 ---
 
 ## Publikování konfigurátoru na web
 
-Pokud je model připraven, otevřete jeho záložku nebo stránku **Publikovat a vložit**. Zde zapnete stav **Publikováno**, nastavíte **Embed URL** a následně zkopírujete připravený **iframe kód** do svého webu.
+Pokud je model připraven, otevřete jeho záložku nebo stránku **Publikovat a vložit**. Zde zapnete stav **Publikováno**, nastavíte **Embed URL** a následně zkopírujete připravený **iframe kód** do svého webu. Viz také záložku **Publikování** u detailu modelu výše.
 
 Pole **Embed URL** určuje jedinečnou veřejnou cestu konfigurátoru. Obvykle se používají malá písmena, číslice a pomlčky. Formát výsledné adresy je uveden přímo u pole, například ve tvaru `/e/.../vas-retezec`. Hodnota by měla být v rámci vašich produktů jednoznačná.
 
@@ -133,7 +147,7 @@ Poptávky vznikají ve chvíli, kdy návštěvník odešle formulář z vložen�
 
 ### Seznam poptávek
 
-Na hlavní obrazovce poptávek pracujete se seznamem všech přijatých záznamů. K dispozici je pole **Hledat**, které slouží k vyhledávání podle jména zákazníka, názvu produktu nebo e-mailové adresy. Dále můžete používat filtry podle **stavu**, produktu a data. Tlačítko **Vymazat filtry** vrátí seznam do výchozího stavu. Pokud je záznamů více, pokračujete tlačítkem **Načíst další**.
+Na hlavní obrazovce poptávek pracujete se seznamem všech přijatých záznamů. K dispozici je pole **Hledat**, které slouží k vyhledávání podle jména zákazníka, názvu produktu nebo e-mailové adresy. Dále můžete používat filtry podle **stavu**, produktu a data. Tlačítkem **Vymazat filtry** vrátíte seznam do výchozího stavu. Pokud je záznamů více, pokračujete tlačítkem **Načíst další**.
 
 ![Seznam poptávek (příklad)](images/prirucka/08-poptavky.png)
 
@@ -167,13 +181,19 @@ Při zakládání nového produktu je vhodné postupovat v tomto pořadí:
 
 Do konfigurátoru nahráváte **zip z exportního pluginu** (menu SketchUp **Pluginy → Konfiguruj Export → Export for Konfiguruj**). V zipu jsou vždy soubory **model.glb** a **parameters.json**. Obrázky textur (PNG nebo JPEG) plugin přidá jen pokud je model potřebuje, často pod cestami typu `materials/…`, ale **pevná složka `materials` v zipu být nemusí**, pokud se žádné textury neexportují. Konfigurátor z zipu načte model, parametry a nalezené obrázky.
 
+### Návod k pluginu SketchUp
+
 Veřejný text **Návod k pluginu SketchUp** je v aplikaci na cestě `/cs/tutorial`, anglická verze na `/en/tutorial`. V běžící instanci na něj narazíte z menu nebo z Dashboardu, případně zadejte do prohlížeče úplnou adresu ve tvaru `https://<vaše-doména>/cs/tutorial` (na produkčním webu Konfiguruj například `https://www.konfiguruj.com/cs/tutorial`). Návod popisuje instalaci pluginu (soubor `.rbz`), práci s Dynamic Components a přípravu exportu. Obsah odpovídá logice aplikace, nemusí jít o doslovný přepis každého kroku ve vaší verzi SketchUp.
+
+![Návod k pluginu SketchUp v aplikaci (příklad zobrazení)](images/prirucka/01-tutorial-sketchup.png)
+
+### Stránka Import ze SketchUp
 
 Po přihlášení spustíte import v **Nastavení** v položce **Import ze SketchUp** (cesta v aplikaci `/cs/setup/import/sketchup`). Vyberete configurator zip a případně doplníte název produktu, na stránce je i nápověda ke stažení pluginu. Úplná adresa je opět `https://<vaše-doména>/cs/setup/import/sketchup`.
 
-Na **Dashboardu** (úvod **Nastavení**) je rámeček **Tip: Příprava 3D modelu** s tlačítky na stažení pluginu a na stejný návod. Vše používá doménu vaší instance, při lokálním vývoji typicky `http://localhost:3001/cs/tutorial` a `http://localhost:3001/cs/setup/import/sketchup`.
+![Obrazovka Import ze SketchUp](images/prirucka/07-import-sketchup.png)
 
-![Návod k pluginu SketchUp v aplikaci (příklad zobrazení)](images/prirucka/01-tutorial-sketchup.png)
+Na **Dashboardu** (úvod **Nastavení**) je rámeček **Tip: Příprava 3D modelu** s tlačítky na stažení pluginu a na stejný návod. Vše používá doménu vaší instance, při lokálním vývoji typicky `http://localhost:3001/cs/tutorial` a `http://localhost:3001/cs/setup/import/sketchup`.
 
 ---
 
