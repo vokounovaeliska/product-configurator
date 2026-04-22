@@ -6,6 +6,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class MailConfig(
     var fromAddress: String = "noreply@configurator.local",
     var fromName: String = "Product Configurator",
-    
     var signatureEnabled: Boolean = true,
 )

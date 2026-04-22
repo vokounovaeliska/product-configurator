@@ -16,7 +16,6 @@ interface CustomerRequestRepository {
         status: RequestStatus,
     ): CustomerRequest?
 
-    
     fun deleteById(id: CustomerRequestId): Boolean
 
     fun findByProductModelOwnerId(

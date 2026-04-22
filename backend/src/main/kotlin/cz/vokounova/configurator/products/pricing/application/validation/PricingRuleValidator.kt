@@ -10,7 +10,6 @@ import java.util.UUID
 class PricingRuleValidator(
     private val attributePricingRuleRepository: AttributePricingRuleRepository,
 ) {
-    
     fun validateNoDuplicateOptionRule(
         productModelId: UUID,
         componentId: UUID?,

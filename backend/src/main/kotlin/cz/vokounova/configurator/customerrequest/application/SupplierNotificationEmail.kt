@@ -7,7 +7,6 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
-
 object SupplierNotificationEmail {
     private const val PRESET_EN = "en"
     private const val PRESET_CS = "cs"
@@ -28,7 +27,10 @@ object SupplierNotificationEmail {
                     "Odpovězte na tento e-mail pro přímou odpověď zákazníkovi.",
         )
 
-    private data class EmailTemplate(val subject: String, val body: String)
+    private data class EmailTemplate(
+        val subject: String,
+        val body: String,
+    )
 
     private data class EmailLabels(
         val customer: String,
@@ -114,8 +116,7 @@ object SupplierNotificationEmail {
             .replace(
                 "{{customerName}}",
                 request.customerName?.takeIf { it.isNotBlank() } ?: request.customerEmail,
-            )
-            .replace("{{productName}}", request.productModelName)
+            ).replace("{{productName}}", request.productModelName)
             .replace("{{totalPrice}}", formatPrice(request.totalPrice, request.currency))
             .replace("{{customerNote}}", request.customerNote?.takeIf { it.isNotBlank() } ?: "")
             .replace("{{customerEmail}}", request.customerEmail)
@@ -134,17 +135,14 @@ object SupplierNotificationEmail {
                 escapeHtml(
                     request.customerName?.takeIf { it.isNotBlank() } ?: request.customerEmail,
                 ),
-            )
-            .replace("{{productName}}", escapeHtml(request.productModelName))
+            ).replace("{{productName}}", escapeHtml(request.productModelName))
             .replace(
                 "{{totalPrice}}",
                 escapeHtml(formatPrice(request.totalPrice, request.currency)),
-            )
-            .replace(
+            ).replace(
                 "{{customerNote}}",
                 escapeHtml(request.customerNote?.takeIf { it.isNotBlank() } ?: ""),
-            )
-            .replace("{{customerEmail}}", escapeHtml(request.customerEmail))
+            ).replace("{{customerEmail}}", escapeHtml(request.customerEmail))
             .replace(
                 "{{customerPhone}}",
                 escapeHtml(request.customerPhone?.takeIf { it.isNotBlank() } ?: ""),
@@ -161,7 +159,8 @@ object SupplierNotificationEmail {
     }
 
     private fun escapeHtml(s: String): String =
-        s.replace("&", "&amp;")
+        s
+            .replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
             .replace("\"", "&quot;")

@@ -4,10 +4,8 @@ import cz.vokounova.configurator.products.models.domain.ProductModelConfigurator
 import cz.vokounova.configurator.products.models.domain.ProductModelId
 
 interface ProductModelConfiguratorPreferencesAPI {
-    
     fun getByProductModelId(productModelId: ProductModelId): ProductModelConfiguratorPreferences?
 
-    
     fun getByProductModelIdForCurrentUser(productModelId: ProductModelId): ProductModelConfiguratorPreferences?
 
     fun upsert(

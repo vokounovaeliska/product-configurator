@@ -157,7 +157,6 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
         return outputStream.toByteArray()
     }
 
-    
     private fun createMinimalGlb(): ByteArray {
         val json = """{"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[]}]}""".toByteArray(Charsets.UTF_8)
         val chunkLength = json.size

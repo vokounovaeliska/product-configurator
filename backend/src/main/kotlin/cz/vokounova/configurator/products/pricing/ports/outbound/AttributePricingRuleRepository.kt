@@ -8,7 +8,6 @@ import java.util.UUID
 interface AttributePricingRuleRepository {
     fun findByProductModelId(productModelId: ProductModelId): List<AttributePricingRule>
 
-    
     fun findByProductModelId(
         productModelId: ProductModelId,
         componentId: UUID?,
@@ -23,7 +22,6 @@ interface AttributePricingRuleRepository {
 
     fun delete(id: AttributePricingRuleId): Int
 
-    
     fun deleteByProductModelComponentAttributeValue(
         productModelId: ProductModelId,
         componentId: UUID,

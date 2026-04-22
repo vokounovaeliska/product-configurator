@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import java.util.Base64
 
-
 @Service
 @Primary
 @ConditionalOnExpression(
@@ -30,7 +29,8 @@ class ResendEmailService(
     private val log = LoggerFactory.getLogger(javaClass)
     private val resend = Resend(apiKey)
     private val restClient =
-        RestClient.builder()
+        RestClient
+            .builder()
             .baseUrl("https://api.resend.com")
             .defaultHeader("Authorization", "Bearer $apiKey")
             .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -100,7 +100,8 @@ class ResendEmailService(
     ) {
         val fromFormatted = "${mailConfig.fromName} <${mailConfig.fromAddress}>"
         val params =
-            CreateEmailOptions.builder()
+            CreateEmailOptions
+                .builder()
                 .from(fromFormatted)
                 .to(listOf(to))
                 .subject(subject)
@@ -159,5 +160,7 @@ class ResendEmailService(
         log.info("Email sent successfully via Resend: to={}, subject={}, id={}", to, subject, id)
     }
 
-    private data class ResendEmailResponse(val id: String?)
+    private data class ResendEmailResponse(
+        val id: String?,
+    )
 }

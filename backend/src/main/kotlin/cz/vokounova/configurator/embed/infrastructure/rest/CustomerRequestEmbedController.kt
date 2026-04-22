@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
 @Tag(
     name = "Public embed",
     description = "Unauthenticated APIs for the embedded configurator: published product config and customer lead submission.",

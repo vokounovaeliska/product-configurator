@@ -9,7 +9,6 @@ import cz.vokounova.configurator.shared.pagination.PaginationRequest
 import java.util.UUID
 
 interface ProductModelRepository {
-    
     fun findPublishedByUserIdAndUrl(
         userId: UUID,
         url: String,

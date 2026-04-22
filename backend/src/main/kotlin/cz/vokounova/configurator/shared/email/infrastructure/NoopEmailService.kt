@@ -4,7 +4,6 @@ import cz.vokounova.configurator.shared.email.ports.outbound.EmailService
 import cz.vokounova.configurator.shared.email.ports.outbound.InlineImage
 import org.slf4j.LoggerFactory
 
-
 class NoopEmailService : EmailService {
     private val log = LoggerFactory.getLogger(javaClass)
 

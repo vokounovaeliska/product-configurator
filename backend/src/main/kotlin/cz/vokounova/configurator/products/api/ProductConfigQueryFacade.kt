@@ -19,6 +19,5 @@ interface ProductConfigQueryFacade {
         url: String,
     ): FullProductConfigDto
 
-    
     fun getFullConfigByProductId(productModelId: UUID): FullProductConfigDto?
 }

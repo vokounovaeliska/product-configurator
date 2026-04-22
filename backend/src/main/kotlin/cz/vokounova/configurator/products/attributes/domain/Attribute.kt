@@ -22,11 +22,8 @@ data class Attribute(
     val maxInt: Int?,
     val minDecimal: BigDecimal?,
     val maxDecimal: BigDecimal?,
-    
     val defaultInt: Int?,
-    
     val defaultDecimal: BigDecimal?,
-    
     val unit: String?,
     val sortOrder: Int,
     val createdAt: OffsetDateTime,

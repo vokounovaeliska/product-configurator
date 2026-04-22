@@ -14,7 +14,6 @@ class EmbedService(
         url: String,
     ): FullProductConfigDto = productConfigQueryFacade.getFullConfigByProductUrl(userId, url)
 
-    
     fun getPublishedProductConfigById(productModelId: UUID): FullProductConfigDto? =
         if (productConfigQueryFacade.isProductPublished(productModelId)) {
             productConfigQueryFacade.getFullConfigByProductId(productModelId)

@@ -17,7 +17,6 @@ interface AttributeOptionRepository {
 
     fun deleteByAttributeId(attributeId: AttributeId): Int
 
-    
     fun existsOtherOptionWithImageUrl(
         imageUrl: String,
         excludeOptionIds: Set<AttributeOptionId>,

@@ -98,7 +98,6 @@ class AttributeOptionAPIManager(
         attributeOptionRepository.findById(id)
             ?: throw ResourceNotFoundException("Attribute option with id ${id.value} is not found.")
 
-    
     private fun deleteImageIfUnused(
         imageUrl: String?,
         excludeOptionIds: Set<AttributeOptionId>,

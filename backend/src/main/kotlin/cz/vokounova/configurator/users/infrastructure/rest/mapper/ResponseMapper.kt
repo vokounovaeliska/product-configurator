@@ -3,7 +3,6 @@ package cz.vokounova.configurator.users.infrastructure.rest.mapper
 import cz.vokounova.configurator.users.domain.User
 import cz.vokounova.configurator.users.infrastructure.rest.mapper.response.UserDto
 
-
 fun User.toDto(): UserDto =
     UserDto(
         id = id.value,

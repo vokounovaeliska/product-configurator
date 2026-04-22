@@ -7,7 +7,6 @@ import cz.vokounova.configurator.users.api.dto.UserIdDto
 import org.springframework.stereotype.Component
 import java.util.UUID
 
-
 @Component
 class ProductModelAccessGuard(
     private val productModelAPI: ProductModelAPI,
@@ -15,7 +14,6 @@ class ProductModelAccessGuard(
 ) {
     fun currentUserId(): UserIdDto = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
 
-    
     fun requireCurrentUserOwnsProductModel(productModelId: UUID) {
         productModelAPI.getOneForUser(ProductModelId(productModelId), currentUserId())
     }

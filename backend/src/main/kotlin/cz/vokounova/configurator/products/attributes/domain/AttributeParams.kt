@@ -19,7 +19,6 @@ data class AttributeCreateParams(
     val maxDecimal: BigDecimal? = null,
     val defaultInt: Int? = null,
     val defaultDecimal: BigDecimal? = null,
-    
     val unit: String? = null,
     val sortOrder: Int? = null,
 )

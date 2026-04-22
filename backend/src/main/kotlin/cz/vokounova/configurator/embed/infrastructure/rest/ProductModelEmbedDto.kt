@@ -2,7 +2,6 @@ package cz.vokounova.configurator.embed.infrastructure.rest
 
 import java.util.UUID
 
-
 data class ProductModelEmbedDto(
     val id: UUID,
     val name: String,

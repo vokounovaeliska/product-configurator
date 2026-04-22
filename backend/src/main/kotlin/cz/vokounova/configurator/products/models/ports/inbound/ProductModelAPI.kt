@@ -18,7 +18,6 @@ interface ProductModelAPI {
 
     fun getOne(id: ProductModelId): ProductModel
 
-    
     fun getOneForUser(
         id: ProductModelId,
         userId: UserIdDto,
@@ -35,7 +34,6 @@ interface ProductModelAPI {
         jsonPatchParams: List<ProductModelJsonPatchParams>,
     ): ProductModel
 
-    
     fun getPublishedByUserIdAndUrl(
         userId: UUID,
         url: String,
