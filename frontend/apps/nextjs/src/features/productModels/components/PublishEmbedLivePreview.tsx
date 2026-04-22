@@ -16,12 +16,9 @@ import { EmbedConfigurator } from "@/features/embed/components/EmbedConfigurator
 
 type Props = {
   productModel: ProductModelDto
-  /**
-   * Slider→camera distance override. `null` while the user zooms with the wheel in the preview
-   * so the embed tree is not re-driven every frame (camera follows OrbitControls only).
-   */
+
   liveCameraDistance: number | null
-  /** Draft embed chrome (publish tab) — applied immediately in preview without saving. */
+
   embedUiOverrides: {
     showProductName: boolean
     showDescription: boolean
@@ -31,9 +28,6 @@ type Props = {
   onCameraDistanceChange?: (distance: number) => void
 }
 
-/**
- * Same embed UI as the public iframe, loaded in-page so zoom reacts live to the publish-tab slider.
- */
 function PublishEmbedLivePreviewInner({
   productModel,
   liveCameraDistance,

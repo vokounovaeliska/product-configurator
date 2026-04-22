@@ -196,7 +196,6 @@ export const CustomerRequestsList = () => {
 
   const isServerListEmpty = requests.length === 0
 
-  /** Full skeleton only on first load; filter changes keep UI mounted (see placeholderData on query). */
   if (isPending && requestsInfinite === undefined) {
     return (
       <div className="space-y-3">

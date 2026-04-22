@@ -43,7 +43,6 @@ const AttributesPage = async (props: Props) => {
     namespace: "Attributes",
   })
 
-  // Fetch product model and component names for breadcrumbs
   let productModelName: string | undefined
   let componentName: string | undefined
   try {
@@ -56,7 +55,7 @@ const AttributesPage = async (props: Props) => {
     productModelName = productModel.name
     componentName = component.label
   } catch {
-    // If fetch fails, breadcrumbs will handle it
+    void 0
   }
 
   return (

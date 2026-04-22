@@ -23,8 +23,6 @@ class UserLogoutHandler(
         response: HttpServletResponse,
         authentication: Authentication?,
     ) {
-        // Because LogoutHandler instances are for the purposes of cleanup, they should not throw exceptions.
-        // https://docs.spring.io/spring-security/reference/servlet/authentication/logout.html#add-logout-handler
         request.cookies?.find { it.name == REFRESH_TOKEN_COOKIE }?.let {
             try {
                 val jwtId = jwtService.getJwtId(it.value)

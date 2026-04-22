@@ -12,11 +12,11 @@ type Props = {
   toValue: number
   onFromChange: (value: number) => void
   onToChange: (value: number) => void
-  /** When true, only render the slider track (no number inputs). Use when inputs with unit are shown above. */
+
   isSliderOnly?: boolean
-  /** Label for the min input (e.g. "Min" or "From"). Ignored when isSliderOnly. */
+
   minLabel?: string
-  /** Label for the max input (e.g. "Max" or "To"). Ignored when isSliderOnly. */
+
   maxLabel?: string
 }
 

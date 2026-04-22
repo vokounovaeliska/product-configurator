@@ -24,10 +24,6 @@ import {
   parseMajorUnitsToCents,
   parseWholeCurrencyInput,
 } from "@/lib/moneyFormat"
-import {
-  getMaxUpperBoundForAttributeRules,
-  suggestNextBetweenLowerBound,
-} from "../utils/suggestNextBetweenLowerBound"
 import { getImageUrlForDisplay } from "@/utils/imageUrl"
 
 /* eslint-disable-next-line import/no-restricted-paths -- pricing needs product model for currency */
@@ -39,6 +35,10 @@ import {
   usePricingRulesList,
   useUpdatePricingRule,
 } from "../api/pricingRulesQueries"
+import {
+  getMaxUpperBoundForAttributeRules,
+  suggestNextBetweenLowerBound,
+} from "../utils/suggestNextBetweenLowerBound"
 import { CreatePricingRuleDialog } from "./CreatePricingRuleDialog"
 import { EditPricingRuleDialog } from "./EditPricingRuleDialog"
 
@@ -50,10 +50,10 @@ export type PresetAttributeContext = {
 
 type Props = {
   productModelId: string
-  /** When set (e.g. from attribute pricing page), only rules for this attribute are shown and filter is preset. */
+
   presetComponentId?: string
   presetAttributeCode?: string
-  /** When set (e.g. from attribute pricing page), unit/type/range are shown in Create/Edit before attribute loads. */
+
   presetAttributeContext?: PresetAttributeContext
 }
 
@@ -251,13 +251,13 @@ export const PricingRulesList = ({
   const isEnumRule = (rule: AttributePricingRuleDto): boolean =>
     Boolean(
       rule.componentId &&
-      rule.attributeCode &&
-      allAttributes.some(
-        (a) =>
-          a.componentId === rule.componentId &&
-          a.code?.toLowerCase().trim() === rule.attributeCode?.toLowerCase().trim() &&
-          a.type === "ENUM",
-      ),
+        rule.attributeCode &&
+        allAttributes.some(
+          (a) =>
+            a.componentId === rule.componentId &&
+            a.code?.toLowerCase().trim() === rule.attributeCode?.toLowerCase().trim() &&
+            a.type === "ENUM",
+        ),
     )
 
   const _getConditionDisplay = (rule: AttributePricingRuleDto): string => {
@@ -372,7 +372,6 @@ export const PricingRulesList = ({
         presetOperator,
       }
     },
-    // getUnitForRule is stable (depends on allAttributes which is in deps)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [hasFilterApplied, filterAttributeCode, filterOperator, filteredRules, allAttributes],
   )
@@ -380,9 +379,9 @@ export const PricingRulesList = ({
   const canAddInlineRow = Boolean(
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional boolean OR
     (isAttributeScoped && presetComponentId && presetAttributeCode) ||
-    (createPresetFromFilters?.componentId &&
-      createPresetFromFilters?.attributeCode &&
-      hasFilterApplied),
+      (createPresetFromFilters?.componentId &&
+        createPresetFromFilters?.attributeCode &&
+        hasFilterApplied),
   )
 
   const newRowAttribute = useMemo(() => {
@@ -543,13 +542,9 @@ export const PricingRulesList = ({
     const maxFd = getNumericMaxFractionDigitsForRule(rule)
     const priceMajor = Math.round(rule.price / 100)
     return {
-      conditionValue: isEnumRule(rule)
-        ? rule.value
-        : formatDraftNumberCs(rule.value, maxFd),
+      conditionValue: isEnumRule(rule) ? rule.value : formatDraftNumberCs(rule.value, maxFd),
       conditionToValue:
-        rule.toValue != null && rule.toValue !== ""
-          ? formatDraftNumberCs(rule.toValue, maxFd)
-          : "",
+        rule.toValue != null && rule.toValue !== "" ? formatDraftNumberCs(rule.toValue, maxFd) : "",
       price: formatIntegerCs(priceMajor),
       operator: rule.operator as "EQ" | "BETWEEN",
     }
@@ -663,14 +658,14 @@ export const PricingRulesList = ({
         <Typography
           as="p"
           variant="body-sm"
-          className="text-muted-foreground leading-relaxed"
+          className="leading-relaxed text-muted-foreground"
         >
           {t("list.helpPricingRules")}
         </Typography>
         <Typography
           as="p"
           variant="body-sm"
-          className="text-muted-foreground leading-relaxed"
+          className="leading-relaxed text-muted-foreground"
         >
           {t("list.helpComponentsAttributes")}
         </Typography>
@@ -917,12 +912,15 @@ export const PricingRulesList = ({
                                     })
                                   }
                                   onBlur={() => {
-                                    const formatted = formatDraftNumberCs(draft.conditionValue, maxFd)
+                                    const formatted = formatDraftNumberCs(
+                                      draft.conditionValue,
+                                      maxFd,
+                                    )
                                     if (formatted !== draft.conditionValue) {
                                       setDraftForRule(rule, { conditionValue: formatted })
                                     }
                                   }}
-                                  className="h-8 min-w-[5.5rem] w-28"
+                                  className="h-8 w-28 min-w-[5.5rem]"
                                   aria-label={t("list.value")}
                                 />
                                 {unit && op !== "BETWEEN" && (
@@ -955,7 +953,7 @@ export const PricingRulesList = ({
                                           setDraftForRule(rule, { conditionToValue: formatted })
                                         }
                                       }}
-                                      className="h-8 min-w-[5.5rem] w-28"
+                                      className="h-8 w-28 min-w-[5.5rem]"
                                       aria-label={t("list.toValue")}
                                     />
                                   </>
@@ -992,7 +990,7 @@ export const PricingRulesList = ({
                               }
                             }
                           }}
-                          className="h-8 min-w-[7rem] w-28 text-right"
+                          className="h-8 w-28 min-w-[7rem] text-right"
                           aria-label={t("create.price")}
                         />
                         <Typography
@@ -1116,7 +1114,7 @@ export const PricingRulesList = ({
                                     )
                                   }
                                 }}
-                                className="h-8 min-w-[5.5rem] w-28"
+                                className="h-8 w-28 min-w-[5.5rem]"
                                 aria-label={t("list.value")}
                               />
                               {unit && newRowDraft.operator !== "BETWEEN" && (
@@ -1156,7 +1154,7 @@ export const PricingRulesList = ({
                                         )
                                       }
                                     }}
-                                    className="h-8 min-w-[5.5rem] w-28"
+                                    className="h-8 w-28 min-w-[5.5rem]"
                                     aria-label={t("list.toValue")}
                                   />
                                 </>
@@ -1197,7 +1195,7 @@ export const PricingRulesList = ({
                               }
                             }
                           }}
-                          className="h-8 min-w-[7rem] w-28 text-right"
+                          className="h-8 w-28 min-w-[7rem] text-right"
                           aria-label={t("create.price")}
                         />
                         <Typography

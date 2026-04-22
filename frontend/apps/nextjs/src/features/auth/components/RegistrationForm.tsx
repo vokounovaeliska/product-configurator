@@ -55,7 +55,6 @@ export const RegistrationForm = () => {
     setError(null)
 
     try {
-      // Register the user
       await publicApi
         .post("users/api/v1/auth/public/register", {
           json: {
@@ -68,7 +67,6 @@ export const RegistrationForm = () => {
         })
         .json()
 
-      // Auto-login after successful registration
       const { error: loginError } = await signIn(values.email, values.password)
 
       if (loginError) {

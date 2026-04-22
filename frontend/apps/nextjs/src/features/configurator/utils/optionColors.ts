@@ -1,10 +1,3 @@
-/**
- * Resolves a hex color for a 3D material from an attribute option.
- * Prefers the option's colorHex field (set by merchant / import).
- * Falls back to a name-based lookup for legacy options without colorHex.
- */
-
-/** Fallback when option has no colorHex. Keys normalized (lowercase, no spaces). */
 const FALLBACK_COLOR_MAP: Record<string, string> = {
   oak: "#C49A6C",
   black: "#1A1A1A",

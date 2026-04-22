@@ -9,7 +9,6 @@ type SessionType = {
 
 export const getSession = async (): Promise<SessionType> => {
   try {
-    // Access token is stored as a frontend cookie after login (see useAuth.signIn)
     const accessTokenCookie = await getCookie("access_token")
 
     if (!accessTokenCookie?.value) {
@@ -18,7 +17,6 @@ export const getSession = async (): Promise<SessionType> => {
 
     const accessToken = accessTokenCookie.value
 
-    // Use the access token to fetch current user info from /users/me
     const me = await publicApi
       .get("users/api/v1/users/me", {
         headers: {

@@ -32,7 +32,7 @@ type Props = {
   componentId: string
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
-  /** When provided, used as initial sortOrder so new attribute is added at the end */
+
   defaultSortOrder?: number
 }
 
@@ -196,7 +196,6 @@ export const CreateAttributeDialog = ({
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value)
-                      // Reset numeric fields when type changes
                       if (value === "ENUM" || value === "BOOLEAN") {
                         form.setValue("minInt", null)
                         form.setValue("maxInt", null)

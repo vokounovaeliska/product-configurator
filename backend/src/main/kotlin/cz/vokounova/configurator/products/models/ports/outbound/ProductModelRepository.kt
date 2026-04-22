@@ -9,7 +9,7 @@ import cz.vokounova.configurator.shared.pagination.PaginationRequest
 import java.util.UUID
 
 interface ProductModelRepository {
-    /** Find published product model by owner and embed path (for embed). Unique per user when published. */
+    
     fun findPublishedByUserIdAndUrl(
         userId: UUID,
         url: String,

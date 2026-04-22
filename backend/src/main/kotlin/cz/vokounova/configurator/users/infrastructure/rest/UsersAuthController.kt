@@ -106,9 +106,4 @@ class UsersAuthController(
 
         return ResponseEntity.status(HttpStatus.CREATED).body(user.toDto())
     }
-
-    // Logout is completely handled by Spring Boot in UserSecurityConfiguration.logout
-    fun userLogout(
-        @CookieValue(name = REFRESH_TOKEN_COOKIE) refreshToken: String,
-    ): ResponseEntity<Unit> = throw IllegalStateException("This method should not be called!")
 }

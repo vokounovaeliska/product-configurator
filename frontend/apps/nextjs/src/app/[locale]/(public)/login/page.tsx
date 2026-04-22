@@ -16,7 +16,6 @@ export async function generateMetadata(props: Omit<Props, "children">) {
   const t = await getTranslations({ locale, namespace: "Login" })
   const title = t("title")
 
-  // TODO: Extend as needed
   return {
     title,
     alternates: {

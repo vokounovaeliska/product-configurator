@@ -27,7 +27,6 @@ class UserJwtAuthorizationFilter(
         private val usersPathMatcher = AntPathRequestMatcher("/users/**")
         private val productsPathMatcher = AntPathRequestMatcher("/products/**")
 
-        // File uploads (POST) require authentication, downloads (GET) are public
         private val filesUploadPathMatcher = AntPathRequestMatcher("/api/v1/files/upload")
         private val authenticatedPathsMatcher = OrRequestMatcher(usersPathMatcher, productsPathMatcher, filesUploadPathMatcher)
     }
@@ -66,7 +65,5 @@ class UserJwtAuthorizationFilter(
         }
     }
 
-    // returns true → filter will be skipped.
-    // Path must be limited to apply filter only for /users/**, /products/**, and /api/v1/files/upload
     override fun shouldNotFilter(request: HttpServletRequest): Boolean = !authenticatedPathsMatcher.matches(request)
 }

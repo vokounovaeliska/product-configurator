@@ -94,7 +94,7 @@ class ProductModelsController(
     @Operation(
         summary = "List product models",
         description =
-            "Cursor-based list for the authenticated user only (other users' models are never returned). " +
+            "List for the authenticated user only (other users' models are never returned). " +
                 "Optional filters: ids, active flag, published flag, sort order. Query param userIds is ignored.",
     )
     @GetMapping

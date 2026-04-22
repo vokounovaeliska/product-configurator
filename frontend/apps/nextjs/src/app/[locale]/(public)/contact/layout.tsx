@@ -5,10 +5,6 @@ type Props = {
   children: React.ReactNode
 }
 
-/**
- * Layout for contact page: when user is logged in, show sidebar.
- * Hamburger toggle is in the header (mobile only).
- */
 export default async function ContactLayout({ children }: Props) {
   const { session } = await getSession()
   const isLoggedIn = session?.isValid ?? false

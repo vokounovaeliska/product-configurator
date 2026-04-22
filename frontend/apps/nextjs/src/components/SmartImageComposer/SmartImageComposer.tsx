@@ -13,7 +13,7 @@ export type ImageLayerItem = {
 
 type Props = {
   layers: ImageLayerItem[]
-  /** Max width/height for the composed preview; aspect ratio follows first loaded image or 1:1 */
+
   maxSize?: number
   className?: string
 }

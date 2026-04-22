@@ -68,7 +68,7 @@ const OptionsPage = async (props: Props) => {
     componentName = component.label
     attributeName = attribute.label
   } catch {
-    // If fetch fails, breadcrumbs will handle it
+    void 0
   }
 
   return (

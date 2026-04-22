@@ -33,12 +33,10 @@ type Props = {
   prefetchedConfig?: ProductEmbedFullDto | null
 }
 
-/** Selected options per component: componentId -> attributeId -> option (ENUM) */
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
-/** Numeric/boolean values per component: componentId -> attributeId -> number | boolean */
+
 type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
 
-/** Build preview layers stacked by each component's imageZIndex (lower = back, higher = front). */
 function buildPreviewLayers(
   components: ComponentDto[],
   selectedOptionsByComponent: SelectedOptionsByComponent,

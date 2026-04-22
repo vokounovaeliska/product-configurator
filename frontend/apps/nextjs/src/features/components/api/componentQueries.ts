@@ -10,9 +10,6 @@ import type {
 import { api } from "@/lib/api/restClient"
 import { extractErrorMessage } from "@/lib/utils"
 
-/**
- * Query key factory for component queries
- */
 export const componentKeys = {
   all: ["components"] as const,
   lists: () => [...componentKeys.all, "list"] as const,
@@ -23,9 +20,6 @@ export const componentKeys = {
     [...componentKeys.details(), productModelId, componentId] as const,
 } as const
 
-/**
- * Query options for fetching paginated list of components for a product model
- */
 export const getComponentsListQueryOptions = (
   productModelId: string,
   params?: ComponentListQueryParams,
@@ -56,9 +50,6 @@ export const getComponentsListQueryOptions = (
     },
   })
 
-/**
- * Query options for fetching a single component
- */
 export const getComponentQueryOptions = (productModelId: string, componentId: string) =>
   queryOptions({
     queryKey: componentKeys.detail(productModelId, componentId),
@@ -69,9 +60,6 @@ export const getComponentQueryOptions = (productModelId: string, componentId: st
     },
   })
 
-/**
- * Hook to fetch paginated list of components for a product model
- */
 export const useComponentsList = (
   productModelId: string,
   params?: ComponentListQueryParams,
@@ -83,16 +71,10 @@ export const useComponentsList = (
   })
 }
 
-/**
- * Hook to fetch a single component
- */
 export const useComponent = (productModelId: string, componentId: string) => {
   return useQuery(getComponentQueryOptions(productModelId, componentId))
 }
 
-/**
- * Hook to create a component
- */
 export const useCreateComponent = (productModelId: string) => {
   const queryClient = useQueryClient()
 
@@ -115,9 +97,6 @@ export const useCreateComponent = (productModelId: string) => {
   })
 }
 
-/**
- * Hook to update a component (PATCH)
- */
 export const useUpdateComponent = (productModelId: string) => {
   const queryClient = useQueryClient()
 
@@ -153,9 +132,6 @@ export const useUpdateComponent = (productModelId: string) => {
   })
 }
 
-/**
- * Hook to delete a component
- */
 export const useDeleteComponent = (productModelId: string) => {
   const queryClient = useQueryClient()
 

@@ -6,25 +6,14 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-/**
- * Deletes files that were uploaded via [FileUploadController].
- * Used when an entity's image is replaced or the entity is deleted
- * so that old image files are not left on disk.
- */
 @Component
 class UploadedFileDeleter(
     @Value("\${app.files.upload-dir}") private val uploadDir: String,
 ) {
     companion object {
-        /** Filename: UUID plus optional extension (e.g. xxx.png) - no path traversal */
         private val SAFE_FILENAME = Regex("^[a-zA-Z0-9_.-]+\$")
     }
 
-    /**
-     * Deletes the file referenced by [url] if it is an uploaded file under our control.
-     * Accepts relative paths like "/api/v1/files/uuid.png" or full URLs.
-     * Does nothing if url is null/blank or does not point to our uploads.
-     */
     fun deleteByUrl(url: String?) {
         if (url.isNullOrBlank()) return
         val filename = filenameFromUrl(url) ?: return
@@ -34,7 +23,7 @@ class UploadedFileDeleter(
             try {
                 Files.delete(path)
             } catch (_: Exception) {
-                // Log and ignore - avoid failing the main operation
+                Unit
             }
         }
     }

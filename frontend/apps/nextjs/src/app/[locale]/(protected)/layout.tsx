@@ -19,7 +19,6 @@ export default async function ProtectedLayout({ children, params }: Props) {
     return null
   }
 
-  // After hasLocale check, localeParam is guaranteed to be a valid Locale
   const locale = localeParam
   const { session } = await getSession()
 

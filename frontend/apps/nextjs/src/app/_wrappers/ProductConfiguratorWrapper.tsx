@@ -17,7 +17,7 @@ type Props = {
 export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
   const { data: currentUser } = useCurrentUser()
   const isLoggedIn = Boolean(currentUser?.id)
-  /** Public embed API is published-only. Use it only when unauthenticated; owners load drafts via private API. */
+
   const shouldUseEmbedApi = !isLoggedIn
 
   const {

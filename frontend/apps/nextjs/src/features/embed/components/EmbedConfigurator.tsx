@@ -56,14 +56,9 @@ type Props = {
   optionsByAttribute: Record<string, AttributeOptionDto[]>
   pricingRules: AttributePricingRuleDto[]
   configuratorPreferences?: ConfiguratorPreferencesEmbedDto | null
-  /**
-   * Live camera distance for embed (e.g. publish tab slider). Syncs 3D without saving.
-   * When set, overrides saved embed zoom until cleared.
-   */
+
   publishLiveCameraDistance?: number | null
-  /**
-   * When set (e.g. publish tab live preview), overrides saved preferences for title/description/components visibility.
-   */
+
   embedUiOverrides?: {
     showProductName: boolean
     showDescription: boolean

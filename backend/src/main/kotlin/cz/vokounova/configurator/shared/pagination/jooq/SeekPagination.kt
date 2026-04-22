@@ -56,11 +56,6 @@ data class PageResult<T>(
     val before: T?,
 )
 
-/*
-jOOQ has broken seekBefore at the moment
-Backward seek is implemented through normal seek with flipped ordering and reversed result list
-https://github.com/jOOQ/jOOQ/issues/6380#issuecomment-1114764613
- */
 class SeekPagination(
     private val dsl: DSLContext,
 ) {
@@ -162,7 +157,7 @@ class SeekPagination(
                 .fetchInto(pageRequest.table.recordType)
 
         val isFirstPage = result.size <= pageRequest.pageSize
-        val data = if (isFirstPage) result.reversed() else result.dropLast(1).reversed() // Remove item over the limit
+        val data = if (isFirstPage) result.reversed() else result.dropLast(1).reversed()
         val lastItem = data.lastOrNull()
         val firstItem = data.firstOrNull()
 
@@ -197,7 +192,7 @@ class SeekPagination(
                 .fetchInto(pageRequest.table.recordType)
 
         val isLastPage = result.size <= pageRequest.pageSize
-        val data = if (isLastPage) result else result.dropLast(1) // Remove item over the limit
+        val data = if (isLastPage) result else result.dropLast(1)
         val lastItem = data.lastOrNull()
         val firstItem = data.firstOrNull()
 
@@ -221,12 +216,6 @@ class SeekPagination(
         }
     }
 
-    /**
-     * Returns cursor values ordered to match the order of fields in the `orderByFields` map.
-     *
-     * This is required because jOOQ's `seek()` method expects the cursor values to align with
-     * the order of the sort fields.
-     */
     private fun getCursorValuesInCorrectOrder(
         cursorFieldValues: Map<Field<*>, Any>,
         orderByFields: Map<Field<*>, SortOrder>,

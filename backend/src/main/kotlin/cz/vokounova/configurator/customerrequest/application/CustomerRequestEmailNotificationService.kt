@@ -10,13 +10,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
-/**
- * Sends two emails when a quote request is submitted:
- * 1. Customer confirmation – to customer, replyTo=manufacturer (customer can reply to supplier).
- * 2. Supplier notification – to manufacturer, replyTo=customer (supplier can reply directly to customer).
- * Admin configures the customer email template via user-level publish settings.
- * Uses @Async so the HTTP response is not delayed by email delivery.
- */
+
 @Service
 class CustomerRequestEmailNotificationService(
     private val emailService: EmailService,
@@ -59,7 +53,6 @@ class CustomerRequestEmailNotificationService(
             QuoteRequestEmail.bodyText(request, owner, productConfig) +
                 if (shouldAppendSignature()) EmailSignature.text(siteUrl) else ""
 
-        // 1. Customer confirmation – replyTo=manufacturer so customer can reply to supplier
         emailService.send(
             to = request.customerEmail,
             subject = QuoteRequestEmail.subject(request, owner),
@@ -79,7 +72,6 @@ class CustomerRequestEmailNotificationService(
             SupplierNotificationEmail.bodyText(request, owner, productConfig) +
                 if (shouldAppendSignature()) EmailSignature.text(siteUrl) else ""
 
-        // 2. Supplier notification – replyTo=customer so supplier can reply directly to customer
         emailService.send(
             to = manufacturerEmail,
             subject = SupplierNotificationEmail.subject(request, owner),

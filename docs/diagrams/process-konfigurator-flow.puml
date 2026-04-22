@@ -1,4 +1,4 @@
-@startuml process-konfigurator-flow
+@startuml
 ' Aktivitní diagram: nová syntaxe (viz https://plantuml.com/activity-diagram-beta)
 !theme plain
 skinparam shadowing false
@@ -13,8 +13,6 @@ skinparam ArrowColor #9CA3AF
 skinparam PartitionFontColor #000000
 skinparam PartitionBorderColor #D1D5DB
 
-title Proces od přípravy modelu po zpracování poptávky v systému Konfiguruj
-
 |Výrobce|
 start
 :Návrh výrobku ve SketchUpu\ns parametry a komponentami; <<#E8EDF4>>
@@ -22,7 +20,7 @@ start
 :Nahrání ZIP do administrace\na import výrobku do systému; <<#E8EDF4>>
 :Nastavení parametrů, cen\na pravidel v administraci; <<#E8EDF4>>
 :Zveřejnění výrobku v konfigurátoru; <<#E8EDF4>>
-:Vložení kódu na web výrobce; <<#E8EDF4>>
+:Vložení konfigurátoru na vlastní web; <<#E8EDF4>>
 
 |Zákazník|
 :Návštěva webu výrobce; <<#E9F0EE>>
@@ -37,5 +35,4 @@ start
 |Výrobce|
 :Zpracování poptávky\nv administraci; <<#E8EDF4>>
 stop
-
 @enduml

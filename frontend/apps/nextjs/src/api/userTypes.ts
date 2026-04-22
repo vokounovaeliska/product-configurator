@@ -1,6 +1,5 @@
 import type { operations } from "@/api/types"
 
-// Auth
 export type LoginRequest = operations["userAuthLogin"]["requestBody"]["content"]["application/json"]
 
 export type LoginResponse = operations["userAuthLogin"]["responses"]["200"]["content"]["*/*"]
@@ -11,7 +10,6 @@ export type RegistrationRequest =
 export type RegistrationResponse =
   operations["userRegistration"]["responses"]["200"]["content"]["*/*"]
 
-// Users
 type UserDtoFromApi = operations["usersGet"]["responses"]["200"]["content"]["*/*"]
 export type UserDto = UserDtoFromApi & {
   notificationEmail?: string | null

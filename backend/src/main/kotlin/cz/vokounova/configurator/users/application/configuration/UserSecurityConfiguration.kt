@@ -47,7 +47,6 @@ class UserSecurityConfiguration {
         http.logout {
             it.addLogoutHandler(logoutHandler)
             it.logoutSuccessHandler(HttpStatusReturningLogoutSuccessHandler())
-            // LogoutFilter appears before the AuthorizationFilter in the filter chain.
             it.logoutUrl("/users/api/v1/auth/logout")
             it.deleteCookies(REFRESH_TOKEN_COOKIE)
             it.clearAuthentication(true)
@@ -63,12 +62,8 @@ class UserSecurityConfiguration {
         return http.build()
     }
 
-    /**
-     * Returns correct response code for unauthorized users as json
-     */
     @Bean
     fun unauthorizedUserEntryPoint(): AuthenticationEntryPoint =
-        // HttpServletRequest, HttpServletResponse, AuthenticationException
         AuthenticationEntryPoint { _, _, _ ->
             throw AuthException(AuthErrorCode.UNAUTHORIZED)
         }

@@ -14,7 +14,7 @@ class EmbedService(
         url: String,
     ): FullProductConfigDto = productConfigQueryFacade.getFullConfigByProductUrl(userId, url)
 
-    /** Returns full config for published product, null if not found or not published. */
+    
     fun getPublishedProductConfigById(productModelId: UUID): FullProductConfigDto? =
         if (productConfigQueryFacade.isProductPublished(productModelId)) {
             productConfigQueryFacade.getFullConfigByProductId(productModelId)

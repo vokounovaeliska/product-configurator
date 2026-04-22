@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
-/**
- * Public embed API – no authentication required.
- * Embed URL: /e/{userId}/{url} – unique per vendor (user) when published.
- */
+
 @Tag(
     name = "Public embed",
     description = "Unauthenticated APIs for the embedded configurator: published product config and customer lead submission.",

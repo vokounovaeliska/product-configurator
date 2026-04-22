@@ -21,10 +21,6 @@ import java.time.OffsetDateTime
 import java.util.*
 import java.util.function.Supplier
 
-/**
- * Jwt serivce implementation for User
- *
- */
 @Component("UserJwtService")
 class UserJwtService(
     private val jwtProperties: JwtProperties,
@@ -40,70 +36,25 @@ class UserJwtService(
         }
     }
 
-    /**
-     * Generates token for User
-     *
-     * @param auth User ID as UUID
-     * @param startDateSupplier date that will be used as base for expiration calculation
-     *
-     * @return new access token
-     */
     override fun generateAccessToken(
         auth: UserId,
         startDateSupplier: Supplier<OffsetDateTime>,
     ): JwtToken = generateToken(auth.value.toString(), jwtProperties.users.accessTokenExpirationInMinutes, startDateSupplier.get())
 
-    /**
-     * Generates refresh token for User
-     *
-     * @param auth User ID as UUID
-     * @param startDateSupplier date that will be used as base for expiration calculation
-     *
-     * @return new access token
-     */
     override fun generateRefreshToken(
         auth: UserId,
         startDateSupplier: Supplier<OffsetDateTime>,
     ): JwtToken = generateToken(auth.value.toString(), jwtProperties.users.refreshTokenExpirationInMinutes, startDateSupplier.get())
 
-    /**
-     * Returns User ID as UUID
-     *
-     * @param token Token value
-     *
-     * @return UserId
-     */
     override fun getAuth(token: String): UserId = UserId(UUID.fromString(getClaims(token).subject))
 
-    /**
-     * Returns Jwt token ID
-     *
-     * @param token Token value
-     *
-     * @return JwtTokenId
-     */
     override fun getJwtId(token: String): JwtTokenId = JwtTokenId(UUID.fromString(getClaims(token).jwtid))
 
-    /**
-     * Check if [token] is expired
-     *
-     * @return return true if [token] is expired
-     *
-     */
     override fun isExpired(token: String): Boolean =
         getClaims(token).expirationTime.before(
             Date.from(OffsetDateTime.now().toInstant()),
         )
 
-    /**
-     * Check if [token] is valid
-     *
-     * - check token expiration
-     * - tries to verify token and get user claims
-     *
-     * @return return true if [token] is valid
-     *
-     */
     override fun isValid(
         token: String,
         auth: UserId,

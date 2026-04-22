@@ -10,9 +10,6 @@ import type {
 import { api } from "@/lib/api/restClient"
 import { errorWithApiDetail, extractErrorMessage, parseApiErrorDetail } from "@/lib/utils"
 
-/**
- * Query key factory for product model queries
- */
 export const productModelKeys = {
   all: ["productModels"] as const,
   lists: () => [...productModelKeys.all, "list"] as const,
@@ -21,9 +18,6 @@ export const productModelKeys = {
   detail: (id: string) => [...productModelKeys.details(), id] as const,
 } as const
 
-/**
- * Query options for fetching paginated list of product models
- */
 export const getProductModelsListQueryOptions = (params?: ProductModelListQueryParams) =>
   queryOptions({
     queryKey: productModelKeys.list(params),
@@ -51,16 +45,12 @@ export const getProductModelsListQueryOptions = (params?: ProductModelListQueryP
 
         return await api.get(url).json<ProductModelPaginatedResponseDto>()
       } catch (error) {
-        // Re-throw with a more user-friendly error message
         const message = await extractErrorMessage(error)
         throw new Error(message)
       }
     },
   })
 
-/**
- * Query options for fetching a single product model
- */
 export const getProductModelQueryOptions = (id: string) =>
   queryOptions({
     queryKey: productModelKeys.detail(id),
@@ -69,16 +59,10 @@ export const getProductModelQueryOptions = (id: string) =>
     },
   })
 
-/**
- * Hook to fetch paginated list of product models
- */
 export const useProductModelsList = (params?: ProductModelListQueryParams) => {
   return useQuery(getProductModelsListQueryOptions(params))
 }
 
-/**
- * Hook to fetch a single product model
- */
 export const useProductModel = (id: string, options?: { enabled?: boolean }) => {
   return useQuery({
     ...getProductModelQueryOptions(id),
@@ -86,9 +70,6 @@ export const useProductModel = (id: string, options?: { enabled?: boolean }) => 
   })
 }
 
-/**
- * Hook to create a product model
- */
 export const useCreateProductModel = () => {
   const queryClient = useQueryClient()
 
@@ -101,21 +82,16 @@ export const useCreateProductModel = () => {
           })
           .json<ProductModelDto>()
       } catch (error) {
-        // Re-throw with a more user-friendly error message
         const message = await extractErrorMessage(error)
         throw new Error(message)
       }
     },
     onSuccess: () => {
-      // Invalidate and refetch product models list
       void queryClient.invalidateQueries({ queryKey: productModelKeys.lists() })
     },
   })
 }
 
-/**
- * Hook to update a product model (PATCH)
- */
 export const useUpdateProductModel = () => {
   const queryClient = useQueryClient()
 
@@ -144,16 +120,12 @@ export const useUpdateProductModel = () => {
       }
     },
     onSuccess: (data) => {
-      // Invalidate both list and detail queries
       void queryClient.invalidateQueries({ queryKey: productModelKeys.lists() })
       void queryClient.invalidateQueries({ queryKey: productModelKeys.detail(data.id) })
     },
   })
 }
 
-/**
- * Hook to delete a product model
- */
 export const useDeleteProductModel = () => {
   const queryClient = useQueryClient()
 
@@ -162,13 +134,11 @@ export const useDeleteProductModel = () => {
       try {
         return await api.delete(`products/api/v1/product-models/${id}`).then(() => undefined)
       } catch (error) {
-        // Re-throw with a more user-friendly error message
         const message = await extractErrorMessage(error)
         throw new Error(message)
       }
     },
     onSuccess: () => {
-      // Invalidate product models list
       void queryClient.invalidateQueries({ queryKey: productModelKeys.lists() })
     },
   })

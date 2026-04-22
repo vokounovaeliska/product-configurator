@@ -22,7 +22,7 @@ export const ROUTES = {
     `/setup/product-models/${productModelId}/publish`,
   setupPublish: "/setup/publish",
   configurator: (productModelId: string) => `/configurator/${productModelId}`,
-  /** Embed URL: /e/{userId}/{url} – unique per vendor (user) when published */
+
   embed: (userId: string, url: string) => `/e/${userId}/${url}`,
   setupCustomerRequests: "/setup/customer-requests",
   setupCustomerRequestDetail: (id: string) => `/setup/customer-requests/${id}`,

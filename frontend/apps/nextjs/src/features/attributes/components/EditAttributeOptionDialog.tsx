@@ -24,7 +24,7 @@ type Props = {
   onOpenChange: (open: boolean) => void
   isImageEditorOpen: boolean
   onImageEditorOpenChange: (open: boolean) => void
-  /** Passed from parent to avoid missing NextIntl context inside Dialog portal */
+
   t: TFunction<"AttributeOptions">
   tEditor: TFunction<"OptionImageEditor">
 }

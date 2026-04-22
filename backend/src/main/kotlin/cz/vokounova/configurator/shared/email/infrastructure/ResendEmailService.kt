@@ -16,13 +16,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import java.util.Base64
 
-/**
- * Resend API implementation. Uses HTTPS, works on Railway (Free/Hobby) where SMTP is blocked.
- * Active when RESEND_API_KEY is set. Takes precedence over SMTP when both are configured.
- *
- * Uses resend-java for emails without inline images. For inline images (Gmail compatibility),
- * calls the Resend API directly with content_id because resend-java Attachment does not support it.
- */
+
 @Service
 @Primary
 @ConditionalOnExpression(

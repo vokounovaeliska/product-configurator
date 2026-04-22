@@ -80,7 +80,7 @@ export const getCustomerRequestsListQueryOptions = (params?: CustomerRequestsLis
       const url = `products/api/v1/customer-requests${query ? `?${query}` : ""}`
       return api.get(url).json<CustomerRequestDto[]>()
     },
-    /** Keeps previous list visible while dates/filters change so native date pickers are not unmounted. */
+
     placeholderData: keepPreviousData,
   })
 
@@ -98,7 +98,7 @@ export const getCustomerRequestProductModelsQueryOptions = (limit = 100) =>
     queryFn: async (): Promise<CustomerRequestProductModelsResponseDto> => {
       const searchParams = new URLSearchParams()
       searchParams.set("limit", String(limit))
-      /** Inquiries come from embed; only published products can receive quote requests. */
+
       searchParams.set("isPublished", "true")
       const query = searchParams.toString()
       return api

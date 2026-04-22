@@ -6,10 +6,6 @@ function parseNumericBound(raw: string | null | undefined): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-/**
- * Highest numeric endpoint among existing rules for the same component + attribute.
- * BETWEEN uses the upper bound (`toValue`, else `value`); EQ uses `value`.
- */
 export function getMaxUpperBoundForAttributeRules(
   rules: AttributePricingRuleDto[],
   componentId: string | null | undefined,
@@ -37,10 +33,6 @@ export function getMaxUpperBoundForAttributeRules(
   return maxEnd
 }
 
-/**
- * Next suggested lower bound for a new BETWEEN rule (e.g. after 0–100 → 101).
- * Returns null if there is no prior rule or the next value would exceed `numericMax`.
- */
 export function suggestNextBetweenLowerBound(options: {
   maxUpper: number | null
   isDecimal: boolean

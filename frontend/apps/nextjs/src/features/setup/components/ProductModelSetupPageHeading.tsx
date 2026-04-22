@@ -11,7 +11,7 @@ import { useProductModel } from "@/features/productModels/api/productModelQuerie
 
 type Props = {
   productModelId: string
-  /** When the RSC fetch succeeded, show the name immediately (avoids flash). */
+
   initialName?: string
 }
 

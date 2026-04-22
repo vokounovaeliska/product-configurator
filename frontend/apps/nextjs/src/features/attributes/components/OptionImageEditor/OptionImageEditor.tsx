@@ -25,7 +25,6 @@ import { applyBrushToMask, invertMask, mergeMasks, polygonToMask } from "./maskU
 
 type ToolMode = "magic-wand" | "lasso" | "brush-add" | "brush-remove"
 
-/** Render canvas at 2x resolution so it stays sharp when displayed large */
 const DISPLAY_SCALE = 2
 
 type Props = {
@@ -34,7 +33,7 @@ type Props = {
   onOpenChange: (open: boolean) => void
   onComplete: (imageUrl: string) => void
   onError?: (message: string) => void
-  /** Translation function for OptionImageEditor keys (passed from parent to avoid portal context issues) */
+
   t: TFunction<"OptionImageEditor">
 }
 

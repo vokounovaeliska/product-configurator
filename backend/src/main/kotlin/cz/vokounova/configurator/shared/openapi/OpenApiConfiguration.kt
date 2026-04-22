@@ -15,10 +15,6 @@ import org.springframework.context.annotation.Configuration
 class OpenApiConfiguration(
     @Value("\${app.swagger.server-url:}") private val serverUrl: String,
 ) {
-    /**
-     * When [app.swagger.server-url] is set (e.g. https://api.konfiguruj.com in prod), Swagger UI uses it
-     * for "Try it out" instead of inferring http:// from behind a reverse proxy.
-     */
     @Bean
     fun openApiServerCustomizer(): OpenApiCustomizer {
         return OpenApiCustomizer { openApi: OpenAPI ->
@@ -29,12 +25,6 @@ class OpenApiConfiguration(
         }
     }
 
-    /**
-     * Registers HTTP Bearer (JWT) so Swagger UI shows **Authorize** and sends `Authorization: Bearer …`
-     * on "Try it out" for endpoints that require authentication.
-     *
-     * Flow: call **POST /users/api/v1/auth/public/login**, copy `token` from the response, then **Authorize** and paste it.
-     */
     @Bean
     fun openApiBearerSecurityCustomizer(): OpenApiCustomizer {
         return OpenApiCustomizer { openApi: OpenAPI ->

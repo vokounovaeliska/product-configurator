@@ -6,7 +6,6 @@ type Props = {
   params: Promise<{ locale: Locale; productModelId: string }>
 }
 
-/** Redirect to components page with pricing tab. Keeps old URLs working. */
 const PricingRulesPage = async (props: Props) => {
   const { locale, productModelId } = await props.params
   redirect({

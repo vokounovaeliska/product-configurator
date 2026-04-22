@@ -7,13 +7,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
 
-/**
- * Email sent to the supplier/manufacturer when a customer submits a quote request.
- * replyTo is set to the customer so the supplier can reply directly to the customer.
- * Admin configures the template in the administrator publish section (user-level).
- * Placeholders: {{customerName}}, {{productName}}, {{totalPrice}}, {{customerNote}},
- * {{customerEmail}}, {{customerPhone}}
- */
+
 object SupplierNotificationEmail {
     private const val PRESET_EN = "en"
     private const val PRESET_CS = "cs"

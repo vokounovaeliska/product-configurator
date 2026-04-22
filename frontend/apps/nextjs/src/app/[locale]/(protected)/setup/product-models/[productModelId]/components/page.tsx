@@ -29,7 +29,7 @@ export async function generateMetadata(props: Omit<Props, "children">) {
       .json<ProductModelDto>()
     productModelName = productModel.name
   } catch {
-    /* use fallback title */
+    void 0
   }
   const title = productModelName ? t("titleWithProduct", { name: productModelName }) : t("title")
 
@@ -48,7 +48,6 @@ export async function generateMetadata(props: Omit<Props, "children">) {
 const ComponentsPage = async (props: Props) => {
   const { productModelId } = await props.params
 
-  // Fetch product model name for breadcrumbs
   let productModelName: string | undefined
   try {
     const productModel = await api
@@ -56,7 +55,7 @@ const ComponentsPage = async (props: Props) => {
       .json<ProductModelDto>()
     productModelName = productModel.name
   } catch {
-    // If fetch fails, breadcrumbs will handle it
+    void 0
   }
 
   return (

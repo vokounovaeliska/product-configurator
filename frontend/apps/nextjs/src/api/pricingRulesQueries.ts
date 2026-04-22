@@ -7,7 +7,6 @@ import type {
 } from "@/api/pricingTypes"
 import { api } from "@/lib/api/restClient"
 
-/** Query key prefix for invalidating all pricing rules for a product model. */
 export const pricingRulesKeyPrefix = (productModelId: string) =>
   ["product-models", productModelId, "pricing-rules"] as const
 
@@ -23,7 +22,7 @@ export const pricingRulesKey = (
 
 type UsePricingRulesListParams = {
   productModelId: string
-  /** When both set, only rules for this component+attribute are fetched. */
+
   componentId?: string
   attributeCode?: string
 }

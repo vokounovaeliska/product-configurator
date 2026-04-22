@@ -2,7 +2,7 @@ package cz.vokounova.configurator.embed.infrastructure.rest
 
 import java.util.UUID
 
-/** Public DTO for embed – product model data needed for configurator (no userId). */
+
 data class ProductModelEmbedDto(
     val id: UUID,
     val name: String,

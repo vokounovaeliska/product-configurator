@@ -26,7 +26,6 @@ class UserGetRefreshTokenUseCase(
             throw AuthException(AuthErrorCode.EXPIRED_REFRESH_TOKEN)
         }
 
-        // For user auth is User ID UUID as string
         return jwtService.getAuth(refreshToken).let {
             val jwtId = jwtService.getJwtId(refreshToken)
 
@@ -39,7 +38,6 @@ class UserGetRefreshTokenUseCase(
                     throw AuthException(AuthErrorCode.DEACTIVATED)
                 }
 
-                // If refresh token does not exist, it will raise Not found error
                 refreshTokenRepository.findTokenByJwtId(jwtId)
 
                 jwtService.generateAccessToken(it)

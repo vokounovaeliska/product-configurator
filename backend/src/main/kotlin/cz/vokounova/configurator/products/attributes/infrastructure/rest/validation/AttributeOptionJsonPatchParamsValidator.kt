@@ -25,7 +25,6 @@ class AttributeOptionJsonPatchParamsValidator : AppValidator<AttributeOptionJson
                     }
                 }
                 AttributeOptionJsonPatchParamsPath.IMAGE_URL -> {
-                    // imageUrl can be null, but if provided should not be blank
                     (value.value as? String)?.let {
                         if (it.isBlank()) {
                             addError(

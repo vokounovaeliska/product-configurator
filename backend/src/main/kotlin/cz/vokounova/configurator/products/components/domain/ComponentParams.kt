@@ -11,7 +11,7 @@ data class ComponentCreateParams(
     val label: String,
     val description: String? = null,
     val sortOrder: Int? = null,
-    /** Z-index for stacking (lower = back, higher = front). Default 0. */
+    
     val imageZIndex: Int? = null,
 )
 

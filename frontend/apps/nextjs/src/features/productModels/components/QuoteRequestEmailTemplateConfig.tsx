@@ -42,10 +42,8 @@ const SAMPLE_REQUEST = {
   customerPhone: "+420 123 456 789",
 }
 
-/** Sample choices with attribute names to show format in preview */
 const SAMPLE_CHOICES = ["Barva: Černá", "Dřevo: Dub"]
 
-/** Example image for configuration preview in email template preview */
 const EXAMPLE_CONFIGURATION_PREVIEW_IMAGE = "/images/example-email-configuration-preview.png"
 
 const DEFAULT_TEMPLATES = {
@@ -75,7 +73,6 @@ const replacePlaceholders = (text: string): string =>
 const escapeHtml = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
 
-/** Convert plain text to HTML: paragraphs in <p>, single newlines as <br> */
 const plainTextToHtml = (text: string): string =>
   text
     .split(/\n\n+/)
@@ -84,7 +81,6 @@ const plainTextToHtml = (text: string): string =>
     .map((para) => `<p>${escapeHtml(para).replace(/\n/g, "<br>")}</p>`)
     .join("\n")
 
-/** Convert HTML to plain text: strip tags, <br> and </p><p> become newlines */
 const htmlToPlainText = (html: string): string =>
   html
     .replace(/<br\s*\/?>/gi, "\n")

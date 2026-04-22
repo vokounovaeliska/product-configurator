@@ -19,7 +19,7 @@ type Props = {
   attributeId: string
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  /** When provided, used as initial sortOrder so new option is added at the end */
+
   defaultSortOrder?: number
 }
 

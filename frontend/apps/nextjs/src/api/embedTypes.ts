@@ -1,7 +1,3 @@
-/**
- * Embed API response types. Shared by configurator (prefetched config) and embed feature.
- */
-
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"

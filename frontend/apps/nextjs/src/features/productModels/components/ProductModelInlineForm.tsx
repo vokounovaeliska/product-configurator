@@ -20,7 +20,7 @@ const CURRENCIES = ["CZK", "EUR", "USD", "GBP"] as const
 type RowState = {
   name: string
   description: string
-  /** Major currency units while editing (allows empty field without forcing 0). */
+
   priceInput: string
   currency: string
   isActive: boolean

@@ -55,18 +55,18 @@ type Props = {
   onOtherValueChange?: (componentId: string, attributeId: string, value: number | boolean) => void
   pricingRules?: AttributePricingRuleDto[]
   currency?: string
-  /** When provided (e.g. embed), use pre-fetched data instead of API calls. */
+
   attributesByComponent?: Record<string, AttributeDto[]>
   optionsByAttribute?: Record<string, AttributeOptionDto[]>
-  /** When false, show attributes in flat list without component cards. Default true. */
+
   shouldShowComponents?: boolean
-  /** Intro + “how it works” under the section title. Default off — enable for onboarding-style help. */
+
   shouldShowConfiguratorHelp?: boolean
-  /** When false with flat list, hide duplicate “Configuration” heading inside each block. Default true. */
+
   shouldShowAttributeSectionHeading?: boolean
-  /** When set, used as the main section heading instead of the generic “Components” / “Configuration” label. */
+
   productModelName?: string | null
-  /** When true, omit the large section heading (e.g. product title is already the page H1). */
+
   shouldOmitSectionHeading?: boolean
 }
 

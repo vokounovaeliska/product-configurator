@@ -36,12 +36,8 @@ class DefaultSecurityConfiguration {
         http.defaultSecurityConfig(corsConfig)
         http.authorizeHttpRequests {
             it.requestMatchers("/swagger/**", "/actuator/**").permitAll()
-            // File downloads (GET) are public so images can be displayed in frontend
-            // File uploads (POST) require authentication (handled by anyRequest().authenticated())
             it.requestMatchers(HttpMethod.GET, "/api/v1/files/**").permitAll()
-            // Embed API – public (product by url or by id, full config, customer request create)
             it.requestMatchers(HttpMethod.GET, "/embed/api/v1/products/**").permitAll()
-            // Customer request – public create (rate limit recommended in production)
             it.requestMatchers(HttpMethod.POST, "/embed/api/v1/customer-requests").permitAll()
             it.anyRequest().authenticated()
         }
@@ -59,9 +55,6 @@ class DefaultSecurityConfiguration {
     @Bean
     fun authenticationManager(authProviders: List<AuthenticationProvider>): AuthenticationManager = ProviderManager(authProviders)
 
-    /**
-     * Returns correct response code for unauthorized users as json
-     */
     @Bean
     fun defaultAuthenticationEntryPoint(): AuthenticationEntryPoint =
         AuthenticationEntryPoint { _, _, _ ->

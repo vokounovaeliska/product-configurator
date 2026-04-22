@@ -34,7 +34,6 @@ class FileUploadController(
     }
 
     init {
-        // Try to create upload directory at startup; do not fail bean creation if e.g. read-only filesystem
         try {
             ensureUploadDirExists(Paths.get(uploadDir))
             log.info("File upload directory: {}", Paths.get(uploadDir).toAbsolutePath())
@@ -45,7 +44,6 @@ class FileUploadController(
                 e.javaClass.simpleName,
                 e.message,
             )
-            // Directory will be created on first upload if permitted
         }
     }
 
@@ -65,21 +63,18 @@ class FileUploadController(
     fun uploadFile(
         @RequestParam("file") file: MultipartFile,
     ): ResponseEntity<FileUploadResponse> {
-        // Validate file
         if (file.isEmpty) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(FileUploadResponse(success = false, message = "File is empty", url = null))
         }
 
-        // Validate file size
         if (file.size > MAX_FILE_SIZE) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(FileUploadResponse(success = false, message = "File size exceeds 10MB limit", url = null))
         }
 
-        // Validate file extension
         val originalFilename = file.originalFilename ?: ""
         val extension = originalFilename.substringAfterLast('.', "").lowercase()
         if (extension !in ALLOWED_EXTENSIONS) {
@@ -98,15 +93,11 @@ class FileUploadController(
             val uploadPath = Paths.get(uploadDir)
             ensureUploadDirExists(uploadPath)
 
-            // Generate unique filename
             val uniqueFilename = "${UUID.randomUUID()}.$extension"
             val filePath = uploadPath.resolve(uniqueFilename)
 
-            // Save file
             Files.write(filePath, file.bytes)
 
-            // Return URL - in production, this should be configured to return full CDN/storage URL
-            // For now, return relative path that will be served by FileDownloadController
             val fileUrl = "/api/v1/files/$uniqueFilename"
 
             return ResponseEntity

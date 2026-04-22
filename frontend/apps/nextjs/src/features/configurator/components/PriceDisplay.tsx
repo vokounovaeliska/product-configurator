@@ -8,15 +8,15 @@ import { Typography } from "@workspace/ui/components/typography"
 type Props = {
   basePrice: number
   currency: string
-  /** Total price from configuration preview (base + modifiers). When undefined, basePrice is shown. */
+
   totalPrice?: number
-  /** Modifier in cents (added to base). When > 0, shown as "+ X" next to base. */
+
   modifiersCents?: number
-  /** True when no price data yet (show skeleton). */
+
   isLoading?: boolean
-  /** True when refetching in background (show subtle updating state, keep showing current price). */
+
   isUpdating?: boolean
-  /** Compact variant for sidebar summary – single-line price, less padding. */
+
   isCompact?: boolean
 }
 
