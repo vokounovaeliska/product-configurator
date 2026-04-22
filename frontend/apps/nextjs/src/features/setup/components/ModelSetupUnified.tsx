@@ -43,9 +43,9 @@ import { ProductModelInlineForm } from "@/features/productModels/components/Prod
 
 type Props = {
   productModelId: string
-  /** When true (e.g. in tabbed layout), hides the quick actions bar. */
+
   isQuickActionsHidden?: boolean
-  /** When true, hides the per-option image editor (scissors) in ENUM option lists; replace/upload image stays available. */
+
   shouldHideOptionImageEditor?: boolean
 }
 

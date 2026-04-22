@@ -32,12 +32,6 @@ export const useAuth = () => {
         })
         .json<LoginResponse>()
 
-      // The refresh token is set as a cookie by the backend automatically
-      // The access token is in the response body
-      // Store access token if needed (or use it from response)
-
-      // Persist access token for SSR header (/me) via frontend cookie.
-      // Respect the "remember me" flag by extending cookie lifetime when enabled.
       if (typeof document !== "undefined") {
         const maxAgeSeconds = shouldRememberMe ? 60 * 60 * 24 * 30 : 60 * 60
         document.cookie = `access_token=${encodeURIComponent(response.token)}; Path=/; Max-Age=${maxAgeSeconds}`
@@ -45,7 +39,6 @@ export const useAuth = () => {
 
       queryClient.clear()
 
-      // Redirect to setup page (or callbackURL if provided)
       const redirectPath = callbackURL ?? ROUTES.setup
       router.push(redirectPath)
       router.refresh()
@@ -62,21 +55,17 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      // Call logout endpoint to invalidate refresh token on backend
       await publicApi.post("users/api/v1/auth/logout", {
         credentials: "include", // Include cookies for refresh token
       })
     } catch (error) {
-      // Continue with logout even if backend call fails
       console.warn("Logout API call failed, continuing with local logout:", error)
     }
 
-    // Clear access token cookie
     if (typeof document !== "undefined") {
       document.cookie = "access_token=; Path=/; Max-Age=0"
     }
 
-    // Clear React Query cache and redirect
     queryClient.clear()
     router.push(ROUTES.home)
     router.refresh()
@@ -89,7 +78,6 @@ export const useAuth = () => {
     callbackURL: string = ROUTES.home,
   ) => {
     try {
-      // Split name into firstName and surname (use name as firstName if no space)
       const nameParts = name.trim().split(/\s+/)
       const firstName = nameParts[0] ?? ""
       const surname = nameParts.slice(1).join(" ") || firstName

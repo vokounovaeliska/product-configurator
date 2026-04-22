@@ -25,11 +25,10 @@ function buildSummaryText(config: Record<string, unknown> | null): string {
 type SummaryProps = {
   config: Record<string, unknown> | null
   className?: string
-  /** One line in table cells */
+
   lineClamp?: 1 | 2 | 3
 }
 
-/** Human-readable configuration preview from stored option labels (no extra API calls). */
 export function CustomerRequestSummaryText({ config, className, lineClamp = 2 }: SummaryProps) {
   const text = useMemo(() => buildSummaryText(config), [config])
   if (!text.trim()) return null
@@ -110,7 +109,6 @@ type ChipsProps = {
   className?: string
 }
 
-/** Short tags for detail page “at a glance”. */
 export function CustomerRequestSummaryChips({ config, className }: ChipsProps) {
   const parts = useMemo(() => formatConfigSummary(config), [config])
   if (parts.length === 0) return null

@@ -2,7 +2,6 @@ import type { MetadataRoute } from "next"
 
 import { env } from "@/config/env"
 
-// disallow crawling for non-production environments
 const rules =
   env.ENV_NAME === "production"
     ? {

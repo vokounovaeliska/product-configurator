@@ -16,10 +16,6 @@ export type PreviewLayer = {
   zIndex: number
 }
 
-/**
- * Fetches components, attributes, and options to build default 2D preview layers.
- * Uses first option with imageUrl per attribute (sorted by sortOrder).
- */
 export function useDefaultPreviewLayers(
   productModelId: string,
   isEnabled: boolean,

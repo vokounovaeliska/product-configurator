@@ -58,7 +58,6 @@ export const CreateProductModelDialog = ({ isOpen, onOpenChange }: Props) => {
       onOpenChange(false)
       form.reset()
     } catch (err) {
-      // Error is handled by react-query, but we can show a message if needed
       console.error("Failed to create product model:", err)
     }
   }

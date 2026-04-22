@@ -47,9 +47,9 @@ type Props = {
   totalPrice: number
   configuration: Configuration
   snapshotSelector?: string
-  /** For 2D products: layers to composite into snapshot when no 3D canvas exists */
+
   previewLayers?: PreviewLayer[]
-  /** For 3D products: ref to capture at fixed angle (takes precedence over snapshotSelector) */
+
   capture3DRef?: React.RefObject<(() => Promise<string | null>) | null>
 }
 

@@ -9,10 +9,6 @@ import cz.vokounova.configurator.shared.validations.validators.MapFieldValidator
 import cz.vokounova.configurator.shared.validations.validators.NumberFieldValidator
 import cz.vokounova.configurator.shared.validations.validators.StringFieldValidator
 
-/**
- * Validation context holds collection of errors for single validation
- * @return list of [ValidationExceptionError]
- */
 class ValidationContext {
     private val validationErrors = mutableListOf<ValidationExceptionError>()
 

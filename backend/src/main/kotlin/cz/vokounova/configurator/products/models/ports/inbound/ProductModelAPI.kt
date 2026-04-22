@@ -18,7 +18,6 @@ interface ProductModelAPI {
 
     fun getOne(id: ProductModelId): ProductModel
 
-    /** Returns the model only if [userId] owns it; otherwise throws not found (no cross-tenant leakage). */
     fun getOneForUser(
         id: ProductModelId,
         userId: UserIdDto,
@@ -35,7 +34,6 @@ interface ProductModelAPI {
         jsonPatchParams: List<ProductModelJsonPatchParams>,
     ): ProductModel
 
-    /** Get published product model by owner embed path (for embed, no auth). Unique per user when published. */
     fun getPublishedByUserIdAndUrl(
         userId: UUID,
         url: String,

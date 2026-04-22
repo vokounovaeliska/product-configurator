@@ -14,7 +14,6 @@ class UserRefreshTokenCleanerJob(
         val LOG by logger()
     }
 
-    // Every hour
     @Scheduled(cron = "0 0 * * * *")
     fun deleteExpiredTokens() {
         LOG.info("Started job for deleting expired refresh tokens.")

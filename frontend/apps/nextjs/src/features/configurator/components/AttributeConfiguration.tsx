@@ -24,15 +24,15 @@ type Props = {
   productModelId: string
   selectedOptionsByAttribute: Record<string, AttributeOptionDto | null>
   onSelectOption: (attributeId: string, option: AttributeOptionDto | null) => void
-  /** When provided with onOtherChange, numeric/boolean values are controlled by parent (for price preview). */
+
   selectedOtherValuesByAttribute?: Record<string, number | boolean>
   onOtherChange?: (attributeId: string, value: number | boolean) => void
   pricingRules?: AttributePricingRuleDto[]
   currency?: string
-  /** When provided, use these instead of fetching (e.g. for embed with pre-fetched data). */
+
   attributes?: AttributeDto[]
   optionsByAttribute?: Record<string, AttributeOptionDto[]>
-  /** When false, omit the section title (parent already shows it). Default true. */
+
   shouldShowSectionHeading?: boolean
 }
 
@@ -149,7 +149,6 @@ export const AttributeConfiguration = ({
   )
 }
 
-/** SketchUp exports sometimes store unit as "STRING" for DC dimensions; show cm in UI. */
 const DIMENSION_CODE_PATTERN = /length|width|height|tloustka|thickness|lenx|leny|lenz/i
 
 function getDisplayAttributeUnit(unit: string | null | undefined, code: string): string | null {
@@ -171,7 +170,7 @@ type AttributeFieldProps = {
   onOtherChange: (value: number | boolean) => void
   pricingRules?: AttributePricingRuleDto[]
   currency?: string
-  /** When provided (e.g. embed), use these instead of fetching. */
+
   options?: AttributeOptionDto[]
 }
 
@@ -380,13 +379,12 @@ type AttributeSelectProps = {
   attributeLabel: string
   selectedOption: AttributeOptionDto | null
   onSelectOption: (option: AttributeOptionDto | null) => void
-  /** When provided (e.g. embed), use these instead of fetching. */
+
   options?: AttributeOptionDto[]
   pricingRules?: AttributePricingRuleDto[]
   currency?: string
 }
 
-/** Find the pricing rule that applies to the current numeric value (EQ or BETWEEN). */
 function getRuleForNumericValue(
   rules: AttributePricingRuleDto[],
   componentId: string,
@@ -433,7 +431,6 @@ const AttributeSelect = ({
   const sortedOptions = [...options].sort((a, b) => a.sortOrder - b.sortOrder)
   const hasSetDefaultRef = useRef(false)
 
-  // Set first option as default once when options load and none is selected
   useEffect(() => {
     const first = sortedOptions[0]
     if (hasSetDefaultRef.current || !first || selectedOption !== null) return

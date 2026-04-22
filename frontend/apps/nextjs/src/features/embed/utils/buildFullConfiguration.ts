@@ -9,10 +9,6 @@ export type FullConfiguration = {
   selectedOtherValuesByComponent: Record<string, Record<string, number | boolean>>
 }
 
-/**
- * Builds full configuration for customer request, including default values for attributes
- * that the user has not explicitly set. Ensures everything is saved and sent to the supplier.
- */
 export function buildFullConfigurationForRequest(
   components: ComponentDto[],
   attributesByComponent: Record<string, AttributeDto[]>,

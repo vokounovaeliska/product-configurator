@@ -50,15 +50,15 @@ type Props = {
   onSubmit: (body: AttributePricingRuleCreateDto) => Promise<void>
   isSubmitting: boolean
   currency?: string
-  /** When set (e.g. from attribute pricing page), component and attribute are preset and hidden. */
+
   presetComponentId?: string
   presetAttributeCode?: string
-  /** When set (e.g. from attribute pricing page), unit/range/type shown before attribute loads. */
+
   presetNumericUnit?: string | null
   presetNumericRange?: { min: number; max: number }
-  /** When set (e.g. from filter), operator is preset. */
+
   presetOperator?: "EQ" | "BETWEEN"
-  /** Existing rules to prevent duplicate rules per ENUM option. */
+
   existingRules?: AttributePricingRuleDto[]
 }
 

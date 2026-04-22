@@ -33,11 +33,6 @@ import java.util.Locale
 import java.util.UUID
 import java.util.zip.ZipInputStream
 
-/**
- * Orchestrates import of a product from configurator ZIP (model.glb + parameters.json + materials/).
- * Extracts parameters from parameters.json, creates product model, components, attributes, options,
- * stores the GLB and textures, and sets model_3d_url and model_3d_effects.
- */
 @Service
 class SkpImportService(
     private val productModelAPI: ProductModelAPI,
@@ -155,18 +150,12 @@ class SkpImportService(
         return SkpImportResult(success = true, productModelId = productModel.id.value, error = null)
     }
 
-    /**
-     * Keeps merchant-relevant params for pricing and config.
-     * Supports both old SKP DC format (color_X, thickness_X) and plugin parameters.json
-     * (X_color, X_thickness, length/width/height/thickness, lenx/y/z).
-     */
     private fun filterMerchantRelevantParams(params: List<SkpParameter>): List<SkpParameter> {
         val hasDiameter =
             params.any { it.name == "diameter" } || params.any { it.name.startsWith("diameter_") }
         return params.filter { param ->
             val n = param.name.lowercase()
             if (n in INTERNAL_SKP_PARAMS) return@filter false
-            // Generic DC "material" / "materiál" duplicates specific *_material / *_color; never create a merchant attribute.
             if (isGenericMaterialParamName(param.name)) return@filter false
             when {
                 n.startsWith("color") ||
@@ -191,7 +180,6 @@ class SkpImportService(
         }
     }
 
-    /** SketchUp params often use Czech names (délka, šířka, výška) while the filter only allowed English. */
     private fun isMerchantDimensionParamName(raw: String): Boolean {
         val a = normalizeSkpLatinAscii(raw)
         return a in
@@ -212,7 +200,6 @@ class SkpImportService(
             .normalize(s.lowercase(Locale.ROOT), Normalizer.Form.NFD)
             .replace("\\p{M}+".toRegex(), "")
 
-    /** True for the generic DC attribute "material" (any casing, optional diacritics), not for top_material etc. */
     private fun isGenericMaterialParamName(raw: String): Boolean = normalizeSkpLatinAscii(raw.trim()) == "material"
 
     private fun withoutGenericMaterialEffects(map: Map<String, List<SkpParameterEffect>>): Map<String, List<SkpParameterEffect>> =
@@ -307,9 +294,6 @@ class SkpImportService(
         return created
     }
 
-    /**
-     * SketchUp sometimes exports unit as "STRING"; dimension params still use cm in parameters.json.
-     */
     private fun resolveSkpAttributeUnit(param: SkpParameter): String? {
         val raw = param.unit.trim()
         if (raw.equals("CENTIMETERS", ignoreCase = true)) {
@@ -408,10 +392,6 @@ class SkpImportService(
             param.effects.any { it.type.equals("material", ignoreCase = true) }
     }
 
-    /**
-     * Extracts configurator zip (model.glb + parameters.json + materials/).
-     * Returns GLB bytes if present, otherwise null.
-     */
     private fun extractConfiguratorZip(zipBytes: ByteArray): ConfiguratorZipResult {
         val extracted = extractFromZip(zipBytes, includeGlb = true)
         return ConfiguratorZipResult(

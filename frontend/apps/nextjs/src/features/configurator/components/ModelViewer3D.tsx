@@ -55,7 +55,6 @@ function nextPowerOf2(n: number): number {
   return Math.pow(2, Math.ceil(Math.log2(Math.max(1, n))))
 }
 
-/** Resizes texture to power-of-2 dimensions for better GPU compatibility. Returns original if already Po2. */
 function resizeTextureToPowerOf2(tex: THREE.Texture): THREE.Texture {
   const img = tex.image as HTMLImageElement | undefined
   if (!img?.naturalWidth) return tex
@@ -88,10 +87,8 @@ function resizeTextureToPowerOf2(tex: THREE.Texture): THREE.Texture {
   return newTex
 }
 
-/** Camera position for snapshot capture – front-right-top product shot angle (scene units = m). */
 const SNAPSHOT_CAMERA_POSITION = new THREE.Vector3(22, 18, 22)
 
-/** Padding factor so the model is not flush against the frame edges. */
 const SNAPSHOT_FIT_PADDING = 1.25
 
 function computeSceneBoundingBox(scene: THREE.Scene): THREE.Box3 | null {
@@ -110,7 +107,6 @@ function computeSceneBoundingBox(scene: THREE.Scene): THREE.Box3 | null {
   return box.isEmpty() ? null : box
 }
 
-/** Syncs camera position when it changes (e.g. after zoom preferences are saved). R3F Canvas only uses camera prop on mount. */
 function CameraPositionSync({ position }: { position: [number, number, number] }) {
   const camera = useThree((s) => s.camera)
   const prevRef = useRef(position)
@@ -134,24 +130,15 @@ const ZOOM_DEFAULT_DISTANCE = 2
 
 const ZOOM_MIN_EMBED = EMBED_CAMERA_DISTANCE.min
 const ZOOM_MAX_EMBED = EMBED_CAMERA_DISTANCE.max
-/** Default zoom for embed when no preference saved – more zoomed in than configurator. */
+
 const ZOOM_DEFAULT_EMBED = EMBED_CAMERA_DISTANCE.default
 
-/**
- * Default direction from orbit target toward camera. Main configurator uses a slightly elevated
- * angle (Y=2) for a “looking down” product shot; embed uses a flatter angle so the model sits
- * nearer the vertical center of tall preview areas instead of hugging the top.
- */
 const _VIEW_DIR_DEFAULT: [number, number, number] = [0, 2, 5]
-/** Nearly level with the product so it sits near the vertical middle of the embed canvas. */
+
 const _VIEW_DIR_EMBED: [number, number, number] = [0, 0.18, 5]
-/** World-space Y shift (negative = model lower in frame) — pairs with flat _VIEW_DIR_EMBED. */
+
 const EMBED_SCENE_VERTICAL_BIAS = -0.22
 
-/**
- * Extra Y (scene units) for orbit target + model group so framing tracks embed viewport size.
- * Taller/shorter iframes and non–16:9 aspects otherwise leave the model visually high or low.
- */
 function computeEmbedViewportYOffset(heightPx: number, widthPx: number): number {
   if (!Number.isFinite(heightPx) || !Number.isFinite(widthPx) || heightPx < 64 || widthPx < 64) {
     return 0
@@ -160,7 +147,6 @@ function computeEmbedViewportYOffset(heightPx: number, widthPx: number): number 
   const aspectRef = 16 / 9
   const heightNorm = heightPx / heightRefPx
   const aspect = widthPx / heightPx
-  // Taller canvas → nudge framing so the product stays visually centered
   const fromHeight = (heightNorm - 1) * -0.12
   const fromAspect = (aspect - aspectRef) * 0.05
   return fromHeight + fromAspect
@@ -171,19 +157,15 @@ export type Model3dEffect = {
   type: "scale" | "position" | "material"
   axis?: string
   multiplier?: number
-  /** Param to subtract from value (e.g. LenY in (parent!height-LenY)/2). */
+
   subtractParam?: string
-  /** Constant offset in cm (e.g. -1 inch → -2.54 in parent!width-LenX-1). */
+
   offsetCm?: number
 }
 
 export type { ComponentTransform } from "../utils/parametricTransformPipeline"
 export { getAttributeValueFromConfig } from "../utils/parametricTransformPipeline"
 
-/**
- * Flat background colors for the 3D scene (no gradients / geometry).
- * previewColor matches color — used for UI swatches.
- */
 export const BACKGROUND_PRESETS = {
   white: { type: "color" as const, color: "#ffffff", previewColor: "#ffffff" },
   offWhite: { type: "color" as const, color: "#f7f7f8", previewColor: "#f7f7f8" },
@@ -206,7 +188,6 @@ export type BackgroundPresetKey = keyof typeof BACKGROUND_PRESETS
 
 const DEFAULT_BACKGROUND: BackgroundPresetKey = "white"
 
-/** Maps removed gradient preset ids to a similar solid color so old saves still look reasonable. */
 const LEGACY_BACKGROUND_PRESETS: Partial<Record<string, BackgroundPresetKey>> = {
   openSky: "softBlue",
   softSky: "softBlue",
@@ -227,7 +208,6 @@ function getBackgroundConfig(preset: string | null | undefined): BackgroundPrese
   return BACKGROUND_PRESETS[key] ?? BACKGROUND_PRESETS[DEFAULT_BACKGROUND]
 }
 
-/** Sets the Three.js scene background (inside Canvas). */
 function SceneBackground({ config }: { config: BackgroundPresetResolved }) {
   const { scene } = useThree()
 
@@ -243,9 +223,9 @@ function SceneBackground({ config }: { config: BackgroundPresetResolved }) {
 
 type Props = {
   modelUrl: string
-  /** For configurator: fetches/saves zoom to backend. For embed: use configuratorPreferencesFromServer. */
+
   productModelId?: string
-  /** Zoom preferences from server (embed). When set, used for initial camera. */
+
   configuratorPreferencesFromServer?: {
     zoomDistanceDefault?: number | null
     zoomDistanceEmbed?: number | null
@@ -253,52 +233,41 @@ type Props = {
     cameraHorizontalAngleRad?: number | null
     cameraVerticalAngleRad?: number | null
   } | null
-  /** Override camera distance (e.g. from preview settings slider). When set, syncs 3D view to this value. */
+
   cameraDistanceOverride?: number | null
-  /** Override background preset (e.g. from preview settings dropdown). When set, updates 3D view live. */
+
   backgroundPresetOverride?: string | null
-  /** Called when user zooms in 3D view (live updates for slider sync). */
+
   onCameraDistanceChange?: (distance: number) => void
   className?: string
   config?: Model3dConfig | null
-  /** JSON string: attribute code → Model3dEffect[]. When set, used for scale/position (one-to-many). */
+
   model3dEffects?: string | null
-  /** Controls initial camera framing. thumbnail = zoomed in for card preview. */
+
   zoomPreset?: "default" | "embed" | "thumbnail"
-  /** When true, enables preserveDrawingBuffer so the canvas can be captured (e.g. for embed snapshot). */
+
   canCapture?: boolean
-  /** Called when capture at fixed angle is available (embed only). */
+
   onCaptureReady?: (capture: () => Promise<string | null>) => void
-  /** When false, disables zoom (scroll/pinch). Use for embed to apply configurator zoom without user control. */
+
   enableZoom?: boolean
-  /**
-   * When true, render raw GLB with no parametric transforms, no Center, no edge generation.
-   * Use for debugging to match online GLB viewer. Enable via ?renderRawGlb=1 or NEXT_PUBLIC_RENDER_RAW_GLB.
-   */
+
   renderRawGlb?: boolean
-  /** Y offset for Center (scene units). Use on mobile embed to adjust model position in viewport. */
+
   centerOffsetY?: number
-  /**
-   * When set, assigns a function that reads current OrbitControls angles (radians).
-   * Cleared on unmount. Used by preview settings to persist default camera view.
-   */
+
   cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
 }
 
 type OrbitControlsRef = React.ComponentRef<typeof OrbitControls>
 
-/** Base model size in cm (SketchUp convention: 100 cm diameter for round tables). */
 const BASE_PRUMER_CM = 100
 const BASE_TLOUSTKA_CM = 4
-/** Base dimensions for rectangular tables (width × depth × height). */
+
 const BASE_WIDTH_CM = 100
 const BASE_DEPTH_CM = 60
 const BASE_HEIGHT_CM = 75
 
-/**
- * Converts a dimension value to cm based on attribute unit.
- * Model scaling uses cm; attributes may be stored in mm, cm, m, or in.
- */
 function toCm(value: number, unit: string | null | undefined): number {
   const u = (unit ?? "").trim().toLowerCase()
   switch (u) {
@@ -317,10 +286,6 @@ function toCm(value: number, unit: string | null | undefined): number {
   }
 }
 
-/**
- * Reference size in cm from parameters.json / DC defaults (if present).
- * Falls back to SketchUp-style constants when a key is missing so scale matches the exported mesh.
- */
 function pickReferenceCm(
   parameterDefaults: Record<string, number> | null | undefined,
   keys: string[],
@@ -351,14 +316,13 @@ function nodeMatchesPattern(nodeName: string, pattern: MeshMatcher): boolean {
   return lower === p || lower.includes(p)
 }
 
-/** Patterns per logical part. RegExp = full regex test. */
 const MESH_PATTERNS: Record<string, MeshMatcher[]> = {
   top: [/^top$/i, /top/i, /desk/i, /deska/i, /surface/i],
-  /** Czech DC names: deska ≈ top for materials and scale targets. */
+
   deska: [/^deska$/i, /deska/i, /^top$/i, /top/i, /desk/i, /surface/i],
   bottom: [/^bottom$/i, /bottom/i, /podstavec/i, /platform/i, /base/i],
   legs: [/^legs?$/i, /^leg\d+$/i, /noh[ay]/i],
-  /** noha / nohy ≈ leg for Czech models. */
+
   noha: [/^noha\d*$/i, /^nohy$/i, /^leg\d*$/i, /noh[ay]/i],
   nohy: [/^nohy$/i, /^noha\d*$/i, /^leg\d*$/i, /noh[ay]/i],
   leg: [/^leg\d*$/i, /^noha\d*$/i, /^nohy$/i, /noh[ay]/i],
@@ -398,7 +362,6 @@ function findNodeByName(scene: THREE.Object3D, label: string, code: string): THR
   return null
 }
 
-/** Finds all nodes matching label/code (e.g. leg1, leg2 via /^leg\d+$/). */
 function findNodesByName(scene: THREE.Object3D, label: string, code: string): THREE.Object3D[] {
   const patterns = getPatternsForPart(label, code)
   const found: THREE.Object3D[] = []
@@ -417,7 +380,6 @@ function normalizeMaterialToken(value: string | null | undefined): string {
   return (value ?? "").trim().toLowerCase()
 }
 
-/** Loose match for SketchUp material ids vs API option values (e.g. _37#5 vs __37_5). */
 function normalizeMaterialKeyLoose(value: string | null | undefined): string {
   return (value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "")
 }
@@ -440,7 +402,6 @@ function findOptionByMaterialToken<T extends { label?: string; value?: string }>
   })
 }
 
-/** Map Czech/English tabletop vs leg tokens to mesh pattern keys (top / legs). */
 function normalizeMaterialTargetBase(base: string): string | null {
   const b = base.trim()
   if (!b) return null
@@ -477,7 +438,6 @@ function getColorTargetFromCode(code: string): string | null {
   return null
 }
 
-/** Lookup texture by URL; handles format mismatches (relative vs absolute, /api/v1 vs /api). */
 function getTextureByUrl(
   map: Map<string, THREE.Texture> | undefined,
   url: string,
@@ -499,12 +459,6 @@ const isLegMaterialDebugEnabled =
   typeof window !== "undefined" &&
   new URLSearchParams(window.location.search).get("debugLegMaterial") === "1"
 
-/**
- * Generates planar UV coordinates for geometry that lacks them.
- * Projects vertices onto the plane perpendicular to the axis with smallest extent
- * (e.g. for vertical legs: project onto XZ plane). Enables texture mapping on
- * SketchUp exports that omit UVs for some meshes.
- */
 function computePlanarUvsForGeometry(geometry: THREE.BufferGeometry): void {
   const posAttr = geometry.attributes.position
   if (!posAttr || posAttr.count === 0) return
@@ -676,10 +630,6 @@ function restoreNodeFromBaseline(node: THREE.Object3D, baseline: BaselineTransfo
   node.scale.set(baseline.scale[0], baseline.scale[1], baseline.scale[2])
 }
 
-/**
- * Resolves material formula like "=parent!color_top" to the selected option's value/label.
- * Used for round tables and other models where material is driven by parent attribute.
- */
 function resolveMaterialFormula(
   raw: string,
   config: Model3dConfig | null,
@@ -729,7 +679,6 @@ function resolveMaterialFormula(
       : null
   const opts = config.optionsByAttribute?.[attr.id] ?? allOptions
   const opt = selected ?? opts[0]
-  // Prefer stable option value over localized label for material key matching.
   return opt?.value ?? opt?.label ?? null
 }
 
@@ -872,7 +821,6 @@ function findNodeByExactName(scene: THREE.Object3D, name: string): THREE.Object3
   return found
 }
 
-/** Root/group name aliases: parameters.json often uses "Skupina" but GLB export uses "Assembly-N". */
 const ROOT_NODE_ALIASES: Record<string, string[]> = {
   skupina: ["assembly-6", "assembly-5", "assembly-4", "assembly", "group"],
   table: ["assembly-6", "assembly", "group"],
@@ -886,7 +834,6 @@ const ROOT_NODE_ALIASES: Record<string, string[]> = {
   nohy: ["leg", "leg1", "leg2", "noha", "noha1", "noha2"],
 }
 
-/** SketchUp often adds #1, #2 to names. GLB export may use base name. Try variants. */
 function findNodeForEffect(scene: THREE.Object3D, meshNode: string): THREE.Object3D | null {
   const n = meshNode.trim()
   if (!n) return null
@@ -963,7 +910,6 @@ function applyConfigToScene(
       texturesByUrl,
       materialsFromZip,
     )
-    // Edges regenerated after material loop below so final state is correct
   } else {
     disposeDebugVisualization(scene, findNodeForEffect)
   }
@@ -984,9 +930,6 @@ function applyConfigToScene(
         code.endsWith("_barva") ||
         code.endsWith("_material")
       ) {
-        // When componentTransforms handles materials (e.g. Komponenta→color_top, legs→color_legs),
-        // skip this loop to avoid double-application. model3dEffectsMap may map color_top→"table"
-        // which can incorrectly color legs too if "table" is a parent of both.
         const hasComponentTransformsMaterials =
           componentTransforms != null &&
           Object.keys(componentTransforms).length > 0 &&
@@ -1164,7 +1107,6 @@ function applyConfigToScene(
     if (scaleTargetNode && !model3dEffectsMap && !componentTransforms) {
       scaleTargetNode.scale.set(1, 1, 1)
       if (diameterWithUnit != null && (lengthWithUnit == null || widthWithUnit == null)) {
-        // Round table: diameter → X,Z uniform, thickness → Y
         const diameterCm = toCm(diameterWithUnit.value, diameterWithUnit.unit)
         const thicknessCm =
           thicknessWithUnit != null && thicknessWithUnit.value > 0
@@ -1188,7 +1130,6 @@ function applyConfigToScene(
         const thickScale = Math.max(0.01, thicknessCm / refTloustka)
         scaleTargetNode.scale.set(diamScale, diamScale, thickScale)
       } else if (lengthWithUnit != null || widthWithUnit != null || heightWithUnit != null) {
-        // Rectangular: length→X, width→Z, height→Y (reference cm from parameters.json when present)
         const refLenCm = pickReferenceCm(
           parameterDefaults,
           ["delka", "length", "lenx", "LenX"],
@@ -1265,7 +1206,6 @@ function getNumericValueWithUnit(
   return { value, unit: attr.unit ?? null }
 }
 
-/** Tries multiple attribute codes and returns the first found value. */
 function getNumericValueWithUnitFromCodes(
   attrs: Parameters<typeof getNumericValueWithUnit>[0],
   otherValues: Record<string, number | boolean>,
@@ -1514,7 +1454,6 @@ function Model({
   )
 }
 
-/** Cache key for Center recalculation when config changes (scale, materials). */
 function getCenterCacheKey(config: Model3dConfig | null | undefined): string {
   if (!config) return "default"
   return JSON.stringify({
@@ -1735,11 +1674,9 @@ function ZoomPersistence({
   return null
 }
 
-/** Reusable vector for slider→camera sync to avoid per-frame allocations. */
 const _directionForSliderSync = new THREE.Vector3()
 const _directionForInitialSync = new THREE.Vector3()
 
-/** Forces initial camera distance on first frame. OrbitControls can override Canvas camera on mount. */
 function InitialZoomSync({
   controlsRef,
   zoomPreset,
@@ -1777,7 +1714,6 @@ function InitialZoomSync({
   return null
 }
 
-/** When embed viewport offset changes after mount, shift orbit target and camera together (preserves framing). */
 function EmbedCenterYOffsetSync({
   controlsRef,
   centerOffsetY,
@@ -1809,7 +1745,6 @@ function EmbedCenterYOffsetSync({
   return null
 }
 
-/** Syncs cameraDistanceOverride to OrbitControls when slider changes. */
 function CameraDistanceOverrideSync({
   controlsRef,
   cameraDistanceOverride,
@@ -1884,10 +1819,10 @@ function SceneWithCapture({
   cameraDistanceOverride?: number | null
   onCameraDistanceChange?: (distance: number) => void
   savedZoomDistance?: number | null
-  /** When false, disables zoom. When undefined, uses zoomPreset !== "thumbnail". */
+
   enableZoom?: boolean
   centerOffsetY?: number
-  /** Embed: when true, orbit/zoom/pan disabled until user interacts (see parent overlay). */
+
   isEmbedInteractionLocked?: boolean
   cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
 }) {

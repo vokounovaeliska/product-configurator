@@ -32,7 +32,6 @@ export async function generateMetadata(props: Omit<Props, "children">) {
   const t = await getTranslations({ locale: locale as Locale, namespace: "Common.BaseLayout.seo" })
   const siteName = t("siteName")
 
-  // TODO: Extend as needed
   return {
     title: { default: siteName, template: `%s | ${siteName}` },
     description: t("description"),
@@ -53,7 +52,6 @@ export default async function LocaleLayout({ children, params }: Props) {
     notFound()
   }
 
-  // Enable static rendering
   setRequestLocale(locale)
 
   const messages = await getMessages()

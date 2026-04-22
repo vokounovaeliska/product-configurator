@@ -26,7 +26,6 @@ class ComponentJsonPatchParamsValidator : AppValidator<ComponentJsonPatchParams>
                 }
 
                 ComponentJsonPatchParamsPath.DESCRIPTION -> {
-                    // Description can be null
                 }
 
                 ComponentJsonPatchParamsPath.SORT_ORDER -> {

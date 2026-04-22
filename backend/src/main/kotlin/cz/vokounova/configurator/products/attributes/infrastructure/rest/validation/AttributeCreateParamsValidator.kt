@@ -38,7 +38,6 @@ class AttributeCreateParamsValidator : AppValidator<AttributeCreateParams> {
                     )
                 }
             }
-            // Type-specific validations
             when (value.type) {
                 AttributeType.INTEGER -> {
                     value.minInt?.let { minValue ->
@@ -71,7 +70,6 @@ class AttributeCreateParamsValidator : AppValidator<AttributeCreateParams> {
                     }
                 }
                 else -> {
-                    // ENUM and BOOLEAN don't need numeric validations
                 }
             }
         }

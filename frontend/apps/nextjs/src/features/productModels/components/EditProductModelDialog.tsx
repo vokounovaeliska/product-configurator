@@ -55,7 +55,6 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
     resolver: zodResolver(productModelEditFormSchema),
   })
 
-  // Reset form when productModel changes or dialog opens
   useEffect(() => {
     if (isOpen) {
       form.reset({
@@ -121,11 +120,9 @@ export const EditProductModelDialog = ({ productModel, isOpen, onOpenChange }: P
 
         onOpenChange(false)
       } else {
-        // No changes, just close
         onOpenChange(false)
       }
     } catch (err) {
-      // Error is handled by react-query, but we can show a message if needed
       console.error("Failed to update product model:", err)
     }
   }

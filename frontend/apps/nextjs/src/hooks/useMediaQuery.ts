@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from "react"
 
-/**
- * Returns true when the media query matches. Uses lg breakpoint (1024px) by default.
- */
 export function useMediaQuery(query: string): boolean {
   const [isMatch, setIsMatch] = useState(false)
 

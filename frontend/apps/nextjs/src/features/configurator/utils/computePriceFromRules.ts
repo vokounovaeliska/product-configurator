@@ -15,7 +15,6 @@ type AttributesByComponent = Record<string, AttributeForPrice[]>
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
 type SelectedOtherValuesByComponent = Record<string, Record<string, number | boolean>>
 
-/** Modifier in cents for an ENUM option (EQ rule on option `value`). Exported for configurator UI. */
 export function getPriceForOption(
   rules: AttributePricingRuleDto[],
   componentId: string,
@@ -67,10 +66,6 @@ function getRuleForBoolean(
   )
 }
 
-/**
- * Computes total modifier in cents from current selection and pricing rules.
- * Uses the same rule-matching logic as the option table (e.g. Barva → +500 Kč).
- */
 export function computeModifiersCents(
   pricingRules: AttributePricingRuleDto[],
   components: ComponentDto[],

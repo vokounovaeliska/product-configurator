@@ -30,7 +30,6 @@ class AttributeOptionAPIManager(
 ) : AttributeOptionAPI {
     @Transactional
     override fun create(params: AttributeOptionCreateParams): AttributeOption {
-        // Validate that the attribute exists and is of type ENUM
         val attribute = attributeAPI.getOne(params.attributeId)
         if (attribute.type != AttributeType.ENUM) {
             throw AttributeException(
@@ -99,10 +98,6 @@ class AttributeOptionAPIManager(
         attributeOptionRepository.findById(id)
             ?: throw ResourceNotFoundException("Attribute option with id ${id.value} is not found.")
 
-    /**
-     * Deletes the image file only if no other attribute option references it.
-     * Prevents breaking shared images (e.g. textures from SketchUp import used by multiple options).
-     */
     private fun deleteImageIfUnused(
         imageUrl: String?,
         excludeOptionIds: Set<AttributeOptionId>,

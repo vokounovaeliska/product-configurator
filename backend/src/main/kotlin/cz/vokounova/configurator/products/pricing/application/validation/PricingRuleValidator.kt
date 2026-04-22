@@ -10,11 +10,6 @@ import java.util.UUID
 class PricingRuleValidator(
     private val attributePricingRuleRepository: AttributePricingRuleRepository,
 ) {
-    /**
-     * Validates that no duplicate EQ rule exists for the same option value.
-     * Each ENUM option can have only one pricing rule.
-     * @throws DuplicatePricingRuleException if a rule already exists for this option
-     */
     fun validateNoDuplicateOptionRule(
         productModelId: UUID,
         componentId: UUID?,

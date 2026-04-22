@@ -24,7 +24,6 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     })
     .refine(
       (data) => {
-        // INTEGER: should not have decimal fields
         if (data.type === "INTEGER") {
           return data.minDecimal == null && data.maxDecimal == null
         }
@@ -37,7 +36,6 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // DECIMAL: should not have integer fields
         if (data.type === "DECIMAL") {
           return data.minInt == null && data.maxInt == null
         }
@@ -50,7 +48,6 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // ENUM/BOOLEAN: should not have numeric fields, defaults, or unit
         if (data.type === "ENUM" || data.type === "BOOLEAN") {
           return (
             data.minInt == null &&
@@ -71,7 +68,6 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // INTEGER: min <= max if both are set
         if (data.type === "INTEGER" && data.minInt != null && data.maxInt != null) {
           return data.minInt <= data.maxInt
         }
@@ -84,7 +80,6 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // INTEGER: defaultInt within min..max when set
         if (data.type === "INTEGER" && data.defaultInt != null) {
           if (data.minInt != null && data.defaultInt < data.minInt) return false
           if (data.maxInt != null && data.defaultInt > data.maxInt) return false
@@ -98,7 +93,6 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // DECIMAL: defaultDecimal within min..max when set
         if (data.type === "DECIMAL" && data.defaultDecimal != null) {
           if (data.minDecimal != null && data.defaultDecimal < data.minDecimal) return false
           if (data.maxDecimal != null && data.defaultDecimal > data.maxDecimal) return false
@@ -112,7 +106,6 @@ export const getAttributeFormSchema = (t: TFunction<"Attributes">) => {
     )
     .refine(
       (data) => {
-        // DECIMAL: min <= max if both are set
         if (data.type === "DECIMAL" && data.minDecimal != null && data.maxDecimal != null) {
           return data.minDecimal <= data.maxDecimal
         }

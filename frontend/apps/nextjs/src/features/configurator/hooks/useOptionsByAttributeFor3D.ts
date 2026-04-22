@@ -5,10 +5,6 @@ import { getAttributeOptionsListQueryOptions } from "@/api/attributeOptionQuerie
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 
-/**
- * Fetches options for all ENUM attributes. Used by 3D viewer to apply default colors
- * when no option is selected.
- */
 export function useOptionsByAttributeFor3D(
   productModelId: string,
   components: ComponentDto[],

@@ -16,7 +16,6 @@ data class Component(
     val label: String,
     val description: String?,
     val sortOrder: Int,
-    /** Z-index for stacking this component's image (lower = back, higher = front). */
     val imageZIndex: Int,
     val createdAt: OffsetDateTime,
     val modifiedAt: OffsetDateTime,

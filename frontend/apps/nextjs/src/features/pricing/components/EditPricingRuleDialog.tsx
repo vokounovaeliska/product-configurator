@@ -45,13 +45,13 @@ type Props = {
   onOpenChange: (open: boolean) => void
   onSubmit: (body: AttributePricingRuleUpdateDto) => Promise<void>
   isSubmitting: boolean
-  /** Base currency of the product model (e.g. CZK). When set, shown in price hints. */
+
   currency?: string
-  /** When set (e.g. from attribute pricing page), component and attribute are hidden and range UI matches Create. */
+
   fixedAttribute?: { componentId: string; attributeCode: string }
-  /** When set with numericRange, Edit shows Min/Max grid + slider like Create. */
+
   attributeContext?: AttributeContext
-  /** Unit (e.g. "mm") for the rule's attribute. When passed (e.g. from price list), Min/Max show unit immediately. */
+
   attributeUnit?: string | null
 }
 

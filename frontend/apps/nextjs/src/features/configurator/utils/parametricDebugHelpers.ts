@@ -1,8 +1,3 @@
-/**
- * Debug helpers for parametric transform pipeline.
- * Shows origin gizmos, bounding boxes, and logs node placement info.
- */
-
 import * as THREE from "three"
 
 const DEBUG_NODE_NAMES = ["top", "bottom", "leg1", "leg2"]
@@ -15,13 +10,6 @@ const BOX_COLORS: Record<string, number> = {
   leg2: 0xff00ff,
 }
 
-/**
- * Expected positions in cm (from parameters.json formulas with width=120, height=55, depth=80).
- * leg1: x=1, y=(depth-LenY)/2=(80-78)/2=1, z=0
- * leg2: x=width-LenX-1=113, y=1, z=0
- * top: x=0, y=0, z=parent.height=55
- * bottom: x=1.05, y=1.05, z=parent.height/2-2=25.5
- */
 export const EXPECTED_POSITIONS_CM: Record<string, { x: number; y: number; z: number }> = {
   leg1: { x: 1, y: 1, z: 0 },
   leg2: { x: 113, y: 1, z: 0 },
@@ -54,7 +42,6 @@ function computeBoundingBox(obj: THREE.Object3D): THREE.Box3 | null {
   return box
 }
 
-/** Local-space bounding box (mesh extent in node's local space, relative to pivot). */
 function computeLocalBoundingBox(obj: THREE.Object3D): THREE.Box3 | null {
   const box = new THREE.Box3()
   const invMatrix = new THREE.Matrix4()
@@ -196,7 +183,6 @@ export function logParametricNodeDebugInfo(
   console.warn("[ModelViewer3D] Parametric node debug:", entries)
 }
 
-/** Logs node transforms immediately after GLB load, before any custom transform logic. */
 export function logGlbTransformsOnLoad(
   scene: THREE.Object3D,
   findNode: (s: THREE.Object3D, name: string) => THREE.Object3D | null,

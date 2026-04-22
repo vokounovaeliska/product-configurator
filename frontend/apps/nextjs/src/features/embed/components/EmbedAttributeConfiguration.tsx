@@ -31,7 +31,7 @@ type Props = {
   onOtherValueChange: (componentId: string, attributeId: string, value: number | boolean) => void
   pricingRules: AttributePricingRuleDto[]
   currency: string
-  /** When false, show attributes in a flat list without component selector. Default true. */
+
   shouldShowComponents?: boolean
   productModelName?: string | null
   shouldOmitSectionHeading?: boolean

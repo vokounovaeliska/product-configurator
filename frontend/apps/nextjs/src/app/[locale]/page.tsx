@@ -53,7 +53,6 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { locale } = await params
 
-  // Enable static rendering
   setRequestLocale(locale)
 
   const { session } = await getSession()

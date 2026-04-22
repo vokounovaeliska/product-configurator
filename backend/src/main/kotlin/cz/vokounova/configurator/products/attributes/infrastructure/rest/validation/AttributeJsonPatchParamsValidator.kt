@@ -41,7 +41,6 @@ class AttributeJsonPatchParamsValidator : AppValidator<AttributeJsonPatchParams>
                 AttributeJsonPatchParamsPath.MIN_INT,
                 AttributeJsonPatchParamsPath.MAX_INT,
                 -> {
-                    // Can be null or integer
                     value.value?.let {
                         if (it !is Number) {
                             addError(
@@ -58,7 +57,6 @@ class AttributeJsonPatchParamsValidator : AppValidator<AttributeJsonPatchParams>
                 AttributeJsonPatchParamsPath.MIN_DECIMAL,
                 AttributeJsonPatchParamsPath.MAX_DECIMAL,
                 -> {
-                    // Can be null or decimal
                     value.value?.let {
                         if (it !is Number) {
                             addError(
@@ -101,7 +99,6 @@ class AttributeJsonPatchParamsValidator : AppValidator<AttributeJsonPatchParams>
                 }
 
                 AttributeJsonPatchParamsPath.UNIT -> {
-                    // Unit can be null or non-empty string
                     (value.value as? String)?.let { unitStr ->
                         if (unitStr.isBlank()) {
                             addError(

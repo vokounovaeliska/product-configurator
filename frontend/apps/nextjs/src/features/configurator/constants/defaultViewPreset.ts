@@ -1,6 +1,5 @@
 import * as THREE from "three"
 
-/** Named view shortcuts; API now prefers saved orbit radians. "automatic" = legacy framing. */
 export const DEFAULT_VIEW_PRESET_IDS = [
   "automatic",
   "front",
@@ -14,17 +13,12 @@ export const DEFAULT_VIEW_PRESET_IDS = [
 
 export type DefaultViewPresetId = (typeof DEFAULT_VIEW_PRESET_IDS)[number]
 
-/** Base view direction before preset rotation (same as ModelViewer3D VIEW_DIR_*). */
 const VIEW_DIR_DEFAULT: [number, number, number] = [0, 2, 5]
 const VIEW_DIR_EMBED: [number, number, number] = [0, 0.18, 5]
 
 const _sph = new THREE.Spherical()
 const _vec = new THREE.Vector3()
 
-/**
- * Unit direction from orbit target toward camera for the given preset.
- * "automatic" uses the legacy app default (slight 3/4 for configurator, flatter for embed).
- */
 export function getViewDirectionForPreset(
   preset: string | null | undefined,
   zoomPreset: "default" | "embed" | "thumbnail",

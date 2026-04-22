@@ -3,17 +3,9 @@ package cz.vokounova.configurator.shared.skp
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 
-/**
- * Parses parameters.json from the SketchUp Konfiguruj Export plugin.
- * Supports one parameter affecting multiple mesh nodes via effects array.
- */
 object ParametersJsonParser {
     private val objectMapper = ObjectMapper()
 
-    /**
-     * @param materialTexturesFromZip path -> (bytes, ext) for texture files extracted from zip.
-     *   Keys match texturePath in materials (e.g. "materials/oak.png").
-     */
     fun parse(
         jsonBytes: ByteArray,
         materialTexturesFromZip: Map<String, Pair<ByteArray, String>> = emptyMap(),
@@ -57,10 +49,6 @@ object ParametersJsonParser {
             SkpParameterExtractionResult(error = "Failed to parse parameters.json: ${e.message}")
         }
 
-    /**
-     * SketchUp often reports unit as STRING or CENTIMETERS while [SkpParameter.defaultDouble] is still
-     * in inches (e.g. length ≈ 70.866 in ≈ 180 cm). Convert only when the value matches typical inch export.
-     */
     private fun normalizeSkpParameter(p: SkpParameter): SkpParameter {
         val d = p.defaultDouble ?: return p
         val n = p.name.lowercase()
@@ -85,9 +73,6 @@ object ParametersJsonParser {
         return p
     }
 
-    /**
-     * Prefer the DC root (no `_parent` in componentTransforms), e.g. "Stul", not the first name in `components`.
-     */
     private fun inferRootComponentFromTransforms(
         components: List<String>,
         transforms: Map<String, Map<String, Any?>>,
@@ -158,7 +143,6 @@ object ParametersJsonParser {
         }
     }
 
-    /** Parses a numeric JSON value; returns null for null, missing, or non-numeric nodes. */
     private fun parseOptionalDouble(node: JsonNode?): Double? =
         when {
             node == null || node.isNull -> null
@@ -177,10 +161,6 @@ object ParametersJsonParser {
         }
     }
 
-    /**
-     * Parses materials from parameters.json. Only textures are supported (no colorHex).
-     * materials: { "oak": { "texturePath": "materials/oak.png" }, ... }
-     */
     fun parseMaterials(
         root: JsonNode,
         materialTexturesFromZip: Map<String, Pair<ByteArray, String>>,
@@ -220,10 +200,6 @@ object ParametersJsonParser {
                 param.name.uppercase().replace(Regex("[^A-Z0-9_]"), "_") to param.defaultDouble!!
             }
 
-    /**
-     * Parses componentTransforms: meshName → { x, y, z, lenx, leny, lenz, material, ... }.
-     * Each value is either a number (cm) or a formula string.
-     */
     private fun parseComponentTransforms(root: JsonNode): Map<String, Map<String, Any?>> {
         val node = root["componentTransforms"] ?: return emptyMap()
         if (!node.isObject) return emptyMap()

@@ -6,10 +6,6 @@ export type PreviewLayer = {
   zIndex: number
 }
 
-/**
- * Captures the 2D composed preview (PNG layers) by drawing them to a canvas.
- * Used when the product has no 3D model – the 3D path captures from WebGL canvas instead.
- */
 export async function capture2DSnapshot(
   layers: PreviewLayer[],
   maxSize = 560,

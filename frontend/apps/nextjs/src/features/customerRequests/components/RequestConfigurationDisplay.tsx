@@ -22,13 +22,13 @@ import {
 type Props = {
   config: Record<string, unknown> | null
   configStr: string
-  /** When provided, shows user choices with labels and dimension calculations */
+
   configurationData?: RequestConfigurationData | null
-  /** Fallback: components for display when configurationData not used */
+
   components?: ComponentDto[]
-  /** Fallback: attributes by component when configurationData not used */
+
   attributesByComponent?: Record<string, AttributeDto[]>
-  /** Resolved dimensions when computed externally */
+
   resolvedDimensions?: ResolvedDimensions | null
   variant?: "compact" | "full"
 }

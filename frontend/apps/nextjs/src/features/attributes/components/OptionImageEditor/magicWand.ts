@@ -1,18 +1,5 @@
-/**
- * Magic wand selection using magic-wand-tool (flood-fill by color similarity).
- * Converts ImageData + click → mask (Uint8Array, 255 = selected, 0 = not selected).
- */
-
 import { floodFill } from "magic-wand-tool"
 
-/**
- * Computes a selection mask from canvas ImageData using magic-wand-tool's flood fill.
- * @param imageData - RGBA ImageData from canvas
- * @param startX - Click x in image coordinates
- * @param startY - Click y in image coordinates
- * @param tolerance - Color threshold (0–255); library uses per-channel difference
- * @returns Mask with 255 = selected, 0 = not selected (same dimensions as imageData)
- */
 export function computeMagicWandMask(
   imageData: ImageData,
   startX: number,
@@ -40,8 +27,6 @@ export function computeMagicWandMask(
     return fallback
   }
 
-  // Library returns 1 for the flood-filled region (the pixel you clicked + similar colors).
-  // 255 = selected (highlighted, kept on save), 0 = not selected (gray overlay, transparent on save).
   const mask = new Uint8Array(result.data.length)
   let hasAny = false
   for (let i = 0; i < result.data.length; i++) {

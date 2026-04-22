@@ -14,7 +14,6 @@ function getNested(obj: Record<string, unknown>, path: string): string | undefin
 }
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  // Typically corresponds to the `[locale]` segment
   const requested = await requestLocale
   const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale
 

@@ -12,13 +12,11 @@ import { cn } from "@workspace/ui/lib/utils"
 
 const typographyVariantsConfig = {
   variant: {
-    // Body
     "body-sm": "text-sm",
     "body-md": "text-base",
     "body-lg": "text-lg",
     "body-xl": "text-xl",
     "body-2xl": "text-2xl",
-    // Display
     "display-sm": "font-display text-lg",
     "display-md": "font-display text-xl",
     "display-lg": "font-display text-2xl",

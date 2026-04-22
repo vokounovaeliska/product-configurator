@@ -10,9 +10,6 @@ import type {
 import { api } from "@/lib/api/restClient"
 import { extractErrorMessage } from "@/lib/utils"
 
-/**
- * Query key factory for attribute queries
- */
 export const attributeKeys = {
   all: ["attributes"] as const,
   lists: () => [...attributeKeys.all, "list"] as const,
@@ -25,10 +22,6 @@ export const attributeKeys = {
     [...attributeKeys.details(), productModelId, componentId, attributeId] as const,
 } as const
 
-/**
- * Query options for fetching all attributes for a product model (all components).
- * Used when we need attribute labels for display (e.g. pricing rules list).
- */
 export const getAllAttributesForProductModelQueryOptions = (productModelId: string) =>
   queryOptions({
     queryKey: attributeKeys.allForProductModel(productModelId),
@@ -50,9 +43,6 @@ export const getAllAttributesForProductModelQueryOptions = (productModelId: stri
     },
   })
 
-/**
- * Query options for fetching paginated list of attributes for a component
- */
 export const getAttributesListQueryOptions = (
   productModelId: string,
   componentId: string,
@@ -87,9 +77,6 @@ export const getAttributesListQueryOptions = (
     },
   })
 
-/**
- * Query options for fetching a single attribute
- */
 export const getAttributeQueryOptions = (
   productModelId: string,
   componentId: string,
@@ -106,9 +93,6 @@ export const getAttributeQueryOptions = (
     },
   })
 
-/**
- * Hook to fetch paginated list of attributes for a component
- */
 export const useAttributesList = (
   productModelId: string,
   componentId: string,
@@ -121,25 +105,16 @@ export const useAttributesList = (
   })
 }
 
-/**
- * Hook to fetch a single attribute
- */
 export const useAttribute = (productModelId: string, componentId: string, attributeId: string) => {
   return useQuery(getAttributeQueryOptions(productModelId, componentId, attributeId))
 }
 
-/**
- * Hook to fetch all attributes for a product model (for label lookup in pricing etc.)
- */
 export const useAllAttributesForProductModel = (productModelId: string) =>
   useQuery({
     ...getAllAttributesForProductModelQueryOptions(productModelId),
     enabled: Boolean(productModelId),
   })
 
-/**
- * Hook to create an attribute
- */
 export const useCreateAttribute = (productModelId: string, componentId: string) => {
   const queryClient = useQueryClient()
 
@@ -166,9 +141,6 @@ export const useCreateAttribute = (productModelId: string, componentId: string) 
   })
 }
 
-/**
- * Hook to update an attribute (PATCH)
- */
 export const useUpdateAttribute = (productModelId: string, componentId: string) => {
   const queryClient = useQueryClient()
 
@@ -210,9 +182,6 @@ export const useUpdateAttribute = (productModelId: string, componentId: string) 
   })
 }
 
-/**
- * Hook to delete an attribute
- */
 export const useDeleteAttribute = (productModelId: string, componentId: string) => {
   const queryClient = useQueryClient()
 

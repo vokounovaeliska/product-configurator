@@ -19,7 +19,6 @@ class ProductModelJsonPatchParamsValidator : AppValidator<ProductModelJsonPatchP
                     }
                 }
                 ProductModelJsonPatchParamsPath.DESCRIPTION -> {
-                    // Description can be null or empty
                 }
                 ProductModelJsonPatchParamsPath.PRICE -> {
                     field(path.value, value.value as? Number) {
@@ -41,16 +40,13 @@ class ProductModelJsonPatchParamsValidator : AppValidator<ProductModelJsonPatchP
                 }
                 ProductModelJsonPatchParamsPath.MODEL_3D_URL -> {
                     field(path.value, value.value as? String) {
-                        // Can be null (remove 3D model) or non-empty URL
                         notEmpty()
                     }
                 }
                 ProductModelJsonPatchParamsPath.MODEL_3D_EFFECTS -> {
-                    // Can be null (remove effects) or JSON string from parameters.json
                 }
                 ProductModelJsonPatchParamsPath.URL -> {
                     field(path.value, value.value as? String) {
-                        // URL: lowercase alphanumeric and hyphens; null allowed to unpublish
                         matchPattern("^[a-z0-9]+(?:-[a-z0-9]+)*$")
                     }
                 }

@@ -16,7 +16,6 @@ export const SidebarProvider = ({ children }: { children: React.ReactNode }) => 
   const [isOpen, setIsOpenState] = useState(true)
 
   useEffect(() => {
-    // Load from localStorage on mount
     const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
     if (stored !== null) {
       setIsOpenState(stored === "true")

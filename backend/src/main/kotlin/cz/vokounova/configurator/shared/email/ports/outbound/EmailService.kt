@@ -1,25 +1,12 @@
 package cz.vokounova.configurator.shared.email.ports.outbound
 
-/**
- * Inline image to embed in HTML email via CID. Use in img src as cid:contentId.
- * Many email clients block data: URLs; CID attachments display reliably.
- */
 data class InlineImage(
     val contentId: String,
     val base64Data: String,
     val mimeType: String = "image/png",
 )
 
-/**
- * Port for sending emails. Implementations may use SMTP or a noop (log-only) when mail is not configured.
- */
 interface EmailService {
-    /**
-     * Send an email. Implementations should not throw – log errors instead so that
-     * the primary operation (e.g. creating a customer request) is not affected.
-     * @param cc Optional CC recipient (e.g. manufacturer copy).
-     * @param inlineImages Optional inline images embedded via CID for reliable display in email clients.
-     */
     fun send(
         to: String,
         subject: String,

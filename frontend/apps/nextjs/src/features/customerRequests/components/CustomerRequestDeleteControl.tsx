@@ -12,9 +12,9 @@ import { useDeleteCustomerRequest } from "../api/customerRequestQueries"
 
 type Props = {
   requestId: string
-  /** After successful delete (e.g. navigate away from detail). */
+
   onDeleted?: () => void
-  /** Compact icon for table/list rows; default is labeled button for detail page. */
+
   variant?: "icon" | "button"
   className?: string
 }

@@ -11,7 +11,6 @@ import { api } from "@/lib/api/restClient"
 import { getImageUrl } from "@/utils/imageUrl"
 
 type Props = {
-  /** Current image URL (relative or absolute) for preview; after upload this is the new relative URL */
   value?: string | null
   onUploaded: (relativeUrl: string) => void
   onError?: (message: string) => void

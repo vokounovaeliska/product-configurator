@@ -44,7 +44,6 @@ class CustomerRequestsController(
     ): ResponseEntity<CustomerRequestDto> {
         val request = customerRequestAPI.getById(CustomerRequestId(id))
         val userId = UserIdDto(authFacade.getCurrentAuthDetails().id().value)
-        // Only return if user owns a product model matching this request
         val userRequests =
             customerRequestAPI.listByProductModelOwner(userId, 1000, null, CustomerRequestFilter())
         if (!userRequests.any { it.id.value == id }) return ResponseEntity.notFound().build()

@@ -1,8 +1,3 @@
-/**
- * Utilities for displaying customer request configuration.
- * Formats user choices and resolved dimensions for display.
- */
-
 import type { AttributeDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
 
@@ -34,15 +29,10 @@ function formatNumericValue(value: number | boolean, unit?: string | null): stri
   if (!Number.isFinite(value)) return "—"
   const formatted = Number.isInteger(value) ? String(value) : value.toFixed(2)
   const u = unit?.trim()
-  // Default cm when unit unknown (e.g. list preview without loaded attributes) — matches configurator / hranol dimensions.
   if (u) return `${formatted} ${u}`
   return `${formatted} ${DEFAULT_UNIT}`
 }
 
-/**
- * Extracts user choices from config, optionally with component/attribute labels.
- * When components/attributes are not provided, uses raw values (option labels, numeric values).
- */
 export function extractUserChoices(
   config: Record<string, unknown> | null,
   components?: ComponentDto[],
@@ -109,7 +99,6 @@ export function extractUserChoices(
   return items
 }
 
-/** Returns true if config has no options or other values. */
 export function isConfigEmpty(config: Record<string, unknown> | null): boolean {
   if (!config) return true
   const opts = config.selectedOptionsByComponent as Record<string, unknown> | undefined
@@ -119,7 +108,6 @@ export function isConfigEmpty(config: Record<string, unknown> | null): boolean {
   return isOptsEmpty && isOtherEmpty
 }
 
-/** Flat list of strings for badges/tags (e.g. list view). Uses "Label: value" when meaningful. */
 export function formatConfigSummary(config: Record<string, unknown> | null): string[] {
   const items = extractUserChoices(config)
   return items.map((i) => {
@@ -131,10 +119,6 @@ export function formatConfigSummary(config: Record<string, unknown> | null): str
   })
 }
 
-/**
- * Extracts dimension items from resolved dimensions for display.
- * Maps component codes to labels when components are provided.
- */
 export function extractDimensionItems(
   resolved: ResolvedDimensions,
   components?: ComponentDto[],

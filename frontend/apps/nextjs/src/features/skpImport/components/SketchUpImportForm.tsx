@@ -34,7 +34,7 @@ export const SketchUpImportForm = () => {
         router.push(ROUTES.configurator(result.productModelId))
       }
     } catch {
-      // Error is handled by mutation
+      void 0
     }
   }
 

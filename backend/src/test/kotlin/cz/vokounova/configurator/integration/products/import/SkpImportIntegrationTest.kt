@@ -157,7 +157,6 @@ class SkpImportIntegrationTest : BaseIntegrationTest() {
         return outputStream.toByteArray()
     }
 
-    /** Minimal valid GLB (glTF 2.0 binary): header + JSON chunk with empty scene. */
     private fun createMinimalGlb(): ByteArray {
         val json = """{"asset":{"version":"2.0"},"scene":0,"scenes":[{"nodes":[]}]}""".toByteArray(Charsets.UTF_8)
         val chunkLength = json.size

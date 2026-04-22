@@ -17,10 +17,6 @@ export type ComputedPriceResult = {
   modifiersCents: number
 }
 
-/**
- * Computes total price from base price + pricing rules applied to current selection.
- * No API call — uses the same rules already shown in the option table (e.g. "+ 500 Kč" per option).
- */
 export function useComputedPrice(
   productModelId: string,
   basePrice: number,

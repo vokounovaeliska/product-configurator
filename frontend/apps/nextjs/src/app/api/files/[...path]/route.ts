@@ -2,10 +2,6 @@ import { NextResponse, type NextRequest } from "next/server"
 
 const FETCH_TIMEOUT_MS = 10_000
 
-/**
- * Proxies file requests to the backend so the option image editor can load
- * images same-origin and avoid CORS / tainted canvas issues.
- */
 export async function GET(_request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path: pathSegments } = await context.params
   const filename = pathSegments?.join("/")

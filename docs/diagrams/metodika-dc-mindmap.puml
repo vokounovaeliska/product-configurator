@@ -63,20 +63,21 @@ mindmapDiagram {
 
 ** DC4: Ověření řešení <<dc>>
 *** Metody <<metody>>
-**** Demonstrace ve firmě a zpětná vazba od spolupracující firmy
-**** Uživatelské testování a vyhodnocení přínosu a použitelnosti
+**** Uživatelské testování podle scénářů úloh (respondenti v roli zákazníka a výrobce)
+**** Dotazník SUS a doplňující otázky k průběhu a vnímanému přínosu
+**** Vyhodnocení výsledků a shrnutí přínosů, omezení a dalších kroků
 **** Metodika: kapitola 2.6 <<metodika>>
 *** Výsledek: kapitola 4 <<vystup>>
 
 left side
 
 ' Levá strana: DC1, DC2
-** DC1: Analýza současného procesu poptávky <<dc>>
+** DC1: Analýza firmy; analýza současného procesu poptávky a identifikace slabých míst <<dc>>
 *** Metody <<metody>>
-**** Rozhovory, pozorování a konzultace ve firmě
+**** Rozhovory, pozorování a konzultace ve firmě (analýza firmy)
 **** Analýza e-shopu a ostatních podkladů
 **** UML Activity diagram a identifikace slabých míst
-**** Metodika: kapitola 2.3 <<metodika>>
+**** Metodika: kapitola 2.1 <<metodika>>
 *** Výsledek: kapitola 1.2 <<vystup>>
 
 ** DC2: Stav poznání a rešerše řešení <<dc>>
@@ -84,7 +85,7 @@ left side
 **** Rešerše odborné literatury
 **** Desk research a screening nástrojů podle kritérií
 **** Kvalitativní srovnání vybraných řešení
-**** Metodika: kapitola 2.1 a 2.2 <<metodika>>
+**** Metodika: kapitola 2.2 a 2.3 <<metodika>>
 *** Výsledek: kapitola 1.3 a 1.4 <<vystup>>
 
 @endmindmap

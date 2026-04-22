@@ -7,11 +7,6 @@ type Props = {
   children: React.ReactNode
 }
 
-/**
- * Embed routes skip the fixed header; without adjusting padding the main area keeps a 4rem
- * top gap and the configurator uses negative margins. Use compact, viewport-height-aware padding
- * so the iframe shows a full-screen layout with a single page scroll (no nested column scroll).
- */
 export const MainContent = async ({ children }: Props) => {
   const pathname = (await headers()).get("x-pathname") ?? ""
   const isEmbed = pathname.includes(EMBED_PATH_MARKER)

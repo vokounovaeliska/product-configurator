@@ -110,13 +110,11 @@ class AttributesController(
         @PathVariable attributeId: UUID,
     ): ResponseEntity<Unit> {
         productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
-        // Validate that component belongs to product model
         val component = componentAPI.getOne(ComponentId(componentId))
         if (component.productModelId.value != productModelId) {
             throw ResourceNotFoundException("Component with id $componentId does not belong to product model $productModelId")
         }
 
-        // Validate that attribute belongs to component
         val attribute = attributeAPI.getOne(AttributeId(attributeId))
         if (attribute.componentId.value != componentId) {
             throw ResourceNotFoundException("Attribute with id $attributeId does not belong to component $componentId")
@@ -134,13 +132,11 @@ class AttributesController(
         @PathVariable attributeId: UUID,
     ): ResponseEntity<AttributeDto> {
         productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
-        // Validate that component belongs to product model
         val component = componentAPI.getOne(ComponentId(componentId))
         if (component.productModelId.value != productModelId) {
             throw ResourceNotFoundException("Component with id $componentId does not belong to product model $productModelId")
         }
 
-        // Validate that attribute belongs to component
         val attribute = attributeAPI.getOne(AttributeId(attributeId))
         if (attribute.componentId.value != componentId) {
             throw ResourceNotFoundException("Attribute with id $attributeId does not belong to component $componentId")
@@ -216,13 +212,11 @@ class AttributesController(
         @RequestBody attributePatchRequestDto: List<AttributePatchRequestDto>,
     ): ResponseEntity<AttributeDto> {
         productModelAccessGuard.requireCurrentUserOwnsProductModel(productModelId)
-        // Validate that component belongs to product model
         val component = componentAPI.getOne(ComponentId(componentId))
         if (component.productModelId.value != productModelId) {
             throw ResourceNotFoundException("Component with id $componentId does not belong to product model $productModelId")
         }
 
-        // Validate that attribute belongs to component
         val existingAttribute = attributeAPI.getOne(AttributeId(attributeId))
         if (existingAttribute.componentId.value != componentId) {
             throw ResourceNotFoundException("Attribute with id $attributeId does not belong to component $componentId")

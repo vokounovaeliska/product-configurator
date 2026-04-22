@@ -1,7 +1,3 @@
-/**
- * Badge / select trigger styles for inquiry workflow states.
- * Semantics: new lead → work in progress → offer sent → closed.
- */
 export function customerRequestStatusBadgeClasses(status: string): string {
   switch (status) {
     case "NEW":

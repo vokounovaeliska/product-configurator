@@ -15,9 +15,6 @@ import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
 import java.util.Base64
 
-/**
- * SMTP implementation that sends real emails. Active when spring.mail.host is set and resend.api-key is not.
- */
 @Service
 @Primary
 @ConditionalOnExpression(

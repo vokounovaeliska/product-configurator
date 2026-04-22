@@ -104,7 +104,6 @@ export const Breadcrumbs = ({
 
   const breadcrumbs: { label: string; href: string }[] = []
 
-  // Handle configurator route (public)
   if (segments.includes("configurator")) {
     breadcrumbs.push({
       label: tConfigurator("breadcrumbs.home"),
@@ -118,7 +117,6 @@ export const Breadcrumbs = ({
       })
     }
 
-    // Don't show breadcrumbs if we only have home
     if (breadcrumbs.length <= 1) {
       return null
     }
@@ -163,14 +161,11 @@ export const Breadcrumbs = ({
     )
   }
 
-  // Handle setup routes (protected)
-  // Always start with Setup
   breadcrumbs.push({
     label: tSetup("navigation.dashboard"),
     href: ROUTES.setup,
   })
 
-  // Add Import from SketchUp if we're on that page
   if (segments.includes("import") && segments.includes("sketchup")) {
     breadcrumbs.push({
       label: tSetup("navigation.importSketchup"),
@@ -178,7 +173,6 @@ export const Breadcrumbs = ({
     })
   }
 
-  // Add Publish (administrator) if we're on that page
   if (segments.includes("publish") && !segments.includes("product-models")) {
     breadcrumbs.push({
       label: tSetup("navigation.publish"),
@@ -186,7 +180,6 @@ export const Breadcrumbs = ({
     })
   }
 
-  // Add Product Models if we're in that section
   if (segments.includes("product-models")) {
     breadcrumbs.push({
       label: tSetup("navigation.productModels"),
@@ -201,7 +194,6 @@ export const Breadcrumbs = ({
         })
       }
 
-      // Publish at product model level
       if (segments.includes("publish")) {
         breadcrumbs.push({
           label: tSetup("navigation.publish"),
@@ -209,7 +201,6 @@ export const Breadcrumbs = ({
         })
       }
 
-      // Pricing rules at product model level (no component/attribute in path)
       if (segments.includes("pricing-rules") && !segments.includes("attributes")) {
         breadcrumbs.push({
           label: tSetup("navigation.pricingRules"),
@@ -217,7 +208,6 @@ export const Breadcrumbs = ({
         })
       }
 
-      // Add Components section (names only, no "Components" label)
       if (segments.includes("components") && resolvedComponentId) {
         if (resolvedComponentName) {
           breadcrumbs.push({
@@ -226,7 +216,6 @@ export const Breadcrumbs = ({
           })
         }
 
-        // Add Attributes section (names only, no "Attributes" / "Options" labels)
         if (segments.includes("attributes") && resolvedAttributeId) {
           if (resolvedAttributeName) {
             breadcrumbs.push({
@@ -238,7 +227,6 @@ export const Breadcrumbs = ({
               ),
             })
           }
-          // Only show "Pricing" when on pricing page (current page label)
           if (segments.includes("pricing")) {
             breadcrumbs.push({
               label: tSetup("navigation.pricing"),
@@ -254,7 +242,6 @@ export const Breadcrumbs = ({
     }
   }
 
-  // Don't show breadcrumbs if we're on the root setup page
   if (breadcrumbs.length <= 1) {
     return null
   }

@@ -16,7 +16,6 @@ import {
 import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import { extractErrorMessage } from "@/lib/utils"
 
-/** ~0.25° — live orbit vs stored floats may differ slightly */
 const ANGLE_MATCH_EPS_RAD = 0.005
 
 type Props = {

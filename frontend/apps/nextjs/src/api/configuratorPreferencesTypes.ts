@@ -1,6 +1,5 @@
 export type QuoteRequestEmailTemplatePreset = "en" | "cs" | "custom"
 
-/** Snapshot from OrbitControls (radians), same as saved API fields. */
 export type SavedCameraAngles = {
   cameraHorizontalAngleRad: number
   cameraVerticalAngleRad: number

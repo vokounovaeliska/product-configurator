@@ -24,7 +24,7 @@ type Props = {
   productModelId: string
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
-  /** When provided, used as initial sortOrder so new component is added at the end */
+
   defaultSortOrder?: number
 }
 

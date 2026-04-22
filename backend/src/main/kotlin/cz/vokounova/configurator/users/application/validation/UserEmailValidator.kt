@@ -27,7 +27,6 @@ class UserEmailValidator(
                 validateEmailUniqueness(it.email)?.let { addError(it) }
             }
 
-            // patch
             value.existingUser?.let { existing ->
                 val newLoginEmail =
                     value.jsonPatchParams

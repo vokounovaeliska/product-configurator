@@ -1,19 +1,3 @@
-/**
- * Mask utilities: invert selection, polygon (lasso) to mask, brush refine.
- * Mask format: Uint8Array, 255 = selected, 0 = not selected.
- */
-
-/**
- * Applies a circular brush to the mask at (centerX, centerY) with given radius.
- * @param mask - Existing mask (can be null; will create full-size mask)
- * @param width - Image width
- * @param height - Image height
- * @param centerX - Brush center x
- * @param centerY - Brush center y
- * @param radius - Brush radius in pixels
- * @param isAdd - If true, set brush area to 255; if false, set to 0
- * @returns New mask with brush applied
- */
 export function applyBrushToMask(
   mask: Uint8Array | null,
   width: number,
@@ -44,10 +28,6 @@ export function applyBrushToMask(
   return out
 }
 
-/**
- * Merges two masks: a pixel is selected if it is selected in either mask (additive / OR).
- * If either mask is null or wrong size, the other is returned as-is (or a copy of the non-null one).
- */
 export function mergeMasks(
   a: Uint8Array | null,
   b: Uint8Array | null,
@@ -64,9 +44,6 @@ export function mergeMasks(
   return out
 }
 
-/**
- * Inverts the selection. If no mask, returns a full selection (all 255).
- */
 export function invertMask(mask: Uint8Array | null, width: number, height: number): Uint8Array {
   const size = width * height
   const out = new Uint8Array(size)
@@ -82,10 +59,6 @@ export function invertMask(mask: Uint8Array | null, width: number, height: numbe
 
 type Point = { x: number; y: number }
 
-/**
- * Creates a mask from a closed polygon (lasso). Points are in image coordinates.
- * Uses canvas fill to get pixel-perfect mask.
- */
 export function polygonToMask(points: Point[], width: number, height: number): Uint8Array {
   const mask = new Uint8Array(width * height)
   if (points.length < 3) return mask

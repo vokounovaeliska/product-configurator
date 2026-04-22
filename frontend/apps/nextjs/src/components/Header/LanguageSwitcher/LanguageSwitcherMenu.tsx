@@ -29,8 +29,6 @@ export const LanguageSwitcherMenu = ({ currentLocale, options }: Props) => {
     const validLang = getIsValidLocale(lang) ? lang : raiseError(`${lang} is not a valid locale`)
     startTransition(() => {
       // @ts-expect-error -- TypeScript will validate that only known `params`
-      // are used in combination with a given `pathname`. Since the two will
-      // always match for the current route, we can skip runtime checks.
       router.replace({ pathname, params }, { locale: validLang })
     })
   }

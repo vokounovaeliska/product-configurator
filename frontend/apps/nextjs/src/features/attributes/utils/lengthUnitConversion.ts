@@ -1,13 +1,7 @@
-/**
- * Convert numeric attribute bounds/defaults when the user changes length unit (e.g. cm → mm).
- * Values are interpreted in the *previous* unit and written in the *new* unit so the physical range stays the same.
- */
-
 function normalizeUnit(unit: string | null | undefined): string {
   return unit?.trim().toLowerCase() ?? ""
 }
 
-/** Millimeters represented by one unit of `unit` (length). */
 function mmPerUnit(unit: string | null | undefined): number | null {
   const u = normalizeUnit(unit)
   if (u === "mm") return 1
@@ -24,10 +18,6 @@ export function canConvertLengthUnits(
   return mmPerUnit(fromUnit) != null && mmPerUnit(toUnit) != null
 }
 
-/**
- * Converts a single numeric value from `fromUnit` to `toUnit`.
- * INTEGER results are rounded; DECIMAL results are stabilized against float noise.
- */
 export function convertLengthValue(
   value: number,
   fromUnit: string | null | undefined,

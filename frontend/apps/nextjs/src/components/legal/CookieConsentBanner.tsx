@@ -40,7 +40,7 @@ export const CookieConsentBanner = () => {
     try {
       localStorage.setItem(STORAGE_KEY, "1")
     } catch {
-      /* ignore */
+      void 0
     }
     setIsVisible(false)
   }

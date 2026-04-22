@@ -16,13 +16,6 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
 import java.util.Base64
 
-/**
- * Resend API implementation. Uses HTTPS, works on Railway (Free/Hobby) where SMTP is blocked.
- * Active when RESEND_API_KEY is set. Takes precedence over SMTP when both are configured.
- *
- * Uses resend-java for emails without inline images. For inline images (Gmail compatibility),
- * calls the Resend API directly with content_id because resend-java Attachment does not support it.
- */
 @Service
 @Primary
 @ConditionalOnExpression(
@@ -36,7 +29,8 @@ class ResendEmailService(
     private val log = LoggerFactory.getLogger(javaClass)
     private val resend = Resend(apiKey)
     private val restClient =
-        RestClient.builder()
+        RestClient
+            .builder()
             .baseUrl("https://api.resend.com")
             .defaultHeader("Authorization", "Bearer $apiKey")
             .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -106,7 +100,8 @@ class ResendEmailService(
     ) {
         val fromFormatted = "${mailConfig.fromName} <${mailConfig.fromAddress}>"
         val params =
-            CreateEmailOptions.builder()
+            CreateEmailOptions
+                .builder()
                 .from(fromFormatted)
                 .to(listOf(to))
                 .subject(subject)
@@ -165,5 +160,7 @@ class ResendEmailService(
         log.info("Email sent successfully via Resend: to={}, subject={}, id={}", to, subject, id)
     }
 
-    private data class ResendEmailResponse(val id: String?)
+    private data class ResendEmailResponse(
+        val id: String?,
+    )
 }

@@ -1,17 +1,5 @@
-/**
- * Exports the selected region as a PNG with transparent background at a fixed size.
- * All option images use the same dimensions so the configurator can stack them by z-index.
- * Pixels inside the mask keep their color; pixels outside get full transparency.
- * Output is 1024px for sharp display; scaling uses high-quality smoothing.
- */
-
-/** Fixed size for all option images (same dimensions for z-index stacking in configurator). */
 export const OPTION_IMAGE_SIZE = 1024
 
-/**
- * Exports the selection as PNG blob: transparent background, selection at OPTION_IMAGE_SIZE.
- * Scales the selection to fit inside OPTION_IMAGE_SIZE x OPTION_IMAGE_SIZE (preserves aspect, transparent padding).
- */
 export function exportSelectionAsPngBlob(imageData: ImageData, mask: Uint8Array): Promise<Blob> {
   const { width, height, data } = imageData
   const out = new ImageData(width, height)

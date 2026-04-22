@@ -27,7 +27,7 @@ type Props = {
   productModelId: string
   componentId: string
   attributeId: string
-  /** When true, hides the per-row image editor (scissors) column. Replace image remains available. */
+
   shouldHideImageEditor?: boolean
 }
 
@@ -180,7 +180,7 @@ export const AttributeOptionsList = ({
           })
         }
       } catch {
-        /* upload failed */
+        void 0
       }
     },
     [updateOption],

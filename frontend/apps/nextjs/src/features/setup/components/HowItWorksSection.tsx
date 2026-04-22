@@ -14,7 +14,7 @@ type HowItWorksSectionProps = {
   children: React.ReactNode
   className?: string
   isCentered?: boolean
-  /** When false, section is always expanded with no toggle. Default true. */
+
   isCollapsible?: boolean
 }
 
@@ -38,7 +38,7 @@ export const HowItWorksSection = ({
         setIsExpanded(stored === "true")
       }
     } catch {
-      // localStorage may be unavailable
+      void 0
     }
   }, [isCollapsible])
 
@@ -48,7 +48,7 @@ export const HowItWorksSection = ({
       try {
         localStorage.setItem(STORAGE_KEY, String(willExpand))
       } catch {
-        // ignore
+        void 0
       }
       return willExpand
     })

@@ -1,45 +1,29 @@
-/**
- * Parametric transform pipeline for SketchUp-derived GLB models.
- * Resolves formulas (parent!length, parent!width, LenX, etc.) and computes position/scale deltas.
- * DC `x,y,z` and Len* are treated in the same axis order as the glTF scene (see SketchUp export).
- */
-
 import type { Model3dConfig } from "../types/model3dConfig"
 
-/**
- * SketchUp exports GLB with inch values (1 unit = 1 inch); parameters.json uses cm.
- * 1 inch = 2.54 cm.
- */
 const CM_PER_INCH = 2.54
 
-/** Convert cm (parameters.json) to GLB scene units (inches). */
 export function cmToGlbUnits(cm: number): number {
   return cm / CM_PER_INCH
 }
 
-/** Convert GLB scene units (inches) to cm. */
 export function glbUnitsToCm(glbUnits: number): number {
   return glbUnits * CM_PER_INCH
 }
 
-/** Component transform from parameters.json: x, y, z, lenx, leny, lenz, length/width/height, thickness*, material, _parent. */
 export type ComponentTransform = Record<string, string | number | null | undefined>
 
-/** Base outer dimensions: length × width × height (cm). */
 export type BaseDimensions = {
   length: number
   width: number
   height: number
 }
 
-/** Target transform for a node: position and scale in GLB units. */
 export type NodeTargetTransform = {
   position: [number, number, number]
   scale: [number, number, number]
   rotation?: [number, number, number]
 }
 
-/** Baseline transform captured from GLB on load (before any app transforms). */
 export type BaselineTransformFromGlb = {
   position: [number, number, number]
   rotation: [number, number, number]
@@ -47,7 +31,6 @@ export type BaselineTransformFromGlb = {
   parentName: string | null
 }
 
-/** Delta transform from user params (add to baseline position, multiply baseline scale). */
 export type DeltaTransformFromUserParams = {
   position: [number, number, number]
   scale: [number, number, number]
@@ -55,14 +38,12 @@ export type DeltaTransformFromUserParams = {
 
 export type AxisMapping = "x" | "y" | "z"
 
-/** Maps JSON axis string to scene axis (identity). */
 export function mapJsonAxisToSceneAxis(axis: string): AxisMapping {
   const a = axis.trim().toLowerCase()
   if (a === "x" || a === "y" || a === "z") return a
   return "x"
 }
 
-/** Converts position in cm (JSON) to GLB units (meters). */
 export function mapJsonPositionToGlbUnits(
   xCm: number,
   yCm: number,
@@ -71,7 +52,6 @@ export function mapJsonPositionToGlbUnits(
   return [cmToGlbUnits(xCm), cmToGlbUnits(yCm), cmToGlbUnits(zCm)]
 }
 
-/** Resolved dimensions for a component (after formula evaluation). */
 type ResolvedComponentDimensions = {
   x: number
   y: number
@@ -79,18 +59,16 @@ type ResolvedComponentDimensions = {
   lenx: number
   leny: number
   lenz: number
-  /** Span along X (length). */
+
   length?: number
-  /** Span along Z (second horizontal, “width” in plan). */
+
   width?: number
-  /** Span along Y (height). */
+
   height?: number
 }
 
-/** Resolved dimensions per component name. */
 export type ResolvedDimensions = Record<string, ResolvedComponentDimensions>
 
-/** Returns true if component has only global box dims (no lenx/leny/lenz). Skips for transform application. */
 export function isGroupContainer(transform: ComponentTransform): boolean {
   const hasLenx = "lenx" in transform && transform.lenx != null
   const hasLeny = "leny" in transform && transform.leny != null
@@ -113,7 +91,6 @@ export function isGroupContainer(transform: ComponentTransform): boolean {
   return hasBox && !hasLenDimensions
 }
 
-/** Extracts base dimensions from root group component. */
 export function getBaseDimensions(
   transforms: Record<string, ComponentTransform>,
   config: Model3dConfig | null,
@@ -147,10 +124,6 @@ function pickTransformScalar(
   return undefined
 }
 
-/**
- * Root group often omits length/width on componentTransforms; child formulas still use parent!length.
- * If parent resolved dim is missing or zero, fall back to global config params.
- */
 function parentDimOrParams(
   parent: ResolvedComponentDimensions | undefined,
   key: "length" | "width" | "height",
@@ -168,10 +141,6 @@ function parentDimOrParams(
   return typeof fromParams === "number" ? fromParams : 0
 }
 
-/**
- * Evaluates a formula string.
- * Global box: length (X), width (Z), height (Y); thickness* for slab depth.
- */
 export function evaluateFormula(
   formula: string,
   context: {
@@ -192,7 +161,6 @@ export function evaluateFormula(
     [/\bparent!\s*length\b/gi, String(parentDimOrParams(parent, "length", params))],
     [/\bparent!\s*width\b/gi, String(parentDimOrParams(parent, "width", params))],
     [/\bparent!\s*height\b/gi, String(parentDimOrParams(parent, "height", params))],
-    // Legacy DC name "depth" for the second horizontal (same as width in parameters.json).
     [/\bparent!\s*depth\b/gi, String(parentDimOrParams(parent, "width", params))],
     [
       /\bparent!\s*top_thickness\b/gi,
@@ -230,7 +198,6 @@ export function evaluateFormula(
     expr = expr.replace(re, replacement)
   }
 
-  // Generic: parent!paramName → params lookup (for round tables: diameter_top, etc.)
   const parentParamMatches = expr.matchAll(/\bparent!\s*([a-zA-Z_][a-zA-Z0-9_]*)\b/g)
   for (const m of parentParamMatches) {
     const paramName = m[1]
@@ -240,7 +207,6 @@ export function evaluateFormula(
     expr = expr.replace(m[0], String(val))
   }
 
-  // Root transforms often use =length / =width (no parent!) — substitute bare param names from config.
   expr = substituteBareParamIdentifiers(expr, params)
 
   return safeEvalExpression(expr)
@@ -250,7 +216,6 @@ function escapeRegexChars(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
-/** Replaces identifiers like length, width, Noha_lenx with numeric values from params (longest keys first). */
 function substituteBareParamIdentifiers(expr: string, params: Record<string, number>): string {
   let result = expr
   const keys = Object.keys(params).sort((a, b) => b.length - a.length)
@@ -266,12 +231,10 @@ function substituteBareParamIdentifiers(expr: string, params: Record<string, num
   return result
 }
 
-/** Safe evaluation of numeric expression (only numbers and + - * / ( )). */
 function safeEvalExpression(expr: string): number {
   const trimmed = expr.trim()
   if (!trimmed) return 0
   const sanitized = trimmed.replace(/[^\d.\s+\-*/()]/g, "")
-  // Reject only when disallowed characters were stripped (not when spaces differ).
   const withoutSpaces = (s: string) => s.replace(/\s/g, "")
   if (withoutSpaces(sanitized) !== withoutSpaces(trimmed)) return 0
   try {
@@ -281,7 +244,6 @@ function safeEvalExpression(expr: string): number {
   }
 }
 
-/** Recursive descent parser for numeric expressions. */
 function evaluateNumericExpression(expr: string): number {
   let i = 0
   const skipWs = (): void => {
@@ -340,7 +302,6 @@ function evaluateNumericExpression(expr: string): number {
   return parseAdd()
 }
 
-/** Gets numeric attribute value from config by param code (e.g. "width", "height"). */
 export function getAttributeValueFromConfig(
   config: Model3dConfig | null,
   paramCode: string,
@@ -368,7 +329,6 @@ export function getAttributeValueFromConfig(
   return typeof def === "number" ? def : 0
 }
 
-/** Maps Czech SketchUp dimension names to English keys used in formulas (length/width/height). */
 function applyCanonicalDimensionAliases(params: Record<string, number>): void {
   const pick = (...keys: string[]): number | undefined => {
     for (const k of keys) {
@@ -394,7 +354,6 @@ function applyCanonicalDimensionAliases(params: Record<string, number>): void {
   }
 }
 
-/** Builds params map from config and parameterDefaults for formula evaluation. */
 function buildParamsForEvaluation(
   config: Model3dConfig | null,
   parameterDefaults?: Record<string, number> | null,
@@ -464,7 +423,6 @@ function resolveValue(
   return Number.isFinite(num) ? num : 0
 }
 
-/** Computes resolved dimensions for all components (formulas evaluated). */
 export function computeResolvedDimensions(
   transforms: Record<string, ComponentTransform>,
   config: Model3dConfig | null,
@@ -546,7 +504,6 @@ export function computeResolvedDimensions(
   return result
 }
 
-/** Extracts parameter keys that affect transforms (from formulas and defaults). */
 export function getParamKeysAffectingTransforms(
   transforms: Record<string, ComponentTransform>,
   parameterDefaults?: Record<string, number> | null,
@@ -583,7 +540,6 @@ function normalizeParamKey(key: string): string {
   return key.toUpperCase().replace(/[^A-Z0-9_]/g, "_")
 }
 
-/** Returns true if config values match parameterDefaults for the given param keys. */
 export function areParamsAtDefaults(
   config: Model3dConfig | null,
   parameterDefaults?: Record<string, number> | null,
@@ -600,14 +556,10 @@ export function areParamsAtDefaults(
   return true
 }
 
-/** Returns true if the transform has explicit position (x, y, or z). */
 function hasPositionFormula(t: ComponentTransform): boolean {
   return "x" in t || "y" in t || "z" in t
 }
 
-/**
- * Computes target transforms (position in GLB units, scale as ratio vs default-resolved Len*).
- */
 export function computeTargetTransforms(
   transforms: Record<string, ComponentTransform>,
   resolved: ResolvedDimensions,
@@ -639,7 +591,6 @@ export function computeTargetTransforms(
   return result
 }
 
-/** Computes delta transforms from baseline (position delta, scale ratio). */
 export function computeDeltaTransforms(
   transforms: Record<string, ComponentTransform>,
   resolved: ResolvedDimensions,
@@ -669,7 +620,6 @@ export function computeDeltaTransforms(
   return result
 }
 
-/** Logs parametric state for debugging. */
 export function logParametricState(
   resolved: ResolvedDimensions,
   paramKeys: string[],

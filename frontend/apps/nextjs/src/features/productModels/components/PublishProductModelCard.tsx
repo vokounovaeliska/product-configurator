@@ -33,7 +33,6 @@ import { getEmbedBaseUrl } from "@/utils/embedUrl"
 
 // eslint-disable-next-line import/no-restricted-paths -- same controls as configurator preview tab
 import { PreviewCameraAngleControls } from "@/features/configurator/components/PreviewCameraAngleControls"
-// Publish card intentionally reuses configurator embed limits and camera UI (cross-feature).
 // eslint-disable-next-line import/no-restricted-paths -- shared embed preset with ModelViewer3D embed mode
 import { EMBED_CAMERA_DISTANCE } from "@/features/configurator/constants/embedCameraDistance"
 
@@ -135,8 +134,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   const embedCode = `<iframe
   src="${embedUrl}"
   width="100%"
-  height="700"
-  style="border: none; min-height: 600px;"
+  style="border: none; display: block; width: 100%; height: min(90dvh, 2000px);"
   allowfullscreen
 ></iframe>`
 
@@ -207,7 +205,7 @@ export const PublishProductModelCard = ({ productModel }: Props) => {
   }
 
   const effectiveEmbedZoom = liveZoomFrom3d ?? clampEmbedZoom(embedZoom)
-  /** Slider-only sync to 3D; omit while wheel-zooming so Canvas is not re-driven every frame (fixes UI lag). */
+
   const embedCameraDistanceForPreview = liveZoomFrom3d != null ? null : clampEmbedZoom(embedZoom)
   const hasEmbedZoomChanged = Math.abs(effectiveEmbedZoom - savedEmbedZoomEffective) > 0.01
 

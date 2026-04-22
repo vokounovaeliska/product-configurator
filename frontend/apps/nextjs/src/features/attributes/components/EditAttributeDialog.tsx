@@ -162,7 +162,6 @@ export const EditAttributeDialog = ({
         })
       }
 
-      // INTEGER fields
       if (values.type === "INTEGER") {
         if (values.minInt !== attribute.minInt) {
           patches.push({ path: "/minInt", op: "Replace" as const, value: values.minInt })
@@ -176,7 +175,6 @@ export const EditAttributeDialog = ({
         }
       }
 
-      // DECIMAL fields
       if (values.type === "DECIMAL") {
         if (values.minDecimal !== attribute.minDecimal) {
           patches.push({
@@ -202,7 +200,6 @@ export const EditAttributeDialog = ({
         }
       }
 
-      // Unit (INTEGER or DECIMAL)
       if (values.type === "INTEGER" || values.type === "DECIMAL") {
         const newUnit = values.unit?.trim() ?? null
         if (newUnit !== (attribute.unit ?? null)) {

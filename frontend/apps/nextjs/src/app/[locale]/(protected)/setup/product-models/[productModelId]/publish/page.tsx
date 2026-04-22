@@ -6,7 +6,6 @@ type Props = {
   params: Promise<{ locale: Locale; productModelId: string }>
 }
 
-/** Redirect to components page with publish tab. Keeps old URLs working. */
 const PublishPage = async (props: Props) => {
   const { locale, productModelId } = await props.params
   redirect({

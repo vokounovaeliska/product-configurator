@@ -25,7 +25,6 @@ export const DeleteProductModelDialog = ({ productModel, isOpen, onOpenChange }:
       await deleteProductModel.mutateAsync(productModel.id)
       onOpenChange(false)
     } catch (err) {
-      // Error is handled by react-query, but we can show a message if needed
       console.error("Failed to delete product model:", err)
     }
   }

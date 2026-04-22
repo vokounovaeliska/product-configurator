@@ -29,7 +29,6 @@ class ModuleConfig(
             jacksonObjectMapper()
                 .registerModule(JavaTimeModule())
 
-        // https://github.com/FasterXML/jackson-databind/wiki/Serialization-Features#datatype-specific-serialization
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
         mapper.registerModules(simpleModules)
