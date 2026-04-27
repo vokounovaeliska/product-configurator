@@ -246,8 +246,8 @@ export const EmbedConfigurator = ({
         </div>
       )}
 
-      <div className="flex w-full flex-col gap-4 lg:grid lg:grid-cols-3 lg:items-start lg:gap-4">
-        <div className="relative z-0 order-2 flex w-full flex-col items-center justify-center lg:order-none lg:col-span-2">
+      <div className="flex w-full flex-col gap-4 md:grid md:grid-cols-3 md:items-stretch md:gap-4">
+        <div className="relative z-0 order-2 flex w-full flex-col items-center justify-center md:order-none md:col-span-2 md:h-full md:self-stretch">
           <VisualPreview
             productModelId={product.id}
             selectedComponentId={activeComponentId}
@@ -265,7 +265,7 @@ export const EmbedConfigurator = ({
           />
         </div>
 
-        <div className="order-1 flex w-full flex-col gap-3 lg:order-none">
+        <div className="order-1 flex w-full flex-col gap-3 md:order-none">
           <div className="flex shrink-0 flex-col gap-2">
             <Card className="p-3 shadow-sm">
               <div className="flex items-baseline justify-between gap-2">
@@ -316,8 +316,8 @@ export const EmbedConfigurator = ({
               optionsByAttribute={_optionsByAttribute}
               shouldShowComponents={isComponentsShownInEmbed}
               shouldShowAttributeSectionHeading={isComponentsShownInEmbed}
-              productModelName={isProductNameShownInEmbed ? null : product.name}
-              shouldOmitSectionHeading={isProductNameShownInEmbed}
+              productModelName={null}
+              shouldOmitSectionHeading
             />
           </div>
 

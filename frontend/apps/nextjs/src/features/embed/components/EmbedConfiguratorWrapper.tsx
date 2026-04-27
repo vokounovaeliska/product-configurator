@@ -37,7 +37,7 @@ export const EmbedConfiguratorWrapper = ({ userId, url }: Props) => {
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-4 w-72" />
         </div>
-        <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+        <div className="grid gap-4 md:grid-cols-[1fr_280px]">
           <Skeleton className="aspect-video w-full min-w-0 rounded-lg" />
           <Skeleton className="min-h-48 w-full rounded-lg" />
         </div>
