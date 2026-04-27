@@ -74,7 +74,7 @@ export const VisualPreview = ({
           isCompactLayout
             ? "min-h-0 flex-1 p-2 sm:p-3"
             : isEmbedPreview
-              ? "w-full border-0 bg-transparent p-0 shadow-none"
+              ? "h-full w-full flex-1 border-0 bg-transparent p-0 shadow-none"
               : "min-h-0 flex-1 p-4 md:p-6",
         )}
         data-embed-preview
@@ -83,7 +83,7 @@ export const VisualPreview = ({
           className={cn(
             "rounded-lg",
             isEmbedPreview
-              ? "relative flex aspect-video min-h-0 w-full flex-col overflow-hidden bg-transparent"
+              ? "relative flex min-h-[220px] w-full flex-1 flex-col overflow-hidden bg-transparent md:h-full md:min-h-0"
               : cn(
                   "flex min-h-0 flex-1 items-center justify-center border bg-muted/30",
                   isCompactLayout
@@ -99,7 +99,7 @@ export const VisualPreview = ({
             cameraDistanceOverride={cameraDistanceOverride}
             backgroundPresetOverride={backgroundPresetOverride}
             onCameraDistanceChange={onCameraDistanceChange}
-            className={cn(isEmbedPreview ? "min-h-0 flex-1 rounded-xl" : "rounded-lg")}
+            className={cn(isEmbedPreview ? "h-full min-h-0 flex-1 rounded-xl" : "rounded-lg")}
             config={model3dConfig}
             model3dEffects={model3dEffects}
             zoomPreset={isEmbedPreview ? "embed" : isCompact ? "embed" : "default"}
