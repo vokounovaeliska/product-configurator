@@ -6,7 +6,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Typography } from "@workspace/ui/components/typography"
 import { cn } from "@workspace/ui/lib/utils"
 
-import { Link } from "@/lib/i18n/navigation"
+import { Link, usePathname } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 const STORAGE_KEY = "konfiguruj_cookie_notice_v1"
@@ -20,13 +20,19 @@ function isEmbeddedInIframe(): boolean {
   }
 }
 
+function isEmbedRoute(pathname: string | null): boolean {
+  if (!pathname) return false
+  return /^\/[^/]+\/e\/[^/]+\/[^/]+$/.test(pathname)
+}
+
 export const CookieConsentBanner = () => {
   const t = useTranslations("Legal.CookieBanner")
+  const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     try {
-      if (isEmbeddedInIframe()) {
+      if (isEmbeddedInIframe() || isEmbedRoute(pathname)) {
         setIsVisible(false)
         return
       }
@@ -34,7 +40,7 @@ export const CookieConsentBanner = () => {
     } catch {
       setIsVisible(true)
     }
-  }, [])
+  }, [pathname])
 
   const accept = () => {
     try {
