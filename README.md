@@ -31,5 +31,3 @@ pnpm frontend:dev       # Start Next.js frontend (port 3001)
 - `pnpm backend:dev` - Start backend
 - `pnpm frontend:dev` - Start Next.js app
 - `pnpm api:generate` - Generate TypeScript types from OpenAPI
-
-See [START.md](./START.md) for detailed workflow.
