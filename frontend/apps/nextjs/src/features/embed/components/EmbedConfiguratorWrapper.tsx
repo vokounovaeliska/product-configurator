@@ -45,6 +45,14 @@ export const EmbedConfiguratorWrapper = ({ userId, url }: Props) => {
     )
   }
 
+  const analyticsContext = config.product.url?.trim()?.length
+    ? {
+        surface: "EMBED_IFRAME" as const,
+        embedOwnerUserId: userId,
+        embedProductUrl: config.product.url.trim(),
+      }
+    : null
+
   return (
     <EmbedConfigurator
       product={config.product}
@@ -53,6 +61,7 @@ export const EmbedConfiguratorWrapper = ({ userId, url }: Props) => {
       optionsByAttribute={config.optionsByAttribute}
       pricingRules={config.pricingRules}
       configuratorPreferences={config.configuratorPreferences}
+      analyticsContext={analyticsContext}
     />
   )
 }

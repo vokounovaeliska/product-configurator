@@ -8,6 +8,7 @@ import cz.vokounova.configurator.products.api.dto.ComponentExternalDto
 import cz.vokounova.configurator.products.api.dto.ConfiguratorPreferencesExternalDto
 import cz.vokounova.configurator.products.api.dto.FullProductConfigDto
 import cz.vokounova.configurator.products.api.dto.ProductModelExternalDto
+import cz.vokounova.configurator.products.api.dto.PublishedProductForAnalyticsDto
 import cz.vokounova.configurator.products.attributes.domain.Attribute
 import cz.vokounova.configurator.products.attributes.domain.AttributeFilter
 import cz.vokounova.configurator.products.attributes.domain.AttributeOption
@@ -147,6 +148,20 @@ class ProductConfigQueryService(
         } catch (_: Exception) {
             null
         }
+
+    override fun findPublishedForConfiguratorAnalytics(productModelId: UUID): PublishedProductForAnalyticsDto? {
+        val model =
+            try {
+                productModelAPI.getOne(ProductModelId(productModelId))
+            } catch (_: ResourceNotFoundException) {
+                return null
+            }
+        if (!model.isPublished) return null
+        return PublishedProductForAnalyticsDto(
+            ownerUserId = model.userId.value,
+            urlTrimmedOrNull = model.url?.trim(),
+        )
+    }
 
     private fun ProductModel.toExternalDto() =
         ProductModelExternalDto(

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { PencilIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
@@ -8,18 +8,28 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import {
+  buildClientEventPayload,
+  sendConfiguratorAnalyticsEvents,
+} from "@/api/configuratorAnalyticsClient"
+import type { ConfiguratorAnalyticsPublicContext } from "@/api/configuratorAnalyticsTypes"
 import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
-import type { ProductEmbedFullDto } from "@/api/embedTypes"
+import type { ProductEmbedFullDto, ProductModelEmbedDto } from "@/api/embedTypes"
 import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { useCurrentUser } from "@/api/userQueries"
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
+ 
+import { getOrCreateConfiguratorAnalyticsSessionId } from "@/lib/configuratorAnalyticsSession"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
 
 import { useComputedPrice } from "@/features/configurator/hooks/useComputedPrice"
 import { useConfiguratorAttributes } from "@/features/configurator/hooks/useConfiguratorAttributes"
 import { useOptionsByAttributeFor3D } from "@/features/configurator/hooks/useOptionsByAttributeFor3D"
+/* eslint-disable import/no-restricted-paths -- public page shares embed quote + configuration payload helpers */
+import { RequestQuoteDialog } from "@/features/embed/components/RequestQuoteDialog"
+import { buildFullConfigurationForRequest } from "@/features/embed/utils/buildFullConfiguration"
 
 import { ComponentSelector } from "./ComponentSelector"
 import { ConfiguratorPreviewSettings } from "./ConfiguratorPreviewSettings"
@@ -31,6 +41,8 @@ type Props = {
   productModel: ProductModelDto
   components: ComponentDto[]
   prefetchedConfig?: ProductEmbedFullDto | null
+  /** Anonymous public configurator page: analytics + quote dialog (not for logged-in editors). */
+  isVisitorAnalyticsEnabled?: boolean
 }
 
 type SelectedOptionsByComponent = Record<string, Record<string, AttributeOptionDto | null>>
@@ -66,10 +78,41 @@ export const ProductConfigurator = ({
   productModel,
   components,
   prefetchedConfig,
+  isVisitorAnalyticsEnabled = false,
 }: Props) => {
   const t = useTranslations("Configurator")
   const { data: currentUser } = useCurrentUser()
   const isOwner = Boolean(currentUser?.id && currentUser.id === productModel.userId)
+
+  const analyticsContext: ConfiguratorAnalyticsPublicContext | null = useMemo(
+    () => (isVisitorAnalyticsEnabled ? { surface: "PUBLIC_CONFIGURATOR_PAGE" } : null),
+    [isVisitorAnalyticsEnabled],
+  )
+
+  const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false)
+  const capture3DRef = useRef<(() => Promise<string | null>) | null>(null)
+
+  useEffect(() => {
+    if (!analyticsContext) return
+    const sid = getOrCreateConfiguratorAnalyticsSessionId()
+    if (!sid) return
+    void sendConfiguratorAnalyticsEvents([
+      buildClientEventPayload(productModelId, "CONFIGURATOR_OPEN", sid, analyticsContext),
+    ])
+  }, [analyticsContext, productModelId])
+
+  useEffect(() => {
+    if (!analyticsContext || !isRequestDialogOpen) return
+    const sid = getOrCreateConfiguratorAnalyticsSessionId()
+    if (!sid) return
+    void sendConfiguratorAnalyticsEvents([
+      buildClientEventPayload(productModelId, "REQUEST_FORM_OPEN", sid, analyticsContext),
+    ])
+  }, [analyticsContext, isRequestDialogOpen, productModelId])
+
+  const handleCaptureReady = useCallback((capture: () => Promise<string | null>) => {
+    capture3DRef.current = capture
+  }, [])
 
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null)
   const [selectedOptionsByComponent, setSelectedOptionsByComponent] =
@@ -133,28 +176,69 @@ export const ProductConfigurator = ({
 
   const handleSelectOption = useCallback(
     (componentId: string, attributeId: string, option: AttributeOptionDto | null) => {
-      setSelectedOptionsByComponent((prev) => ({
-        ...prev,
-        [componentId]: {
-          ...(prev[componentId] ?? {}),
-          [attributeId]: option,
-        },
-      }))
+      setSelectedOptionsByComponent((prev) => {
+        const prior = prev[componentId]?.[attributeId] ?? null
+        const hasConfigurationChanged =
+          (prior == null && option != null) ||
+          (prior != null && option == null) ||
+          (prior != null && option != null && prior.id !== option.id)
+
+        if (hasConfigurationChanged && analyticsContext) {
+          const sid = getOrCreateConfiguratorAnalyticsSessionId()
+          if (sid) {
+            void sendConfiguratorAnalyticsEvents([
+              buildClientEventPayload(
+                productModelId,
+                "CONFIGURATION_CHANGE",
+                sid,
+                analyticsContext,
+              ),
+            ])
+          }
+        }
+
+        return {
+          ...prev,
+          [componentId]: {
+            ...(prev[componentId] ?? {}),
+            [attributeId]: option,
+          },
+        }
+      })
     },
-    [],
+    [analyticsContext, productModelId],
   )
 
   const handleOtherValueChange = useCallback(
     (componentId: string, attributeId: string, value: number | boolean) => {
-      setSelectedOtherValuesByComponent((prev) => ({
-        ...prev,
-        [componentId]: {
-          ...(prev[componentId] ?? {}),
-          [attributeId]: value,
-        },
-      }))
+      setSelectedOtherValuesByComponent((prev) => {
+        const prior = prev[componentId]?.[attributeId]
+        const hasConfigurationChanged = prior !== value
+
+        if (hasConfigurationChanged && analyticsContext) {
+          const sid = getOrCreateConfiguratorAnalyticsSessionId()
+          if (sid) {
+            void sendConfiguratorAnalyticsEvents([
+              buildClientEventPayload(
+                productModelId,
+                "CONFIGURATION_CHANGE",
+                sid,
+                analyticsContext,
+              ),
+            ])
+          }
+        }
+
+        return {
+          ...prev,
+          [componentId]: {
+            ...(prev[componentId] ?? {}),
+            [attributeId]: value,
+          },
+        }
+      })
     },
-    [],
+    [analyticsContext, productModelId],
   )
 
   const previewLayers = useMemo(
@@ -182,6 +266,40 @@ export const ProductConfigurator = ({
       optionsByAttribute,
     ],
   )
+
+  const configurationForRequest = useMemo(
+    () =>
+      buildFullConfigurationForRequest(
+        components,
+        attributesByComponent,
+        optionsByAttribute,
+        selectedOptionsByComponent,
+        selectedOtherValuesByComponent,
+      ),
+    [
+      components,
+      attributesByComponent,
+      optionsByAttribute,
+      selectedOptionsByComponent,
+      selectedOtherValuesByComponent,
+    ],
+  )
+
+  const productEmbedForQuote: ProductModelEmbedDto = useMemo(
+    () => ({
+      id: productModel.id,
+      name: productModel.name,
+      description: productModel.description,
+      price: productModel.price,
+      currency: productModel.currency,
+      model3dUrl: productModel.model3dUrl ?? null,
+      model3dEffects: productModel.model3dEffects ?? null,
+      url: productModel.url ?? null,
+    }),
+    [productModel],
+  )
+
+  const quoteTotalPriceCents = Math.round((computedPrice?.totalPrice ?? productModel.price) * 100)
 
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden bg-muted/30 p-4 sm:gap-6 sm:p-6 md:p-10">
@@ -237,6 +355,10 @@ export const ProductConfigurator = ({
             backgroundPresetOverride={backgroundOverride}
             onCameraDistanceChange={onCameraDistanceChange}
             cameraAnglesGetterRef={cameraAnglesGetterRef}
+            canCapture={Boolean(isVisitorAnalyticsEnabled && productModel.model3dUrl)}
+            onCaptureReady={
+              isVisitorAnalyticsEnabled && productModel.model3dUrl ? handleCaptureReady : undefined
+            }
           />
         </div>
 
@@ -259,6 +381,15 @@ export const ProductConfigurator = ({
             isLoading={shouldShowPriceSkeleton}
             isCompact
           />
+          {isVisitorAnalyticsEnabled && (
+            <Button
+              size="default"
+              className="w-full"
+              onClick={() => setIsRequestDialogOpen(true)}
+            >
+              {t("requestQuote")}
+            </Button>
+          )}
           <ComponentSelector
             components={components}
             selectedComponentId={activeComponentId}
@@ -276,6 +407,31 @@ export const ProductConfigurator = ({
           />
         </div>
       </div>
+
+      {isVisitorAnalyticsEnabled && (
+        <RequestQuoteDialog
+          isOpen={isRequestDialogOpen}
+          onOpenChange={setIsRequestDialogOpen}
+          product={productEmbedForQuote}
+          totalPrice={quoteTotalPriceCents}
+          configuration={configurationForRequest}
+          snapshotSelector="[data-embed-preview]"
+          previewLayers={productModel.model3dUrl ? undefined : previewLayers}
+          capture3DRef={productModel.model3dUrl ? capture3DRef : undefined}
+          getAnalyticsSubmissionFields={
+            analyticsContext
+              ? () => {
+                  const sid = getOrCreateConfiguratorAnalyticsSessionId()
+                  if (!sid) return null
+                  return {
+                    analyticsSessionId: sid,
+                    analyticsSurface: analyticsContext.surface,
+                  }
+                }
+              : undefined
+          }
+        />
+      )}
     </div>
   )
 }

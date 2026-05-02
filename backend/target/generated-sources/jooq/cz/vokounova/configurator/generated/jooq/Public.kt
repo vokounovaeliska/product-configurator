@@ -8,6 +8,7 @@ import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOption
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
+import cz.vokounova.configurator.generated.jooq.tables.ConfiguratorAnalyticsEvent
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
@@ -58,6 +59,11 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
      * The table <code>public.component_definition</code>.
      */
     val COMPONENT_DEFINITION: ComponentDefinition get() = ComponentDefinition.COMPONENT_DEFINITION
+
+    /**
+     * The table <code>public.configurator_analytics_event</code>.
+     */
+    val CONFIGURATOR_ANALYTICS_EVENT: ConfiguratorAnalyticsEvent get() = ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT
 
     /**
      * The table <code>public.customer_request</code>.
@@ -124,6 +130,7 @@ open class Public : SchemaImpl("public", DefaultCatalog.DEFAULT_CATALOG) {
         AttributeOption.ATTRIBUTE_OPTION,
         AttributePricingRule.ATTRIBUTE_PRICING_RULE,
         ComponentDefinition.COMPONENT_DEFINITION,
+        ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT,
         CustomerRequest.CUSTOMER_REQUEST,
         PgpArmorHeaders.PGP_ARMOR_HEADERS,
         ProductModel.PRODUCT_MODEL,

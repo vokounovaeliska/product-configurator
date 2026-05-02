@@ -8,6 +8,7 @@ import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOption
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
+import cz.vokounova.configurator.generated.jooq.tables.ConfiguratorAnalyticsEvent
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.PgpArmorHeaders
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
@@ -41,6 +42,11 @@ val ATTRIBUTE_PRICING_RULE: AttributePricingRule = AttributePricingRule.ATTRIBUT
  * The table <code>public.component_definition</code>.
  */
 val COMPONENT_DEFINITION: ComponentDefinition = ComponentDefinition.COMPONENT_DEFINITION
+
+/**
+ * The table <code>public.configurator_analytics_event</code>.
+ */
+val CONFIGURATOR_ANALYTICS_EVENT: ConfiguratorAnalyticsEvent = ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT
 
 /**
  * The table <code>public.customer_request</code>.

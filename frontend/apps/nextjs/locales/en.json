@@ -297,6 +297,39 @@
       }
     },
     "title": "Setup",
+    "analytics": {
+      "title": "Configurator analytics",
+      "description": "First-party usage metrics (configurator views, model edits, opening the form, and submitting an inquiry).",
+      "timeRange": "Time range",
+      "productModel": "Product model",
+      "allModels": "All models",
+      "allModelsTableTitle": "All models (same period)",
+      "loading": "Loading…",
+      "loadingModels": "Loading product models…",
+      "loadError": "Could not load analytics.",
+      "modelsLoadError": "Could not load product models.",
+      "emptyTable": "No activity in this period yet.",
+      "preset": {
+        "LAST_24_HOURS": "Last 24 hours",
+        "LAST_7_DAYS": "Last 7 days",
+        "LAST_30_DAYS": "Last 30 days",
+        "LAST_365_DAYS": "Last 365 days",
+        "ALL_TIME": "All time"
+      },
+      "metrics": {
+        "opens": "Configurator view",
+        "changed": "Model edit",
+        "formOpens": "Form opened",
+        "submissions": "Inquiry submitted"
+      },
+      "table": {
+        "product": "Product",
+        "opens": "View",
+        "changed": "Edits",
+        "formOpens": "Form",
+        "submissions": "Sent"
+      }
+    },
     "unified": {
       "setupDescription": "Configure components, attributes, options, and pricing in one place. Expand sections to edit."
     },
@@ -656,6 +689,7 @@
       "home": "Home"
     },
     "editButton": "Edit",
+    "requestQuote": "Request quote",
     "title": "Konfiguruj",
     "error": {
       "loadingProductModel": "Failed to load product model. Please try again later.",

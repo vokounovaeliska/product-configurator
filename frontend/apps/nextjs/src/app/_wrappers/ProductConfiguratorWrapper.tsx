@@ -112,6 +112,7 @@ export const ProductConfiguratorWrapper = ({ productModelId }: Props) => {
         productModel={productModelFromEmbed}
         components={components}
         prefetchedConfig={embedConfig}
+        isVisitorAnalyticsEnabled
       />
     )
   }

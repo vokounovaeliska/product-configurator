@@ -9,12 +9,14 @@ import cz.vokounova.configurator.generated.jooq.indexes.IDX_PRODUCT_MODEL_USER_I
 import cz.vokounova.configurator.generated.jooq.indexes.IDX_PRODUCT_MODEL_USER_URL
 import cz.vokounova.configurator.generated.jooq.keys.ATTRIBUTE_PRICING_RULE__ATTRIBUTE_PRICING_RULE_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.COMPONENT_DEFINITION__COMPONENT_DEFINITION_PRODUCT_MODEL_ID_FKEY
+import cz.vokounova.configurator.generated.jooq.keys.CONFIGURATOR_ANALYTICS_EVENT__CONFIGURATOR_ANALYTICS_EVENT_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST__CUSTOMER_REQUEST_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL_CONFIGURATOR_PREFERENCES__PRODUCT_MODEL_CONFIGURATOR_PREFERENCES_PRODUCT_MODEL_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL_PKEY
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule.AttributePricingRulePath
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition.ComponentDefinitionPath
+import cz.vokounova.configurator.generated.jooq.tables.ConfiguratorAnalyticsEvent.ConfiguratorAnalyticsEventPath
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest.CustomerRequestPath
 import cz.vokounova.configurator.generated.jooq.tables.ProductModelConfiguratorPreferences.ProductModelConfiguratorPreferencesPath
 import cz.vokounova.configurator.generated.jooq.tables.User.UserPath
@@ -236,6 +238,22 @@ open class ProductModel(
 
     val componentDefinition: ComponentDefinitionPath
         get(): ComponentDefinitionPath = componentDefinition()
+
+    private lateinit var _configuratorAnalyticsEvent: ConfiguratorAnalyticsEventPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.configurator_analytics_event</code> table
+     */
+    fun configuratorAnalyticsEvent(): ConfiguratorAnalyticsEventPath {
+        if (!this::_configuratorAnalyticsEvent.isInitialized)
+            _configuratorAnalyticsEvent = ConfiguratorAnalyticsEventPath(this, null, CONFIGURATOR_ANALYTICS_EVENT__CONFIGURATOR_ANALYTICS_EVENT_PRODUCT_MODEL_ID_FKEY.inverseKey)
+
+        return _configuratorAnalyticsEvent;
+    }
+
+    val configuratorAnalyticsEvent: ConfiguratorAnalyticsEventPath
+        get(): ConfiguratorAnalyticsEventPath = configuratorAnalyticsEvent()
 
     private lateinit var _customerRequest: CustomerRequestPath
 
