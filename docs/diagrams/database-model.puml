@@ -1,4 +1,4 @@
-@startuml database-model
+@startuml
 !theme plain
 skinparam linetype ortho
 skinparam backgroundColor #FEFEFE
@@ -28,6 +28,14 @@ enum request_status {
   IN_PROGRESS
   OFFER_SENT
   CLOSED
+}
+
+' Analytics (DB: VARCHAR + CHECK; enums = allowed values)
+enum analytics_event_type {
+  CONFIGURATOR_OPEN
+  CONFIGURATION_CHANGE
+  REQUEST_FORM_OPEN
+  REQUEST_SUBMITTED
 }
 
 ' User & Auth
@@ -163,18 +171,36 @@ entity "customer_request" as customer_request {
   modified_at : TIMESTAMPTZ
 }
 
+' Configurator / embed analytics (append-only events; dedupe indexes in DB)
+entity "configurator_analytics_event" as configurator_analytics_event {
+  * id : UUID <<PK>>
+  --
+  occurred_at : TIMESTAMPTZ
+  event_type : analytics_event_type
+  session_id : VARCHAR(128)
+  product_model_id : UUID <<FK>>
+  embed_owner_user_id : UUID <<FK>>
+  embed_product_url : VARCHAR(512)
+  surface : analytics_surface
+  customer_request_id : UUID <<FK>>
+  occurred_on_utc : DATE <<generated>>
+}
+
 ' Relationships (conceptual schema – no relation names)
 user ||--o{ user_refresh_token
 user ||--o{ product_model
+user ||--o{ configurator_analytics_event
 
 product_model ||--o| configurator_prefs
 product_model ||--o{ component_definition
 product_model ||--o{ attribute_pricing_rule
 product_model ||--o{ customer_request
+product_model ||--o{ configurator_analytics_event
+
+customer_request ||--o| configurator_analytics_event
 
 component_definition ||--o{ attribute_definition
 attribute_definition ||--o{ attribute_option
 
 component_definition |o--o{ attribute_pricing_rule
-
 @enduml
