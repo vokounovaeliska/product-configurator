@@ -46,7 +46,7 @@ export const ConfiguratorAnalyticsPublishSection = ({
         </Typography>
       </div>
 
-      {modelsError && (
+      {modelsError != null && (
         <Typography
           as="p"
           variant="body-sm"
