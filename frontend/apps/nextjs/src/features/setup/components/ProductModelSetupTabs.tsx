@@ -1,16 +1,21 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { BanknoteIcon, BoxIcon, ExternalLinkIcon, SettingsIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useSearchParams } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 
-/* eslint-disable import/no-restricted-paths -- setup tabs composes app wrappers, pricing, productModels */
+/* eslint-disable import/no-restricted-paths -- setup tabs composes app wrappers, pricing, productModels, analytics */
 import { ProductConfiguratorWrapper } from "@/app/_wrappers/ProductConfiguratorWrapper"
 import { usePathname, useRouter } from "@/lib/i18n/navigation"
 
+import { ConfiguratorAnalyticsPublishSection } from "@/features/analytics/components/ConfiguratorAnalyticsPublishSection"
 import { PricingRulesList } from "@/features/pricing/components/PricingRulesList"
-import { useProductModel } from "@/features/productModels/api/productModelQueries"
+import {
+  useProductModel,
+  useProductModelsList,
+} from "@/features/productModels/api/productModelQueries"
 import { PublishProductModelCard } from "@/features/productModels/components/PublishProductModelCard"
 
 /* eslint-enable import/no-restricted-paths */
@@ -36,6 +41,11 @@ export const ProductModelSetupTabs = ({ productModelId }: Props) => {
   const activeTab = isValidTab(tabParam) ? tabParam : "general"
 
   const { data: productModel, isLoading: isLoadingProductModel } = useProductModel(productModelId)
+  const modelsListQuery = useProductModelsList({ limit: 100 })
+  const [hasMounted, setHasMounted] = useState(false)
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   const handleTabChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -102,10 +112,18 @@ export const ProductModelSetupTabs = ({ productModelId }: Props) => {
         value="publish"
         className="mt-0 flex flex-col gap-6"
       >
-        {isLoadingProductModel || !productModel ? (
+        {!hasMounted || isLoadingProductModel || !productModel ? (
           <div className="h-48 animate-pulse rounded-lg bg-muted" />
         ) : (
-          <PublishProductModelCard productModel={productModel} />
+          <>
+            <PublishProductModelCard productModel={productModel} />
+            <ConfiguratorAnalyticsPublishSection
+              productModelId={productModelId}
+              models={modelsListQuery.data?.items ?? []}
+              isLoadingModels={modelsListQuery.isLoading && !modelsListQuery.data}
+              modelsError={modelsListQuery.error}
+            />
+          </>
         )}
       </TabsContent>
 

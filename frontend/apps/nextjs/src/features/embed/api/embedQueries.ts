@@ -23,6 +23,10 @@ export type CustomerRequestCreateDto = {
   configurationJson: unknown
   pricingBreakdownJson?: unknown
   snapshotImageBase64?: string | null
+  analyticsSessionId?: string | null
+  analyticsSurface?: string | null
+  analyticsEmbedOwnerUserId?: string | null
+  analyticsEmbedProductUrl?: string | null
 }
 
 export type CustomerRequestEmbedDto = {

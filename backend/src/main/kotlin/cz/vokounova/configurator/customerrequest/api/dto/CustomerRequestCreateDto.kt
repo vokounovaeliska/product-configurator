@@ -16,4 +16,8 @@ data class CustomerRequestCreateDto(
     val configurationJson: JsonNode,
     val pricingBreakdownJson: JsonNode?,
     val snapshotImageBase64: String?,
+    val analyticsSessionId: String? = null,
+    val analyticsSurface: String? = null,
+    val analyticsEmbedOwnerUserId: UUID? = null,
+    val analyticsEmbedProductUrl: String? = null,
 )

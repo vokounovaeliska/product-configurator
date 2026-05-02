@@ -40,6 +40,13 @@ type Configuration = {
 
 type PreviewLayer = { id: string; imageUrl: string; zIndex: number }
 
+type AnalyticsSubmissionFields = {
+  analyticsSessionId: string
+  analyticsSurface: string
+  analyticsEmbedOwnerUserId?: string
+  analyticsEmbedProductUrl?: string
+}
+
 type Props = {
   isOpen: boolean
   onOpenChange: (isOpen: boolean) => void
@@ -51,6 +58,8 @@ type Props = {
   previewLayers?: PreviewLayer[]
 
   capture3DRef?: React.RefObject<(() => Promise<string | null>) | null>
+
+  getAnalyticsSubmissionFields?: () => AnalyticsSubmissionFields | null
 }
 
 function capture3DSnapshot(selector: string): string | null {
@@ -75,6 +84,7 @@ export const RequestQuoteDialog = ({
   snapshotSelector = "[data-embed-preview]",
   previewLayers,
   capture3DRef,
+  getAnalyticsSubmissionFields,
 }: Props) => {
   const t = useTranslations("Embed")
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -116,6 +126,7 @@ export const RequestQuoteDialog = ({
     }
 
     try {
+      const analytics = getAnalyticsSubmissionFields?.() ?? null
       await createRequest.mutateAsync({
         customerName: values.customerName?.trim() ?? null,
         customerEmail: values.customerEmail.trim(),
@@ -129,6 +140,14 @@ export const RequestQuoteDialog = ({
         configurationJson: configuration,
         pricingBreakdownJson: undefined,
         snapshotImageBase64: snapshot,
+        ...(analytics?.analyticsSessionId != null && analytics.analyticsSurface != null
+          ? {
+              analyticsSessionId: analytics.analyticsSessionId,
+              analyticsSurface: analytics.analyticsSurface,
+              analyticsEmbedOwnerUserId: analytics.analyticsEmbedOwnerUserId ?? undefined,
+              analyticsEmbedProductUrl: analytics.analyticsEmbedProductUrl ?? undefined,
+            }
+          : {}),
       })
       setIsSuccess(true)
     } catch (error) {

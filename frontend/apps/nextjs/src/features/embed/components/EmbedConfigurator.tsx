@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useRef, useState, type MutableRefObject } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from "react"
 import { RotateCcwIcon } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { Button } from "@workspace/ui/components/button"
@@ -9,15 +9,23 @@ import { Typography } from "@workspace/ui/components/typography"
 
 import type { AttributeDto, AttributeOptionDto } from "@/api/attributeTypes"
 import type { ComponentDto } from "@/api/componentTypes"
+import {
+  buildClientEventPayload,
+  sendConfiguratorAnalyticsEvents,
+} from "@/api/configuratorAnalyticsClient"
+import type { ConfiguratorAnalyticsExecutionContext } from "@/api/configuratorAnalyticsTypes"
 import type { CameraAnglesGetter } from "@/api/configuratorPreferencesTypes"
 import type { ConfiguratorPreferencesEmbedDto, ProductModelEmbedDto } from "@/api/embedTypes"
 import type { AttributePricingRuleDto } from "@/api/pricingTypes"
+import { getOrCreateConfiguratorAnalyticsSessionId } from "@/lib/configuratorAnalyticsSession"
 
 /* eslint-disable import/no-restricted-paths -- embed composes configurator preview and pricing utils */
 import { ComponentSelector } from "@/features/configurator/components/ComponentSelector"
 import { VisualPreview } from "@/features/configurator/components/VisualPreview"
 import { computeModifiersCents } from "@/features/configurator/utils/computePriceFromRules"
 import { buildFullConfigurationForRequest } from "@/features/embed/utils/buildFullConfiguration"
+
+/* eslint-enable import/no-restricted-paths */
 
 import { RequestQuoteDialog } from "./RequestQuoteDialog"
 
@@ -66,6 +74,9 @@ type Props = {
   }
   cameraAnglesGetterRef?: MutableRefObject<CameraAnglesGetter | null>
   onEmbedCameraDistanceChange?: (distance: number) => void
+
+  /** When set, first-party analytics events are sent for this session. Omit in seller live preview. */
+  analyticsContext?: ConfiguratorAnalyticsExecutionContext | null
 }
 
 export const EmbedConfigurator = ({
@@ -79,6 +90,7 @@ export const EmbedConfigurator = ({
   embedUiOverrides,
   cameraAnglesGetterRef,
   onEmbedCameraDistanceChange,
+  analyticsContext,
 }: Props) => {
   const t = useTranslations("Embed")
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null)
@@ -88,6 +100,24 @@ export const EmbedConfigurator = ({
     useState<SelectedOtherValuesByComponent>({})
   const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false)
   const capture3DRef = useRef<(() => Promise<string | null>) | null>(null)
+
+  useEffect(() => {
+    if (!analyticsContext) return
+    const sid = getOrCreateConfiguratorAnalyticsSessionId()
+    if (!sid) return
+    void sendConfiguratorAnalyticsEvents([
+      buildClientEventPayload(product.id, "CONFIGURATOR_OPEN", sid, analyticsContext),
+    ])
+  }, [analyticsContext, product.id])
+
+  useEffect(() => {
+    if (!analyticsContext || !isRequestDialogOpen) return
+    const sid = getOrCreateConfiguratorAnalyticsSessionId()
+    if (!sid) return
+    void sendConfiguratorAnalyticsEvents([
+      buildClientEventPayload(product.id, "REQUEST_FORM_OPEN", sid, analyticsContext),
+    ])
+  }, [analyticsContext, isRequestDialogOpen, product.id])
 
   const activeComponentId = selectedComponentId ?? components[0]?.id ?? null
 
@@ -126,28 +156,59 @@ export const EmbedConfigurator = ({
 
   const handleSelectOption = useCallback(
     (componentId: string, attributeId: string, option: AttributeOptionDto | null) => {
-      setSelectedOptionsByComponent((prev) => ({
-        ...prev,
-        [componentId]: {
-          ...(prev[componentId] ?? {}),
-          [attributeId]: option,
-        },
-      }))
+      setSelectedOptionsByComponent((prev) => {
+        const prior = prev[componentId]?.[attributeId] ?? null
+        const hasConfigurationChanged =
+          (prior == null && option != null) ||
+          (prior != null && option == null) ||
+          (prior != null && option != null && prior.id !== option.id)
+
+        if (hasConfigurationChanged && analyticsContext) {
+          const sid = getOrCreateConfiguratorAnalyticsSessionId()
+          if (sid) {
+            void sendConfiguratorAnalyticsEvents([
+              buildClientEventPayload(product.id, "CONFIGURATION_CHANGE", sid, analyticsContext),
+            ])
+          }
+        }
+
+        return {
+          ...prev,
+          [componentId]: {
+            ...(prev[componentId] ?? {}),
+            [attributeId]: option,
+          },
+        }
+      })
     },
-    [],
+    [analyticsContext, product.id],
   )
 
   const handleOtherValueChange = useCallback(
     (componentId: string, attributeId: string, value: number | boolean) => {
-      setSelectedOtherValuesByComponent((prev) => ({
-        ...prev,
-        [componentId]: {
-          ...(prev[componentId] ?? {}),
-          [attributeId]: value,
-        },
-      }))
+      setSelectedOtherValuesByComponent((prev) => {
+        const prior = prev[componentId]?.[attributeId]
+        const hasConfigurationChanged = prior !== value
+
+        if (hasConfigurationChanged && analyticsContext) {
+          const sid = getOrCreateConfiguratorAnalyticsSessionId()
+          if (sid) {
+            void sendConfiguratorAnalyticsEvents([
+              buildClientEventPayload(product.id, "CONFIGURATION_CHANGE", sid, analyticsContext),
+            ])
+          }
+        }
+
+        return {
+          ...prev,
+          [componentId]: {
+            ...(prev[componentId] ?? {}),
+            [attributeId]: value,
+          },
+        }
+      })
     },
-    [],
+    [analyticsContext, product.id],
   )
 
   const previewLayers = useMemo(
@@ -340,6 +401,26 @@ export const EmbedConfigurator = ({
         snapshotSelector="[data-embed-preview]"
         previewLayers={product.model3dUrl ? undefined : previewLayers}
         capture3DRef={product.model3dUrl ? capture3DRef : undefined}
+        getAnalyticsSubmissionFields={
+          analyticsContext
+            ? () => {
+                const sid = getOrCreateConfiguratorAnalyticsSessionId()
+                if (!sid) return null
+                if (analyticsContext.surface === "EMBED_IFRAME") {
+                  return {
+                    analyticsSessionId: sid,
+                    analyticsSurface: analyticsContext.surface,
+                    analyticsEmbedOwnerUserId: analyticsContext.embedOwnerUserId,
+                    analyticsEmbedProductUrl: analyticsContext.embedProductUrl,
+                  }
+                }
+                return {
+                  analyticsSessionId: sid,
+                  analyticsSurface: analyticsContext.surface,
+                }
+              }
+            : undefined
+        }
       />
     </div>
   )

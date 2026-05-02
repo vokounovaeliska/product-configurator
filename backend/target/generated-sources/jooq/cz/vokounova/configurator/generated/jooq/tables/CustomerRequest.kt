@@ -8,8 +8,10 @@ import cz.vokounova.configurator.generated.jooq.Public
 import cz.vokounova.configurator.generated.jooq.enums.RequestStatus
 import cz.vokounova.configurator.generated.jooq.indexes.IDX_CUSTOMER_REQUEST_EMAIL
 import cz.vokounova.configurator.generated.jooq.indexes.IDX_CUSTOMER_REQUEST_STATUS_CREATED
+import cz.vokounova.configurator.generated.jooq.keys.CONFIGURATOR_ANALYTICS_EVENT__CONFIGURATOR_ANALYTICS_EVENT_CUSTOMER_REQUEST_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST_PKEY
 import cz.vokounova.configurator.generated.jooq.keys.CUSTOMER_REQUEST__CUSTOMER_REQUEST_PRODUCT_MODEL_ID_FKEY
+import cz.vokounova.configurator.generated.jooq.tables.ConfiguratorAnalyticsEvent.ConfiguratorAnalyticsEventPath
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel.ProductModelPath
 import cz.vokounova.configurator.generated.jooq.tables.records.CustomerRequestRecord
 
@@ -213,6 +215,22 @@ open class CustomerRequest(
 
     val productModel: ProductModelPath
         get(): ProductModelPath = productModel()
+
+    private lateinit var _configuratorAnalyticsEvent: ConfiguratorAnalyticsEventPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.configurator_analytics_event</code> table
+     */
+    fun configuratorAnalyticsEvent(): ConfiguratorAnalyticsEventPath {
+        if (!this::_configuratorAnalyticsEvent.isInitialized)
+            _configuratorAnalyticsEvent = ConfiguratorAnalyticsEventPath(this, null, CONFIGURATOR_ANALYTICS_EVENT__CONFIGURATOR_ANALYTICS_EVENT_CUSTOMER_REQUEST_ID_FKEY.inverseKey)
+
+        return _configuratorAnalyticsEvent;
+    }
+
+    val configuratorAnalyticsEvent: ConfiguratorAnalyticsEventPath
+        get(): ConfiguratorAnalyticsEventPath = configuratorAnalyticsEvent()
     override fun `as`(alias: String): CustomerRequest = CustomerRequest(DSL.name(alias), this)
     override fun `as`(alias: Name): CustomerRequest = CustomerRequest(alias, this)
     override fun `as`(alias: Table<*>): CustomerRequest = CustomerRequest(alias.qualifiedName, this)

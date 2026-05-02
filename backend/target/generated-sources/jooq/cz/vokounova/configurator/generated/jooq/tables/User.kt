@@ -6,9 +6,11 @@ package cz.vokounova.configurator.generated.jooq.tables
 
 import cz.vokounova.configurator.generated.jooq.Public
 import cz.vokounova.configurator.generated.jooq.indexes.IX_USER_SEARCH_VECTOR
+import cz.vokounova.configurator.generated.jooq.keys.CONFIGURATOR_ANALYTICS_EVENT__CONFIGURATOR_ANALYTICS_EVENT_EMBED_OWNER_USER_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.PRODUCT_MODEL__PRODUCT_MODEL_USER_ID_FKEY
 import cz.vokounova.configurator.generated.jooq.keys.USER_EMAIL_KEY
 import cz.vokounova.configurator.generated.jooq.keys.USER_PKEY
+import cz.vokounova.configurator.generated.jooq.tables.ConfiguratorAnalyticsEvent.ConfiguratorAnalyticsEventPath
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel.ProductModelPath
 import cz.vokounova.configurator.generated.jooq.tables.records.UserRecord
 
@@ -217,6 +219,22 @@ open class User(
     override fun getIndexes(): List<Index> = listOf(IX_USER_SEARCH_VECTOR)
     override fun getPrimaryKey(): UniqueKey<UserRecord> = USER_PKEY
     override fun getUniqueKeys(): List<UniqueKey<UserRecord>> = listOf(USER_EMAIL_KEY)
+
+    private lateinit var _configuratorAnalyticsEvent: ConfiguratorAnalyticsEventPath
+
+    /**
+     * Get the implicit to-many join path to the
+     * <code>public.configurator_analytics_event</code> table
+     */
+    fun configuratorAnalyticsEvent(): ConfiguratorAnalyticsEventPath {
+        if (!this::_configuratorAnalyticsEvent.isInitialized)
+            _configuratorAnalyticsEvent = ConfiguratorAnalyticsEventPath(this, null, CONFIGURATOR_ANALYTICS_EVENT__CONFIGURATOR_ANALYTICS_EVENT_EMBED_OWNER_USER_ID_FKEY.inverseKey)
+
+        return _configuratorAnalyticsEvent;
+    }
+
+    val configuratorAnalyticsEvent: ConfiguratorAnalyticsEventPath
+        get(): ConfiguratorAnalyticsEventPath = configuratorAnalyticsEvent()
 
     private lateinit var _productModel: ProductModelPath
 

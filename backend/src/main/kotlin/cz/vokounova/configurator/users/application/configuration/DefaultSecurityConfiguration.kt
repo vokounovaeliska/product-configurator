@@ -39,6 +39,7 @@ class DefaultSecurityConfiguration {
             it.requestMatchers(HttpMethod.GET, "/api/v1/files/**").permitAll()
             it.requestMatchers(HttpMethod.GET, "/embed/api/v1/products/**").permitAll()
             it.requestMatchers(HttpMethod.POST, "/embed/api/v1/customer-requests").permitAll()
+            it.requestMatchers(HttpMethod.POST, "/embed/api/v1/configurator-analytics/events").permitAll()
             it.anyRequest().authenticated()
         }
         http.authenticationManager(authenticationManager)

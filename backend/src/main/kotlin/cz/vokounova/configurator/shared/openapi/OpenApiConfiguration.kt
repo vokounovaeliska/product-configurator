@@ -59,6 +59,7 @@ class OpenApiConfiguration(
             path.startsWith("/api/v1/files/") && method == PathItem.HttpMethod.GET -> true
             path.startsWith("/embed/api/v1/products/") && method == PathItem.HttpMethod.GET -> true
             path == "/embed/api/v1/customer-requests" && method == PathItem.HttpMethod.POST -> true
+            path == "/embed/api/v1/configurator-analytics/events" && method == PathItem.HttpMethod.POST -> true
             path == "/users/api/v1/auth/public/login" && method == PathItem.HttpMethod.POST -> true
             path == "/users/api/v1/auth/public/register" && method == PathItem.HttpMethod.POST -> true
             path == "/users/api/v1/auth/refresh" && method == PathItem.HttpMethod.GET -> true

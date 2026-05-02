@@ -19,6 +19,7 @@ class ModuleTest {
             PRODUCTS("products"),
             CUSTOMERREQUEST("customerrequest"),
             EMBED("embed"),
+            ANALYTICS("analytics"),
         }
     }
 

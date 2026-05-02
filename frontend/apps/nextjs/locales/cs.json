@@ -296,6 +296,39 @@
       }
     },
     "title": "Nastavení",
+    "analytics": {
+      "title": "Analytika konfigurátoru",
+      "description": "Vlastní metriky použití publikovaných konfigurátorů (zobrazení konfigurátoru, úprava modelu, otevření formuláře, odeslání poptávky).",
+      "timeRange": "Období",
+      "productModel": "Model produktu",
+      "allModels": "Všechny modely",
+      "allModelsTableTitle": "Všechny modely (stejné období)",
+      "loading": "Načítám…",
+      "loadingModels": "Načítám modely produktů…",
+      "loadError": "Analytiku se nepodařilo načíst.",
+      "modelsLoadError": "Modely produktů se nepodařilo načíst.",
+      "emptyTable": "V tomto období zatím žádná aktivita.",
+      "preset": {
+        "LAST_24_HOURS": "Posledních 24 hodin",
+        "LAST_7_DAYS": "Posledních 7 dní",
+        "LAST_30_DAYS": "Posledních 30 dní",
+        "LAST_365_DAYS": "Posledních 365 dní",
+        "ALL_TIME": "Celé období"
+      },
+      "metrics": {
+        "opens": "Zobrazení konfigurátoru",
+        "changed": "Úprava modelu",
+        "formOpens": "Otevření formuláře",
+        "submissions": "Odeslání poptávky"
+      },
+      "table": {
+        "product": "Produkt",
+        "opens": "Otevření",
+        "changed": "Změny",
+        "formOpens": "Formulář",
+        "submissions": "Odeslání"
+      }
+    },
     "unified": {
       "setupDescription": "Konfigurujte komponenty, atributy, možnosti a ceny na jednom místě. Rozbalte sekce pro úpravy."
     },
@@ -655,6 +688,7 @@
       "home": "Domů"
     },
     "editButton": "Upravit",
+    "requestQuote": "Poptat nabídku",
     "title": "Konfiguruj",
     "error": {
       "loadingProductModel": "Nepodařilo se načíst model produktu. Zkuste to prosím později.",

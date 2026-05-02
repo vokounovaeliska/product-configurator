@@ -8,6 +8,7 @@ import cz.vokounova.configurator.generated.jooq.tables.AttributeDefinition
 import cz.vokounova.configurator.generated.jooq.tables.AttributeOption
 import cz.vokounova.configurator.generated.jooq.tables.AttributePricingRule
 import cz.vokounova.configurator.generated.jooq.tables.ComponentDefinition
+import cz.vokounova.configurator.generated.jooq.tables.ConfiguratorAnalyticsEvent
 import cz.vokounova.configurator.generated.jooq.tables.CustomerRequest
 import cz.vokounova.configurator.generated.jooq.tables.ProductModel
 import cz.vokounova.configurator.generated.jooq.tables.User
@@ -23,6 +24,11 @@ import org.jooq.impl.Internal
 // INDEX definitions
 // -------------------------------------------------------------------------
 
+val IDX_ANALYTICS_EVENT_CUSTOMER_REQUEST: Index = Internal.createIndex(DSL.name("idx_analytics_event_customer_request"), ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT, arrayOf(ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.CUSTOMER_REQUEST_ID), false)
+val IDX_ANALYTICS_EVENT_DEDUPE_CLIENT_SESSION: Index = Internal.createIndex(DSL.name("idx_analytics_event_dedupe_client_session"), ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT, arrayOf(ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.SESSION_ID, ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.EVENT_TYPE, ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.PRODUCT_MODEL_ID, ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.OCCURRED_ON_UTC), true)
+val IDX_ANALYTICS_EVENT_OWNER_URL_OCCURRED: Index = Internal.createIndex(DSL.name("idx_analytics_event_owner_url_occurred"), ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT, arrayOf(ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.EMBED_OWNER_USER_ID, ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.EMBED_PRODUCT_URL, ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.OCCURRED_AT.desc()), false)
+val IDX_ANALYTICS_EVENT_PRODUCT_OCCURRED: Index = Internal.createIndex(DSL.name("idx_analytics_event_product_occurred"), ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT, arrayOf(ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.PRODUCT_MODEL_ID, ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.OCCURRED_AT.desc()), false)
+val IDX_ANALYTICS_EVENT_SESSION: Index = Internal.createIndex(DSL.name("idx_analytics_event_session"), ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT, arrayOf(ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.SESSION_ID, ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.OCCURRED_AT.desc()), false)
 val IDX_ATTRIBUTE_DEFINITION_COMPONENT_ID: Index = Internal.createIndex(DSL.name("idx_attribute_definition_component_id"), AttributeDefinition.ATTRIBUTE_DEFINITION, arrayOf(AttributeDefinition.ATTRIBUTE_DEFINITION.COMPONENT_ID), false)
 val IDX_ATTRIBUTE_OPTION_ATTRIBUTE_ID: Index = Internal.createIndex(DSL.name("idx_attribute_option_attribute_id"), AttributeOption.ATTRIBUTE_OPTION, arrayOf(AttributeOption.ATTRIBUTE_OPTION.ATTRIBUTE_ID), false)
 val IDX_ATTRIBUTE_PRICING_RULE_MODEL: Index = Internal.createIndex(DSL.name("idx_attribute_pricing_rule_model"), AttributePricingRule.ATTRIBUTE_PRICING_RULE, arrayOf(AttributePricingRule.ATTRIBUTE_PRICING_RULE.PRODUCT_MODEL_ID), false)
@@ -32,4 +38,5 @@ val IDX_CUSTOMER_REQUEST_STATUS_CREATED: Index = Internal.createIndex(DSL.name("
 val IDX_PRODUCT_MODEL_USER_ID: Index = Internal.createIndex(DSL.name("idx_product_model_user_id"), ProductModel.PRODUCT_MODEL, arrayOf(ProductModel.PRODUCT_MODEL.USER_ID), false)
 val IDX_PRODUCT_MODEL_USER_URL: Index = Internal.createIndex(DSL.name("idx_product_model_user_url"), ProductModel.PRODUCT_MODEL, arrayOf(ProductModel.PRODUCT_MODEL.USER_ID, ProductModel.PRODUCT_MODEL.URL), true)
 val IX_USER_SEARCH_VECTOR: Index = Internal.createIndex(DSL.name("ix_user_search_vector"), User.USER, arrayOf(User.USER.SEARCH_VECTOR), false)
+val UQ_ANALYTICS_EVENT_REQUEST_SUBMITTED: Index = Internal.createIndex(DSL.name("uq_analytics_event_request_submitted"), ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT, arrayOf(ConfiguratorAnalyticsEvent.CONFIGURATOR_ANALYTICS_EVENT.CUSTOMER_REQUEST_ID), true)
 val USER_REFRESH_TOKEN_USER_ID_IDX: Index = Internal.createIndex(DSL.name("user_refresh_token_user_id_idx"), UserRefreshToken.USER_REFRESH_TOKEN, arrayOf(UserRefreshToken.USER_REFRESH_TOKEN.USER_ID), false)
