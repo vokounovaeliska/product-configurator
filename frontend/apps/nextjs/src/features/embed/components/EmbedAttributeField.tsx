@@ -16,7 +16,7 @@ type Props = {
   attribute: AttributeDto
   options: AttributeOptionDto[]
   selectedOption: AttributeOptionDto | null
-  onSelectOption: (option: AttributeOptionDto | null) => void
+  onSelectOption: (option: AttributeOptionDto | null, isInitialEnumDefault?: boolean) => void
   otherValue: number | boolean | undefined
   onOtherChange: (value: number | boolean) => void
   componentId: string
@@ -87,7 +87,7 @@ export const EmbedAttributeField = ({
     const first = sortedOptions[0]
     if (hasSetDefaultRef.current || !first || selectedOption !== null) return
     hasSetDefaultRef.current = true
-    onSelectOption(first)
+    onSelectOption(first, true)
   }, [sortedOptions, selectedOption, onSelectOption])
 
   if (attribute.type === "ENUM") {

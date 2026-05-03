@@ -50,6 +50,7 @@ type Props = {
     componentId: string,
     attributeId: string,
     option: AttributeOptionDto | null,
+    isInitialEnumDefault?: boolean,
   ) => void
   selectedOtherValuesByComponent?: SelectedOtherValuesByComponent
   onOtherValueChange?: (componentId: string, attributeId: string, value: number | boolean) => void
@@ -141,8 +142,8 @@ export const ComponentSelector = ({
                   componentId={component.id}
                   productModelId={productModelId}
                   selectedOptionsByAttribute={selectedOptionsByComponent[component.id] ?? {}}
-                  onSelectOption={(attributeId, option) =>
-                    onSelectOption(component.id, attributeId, option)
+                  onSelectOption={(attributeId, option, isInitialEnumDefault) =>
+                    onSelectOption(component.id, attributeId, option, isInitialEnumDefault)
                   }
                   selectedOtherValuesByAttribute={
                     selectedOtherValuesByComponent[component.id] ?? {}
@@ -226,8 +227,8 @@ export const ComponentSelector = ({
                       componentId={component.id}
                       productModelId={productModelId}
                       selectedOptionsByAttribute={selectedOptionsByComponent[component.id] ?? {}}
-                      onSelectOption={(attributeId, option) =>
-                        onSelectOption(component.id, attributeId, option)
+                      onSelectOption={(attributeId, option, isInitialEnumDefault) =>
+                        onSelectOption(component.id, attributeId, option, isInitialEnumDefault)
                       }
                       selectedOtherValuesByAttribute={
                         selectedOtherValuesByComponent[component.id] ?? {}

@@ -155,7 +155,12 @@ export const EmbedConfigurator = ({
   }, [])
 
   const handleSelectOption = useCallback(
-    (componentId: string, attributeId: string, option: AttributeOptionDto | null) => {
+    (
+      componentId: string,
+      attributeId: string,
+      option: AttributeOptionDto | null,
+      isInitialEnumDefault?: boolean,
+    ) => {
       setSelectedOptionsByComponent((prev) => {
         const prior = prev[componentId]?.[attributeId] ?? null
         const hasConfigurationChanged =
@@ -163,7 +168,7 @@ export const EmbedConfigurator = ({
           (prior != null && option == null) ||
           (prior != null && option != null && prior.id !== option.id)
 
-        if (hasConfigurationChanged && analyticsContext) {
+        if (hasConfigurationChanged && analyticsContext && !isInitialEnumDefault) {
           const sid = getOrCreateConfiguratorAnalyticsSessionId()
           if (sid) {
             void sendConfiguratorAnalyticsEvents([

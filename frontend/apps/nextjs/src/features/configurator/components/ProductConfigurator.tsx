@@ -19,7 +19,6 @@ import { usePricingRulesList } from "@/api/pricingRulesQueries"
 import type { ProductModelDto } from "@/api/productModelTypes"
 import { useCurrentUser } from "@/api/userQueries"
 import { Breadcrumbs } from "@/components/SetupNavigation/Breadcrumbs"
- 
 import { getOrCreateConfiguratorAnalyticsSessionId } from "@/lib/configuratorAnalyticsSession"
 import { Link } from "@/lib/i18n/navigation"
 import { ROUTES } from "@/lib/routes"
@@ -175,7 +174,12 @@ export const ProductConfigurator = ({
   }, [])
 
   const handleSelectOption = useCallback(
-    (componentId: string, attributeId: string, option: AttributeOptionDto | null) => {
+    (
+      componentId: string,
+      attributeId: string,
+      option: AttributeOptionDto | null,
+      isInitialEnumDefault?: boolean,
+    ) => {
       setSelectedOptionsByComponent((prev) => {
         const prior = prev[componentId]?.[attributeId] ?? null
         const hasConfigurationChanged =
@@ -183,7 +187,7 @@ export const ProductConfigurator = ({
           (prior != null && option == null) ||
           (prior != null && option != null && prior.id !== option.id)
 
-        if (hasConfigurationChanged && analyticsContext) {
+        if (hasConfigurationChanged && analyticsContext && !isInitialEnumDefault) {
           const sid = getOrCreateConfiguratorAnalyticsSessionId()
           if (sid) {
             void sendConfiguratorAnalyticsEvents([
