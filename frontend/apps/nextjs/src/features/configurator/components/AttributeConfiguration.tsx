@@ -23,7 +23,11 @@ type Props = {
   componentId: string
   productModelId: string
   selectedOptionsByAttribute: Record<string, AttributeOptionDto | null>
-  onSelectOption: (attributeId: string, option: AttributeOptionDto | null) => void
+  onSelectOption: (
+    attributeId: string,
+    option: AttributeOptionDto | null,
+    isInitialEnumDefault?: boolean,
+  ) => void
 
   selectedOtherValuesByAttribute?: Record<string, number | boolean>
   onOtherChange?: (attributeId: string, value: number | boolean) => void
@@ -136,7 +140,9 @@ export const AttributeConfiguration = ({
             productModelId={productModelId}
             componentId={componentId}
             selectedOption={selectedOptionsByAttribute[attr.id] ?? null}
-            onSelectOption={(option) => onSelectOption(attr.id, option)}
+            onSelectOption={(option, isInitialEnumDefault) =>
+              onSelectOption(attr.id, option, isInitialEnumDefault)
+            }
             otherValue={otherValues[attr.id]}
             onOtherChange={(value) => handleOtherChange(attr.id, value)}
             pricingRules={pricingRules}
@@ -165,7 +171,7 @@ type AttributeFieldProps = {
   productModelId: string
   componentId: string
   selectedOption: AttributeOptionDto | null
-  onSelectOption: (option: AttributeOptionDto | null) => void
+  onSelectOption: (option: AttributeOptionDto | null, isInitialEnumDefault?: boolean) => void
   otherValue: number | boolean | undefined
   onOtherChange: (value: number | boolean) => void
   pricingRules?: AttributePricingRuleDto[]
@@ -378,7 +384,7 @@ type AttributeSelectProps = {
   attributeCode: string
   attributeLabel: string
   selectedOption: AttributeOptionDto | null
-  onSelectOption: (option: AttributeOptionDto | null) => void
+  onSelectOption: (option: AttributeOptionDto | null, isInitialEnumDefault?: boolean) => void
 
   options?: AttributeOptionDto[]
   pricingRules?: AttributePricingRuleDto[]
@@ -435,7 +441,7 @@ const AttributeSelect = ({
     const first = sortedOptions[0]
     if (hasSetDefaultRef.current || !first || selectedOption !== null) return
     hasSetDefaultRef.current = true
-    onSelectOption(first)
+    onSelectOption(first, true)
   }, [sortedOptions, selectedOption, onSelectOption])
 
   if (optionsProp == null && isLoading) {

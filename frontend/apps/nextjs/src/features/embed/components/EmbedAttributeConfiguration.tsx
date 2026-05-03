@@ -26,6 +26,7 @@ type Props = {
     componentId: string,
     attributeId: string,
     option: AttributeOptionDto | null,
+    isInitialEnumDefault?: boolean,
   ) => void
   selectedOtherValuesByComponent: SelectedOtherValuesByComponent
   onOtherValueChange: (componentId: string, attributeId: string, value: number | boolean) => void
@@ -118,7 +119,9 @@ export const EmbedAttributeConfiguration = ({
                 attribute={attribute}
                 options={optionsByAttribute[attribute.id] ?? []}
                 selectedOption={selectedOptionsByComponent[component.id]?.[attribute.id] ?? null}
-                onSelectOption={(option) => onSelectOption(component.id, attribute.id, option)}
+                onSelectOption={(option, isInitialEnumDefault) =>
+                  onSelectOption(component.id, attribute.id, option, isInitialEnumDefault)
+                }
                 otherValue={selectedOtherValuesByComponent[component.id]?.[attribute.id]}
                 onOtherChange={(value) => onOtherValueChange(component.id, attribute.id, value)}
                 componentId={component.id}
@@ -233,7 +236,9 @@ export const EmbedAttributeConfiguration = ({
                         attribute={attr}
                         options={optionsByAttribute[attr.id] ?? []}
                         selectedOption={selectedOptionsByComponent[component.id]?.[attr.id] ?? null}
-                        onSelectOption={(option) => onSelectOption(component.id, attr.id, option)}
+                        onSelectOption={(option, isInitialEnumDefault) =>
+                          onSelectOption(component.id, attr.id, option, isInitialEnumDefault)
+                        }
                         otherValue={selectedOtherValuesByComponent[component.id]?.[attr.id]}
                         onOtherChange={(value) => onOtherValueChange(component.id, attr.id, value)}
                         componentId={component.id}
